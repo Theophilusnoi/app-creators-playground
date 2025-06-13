@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,7 @@ import { ShadowWorkTracker } from "@/components/spiritual/ShadowWorkTracker";
 import { SynchronicityDetector } from "@/components/spiritual/SynchronicityDetector";
 import { DreamAnalysis } from "@/components/spiritual/DreamAnalysis";
 import { MeditationTracker } from "@/components/spiritual/MeditationTracker";
-import { Moon, Star, Heart, Eye, Compass } from "lucide-react";
+import { Moon, Star, Heart, Eye, Compass, User } from "lucide-react";
 
 const Index = () => {
   const [user, setUser] = useState(null);
