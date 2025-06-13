@@ -1,181 +1,114 @@
 
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MeditationForm } from "@/components/spiritual/MeditationForm";
-import { DreamForm } from "@/components/spiritual/DreamForm";
-import { ShadowWorkForm } from "@/components/spiritual/ShadowWorkForm";
-import { SynchronicityForm } from "@/components/spiritual/SynchronicityForm";
-import { AssessmentForm } from "@/components/spiritual/AssessmentForm";
-import { ProgressVisualization } from "@/components/spiritual/ProgressVisualization";
-import { RecommendationsSystem } from "@/components/spiritual/RecommendationsSystem";
-import { useAuth } from '@/components/auth/AuthProvider';
-import { supabase } from '@/integrations/supabase/client';
+import { SpiritualAssessment } from '@/components/spiritual/SpiritualAssessment';
+import { ProgressVisualization } from '@/components/spiritual/ProgressVisualization';
+import { RecommendationsSystem } from '@/components/spiritual/RecommendationsSystem';
+import { SoulGuideChat } from '@/components/spiritual/SoulGuideChat';
+import { CommunityHub } from '@/components/spiritual/CommunityHub';
+import { GamificationDashboard } from '@/components/spiritual/GamificationDashboard';
+import { MoodTracker } from '@/components/spiritual/MoodTracker';
+import { ReferralSystem } from '@/components/spiritual/ReferralSystem';
+import { MeditationTracker } from '@/components/spiritual/MeditationTracker';
+import { DreamForm } from '@/components/spiritual/DreamForm';
+import { ShadowWorkForm } from '@/components/spiritual/ShadowWorkForm';
+import { SynchronicityForm } from '@/components/spiritual/SynchronicityForm';
 import { 
-  Star, 
+  Brain, 
   TrendingUp, 
-  Clock, 
-  Flame, 
-  Wind, 
-  Moon, 
-  Eye, 
-  Sparkles,
-  BarChart3,
-  LogOut,
-  User as UserIcon,
-  Target,
-  Lightbulb
+  Lightbulb, 
+  MessageCircle, 
+  Users, 
+  Trophy, 
+  Heart,
+  Gift,
+  Play,
+  Moon,
+  Eye,
+  Sparkles
 } from "lucide-react";
 
-const SpiritualDashboard = () => {
-  const { user } = useAuth();
-  const [streakCount] = useState(7);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-  };
-
-  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Soul Seeker';
-  const initials = displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase();
+export default function SpiritualDashboard() {
+  const [hasCompletedAssessment, setHasCompletedAssessment] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
-      {/* Header */}
-      <header className="bg-black/20 backdrop-blur-sm border-b border-purple-500/30">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center">
-                <Star className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white">Spiritual Break Through</h1>
-                <p className="text-purple-200 text-sm">Your Journey to Enlightenment</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
-                  <span className="text-white font-semibold">{initials}</span>
-                </div>
-                <div>
-                  <p className="text-white font-medium">{displayName}</p>
-                  <p className="text-purple-300 text-sm">{user?.email}</p>
-                </div>
-              </div>
-              
-              <Button 
-                variant="outline" 
-                onClick={handleLogout}
-                className="border-purple-400 text-purple-200 hover:bg-purple-400/20"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-3xl text-white mb-2">
-                Welcome back, {displayName}!
-              </CardTitle>
-              <CardDescription className="text-purple-200 text-lg">
-                Your spiritual journey continues. Explore your personalized features below.
-              </CardDescription>
-            </CardHeader>
-          </Card>
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-4">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-white mb-2">SpiritualMind Pro</h1>
+          <p className="text-purple-200">Your journey to inner wisdom and enlightenment</p>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm text-center">
-            <CardContent className="pt-6">
-              <Star className="w-8 h-8 text-purple-400 mx-auto mb-4" />
-              <div className="text-2xl font-bold text-white mb-2">50K+</div>
-              <div className="text-purple-200">Souls Awakened</div>
-              <div className="text-purple-300 text-sm mt-1">Join the transformation</div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm text-center">
-            <CardContent className="pt-6">
-              <TrendingUp className="w-8 h-8 text-purple-400 mx-auto mb-4" />
-              <div className="text-2xl font-bold text-white mb-2">94%</div>
-              <div className="text-purple-200">Breakthrough Rate</div>
-              <div className="text-purple-300 text-sm mt-1">Experience profound shifts</div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm text-center">
-            <CardContent className="pt-6">
-              <Clock className="w-8 h-8 text-purple-400 mx-auto mb-4" />
-              <div className="text-2xl font-bold text-white mb-2">28 Days</div>
-              <div className="text-purple-200">Average Awakening</div>
-              <div className="text-purple-300 text-sm mt-1">Rapid spiritual growth</div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm text-center">
-            <CardContent className="pt-6">
-              <Flame className="w-8 h-8 text-purple-400 mx-auto mb-4" />
-              <div className="text-2xl font-bold text-white mb-2">{streakCount}</div>
-              <div className="text-purple-200">Day Streak</div>
-              <div className="text-purple-300 text-sm mt-1">Keep going!</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Content Tabs */}
-        <Tabs defaultValue="progress" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7 bg-black/30 border-purple-500/30">
-            <TabsTrigger value="progress" className="text-purple-200 data-[state=active]:bg-purple-600">
-              <TrendingUp className="w-4 h-4 mr-2" />
+        <Tabs defaultValue="seraphina" className="w-full">
+          <TabsList className="grid w-full grid-cols-6 lg:grid-cols-12 bg-black/30 mb-8">
+            <TabsTrigger value="seraphina" className="data-[state=active]:bg-purple-600">
+              <MessageCircle className="w-4 h-4 mr-2" />
+              Seraphina
+            </TabsTrigger>
+            <TabsTrigger value="community" className="data-[state=active]:bg-purple-600">
+              <Users className="w-4 h-4 mr-2" />
+              Community
+            </TabsTrigger>
+            <TabsTrigger value="progress" className="data-[state=active]:bg-purple-600">
+              <Trophy className="w-4 h-4 mr-2" />
               Progress
             </TabsTrigger>
-            <TabsTrigger value="recommendations" className="text-purple-200 data-[state=active]:bg-purple-600">
-              <Lightbulb className="w-4 h-4 mr-2" />
-              Guidance
+            <TabsTrigger value="mood" className="data-[state=active]:bg-purple-600">
+              <Heart className="w-4 h-4 mr-2" />
+              Mood
             </TabsTrigger>
-            <TabsTrigger value="meditation" className="text-purple-200 data-[state=active]:bg-purple-600">
-              <Wind className="w-4 h-4 mr-2" />
-              Meditation
+            <TabsTrigger value="meditation" className="data-[state=active]:bg-purple-600">
+              <Play className="w-4 h-4 mr-2" />
+              Meditate
             </TabsTrigger>
-            <TabsTrigger value="dreams" className="text-purple-200 data-[state=active]:bg-purple-600">
+            <TabsTrigger value="dreams" className="data-[state=active]:bg-purple-600">
               <Moon className="w-4 h-4 mr-2" />
               Dreams
             </TabsTrigger>
-            <TabsTrigger value="shadow" className="text-purple-200 data-[state=active]:bg-purple-600">
+            <TabsTrigger value="shadow" className="data-[state=active]:bg-purple-600">
               <Eye className="w-4 h-4 mr-2" />
-              Shadow Work
+              Shadow
             </TabsTrigger>
-            <TabsTrigger value="synchronicity" className="text-purple-200 data-[state=active]:bg-purple-600">
+            <TabsTrigger value="sync" className="data-[state=active]:bg-purple-600">
               <Sparkles className="w-4 h-4 mr-2" />
-              Synchronicity
+              Sync
             </TabsTrigger>
-            <TabsTrigger value="assessment" className="text-purple-200 data-[state=active]:bg-purple-600">
-              <BarChart3 className="w-4 h-4 mr-2" />
+            <TabsTrigger value="assessment" className="data-[state=active]:bg-purple-600">
+              <Brain className="w-4 h-4 mr-2" />
               Assessment
+            </TabsTrigger>
+            <TabsTrigger value="insights" className="data-[state=active]:bg-purple-600">
+              <TrendingUp className="w-4 h-4 mr-2" />
+              Insights
+            </TabsTrigger>
+            <TabsTrigger value="recommendations" className="data-[state=active]:bg-purple-600">
+              <Lightbulb className="w-4 h-4 mr-2" />
+              Guidance
+            </TabsTrigger>
+            <TabsTrigger value="referrals" className="data-[state=active]:bg-purple-600">
+              <Gift className="w-4 h-4 mr-2" />
+              Invite
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="progress">
-            <ProgressVisualization />
+          <TabsContent value="seraphina">
+            <SoulGuideChat />
           </TabsContent>
 
-          <TabsContent value="recommendations">
-            <RecommendationsSystem />
+          <TabsContent value="community">
+            <CommunityHub />
+          </TabsContent>
+
+          <TabsContent value="progress">
+            <GamificationDashboard />
+          </TabsContent>
+
+          <TabsContent value="mood">
+            <MoodTracker />
           </TabsContent>
 
           <TabsContent value="meditation">
-            <MeditationForm />
+            <MeditationTracker />
           </TabsContent>
 
           <TabsContent value="dreams">
@@ -186,17 +119,36 @@ const SpiritualDashboard = () => {
             <ShadowWorkForm />
           </TabsContent>
 
-          <TabsContent value="synchronicity">
+          <TabsContent value="sync">
             <SynchronicityForm />
           </TabsContent>
 
           <TabsContent value="assessment">
-            <AssessmentForm />
+            {!hasCompletedAssessment ? (
+              <SpiritualAssessment onComplete={() => setHasCompletedAssessment(true)} />
+            ) : (
+              <div className="text-center text-white">
+                <h2 className="text-2xl font-bold mb-4">Assessment Complete!</h2>
+                <p className="text-purple-200">
+                  Check your recommendations and progress in the other tabs.
+                </p>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="insights">
+            <ProgressVisualization />
+          </TabsContent>
+
+          <TabsContent value="recommendations">
+            <RecommendationsSystem />
+          </TabsContent>
+
+          <TabsContent value="referrals">
+            <ReferralSystem />
           </TabsContent>
         </Tabs>
       </div>
     </div>
   );
-};
-
-export default SpiritualDashboard;
+}
