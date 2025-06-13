@@ -307,6 +307,164 @@ export type Database = {
           },
         ]
       }
+      spiritual_assessments: {
+        Row: {
+          awareness: number
+          compassion: number
+          created_at: string
+          id: string
+          inner_peace: number
+          notes: string | null
+          overall_score: number | null
+          presence: number
+          spiritual_level: string
+          updated_at: string
+          user_id: string
+          wisdom: number
+        }
+        Insert: {
+          awareness: number
+          compassion: number
+          created_at?: string
+          id?: string
+          inner_peace: number
+          notes?: string | null
+          overall_score?: number | null
+          presence: number
+          spiritual_level: string
+          updated_at?: string
+          user_id: string
+          wisdom: number
+        }
+        Update: {
+          awareness?: number
+          compassion?: number
+          created_at?: string
+          id?: string
+          inner_peace?: number
+          notes?: string | null
+          overall_score?: number | null
+          presence?: number
+          spiritual_level?: string
+          updated_at?: string
+          user_id?: string
+          wisdom?: number
+        }
+        Relationships: []
+      }
+      spiritual_goals: {
+        Row: {
+          created_at: string
+          current_level: number
+          description: string | null
+          goal_type: string
+          id: string
+          status: string
+          target_date: string | null
+          target_level: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_level: number
+          description?: string | null
+          goal_type: string
+          id?: string
+          status?: string
+          target_date?: string | null
+          target_level: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_level?: number
+          description?: string | null
+          goal_type?: string
+          id?: string
+          status?: string
+          target_date?: string | null
+          target_level?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      spiritual_milestones: {
+        Row: {
+          achieved_at: string
+          description: string | null
+          id: string
+          milestone_type: string
+          points_awarded: number | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          achieved_at?: string
+          description?: string | null
+          id?: string
+          milestone_type: string
+          points_awarded?: number | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          achieved_at?: string
+          description?: string | null
+          id?: string
+          milestone_type?: string
+          points_awarded?: number | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      spiritual_recommendations: {
+        Row: {
+          assessment_id: string | null
+          created_at: string
+          description: string
+          id: string
+          is_completed: boolean | null
+          priority: number | null
+          recommendation_type: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          assessment_id?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          is_completed?: boolean | null
+          priority?: number | null
+          recommendation_type: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          assessment_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          is_completed?: boolean | null
+          priority?: number | null
+          recommendation_type?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spiritual_recommendations_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "spiritual_assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           created_at: string | null

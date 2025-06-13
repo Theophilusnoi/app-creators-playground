@@ -22,27 +22,69 @@ export const AssessmentForm = () => {
   });
   const [loading, setLoading] = useState(false);
 
+  const generateRecommendations = async (assessmentId: string, scores: any) => {
+    const recommendations = [];
+    
+    // Generate recommendations based on lowest scores
+    const scoreEntries = [
+      { type: 'awareness', score: scores.awareness, title: 'Mindfulness Practice', description: 'Start with 10-minute daily mindfulness meditation to increase self-awareness' },
+      { type: 'presence', score: scores.presence, title: 'Present Moment Exercises', description: 'Practice grounding techniques and breathing exercises to enhance presence' },
+      { type: 'compassion', score: scores.compassion, title: 'Loving-Kindness Meditation', description: 'Develop compassion through loving-kindness meditation practice' },
+      { type: 'wisdom', score: scores.wisdom, title: 'Shadow Work Practice', description: 'Explore deeper self-understanding through shadow work exercises' },
+      { type: 'inner_peace', score: scores.inner_peace, title: 'Peace Cultivation', description: 'Focus on stress reduction and inner peace through meditation and reflection' }
+    ];
+
+    // Sort by lowest scores first (areas needing most improvement)
+    scoreEntries.sort((a, b) => a.score - b.score);
+
+    // Create recommendations for the 3 lowest scoring areas
+    for (let i = 0; i < Math.min(3, scoreEntries.length); i++) {
+      const area = scoreEntries[i];
+      recommendations.push({
+        user_id: user.id,
+        assessment_id: assessmentId,
+        recommendation_type: area.type === 'awareness' || area.type === 'presence' || area.type === 'inner_peace' ? 'meditation' : 
+                           area.type === 'wisdom' ? 'shadow_work' : 'meditation',
+        title: area.title,
+        description: area.description,
+        priority: i + 1
+      });
+    }
+
+    // Insert recommendations
+    if (recommendations.length > 0) {
+      await supabase.from('spiritual_recommendations').insert(recommendations);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
     setLoading(true);
     try {
-      // Using the dreams table to store assessment data temporarily
-      const { error } = await supabase
-        .from('dreams')
+      // Insert into spiritual_assessments table
+      const { data: assessment, error: assessmentError } = await supabase
+        .from('spiritual_assessments')
         .insert([{
           user_id: user.id,
-          title: `Spiritual Assessment - ${formData.spiritual_level}`,
-          content: formData.notes || 'Spiritual progress assessment',
-          emotions: [`awareness_${formData.awareness}`, `presence_${formData.presence}`, `compassion_${formData.compassion}`],
-          analysis: `Level: ${formData.spiritual_level}, Awareness: ${formData.awareness}/10, Presence: ${formData.presence}/10, Compassion: ${formData.compassion}/10`,
-          dream_date: new Date().toISOString().split('T')[0]
-        }]);
+          spiritual_level: formData.spiritual_level,
+          awareness: formData.awareness,
+          presence: formData.presence,
+          compassion: formData.compassion,
+          wisdom: formData.wisdom,
+          inner_peace: formData.inner_peace,
+          notes: formData.notes
+        }])
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (assessmentError) throw assessmentError;
+
+      // Generate recommendations based on assessment
+      await generateRecommendations(assessment.id, formData);
       
-      alert('Spiritual assessment saved successfully!');
+      alert('Spiritual assessment saved successfully! Check your recommendations for personalized guidance.');
       setFormData({
         spiritual_level: 'seeker',
         awareness: 7,
@@ -110,13 +152,25 @@ export const AssessmentForm = () => {
             </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div>
               <Label className="text-purple-200">Compassion (1-10)</Label>
               <Input
                 type="number"
                 value={formData.compassion}
                 onChange={(e) => setFormData({...formData, compassion: parseInt(e.target.value)})}
+                min="1"
+                max="10"
+                className="bg-black/20 border-purple-500/30 text-white"
+              />
+            </div>
+            
+            <div>
+              <Label className="text-purple-200">Wisdom (1-10)</Label>
+              <Input
+                type="number"
+                value={formData.wisdom}
+                onChange={(e) => setFormData({...formData, wisdom: parseInt(e.target.value)})}
                 min="1"
                 max="10"
                 className="bg-black/20 border-purple-500/30 text-white"

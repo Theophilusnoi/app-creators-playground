@@ -8,6 +8,8 @@ import { DreamForm } from "@/components/spiritual/DreamForm";
 import { ShadowWorkForm } from "@/components/spiritual/ShadowWorkForm";
 import { SynchronicityForm } from "@/components/spiritual/SynchronicityForm";
 import { AssessmentForm } from "@/components/spiritual/AssessmentForm";
+import { ProgressVisualization } from "@/components/spiritual/ProgressVisualization";
+import { RecommendationsSystem } from "@/components/spiritual/RecommendationsSystem";
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -21,7 +23,9 @@ import {
   Sparkles,
   BarChart3,
   LogOut,
-  User as UserIcon
+  User as UserIcon,
+  Target,
+  Lightbulb
 } from "lucide-react";
 
 const SpiritualDashboard = () => {
@@ -130,8 +134,16 @@ const SpiritualDashboard = () => {
         </div>
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="meditation" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 bg-black/30 border-purple-500/30">
+        <Tabs defaultValue="progress" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-7 bg-black/30 border-purple-500/30">
+            <TabsTrigger value="progress" className="text-purple-200 data-[state=active]:bg-purple-600">
+              <TrendingUp className="w-4 h-4 mr-2" />
+              Progress
+            </TabsTrigger>
+            <TabsTrigger value="recommendations" className="text-purple-200 data-[state=active]:bg-purple-600">
+              <Lightbulb className="w-4 h-4 mr-2" />
+              Guidance
+            </TabsTrigger>
             <TabsTrigger value="meditation" className="text-purple-200 data-[state=active]:bg-purple-600">
               <Wind className="w-4 h-4 mr-2" />
               Meditation
@@ -153,6 +165,14 @@ const SpiritualDashboard = () => {
               Assessment
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="progress">
+            <ProgressVisualization />
+          </TabsContent>
+
+          <TabsContent value="recommendations">
+            <RecommendationsSystem />
+          </TabsContent>
 
           <TabsContent value="meditation">
             <MeditationForm />
