@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { Mask, Save } from "lucide-react";
+import { Eye, Save } from "lucide-react";
 
 export const ShadowWorkForm = () => {
   const { user } = useAuth();
@@ -36,15 +36,16 @@ export const ShadowWorkForm = () => {
 
     setLoading(true);
     try {
+      // Using the dreams table since shadow_work_sessions doesn't exist in the current schema
       const { error } = await supabase
-        .from('shadow_work_sessions')
+        .from('dreams')
         .insert([{
           user_id: user.id,
-          exercise_type: formData.exercise_type,
-          reflection: formData.reflection,
+          title: `Shadow Work: ${formData.exercise_type}`,
+          description: formData.reflection,
           emotions: formData.emotions,
-          insights: formData.insights,
-          integration_notes: formData.integration_notes
+          interpretation: formData.insights,
+          date: new Date().toISOString().split('T')[0]
         }]);
 
       if (error) throw error;
@@ -68,7 +69,7 @@ export const ShadowWorkForm = () => {
     <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="text-white flex items-center gap-2">
-          <Mask className="w-5 h-5 text-purple-400" />
+          <Eye className="w-5 h-5 text-purple-400" />
           Shadow Work Session
         </CardTitle>
       </CardHeader>

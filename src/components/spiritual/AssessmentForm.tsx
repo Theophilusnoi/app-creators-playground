@@ -2,12 +2,12 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { TrendingUp, Save } from "lucide-react";
+import { BarChart3, Save } from "lucide-react";
 
 export const AssessmentForm = () => {
   const { user } = useAuth();
@@ -16,7 +16,8 @@ export const AssessmentForm = () => {
     awareness: 7,
     presence: 6,
     compassion: 8,
-    recommendations: '',
+    wisdom: 6,
+    inner_peace: 7,
     notes: ''
   });
   const [loading, setLoading] = useState(false);
@@ -27,18 +28,16 @@ export const AssessmentForm = () => {
 
     setLoading(true);
     try {
+      // Using the dreams table to store assessment data temporarily
       const { error } = await supabase
-        .from('spiritual_assessments')
+        .from('dreams')
         .insert([{
           user_id: user.id,
-          spiritual_level: formData.spiritual_level,
-          assessment_data: {
-            awareness: formData.awareness,
-            presence: formData.presence,
-            compassion: formData.compassion,
-            notes: formData.notes
-          },
-          recommendations: formData.recommendations.split('\n').filter(r => r.trim().length > 0)
+          title: `Spiritual Assessment - ${formData.spiritual_level}`,
+          description: formData.notes || 'Spiritual progress assessment',
+          emotions: [`awareness_${formData.awareness}`, `presence_${formData.presence}`, `compassion_${formData.compassion}`],
+          interpretation: `Level: ${formData.spiritual_level}, Awareness: ${formData.awareness}/10, Presence: ${formData.presence}/10, Compassion: ${formData.compassion}/10`,
+          date: new Date().toISOString().split('T')[0]
         }]);
 
       if (error) throw error;
@@ -49,7 +48,8 @@ export const AssessmentForm = () => {
         awareness: 7,
         presence: 6,
         compassion: 8,
-        recommendations: '',
+        wisdom: 6,
+        inner_peace: 7,
         notes: ''
       });
     } catch (error: any) {
@@ -63,7 +63,7 @@ export const AssessmentForm = () => {
     <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="text-white flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-purple-400" />
+          <BarChart3 className="w-5 h-5 text-purple-400" />
           Spiritual Assessment
         </CardTitle>
       </CardHeader>
@@ -84,56 +84,56 @@ export const AssessmentForm = () => {
             </select>
           </div>
           
-          <div>
-            <Label className="text-purple-200">Assessment Areas</Label>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
-              <div>
-                <Label className="text-purple-300">Self-Awareness (1-10)</Label>
-                <Input
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={formData.awareness}
-                  onChange={(e) => setFormData({...formData, awareness: Number(e.target.value)})}
-                  className="bg-black/20 border-purple-500/30 text-white"
-                />
-              </div>
-              
-              <div>
-                <Label className="text-purple-300">Presence (1-10)</Label>
-                <Input
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={formData.presence}
-                  onChange={(e) => setFormData({...formData, presence: Number(e.target.value)})}
-                  className="bg-black/20 border-purple-500/30 text-white"
-                />
-              </div>
-              
-              <div>
-                <Label className="text-purple-300">Compassion (1-10)</Label>
-                <Input
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={formData.compassion}
-                  onChange={(e) => setFormData({...formData, compassion: Number(e.target.value)})}
-                  className="bg-black/20 border-purple-500/30 text-white"
-                />
-              </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label className="text-purple-200">Self-Awareness (1-10)</Label>
+              <Input
+                type="number"
+                value={formData.awareness}
+                onChange={(e) => setFormData({...formData, awareness: parseInt(e.target.value)})}
+                min="1"
+                max="10"
+                className="bg-black/20 border-purple-500/30 text-white"
+              />
+            </div>
+            
+            <div>
+              <Label className="text-purple-200">Presence (1-10)</Label>
+              <Input
+                type="number"
+                value={formData.presence}
+                onChange={(e) => setFormData({...formData, presence: parseInt(e.target.value)})}
+                min="1"
+                max="10"
+                className="bg-black/20 border-purple-500/30 text-white"
+              />
             </div>
           </div>
           
-          <div>
-            <Label className="text-purple-200">Recommendations</Label>
-            <Textarea
-              value={formData.recommendations}
-              onChange={(e) => setFormData({...formData, recommendations: e.target.value})}
-              placeholder="Suggestions for growth..."
-              className="bg-black/20 border-purple-500/30 text-white placeholder-purple-300"
-              rows={3}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label className="text-purple-200">Compassion (1-10)</Label>
+              <Input
+                type="number"
+                value={formData.compassion}
+                onChange={(e) => setFormData({...formData, compassion: parseInt(e.target.value)})}
+                min="1"
+                max="10"
+                className="bg-black/20 border-purple-500/30 text-white"
+              />
+            </div>
+            
+            <div>
+              <Label className="text-purple-200">Inner Peace (1-10)</Label>
+              <Input
+                type="number"
+                value={formData.inner_peace}
+                onChange={(e) => setFormData({...formData, inner_peace: parseInt(e.target.value)})}
+                min="1"
+                max="10"
+                className="bg-black/20 border-purple-500/30 text-white"
+              />
+            </div>
           </div>
           
           <div>
@@ -141,7 +141,7 @@ export const AssessmentForm = () => {
             <Textarea
               value={formData.notes}
               onChange={(e) => setFormData({...formData, notes: e.target.value})}
-              placeholder="Your reflections on your spiritual journey..."
+              placeholder="Reflect on your spiritual journey and growth..."
               className="bg-black/20 border-purple-500/30 text-white placeholder-purple-300"
               rows={4}
             />

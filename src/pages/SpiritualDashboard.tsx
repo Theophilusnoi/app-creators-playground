@@ -17,7 +17,7 @@ import {
   Flame, 
   Wind, 
   Moon, 
-  Mask, 
+  Eye, 
   Sparkles,
   BarChart3,
   LogOut,
@@ -141,7 +141,7 @@ const SpiritualDashboard = () => {
               Dreams
             </TabsTrigger>
             <TabsTrigger value="shadow" className="text-purple-200 data-[state=active]:bg-purple-600">
-              <Mask className="w-4 h-4 mr-2" />
+              <Eye className="w-4 h-4 mr-2" />
               Shadow Work
             </TabsTrigger>
             <TabsTrigger value="synchronicity" className="text-purple-200 data-[state=active]:bg-purple-600">

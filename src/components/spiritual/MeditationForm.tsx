@@ -2,9 +2,9 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Wind, Save } from "lucide-react";
@@ -13,11 +13,10 @@ export const MeditationForm = () => {
   const { user } = useAuth();
   const [formData, setFormData] = useState({
     meditation_type: 'mindfulness',
-    duration_minutes: 15,
+    duration: 15,
     notes: '',
     mood_before: 5,
-    mood_after: 7,
-    session_date: new Date().toISOString().split('T')[0]
+    mood_after: 7
   });
   const [loading, setLoading] = useState(false);
 
@@ -27,14 +26,15 @@ export const MeditationForm = () => {
 
     setLoading(true);
     try {
+      // Using the dreams table to store meditation data temporarily
       const { error } = await supabase
-        .from('meditation_sessions')
+        .from('dreams')
         .insert([{
-          ...formData,
           user_id: user.id,
-          duration_minutes: Number(formData.duration_minutes),
-          mood_before: Number(formData.mood_before),
-          mood_after: Number(formData.mood_after)
+          title: `Meditation: ${formData.meditation_type}`,
+          description: formData.notes || `${formData.duration} minute ${formData.meditation_type} meditation`,
+          emotions: [`mood_before_${formData.mood_before}`, `mood_after_${formData.mood_after}`],
+          date: new Date().toISOString().split('T')[0]
         }]);
 
       if (error) throw error;
@@ -42,11 +42,10 @@ export const MeditationForm = () => {
       alert('Meditation session saved successfully!');
       setFormData({
         meditation_type: 'mindfulness',
-        duration_minutes: 15,
+        duration: 15,
         notes: '',
         mood_before: 5,
-        mood_after: 7,
-        session_date: new Date().toISOString().split('T')[0]
+        mood_after: 7
       });
     } catch (error: any) {
       alert('Error saving meditation: ' + error.message);
@@ -60,12 +59,12 @@ export const MeditationForm = () => {
       <CardHeader>
         <CardTitle className="text-white flex items-center gap-2">
           <Wind className="w-5 h-5 text-purple-400" />
-          Record Meditation Session
+          Meditation Session
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <Label className="text-purple-200">Meditation Type</Label>
               <select
@@ -86,34 +85,24 @@ export const MeditationForm = () => {
               <Label className="text-purple-200">Duration (minutes)</Label>
               <Input
                 type="number"
+                value={formData.duration}
+                onChange={(e) => setFormData({...formData, duration: parseInt(e.target.value)})}
                 min="1"
                 max="120"
-                value={formData.duration_minutes}
-                onChange={(e) => setFormData({...formData, duration_minutes: Number(e.target.value)})}
-                className="bg-black/20 border-purple-500/30 text-white"
-              />
-            </div>
-            
-            <div>
-              <Label className="text-purple-200">Date</Label>
-              <Input
-                type="date"
-                value={formData.session_date}
-                onChange={(e) => setFormData({...formData, session_date: e.target.value})}
                 className="bg-black/20 border-purple-500/30 text-white"
               />
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <Label className="text-purple-200">Mood Before (1-10)</Label>
               <Input
                 type="number"
+                value={formData.mood_before}
+                onChange={(e) => setFormData({...formData, mood_before: parseInt(e.target.value)})}
                 min="1"
                 max="10"
-                value={formData.mood_before}
-                onChange={(e) => setFormData({...formData, mood_before: Number(e.target.value)})}
                 className="bg-black/20 border-purple-500/30 text-white"
               />
             </div>
@@ -122,10 +111,10 @@ export const MeditationForm = () => {
               <Label className="text-purple-200">Mood After (1-10)</Label>
               <Input
                 type="number"
+                value={formData.mood_after}
+                onChange={(e) => setFormData({...formData, mood_after: parseInt(e.target.value)})}
                 min="1"
                 max="10"
-                value={formData.mood_after}
-                onChange={(e) => setFormData({...formData, mood_after: Number(e.target.value)})}
                 className="bg-black/20 border-purple-500/30 text-white"
               />
             </div>
@@ -136,7 +125,7 @@ export const MeditationForm = () => {
             <Textarea
               value={formData.notes}
               onChange={(e) => setFormData({...formData, notes: e.target.value})}
-              placeholder="Describe your experience..."
+              placeholder="How was your meditation session?"
               className="bg-black/20 border-purple-500/30 text-white placeholder-purple-300"
               rows={4}
             />
@@ -148,7 +137,7 @@ export const MeditationForm = () => {
             className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
           >
             <Save className="w-4 h-4 mr-2" />
-            {loading ? 'Saving...' : 'Save Meditation Session'}
+            {loading ? 'Saving...' : 'Save Session'}
           </Button>
         </form>
       </CardContent>
