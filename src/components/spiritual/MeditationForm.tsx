@@ -32,9 +32,9 @@ export const MeditationForm = () => {
         .insert([{
           user_id: user.id,
           title: `Meditation: ${formData.meditation_type}`,
-          description: formData.notes || `${formData.duration} minute ${formData.meditation_type} meditation`,
+          content: formData.notes || `${formData.duration} minute ${formData.meditation_type} meditation`,
           emotions: [`mood_before_${formData.mood_before}`, `mood_after_${formData.mood_after}`],
-          date: new Date().toISOString().split('T')[0]
+          dream_date: new Date().toISOString().split('T')[0]
         }]);
 
       if (error) throw error;

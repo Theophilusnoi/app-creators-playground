@@ -32,10 +32,10 @@ export const SynchronicityForm = () => {
         .insert([{
           user_id: user.id,
           title: `Synchronicity: ${formData.title}`,
-          description: formData.description,
+          content: formData.description,
           emotions: formData.tags.split(',').map(tag => tag.trim()),
-          interpretation: `Significance level: ${formData.significance}/5`,
-          date: formData.date_occurred
+          analysis: `Significance level: ${formData.significance}/5`,
+          dream_date: formData.date_occurred
         }]);
 
       if (error) throw error;

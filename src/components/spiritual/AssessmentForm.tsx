@@ -34,10 +34,10 @@ export const AssessmentForm = () => {
         .insert([{
           user_id: user.id,
           title: `Spiritual Assessment - ${formData.spiritual_level}`,
-          description: formData.notes || 'Spiritual progress assessment',
+          content: formData.notes || 'Spiritual progress assessment',
           emotions: [`awareness_${formData.awareness}`, `presence_${formData.presence}`, `compassion_${formData.compassion}`],
-          interpretation: `Level: ${formData.spiritual_level}, Awareness: ${formData.awareness}/10, Presence: ${formData.presence}/10, Compassion: ${formData.compassion}/10`,
-          date: new Date().toISOString().split('T')[0]
+          analysis: `Level: ${formData.spiritual_level}, Awareness: ${formData.awareness}/10, Presence: ${formData.presence}/10, Compassion: ${formData.compassion}/10`,
+          dream_date: new Date().toISOString().split('T')[0]
         }]);
 
       if (error) throw error;

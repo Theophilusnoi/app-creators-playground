@@ -43,11 +43,10 @@ export const DreamForm = () => {
         .insert([{
           user_id: user.id,
           title: formData.title,
-          description: formData.description,
-          interpretation: formData.interpretation,
+          content: formData.description,
+          analysis: formData.interpretation,
           emotions: formData.emotions,
-          recurring: formData.recurring,
-          date: formData.date
+          dream_date: formData.date
         }]);
 
       if (error) throw error;

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -14,13 +15,13 @@ export const ShadowWorkForm = () => {
   const [formData, setFormData] = useState({
     exercise_type: 'self-reflection',
     reflection: '',
+    emotions: [] as string[],
     insights: '',
-    integration_notes: '',
-    emotions: [] as string[]
+    integration_notes: ''
   });
   const [loading, setLoading] = useState(false);
 
-  const emotionOptions = ['shame', 'anger', 'fear', 'vulnerability', 'acceptance', 'sadness', 'joy'];
+  const emotionOptions = ['shame', 'anger', 'fear', 'vulnerability', 'acceptance', 'sadness', 'rage', 'guilt'];
 
   const handleEmotionChange = (emotion: string, checked: boolean) => {
     if (checked) {
@@ -36,16 +37,16 @@ export const ShadowWorkForm = () => {
 
     setLoading(true);
     try {
-      // Using the dreams table since shadow_work_sessions doesn't exist in the current schema
+      // Using the dreams table to store shadow work data temporarily
       const { error } = await supabase
         .from('dreams')
         .insert([{
           user_id: user.id,
           title: `Shadow Work: ${formData.exercise_type}`,
-          description: formData.reflection,
+          content: formData.reflection,
           emotions: formData.emotions,
-          interpretation: formData.insights,
-          date: new Date().toISOString().split('T')[0]
+          analysis: `Insights: ${formData.insights}. Integration: ${formData.integration_notes}`,
+          dream_date: new Date().toISOString().split('T')[0]
         }]);
 
       if (error) throw error;
@@ -54,9 +55,9 @@ export const ShadowWorkForm = () => {
       setFormData({
         exercise_type: 'self-reflection',
         reflection: '',
+        emotions: [],
         insights: '',
-        integration_notes: '',
-        emotions: []
+        integration_notes: ''
       });
     } catch (error: any) {
       alert('Error saving shadow work: ' + error.message);
