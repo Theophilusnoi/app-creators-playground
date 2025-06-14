@@ -47,6 +47,30 @@ export type Database = {
           },
         ]
       }
+      daily_protection_logs: {
+        Row: {
+          completed_at: string | null
+          id: string
+          practice_details: Json | null
+          practice_type: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          id?: string
+          practice_details?: Json | null
+          practice_type: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          id?: string
+          practice_details?: Json | null
+          practice_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       dreams: {
         Row: {
           analysis: string | null
@@ -307,6 +331,36 @@ export type Database = {
           },
         ]
       }
+      soul_guide_conversations: {
+        Row: {
+          conversation_data: Json | null
+          created_at: string | null
+          id: string
+          last_protection_ritual: string | null
+          spiritual_emergency_count: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          conversation_data?: Json | null
+          created_at?: string | null
+          id?: string
+          last_protection_ritual?: string | null
+          spiritual_emergency_count?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          conversation_data?: Json | null
+          created_at?: string | null
+          id?: string
+          last_protection_ritual?: string | null
+          spiritual_emergency_count?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       spiritual_assessments: {
         Row: {
           awareness: number
@@ -499,6 +553,36 @@ export type Database = {
           status?: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_curse_journeys: {
+        Row: {
+          burned_curses: string[] | null
+          created_at: string | null
+          family_patterns: Json | null
+          last_cleansing_date: string | null
+          transmutation_rituals: string[] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          burned_curses?: string[] | null
+          created_at?: string | null
+          family_patterns?: Json | null
+          last_cleansing_date?: string | null
+          transmutation_rituals?: string[] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          burned_curses?: string[] | null
+          created_at?: string | null
+          family_patterns?: Json | null
+          last_cleansing_date?: string | null
+          transmutation_rituals?: string[] | null
           updated_at?: string | null
           user_id?: string
         }
