@@ -113,6 +113,57 @@ export type Database = {
         }
         Relationships: []
       }
+      emergency_sessions: {
+        Row: {
+          created_at: string | null
+          emergency_id: string | null
+          ended_at: string | null
+          id: string
+          join_code: string | null
+          specialist_id: string | null
+          started_at: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          emergency_id?: string | null
+          ended_at?: string | null
+          id?: string
+          join_code?: string | null
+          specialist_id?: string | null
+          started_at?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          emergency_id?: string | null
+          ended_at?: string | null
+          id?: string
+          join_code?: string | null
+          specialist_id?: string | null
+          started_at?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emergency_sessions_emergency_id_fkey"
+            columns: ["emergency_id"]
+            isOneToOne: false
+            referencedRelation: "spiritual_emergencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "emergency_sessions_specialist_id_fkey"
+            columns: ["specialist_id"]
+            isOneToOne: false
+            referencedRelation: "specialists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           budget: number | null
@@ -361,6 +412,83 @@ export type Database = {
         }
         Relationships: []
       }
+      specialist_ratings: {
+        Row: {
+          created_at: string | null
+          feedback: string | null
+          id: string
+          rating: number | null
+          session_id: string | null
+          specialist_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          rating?: number | null
+          session_id?: string | null
+          specialist_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          rating?: number | null
+          session_id?: string | null
+          specialist_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "specialist_ratings_specialist_id_fkey"
+            columns: ["specialist_id"]
+            isOneToOne: false
+            referencedRelation: "specialists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      specialists: {
+        Row: {
+          available: boolean | null
+          created_at: string | null
+          credentials: string[] | null
+          email: string
+          id: string
+          languages: string[] | null
+          name: string
+          rating: number | null
+          session_count: number | null
+          traditions: string[] | null
+        }
+        Insert: {
+          available?: boolean | null
+          created_at?: string | null
+          credentials?: string[] | null
+          email: string
+          id?: string
+          languages?: string[] | null
+          name: string
+          rating?: number | null
+          session_count?: number | null
+          traditions?: string[] | null
+        }
+        Update: {
+          available?: boolean | null
+          created_at?: string | null
+          credentials?: string[] | null
+          email?: string
+          id?: string
+          languages?: string[] | null
+          name?: string
+          rating?: number | null
+          session_count?: number | null
+          traditions?: string[] | null
+        }
+        Relationships: []
+      }
       spiritual_assessments: {
         Row: {
           awareness: number
@@ -403,6 +531,48 @@ export type Database = {
           updated_at?: string
           user_id?: string
           wisdom?: number
+        }
+        Relationships: []
+      }
+      spiritual_emergencies: {
+        Row: {
+          crisis_level: number | null
+          crisis_type: string | null
+          human_specialist_involved: boolean | null
+          id: string
+          protocol_used: string
+          resolved: boolean | null
+          resolved_at: string | null
+          response_time_seconds: number | null
+          tradition: string | null
+          triggered_at: string | null
+          user_id: string
+        }
+        Insert: {
+          crisis_level?: number | null
+          crisis_type?: string | null
+          human_specialist_involved?: boolean | null
+          id?: string
+          protocol_used: string
+          resolved?: boolean | null
+          resolved_at?: string | null
+          response_time_seconds?: number | null
+          tradition?: string | null
+          triggered_at?: string | null
+          user_id: string
+        }
+        Update: {
+          crisis_level?: number | null
+          crisis_type?: string | null
+          human_specialist_involved?: boolean | null
+          id?: string
+          protocol_used?: string
+          resolved?: boolean | null
+          resolved_at?: string | null
+          response_time_seconds?: number | null
+          tradition?: string | null
+          triggered_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -662,6 +832,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_emergency_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       has_role: {
         Args: { role_to_check: Database["public"]["Enums"]["user_role"] }
         Returns: boolean

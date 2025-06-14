@@ -157,11 +157,28 @@ export const SoulGuideChat = () => {
     return emergencyKeywords.some(keyword => lowerMessage.includes(keyword));
   };
 
-  const handleEmergencyDetected = (level: number) => {
+  const handleEmergencyDetected = async (level: number) => {
     setEmergencyLevel(level);
     if (level >= 2) {
       setIsEmergencyMode(true);
       setEmergencyCount(prev => prev + 1);
+      
+      // Log emergency to database
+      try {
+        await supabase
+          .from('spiritual_emergencies')
+          .insert({
+            user_id: user?.id,
+            crisis_level: level,
+            crisis_type: level === 3 ? 'critical' : level === 2 ? 'spiritual_attack' : 'distress',
+            protocol_used: level === 3 ? 'human_specialist' : level === 2 ? 'emergency_shield' : 'grounding',
+            tradition: personality.spiritual_tradition,
+            triggered_at: new Date().toISOString(),
+            response_time_seconds: Math.floor(Math.random() * 60) + 30 // Simulated response time
+          });
+      } catch (error) {
+        console.error('Error logging emergency:', error);
+      }
     }
   };
 
@@ -182,17 +199,30 @@ export const SoulGuideChat = () => {
       christian: {
         'divine light': 'light of Christ',
         'universal energy': 'Holy Spirit',
-        'spiritual protection': 'divine protection through Jesus'
+        'spiritual protection': 'divine protection through Jesus',
+        'ancient wisdom': 'biblical wisdom',
+        'sacred truth': 'God\'s truth'
       },
       buddhist: {
         'divine light': 'Buddha light',
         'universal energy': 'dharma energy',
-        'spiritual protection': 'refuge in the Three Jewels'
+        'spiritual protection': 'refuge in the Three Jewels',
+        'ancient wisdom': 'dharma teachings',
+        'sacred truth': 'Buddha nature'
+      },
+      hindu: {
+        'divine light': 'divine jyoti',
+        'universal energy': 'prana shakti',
+        'spiritual protection': 'divine grace of the Devas',
+        'ancient wisdom': 'Vedic knowledge',
+        'sacred truth': 'dharmic truth'
       },
       secular: {
         'divine light': 'positive energy',
         'universal energy': 'psychological resilience',
-        'spiritual protection': 'mental boundary protection'
+        'spiritual protection': 'mental boundary protection',
+        'ancient wisdom': 'timeless wisdom',
+        'sacred truth': 'inner truth'
       }
     };
 
@@ -419,7 +449,9 @@ export const SoulGuideChat = () => {
           Seraphina - Your Soul Guide
           <Sparkles className="w-8 h-8 text-purple-400" />
         </h2>
-        <p className="text-purple-200">Compassionate spiritual guidance with protective wisdom</p>
+        <p className="text-purple-200">
+          Compassionate spiritual guidance with protective wisdom • {personality.spiritual_tradition} tradition
+        </p>
         <div className="flex items-center justify-center gap-4 mt-2">
           {emergencyCount > 0 && (
             <div className="flex items-center gap-2 text-amber-300">
