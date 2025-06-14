@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Users, Calendar, Trophy, Star, Plus, Clock, Heart } from "lucide-react";
 
@@ -65,39 +64,128 @@ export const CommunityHub = () => {
     setLoading(true);
     
     try {
-      // Load challenges
-      const { data: challengesData } = await supabase
-        .from('spiritual_challenges')
-        .select('*')
-        .eq('is_active', true)
-        .order('featured', { ascending: false })
-        .order('created_at', { ascending: false });
+      // Mock data for demonstration - replace with actual API calls when types are updated
+      const mockChallenges: Challenge[] = [
+        {
+          id: '1',
+          title: '21-Day Mindfulness Challenge',
+          description: 'Build a daily mindfulness practice with guided meditations and community support.',
+          type: 'group',
+          difficulty_level: 'beginner',
+          duration_days: 21,
+          current_participants: 156,
+          max_participants: 500,
+          reward_points: 100,
+          featured: true,
+          start_date: '2024-01-01',
+          end_date: '2024-01-21'
+        },
+        {
+          id: '2',
+          title: 'Compassion Cultivation',
+          description: 'Develop loving-kindness and compassion through daily practices and reflection.',
+          type: 'group',
+          difficulty_level: 'intermediate',
+          duration_days: 14,
+          current_participants: 89,
+          max_participants: 200,
+          reward_points: 75,
+          featured: false,
+          start_date: '2024-01-15',
+          end_date: '2024-01-29'
+        },
+        {
+          id: '3',
+          title: 'Inner Peace Journey',
+          description: 'Advanced practices for finding deep inner stillness and peace.',
+          type: 'individual',
+          difficulty_level: 'advanced',
+          duration_days: 30,
+          current_participants: 34,
+          max_participants: 100,
+          reward_points: 150,
+          featured: true,
+          start_date: '2024-02-01',
+          end_date: '2024-03-02'
+        }
+      ];
 
-      // Load community circles
-      const { data: circlesData } = await supabase
-        .from('community_circles')
-        .select('*')
-        .eq('is_active', true)
-        .order('current_members', { ascending: false });
+      const mockCircles: Circle[] = [
+        {
+          id: '1',
+          name: 'Meditation for Parents',
+          description: 'A supportive community for parents seeking mindfulness amidst the beautiful chaos of family life.',
+          type: 'support_group',
+          current_members: 45,
+          max_members: 50,
+          is_private: false,
+          tags: ['parenting', 'mindfulness', 'support']
+        },
+        {
+          id: '2',
+          name: 'Spiritual Book Club',
+          description: 'Monthly discussions on transformative spiritual texts and teachings.',
+          type: 'learning_group',
+          current_members: 28,
+          max_members: 30,
+          is_private: false,
+          tags: ['books', 'discussion', 'wisdom']
+        },
+        {
+          id: '3',
+          name: 'Anxiety & Mindfulness',
+          description: 'Safe space for those using mindfulness to navigate anxiety and stress.',
+          type: 'support_group',
+          current_members: 67,
+          max_members: 100,
+          is_private: true,
+          tags: ['anxiety', 'support', 'healing']
+        }
+      ];
 
-      // Load upcoming live events
-      const { data: eventsData } = await supabase
-        .from('live_events')
-        .select('*')
-        .gte('scheduled_at', new Date().toISOString())
-        .order('scheduled_at', { ascending: true })
-        .limit(5);
+      const mockEvents: LiveEvent[] = [
+        {
+          id: '1',
+          title: 'Global Peace Meditation',
+          description: 'Join thousands worldwide in a synchronized meditation for global healing.',
+          event_type: 'meditation',
+          instructor_name: 'Sarah Chen',
+          scheduled_at: '2024-01-20T18:00:00Z',
+          duration_minutes: 45,
+          current_attendees: 234,
+          max_attendees: 1000,
+          is_premium: false
+        },
+        {
+          id: '2',
+          title: 'Shadow Work Workshop',
+          description: 'Explore and integrate your shadow self with compassionate guidance.',
+          event_type: 'workshop',
+          instructor_name: 'Dr. Michael Rivera',
+          scheduled_at: '2024-01-25T20:00:00Z',
+          duration_minutes: 90,
+          current_attendees: 45,
+          max_attendees: 50,
+          is_premium: true
+        },
+        {
+          id: '3',
+          title: 'Q&A with Spiritual Teacher',
+          description: 'Ask your questions about spiritual practice and awakening.',
+          event_type: 'qna',
+          instructor_name: 'Lama Tenzin',
+          scheduled_at: '2024-01-30T19:00:00Z',
+          duration_minutes: 60,
+          current_attendees: 89,
+          max_attendees: 200,
+          is_premium: false
+        }
+      ];
 
-      // Load user's current challenges
-      const { data: userChallengesData } = await supabase
-        .from('challenge_participants')
-        .select('challenge_id')
-        .eq('user_id', user?.id);
-
-      setChallenges(challengesData || []);
-      setCircles(circlesData || []);
-      setLiveEvents(eventsData || []);
-      setUserChallenges(userChallengesData?.map(uc => uc.challenge_id) || []);
+      setChallenges(mockChallenges);
+      setCircles(mockCircles);
+      setLiveEvents(mockEvents);
+      setUserChallenges(['1']); // Mock user participation
       
     } catch (error) {
       console.error('Error loading community data:', error);
@@ -110,36 +198,17 @@ export const CommunityHub = () => {
     if (!user) return;
 
     try {
-      const { error } = await supabase
-        .from('challenge_participants')
-        .insert({
-          challenge_id: challengeId,
-          user_id: user.id,
-          current_day: 1,
-          motivation_level: 8
-        });
-
-      if (error) throw error;
-
-      // Update local state
+      // Mock join action
       setUserChallenges(prev => [...prev, challengeId]);
       
       // Update participant count
-      const challenge = challenges.find(c => c.id === challengeId);
-      if (challenge) {
-        await supabase
-          .from('spiritual_challenges')
-          .update({ current_participants: challenge.current_participants + 1 })
-          .eq('id', challengeId);
-        
-        setChallenges(prev => 
-          prev.map(c => 
-            c.id === challengeId 
-              ? { ...c, current_participants: c.current_participants + 1 }
-              : c
-          )
-        );
-      }
+      setChallenges(prev => 
+        prev.map(c => 
+          c.id === challengeId 
+            ? { ...c, current_participants: c.current_participants + 1 }
+            : c
+        )
+      );
 
     } catch (error) {
       console.error('Error joining challenge:', error);
@@ -150,32 +219,14 @@ export const CommunityHub = () => {
     if (!user) return;
 
     try {
-      const { error } = await supabase
-        .from('circle_members')
-        .insert({
-          circle_id: circleId,
-          user_id: user.id,
-          role: 'member'
-        });
-
-      if (error) throw error;
-
-      // Update participant count
-      const circle = circles.find(c => c.id === circleId);
-      if (circle) {
-        await supabase
-          .from('community_circles')
-          .update({ current_members: circle.current_members + 1 })
-          .eq('id', circleId);
-        
-        setCircles(prev => 
-          prev.map(c => 
-            c.id === circleId 
-              ? { ...c, current_members: c.current_members + 1 }
-              : c
-          )
-        );
-      }
+      // Mock join action
+      setCircles(prev => 
+        prev.map(c => 
+          c.id === circleId 
+            ? { ...c, current_members: c.current_members + 1 }
+            : c
+        )
+      );
 
     } catch (error) {
       console.error('Error joining circle:', error);
@@ -186,31 +237,14 @@ export const CommunityHub = () => {
     if (!user) return;
 
     try {
-      const { error } = await supabase
-        .from('event_registrations')
-        .insert({
-          event_id: eventId,
-          user_id: user.id
-        });
-
-      if (error) throw error;
-
-      // Update attendee count
-      const event = liveEvents.find(e => e.id === eventId);
-      if (event) {
-        await supabase
-          .from('live_events')
-          .update({ current_attendees: event.current_attendees + 1 })
-          .eq('id', eventId);
-        
-        setLiveEvents(prev => 
-          prev.map(e => 
-            e.id === eventId 
-              ? { ...e, current_attendees: e.current_attendees + 1 }
-              : e
-          )
-        );
-      }
+      // Mock registration
+      setLiveEvents(prev => 
+        prev.map(e => 
+          e.id === eventId 
+            ? { ...e, current_attendees: e.current_attendees + 1 }
+            : e
+        )
+      );
 
     } catch (error) {
       console.error('Error registering for event:', error);
@@ -370,7 +404,7 @@ export const CommunityHub = () => {
                       {event.event_type}
                     </Badge>
                     {event.is_premium && (
-                      <Badge variant="outline" className="border-gold-400 text-yellow-200">
+                      <Badge variant="outline" className="border-yellow-400 text-yellow-200">
                         Premium
                       </Badge>
                     )}
