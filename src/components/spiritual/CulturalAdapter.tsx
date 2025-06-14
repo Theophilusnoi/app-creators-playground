@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Cross, Lotus, Sun, Shield, Heart } from "lucide-react";
+import { Cross, Flower2, Sun, Shield, Heart } from "lucide-react";
 
 interface Archetype {
   id: string;
@@ -84,7 +83,7 @@ const SAMPLE_ARCHETYPES: Archetype[] = [
     name: 'White Tara',
     description: 'Embodiment of protective compassion',
     tradition: 'buddhist',
-    icon: 'lotus',
+    icon: 'flower2',
     attributes: ['Compassionate', 'Wise', 'Healing']
   },
   {
@@ -198,7 +197,7 @@ export const CulturalAdapter: React.FC = () => {
   const getIconComponent = (iconName: string) => {
     switch (iconName) {
       case 'cross': return <Cross className="w-6 h-6" />;
-      case 'lotus': return <Lotus className="w-6 h-6" />;
+      case 'flower2': return <Flower2 className="w-6 h-6" />;
       case 'sun': return <Sun className="w-6 h-6" />;
       case 'shield': return <Shield className="w-6 h-6" />;
       default: return <Heart className="w-6 h-6" />;
