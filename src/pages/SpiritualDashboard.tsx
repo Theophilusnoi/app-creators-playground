@@ -13,6 +13,7 @@ import { MeditationTracker } from '@/components/spiritual/MeditationTracker';
 import { DreamForm } from '@/components/spiritual/DreamForm';
 import { ShadowWorkForm } from '@/components/spiritual/ShadowWorkForm';
 import { SynchronicityForm } from '@/components/spiritual/SynchronicityForm';
+import { CulturalAdapter } from '@/components/spiritual/CulturalAdapter';
 import { 
   Brain, 
   TrendingUp, 
@@ -25,7 +26,8 @@ import {
   Play,
   Moon,
   Eye,
-  Sparkles
+  Sparkles,
+  Globe
 } from "lucide-react";
 
 export default function SpiritualDashboard() {
@@ -40,10 +42,14 @@ export default function SpiritualDashboard() {
         </div>
 
         <Tabs defaultValue="seraphina" className="w-full">
-          <TabsList className="grid w-full grid-cols-6 lg:grid-cols-12 bg-black/30 mb-8">
+          <TabsList className="grid w-full grid-cols-6 lg:grid-cols-13 bg-black/30 mb-8">
             <TabsTrigger value="seraphina" className="data-[state=active]:bg-purple-600">
               <MessageCircle className="w-4 h-4 mr-2" />
               Seraphina
+            </TabsTrigger>
+            <TabsTrigger value="cultural" className="data-[state=active]:bg-purple-600">
+              <Globe className="w-4 h-4 mr-2" />
+              Cultural
             </TabsTrigger>
             <TabsTrigger value="community" className="data-[state=active]:bg-purple-600">
               <Users className="w-4 h-4 mr-2" />
@@ -93,6 +99,10 @@ export default function SpiritualDashboard() {
 
           <TabsContent value="seraphina">
             <SoulGuideChat />
+          </TabsContent>
+
+          <TabsContent value="cultural">
+            <CulturalAdapter />
           </TabsContent>
 
           <TabsContent value="community">
