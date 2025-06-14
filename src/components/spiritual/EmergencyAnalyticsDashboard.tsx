@@ -203,12 +203,14 @@ export const EmergencyAnalyticsDashboard: React.FC = () => {
       }
 
       if (data) {
+        // Type cast the data to our expected format
+        const metricsData = data as EmergencyMetrics;
         setMetrics({
-          totalEmergencies: data.totalEmergencies || 0,
-          averageResponseTime: data.averageResponseTime || 0,
-          responseTimes: data.responseTimes || [],
-          traditionDistribution: data.traditionDistribution || [],
-          resolutionRates: data.resolutionRates || []
+          totalEmergencies: metricsData.totalEmergencies || 0,
+          averageResponseTime: metricsData.averageResponseTime || 0,
+          responseTimes: metricsData.responseTimes || [],
+          traditionDistribution: metricsData.traditionDistribution || [],
+          resolutionRates: metricsData.resolutionRates || []
         });
       }
       
