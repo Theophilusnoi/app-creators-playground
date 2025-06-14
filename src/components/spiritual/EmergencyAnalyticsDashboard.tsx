@@ -203,8 +203,8 @@ export const EmergencyAnalyticsDashboard: React.FC = () => {
       }
 
       if (data) {
-        // Type cast the data to our expected format
-        const metricsData = data as EmergencyMetrics;
+        // Properly type cast the data from unknown to our expected format
+        const metricsData = data as unknown as EmergencyMetrics;
         setMetrics({
           totalEmergencies: metricsData.totalEmergencies || 0,
           averageResponseTime: metricsData.averageResponseTime || 0,
