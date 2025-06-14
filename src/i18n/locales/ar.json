@@ -1,0 +1,60 @@
+
+{
+  "common": {
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "retry": "المحاولة مرة أخرى",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "close": "إغلاق"
+  },
+  "spiritual": {
+    "protection": {
+      "title": "الحماية الإلهية",
+      "subtitle": "أنت محاط بنور {lightColor}",
+      "prayer": "{prayer}",
+      "visualization": "تصور {protectionSymbol} يحميك",
+      "affirmation": "{deity} يراقبك"
+    },
+    "grounding": {
+      "title": "ممارسة التأريض",
+      "breathe": "تنفس بعمق واشعر بارتباطك بالأرض",
+      "anchor": "ثبت نفسك في حضورك الجسدي",
+      "stability": "اشعر بالاستقرار يتدفق من خلالك"
+    },
+    "emergency": {
+      "crisis_detected": "تم اكتشاف أزمة روحية",
+      "immediate_help": "تم تفعيل المساعدة الروحية الفورية",
+      "protection_active": "بروتوكولات الحماية نشطة الآن",
+      "human_support": "يتم توصيلك بالدعم البشري",
+      "stay_calm": "يرجى البقاء هادئا، المساعدة في الطريق"
+    }
+  },
+  "traditions": {
+    "christian": "مسيحي",
+    "buddhist": "بوذي",
+    "hindu": "هندوسي",
+    "islamic": "إسلامي",
+    "indigenous": "السكان الأصليون",
+    "secular": "علماني/علمي"
+  },
+  "voice": {
+    "generating": "إنشاء التوجيه الصوتي...",
+    "playing": "تشغيل التوجيه الروحي",
+    "error": "الصوت غير متاح، عرض التوجيه النصي",
+    "api_key_missing": "خدمة الصوت غير مكونة"
+  },
+  "cultural": {
+    "adaptation": {
+      "title": "التكيف الثقافي",
+      "description": "تم تكييف المحتوى لتقليد {tradition}",
+      "language_set": "تم تعيين اللغة إلى {language}",
+      "preferences_saved": "تم حفظ التفضيلات الروحية"
+    },
+    "validation": {
+      "inappropriate_term": "قد لا يكون هذا المصطلح مناسبا ثقافيا",
+      "suggestion": "فكر في استخدام: {alternatives}",
+      "cultural_warning": "الحساسية الثقافية: {warning}"
+    }
+  }
+}

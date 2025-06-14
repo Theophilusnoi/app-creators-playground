@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from "@/components/auth/AuthProvider";
 import { AuthPage } from "@/components/auth/AuthPage";
 import SpiritualDashboard from "./pages/SpiritualDashboard";
 import NotFound from "./pages/NotFound";
+import './i18n'; // Initialize i18n
 
 const queryClient = new QueryClient();
 

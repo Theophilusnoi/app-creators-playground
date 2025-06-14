@@ -1,0 +1,60 @@
+
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "retry": "Intentar de Nuevo",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "close": "Cerrar"
+  },
+  "spiritual": {
+    "protection": {
+      "title": "Protección Divina",
+      "subtitle": "Estás rodeado de luz {lightColor}",
+      "prayer": "{prayer}",
+      "visualization": "Visualiza {protectionSymbol} protegiéndote",
+      "affirmation": "{deity} vela por ti"
+    },
+    "grounding": {
+      "title": "Práctica de Conexión",
+      "breathe": "Respira profundamente y siente tu conexión con la tierra",
+      "anchor": "Ancláte en tu presencia física", 
+      "stability": "Siente la estabilidad fluyendo a través de ti"
+    },
+    "emergency": {
+      "crisis_detected": "Crisis espiritual detectada",
+      "immediate_help": "Ayuda espiritual inmediata activada",
+      "protection_active": "Los protocolos de protección están activos",
+      "human_support": "Conectándote con apoyo humano",
+      "stay_calm": "Por favor mantén la calma, la ayuda está en camino"
+    }
+  },
+  "traditions": {
+    "christian": "Cristiano",
+    "buddhist": "Budista",
+    "hindu": "Hindú", 
+    "islamic": "Islámico",
+    "indigenous": "Indígena",
+    "secular": "Secular/Científico"
+  },
+  "voice": {
+    "generating": "Generando guía de voz...",
+    "playing": "Reproduciendo guía espiritual",
+    "error": "Voz no disponible, mostrando guía de texto",
+    "api_key_missing": "Servicio de voz no configurado"
+  },
+  "cultural": {
+    "adaptation": {
+      "title": "Adaptación Cultural",
+      "description": "Contenido adaptado para la tradición {tradition}",
+      "language_set": "Idioma configurado a {language}",
+      "preferences_saved": "Preferencias espirituales guardadas"
+    },
+    "validation": {
+      "inappropriate_term": "Este término puede no ser culturalmente apropiado",
+      "suggestion": "Considera usar: {alternatives}",
+      "cultural_warning": "Sensibilidad cultural: {warning}"
+    }
+  }
+}

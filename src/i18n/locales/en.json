@@ -1,0 +1,60 @@
+
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Try Again",
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close"
+  },
+  "spiritual": {
+    "protection": {
+      "title": "Divine Protection",
+      "subtitle": "You are surrounded by {lightColor} light",
+      "prayer": "{prayer}",
+      "visualization": "Visualize {protectionSymbol} protecting you",
+      "affirmation": "{deity} watches over you"
+    },
+    "grounding": {
+      "title": "Grounding Practice",
+      "breathe": "Breathe deeply and feel your connection to the earth",
+      "anchor": "Anchor in your physical presence",
+      "stability": "Feel stability flowing through you"
+    },
+    "emergency": {
+      "crisis_detected": "Spiritual crisis detected",
+      "immediate_help": "Immediate spiritual help activated",
+      "protection_active": "Protection protocols are now active",
+      "human_support": "Connecting you with human support",
+      "stay_calm": "Please stay calm, help is on the way"
+    }
+  },
+  "traditions": {
+    "christian": "Christian",
+    "buddhist": "Buddhist", 
+    "hindu": "Hindu",
+    "islamic": "Islamic",
+    "indigenous": "Indigenous",
+    "secular": "Secular/Scientific"
+  },
+  "voice": {
+    "generating": "Generating voice guidance...",
+    "playing": "Playing spiritual guidance",
+    "error": "Voice unavailable, showing text guidance",
+    "api_key_missing": "Voice service not configured"
+  },
+  "cultural": {
+    "adaptation": {
+      "title": "Cultural Adaptation",
+      "description": "Content adapted for {tradition} tradition",
+      "language_set": "Language set to {language}",
+      "preferences_saved": "Spiritual preferences saved"
+    },
+    "validation": {
+      "inappropriate_term": "This term may not be culturally appropriate",
+      "suggestion": "Consider using: {alternatives}",
+      "cultural_warning": "Cultural sensitivity: {warning}"
+    }
+  }
+}

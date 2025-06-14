@@ -1,0 +1,60 @@
+
+{
+  "common": {
+    "loading": "लोड हो रहा है...",
+    "error": "त्रुटि",
+    "retry": "पुनः प्रयास करें",
+    "cancel": "रद्द करें",
+    "save": "सेव करें",
+    "close": "बंद करें"
+  },
+  "spiritual": {
+    "protection": {
+      "title": "दिव्य सुरक्षा",
+      "subtitle": "आप {lightColor} प्रकाश से घिरे हैं",
+      "prayer": "{prayer}",
+      "visualization": "{protectionSymbol} आपकी रक्षा करते हुए देखें",
+      "affirmation": "{deity} आप पर नजर रखते हैं"
+    },
+    "grounding": {
+      "title": "भूमिकरण अभ्यास",
+      "breathe": "गहरी सांस लें और पृथ्वी से अपना संबंध महसूस करें",
+      "anchor": "अपनी भौतिक उपस्थिति में स्थिर हों",
+      "stability": "स्थिरता को अपने अंदर प्रवाहित होते महसूस करें"
+    },
+    "emergency": {
+      "crisis_detected": "आध्यात्मिक संकट का पता चला",
+      "immediate_help": "तत्काल आध्यात्मिक सहायता सक्रिय",
+      "protection_active": "सुरक्षा प्रोटोकॉल अब सक्रिय हैं",
+      "human_support": "मानवीय सहायता से जोड़ा जा रहा है",
+      "stay_calm": "कृपया शांत रहें, सहायता आ रही है"
+    }
+  },
+  "traditions": {
+    "christian": "ईसाई",
+    "buddhist": "बौद्ध",
+    "hindu": "हिंदू",
+    "islamic": "इस्लामी",
+    "indigenous": "स्वदेशी",
+    "secular": "धर्मनिरपेक्ष/वैज्ञानिक"
+  },
+  "voice": {
+    "generating": "आवाज मार्गदर्शन तैयार कर रहे हैं...",
+    "playing": "आध्यात्मिक मार्गदर्शन चला रहे हैं",
+    "error": "आवाज उपलब्ध नहीं, पाठ मार्गदर्शन दिखा रहे हैं",
+    "api_key_missing": "आवाज सेवा कॉन्फ़िगर नहीं है"
+  },
+  "cultural": {
+    "adaptation": {
+      "title": "सांस्कृतिक अनुकूलन",
+      "description": "{tradition} परंपरा के लिए सामग्री अनुकूलित",
+      "language_set": "भाषा {language} पर सेट की गई",
+      "preferences_saved": "आध्यात्मिक प्राथमिकताएं सहेजी गईं"
+    },
+    "validation": {
+      "inappropriate_term": "यह शब्द सांस्कृतिक रूप से उपयुक्त नहीं हो सकता",
+      "suggestion": "इसका उपयोग करने पर विचार करें: {alternatives}",
+      "cultural_warning": "सांस्कृतिक संवेदनशीलता: {warning}"
+    }
+  }
+}
