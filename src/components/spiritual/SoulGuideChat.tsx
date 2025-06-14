@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,6 +17,12 @@ interface Message {
   timestamp: Date;
   isEmergency?: boolean;
   protectionType?: string;
+  [key: string]: any; // Add index signature for Json compatibility
+}
+
+interface ConversationData {
+  messages?: Message[];
+  [key: string]: any;
 }
 
 interface UserPersonality {
@@ -70,8 +75,16 @@ export const SoulGuideChat = () => {
       if (conversation) {
         setConversationId(conversation.id);
         setEmergencyCount(conversation.spiritual_emergency_count || 0);
-        if (conversation.conversation_data?.messages) {
-          setMessages(conversation.conversation_data.messages);
+        
+        // Properly type cast the conversation_data
+        const conversationData = conversation.conversation_data as ConversationData;
+        if (conversationData?.messages) {
+          // Convert timestamp strings back to Date objects
+          const messagesWithDates = conversationData.messages.map((msg: any) => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp)
+          }));
+          setMessages(messagesWithDates);
         }
       } else {
         await createNewConversation();
@@ -91,11 +104,14 @@ export const SoulGuideChat = () => {
         timestamp: new Date()
       };
 
+      // Prepare data for database storage
+      const conversationData: ConversationData = { messages: [welcomeMessage] };
+
       const { data, error } = await supabase
         .from('soul_guide_conversations')
         .insert({
           user_id: user?.id,
-          conversation_data: { messages: [welcomeMessage] },
+          conversation_data: conversationData as any, // Type cast for Json compatibility
           spiritual_emergency_count: 0
         })
         .select()
@@ -247,12 +263,14 @@ export const SoulGuideChat = () => {
       const updatedMessages = [...messages, userMessage, aiMessage];
       setMessages(updatedMessages);
 
-      // Save to database
+      // Save to database with proper type casting
       if (conversationId) {
+        const conversationData: ConversationData = { messages: updatedMessages };
+        
         await supabase
           .from('soul_guide_conversations')
           .update({
-            conversation_data: { messages: updatedMessages },
+            conversation_data: conversationData as any, // Type cast for Json compatibility
             spiritual_emergency_count: isEmergency ? emergencyCount + 1 : emergencyCount,
             updated_at: new Date().toISOString()
           })
