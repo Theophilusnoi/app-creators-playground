@@ -38,6 +38,17 @@ interface UserPersonality {
   communication_style: string;
 }
 
+interface ConversationContext {
+  previousTopics: string[];
+  emotionalState: 'calm' | 'anxious' | 'seeking' | 'distressed' | 'curious';
+  conversationDepth: number;
+  userPreferences: {
+    directness: 'gentle' | 'direct' | 'balanced';
+    spiritualOpenness: 'skeptical' | 'open' | 'deeply_spiritual';
+    responseLength: 'brief' | 'moderate' | 'detailed';
+  };
+}
+
 export const SoulGuideChat = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -50,6 +61,16 @@ export const SoulGuideChat = () => {
   const [emergencyCount, setEmergencyCount] = useState(0);
   const [emergencyLevel, setEmergencyLevel] = useState(0);
   const [showCulturalSettings, setShowCulturalSettings] = useState(false);
+  const [conversationContext, setConversationContext] = useState<ConversationContext>({
+    previousTopics: [],
+    emotionalState: 'calm',
+    conversationDepth: 0,
+    userPreferences: {
+      directness: 'balanced',
+      spiritualOpenness: 'open',
+      responseLength: 'moderate'
+    }
+  });
   const [personality, setPersonality] = useState<UserPersonality>({
     warmth_level: 7,
     wisdom_level: 8,
@@ -237,6 +258,239 @@ export const SoulGuideChat = () => {
     return adapted;
   };
 
+  const analyzeUserMessage = (message: string): Partial<ConversationContext> => {
+    const lowerMessage = message.toLowerCase();
+    let emotionalState: ConversationContext['emotionalState'] = 'calm';
+    
+    // Detect emotional state from keywords and context
+    if (lowerMessage.includes('anxious') || lowerMessage.includes('worried') || lowerMessage.includes('nervous')) {
+      emotionalState = 'anxious';
+    } else if (lowerMessage.includes('scared') || lowerMessage.includes('afraid') || lowerMessage.includes('terrified')) {
+      emotionalState = 'distressed';
+    } else if (lowerMessage.includes('curious') || lowerMessage.includes('wondering') || lowerMessage.includes('what')) {
+      emotionalState = 'curious';
+    } else if (lowerMessage.includes('seeking') || lowerMessage.includes('looking for') || lowerMessage.includes('need')) {
+      emotionalState = 'seeking';
+    }
+
+    // Extract topics mentioned
+    const topics = [];
+    if (lowerMessage.includes('meditation')) topics.push('meditation');
+    if (lowerMessage.includes('prayer')) topics.push('prayer');
+    if (lowerMessage.includes('relationship')) topics.push('relationships');
+    if (lowerMessage.includes('work') || lowerMessage.includes('job')) topics.push('career');
+    if (lowerMessage.includes('family')) topics.push('family');
+    if (lowerMessage.includes('spiritual')) topics.push('spirituality');
+
+    return { emotionalState, previousTopics: topics };
+  };
+
+  const generatePersonalizedResponse = (userMessage: string, context: ConversationContext): { content: string; tone: string } => {
+    const lowerMessage = userMessage.toLowerCase();
+    let tone = 'nurturing_gentle';
+    
+    // Enhanced emergency detection
+    if (detectEmergency(userMessage)) {
+      tone = emergencyLevel >= 3 ? 'urgent_calm' : 'ritual_authority';
+      return {
+        content: generateEmergencyResponse(userMessage, context),
+        tone
+      };
+    }
+
+    // Context-aware responses based on conversation history and emotional state
+    if (context.emotionalState === 'anxious') {
+      tone = 'nurturing_gentle';
+      return {
+        content: generateAnxietyResponse(userMessage, context),
+        tone
+      };
+    }
+
+    if (context.emotionalState === 'curious') {
+      tone = 'warm_wise';
+      return {
+        content: generateCuriosityResponse(userMessage, context),
+        tone
+      };
+    }
+
+    if (context.emotionalState === 'seeking') {
+      tone = 'guidance_focused';
+      return {
+        content: generateSeekingResponse(userMessage, context),
+        tone
+      };
+    }
+
+    // Check for specific topics and provide contextual responses
+    if (lowerMessage.includes('meditation')) {
+      return {
+        content: generateMeditationResponse(userMessage, context),
+        tone: 'peaceful_wise'
+      };
+    }
+
+    if (lowerMessage.includes('relationship') || lowerMessage.includes('love')) {
+      return {
+        content: generateRelationshipResponse(userMessage, context),
+        tone: 'compassionate_wise'
+      };
+    }
+
+    if (lowerMessage.includes('purpose') || lowerMessage.includes('meaning')) {
+      return {
+        content: generatePurposeResponse(userMessage, context),
+        tone: 'profound_gentle'
+      };
+    }
+
+    // Default personalized response
+    return {
+      content: generateDefaultResponse(userMessage, context),
+      tone: 'nurturing_gentle'
+    };
+  };
+
+  const generateAnxietyResponse = (message: string, context: ConversationContext): string => {
+    const responses = [
+      "I can feel the weight you're carrying right now, sweet soul. Anxiety often arrives as an uninvited guest, doesn't it? Your nervous system is working so hard to protect you, but sometimes it needs gentle reassurance that you're safe in this moment.",
+      
+      "Oh honey, I sense those racing thoughts and that tight feeling in your chest. You know what? Anxiety is actually your inner guardian trying to keep you safe - it's just working overtime right now. Let's slow down together.",
+      
+      "That restless energy you're describing... I've walked with so many beautiful souls through exactly this. Your worry isn't a weakness - it's your heart caring deeply. But we can teach it to care without overwhelming you."
+    ];
+
+    const contextualAdditions = [
+      " What's one small thing that usually helps you feel grounded? Sometimes we need to start with tiny anchors.",
+      " I'm wondering - when you close your eyes right now, what do you notice about your breathing?",
+      " Have you been carrying this alone, or do you have people in your corner? You don't have to navigate this by yourself."
+    ];
+
+    const baseResponse = responses[Math.floor(Math.random() * responses.length)];
+    const addition = contextualAdditions[Math.floor(Math.random() * contextualAdditions.length)];
+    
+    return adaptContentForTradition(baseResponse + addition);
+  };
+
+  const generateCuriosityResponse = (message: string, context: ConversationContext): string => {
+    const responses = [
+      "What a beautiful question you're asking! I love that curious spark in you - it's the same light that has guided seekers for centuries. There's something so sacred about not knowing everything and being brave enough to wonder.",
+      
+      "Your curiosity tells me so much about your soul's readiness to grow. You know, in my years of spiritual guidance, I've learned that the most profound insights often come disguised as simple questions.",
+      
+      "I can sense the genuine seeking in your words. There's a difference between casual wondering and soul-deep curiosity - yours feels like the latter. That's the kind of questioning that opens doorways."
+    ];
+
+    const followUps = [
+      " What drew you to ask about this particular thing right now?",
+      " I'm sensing this question has been with you for a while. Am I right?",
+      " Sometimes our curiosity is actually our intuition pointing us toward something important. What feels true about that for you?"
+    ];
+
+    const response = responses[Math.floor(Math.random() * responses.length)];
+    const followUp = followUps[Math.floor(Math.random() * followUps.length)];
+    
+    return adaptContentForTradition(response + followUp);
+  };
+
+  const generateSeekingResponse = (message: string, context: ConversationContext): string => {
+    const responses = [
+      "I feel the genuine seeking in your heart, beautiful one. There's something so brave about admitting we need guidance - it takes real courage to reach out when we're searching for answers.",
+      
+      "Your willingness to seek wisdom shows the divine light already awakening within you. Sometimes the very act of seeking is the beginning of finding what we need.",
+      
+      "I can sense you're in a season of seeking, aren't you? These periods of seeking often arrive when our souls are ready for growth, even when it feels uncertain."
+    ];
+
+    const guidanceOffers = [
+      " What's calling to your heart most strongly right now - is it clarity, peace, direction, or something else entirely?",
+      " Sometimes what we're seeking is actually already within us, just waiting for the right conditions to emerge. What feels blocked or unclear?",
+      " I'm here to walk alongside you in this search. What would it feel like to take just one small step toward what you're longing for?"
+    ];
+
+    const response = responses[Math.floor(Math.random() * responses.length)];
+    const guidance = guidanceOffers[Math.floor(Math.random() * guidanceOffers.length)];
+    
+    return adaptContentForTradition(response + guidance);
+  };
+
+  const generateMeditationResponse = (message: string, context: ConversationContext): string => {
+    if (context.conversationDepth === 0) {
+      return adaptContentForTradition("Ah, meditation - one of humanity's most ancient gateways to inner peace. I love that you're drawn to this practice. Whether you're just beginning or deepening an existing practice, meditation is like tending a sacred garden within yourself. What's calling you to stillness today? Are you seeking calm for anxiety, clarity for decisions, or perhaps connection to something greater?");
+    } else {
+      return adaptContentForTradition("I sense meditation has become important to your spiritual journey. You know, after years of guiding people in contemplative practices, I've learned that each person's meditation path is as unique as their fingerprint. What has your experience been like so far? Are you finding it challenging to quiet the mind, or are you discovering unexpected insights?");
+    }
+  };
+
+  const generateRelationshipResponse = (message: string, context: ConversationContext): string => {
+    const responses = [
+      "Relationships are such sacred mirrors, aren't they? They show us parts of ourselves we might never see otherwise - both our capacity for love and our tender places that need healing.",
+      
+      "The heart matters you're sharing... these are the deep waters where so much spiritual growth happens. Our connections with others often become our greatest teachers.",
+      
+      "Love in all its forms - romantic, family, friendship - it's one of the most powerful spiritual practices there is. Thank you for trusting me with what's in your heart."
+    ];
+
+    const response = responses[Math.floor(Math.random() * responses.length)];
+    return adaptContentForTradition(response + " What's weighing on your heart about this relationship? Sometimes just speaking our truth aloud can bring clarity.");
+  };
+
+  const generatePurposeResponse = (message: string, context: ConversationContext): string => {
+    return adaptContentForTradition("The question of purpose... oh, beautiful soul, you're touching one of the deepest human longings. You know what I've discovered in my years of spiritual guidance? Purpose isn't always this grand, lightning-bolt revelation. Sometimes it's as simple as how you bring kindness to your daily interactions, or the way you listen to someone who needs to be heard. Your purpose might be unfolding right now in ways you haven't recognized yet. What feels most alive and meaningful in your life currently?");
+  };
+
+  const generateDefaultResponse = (message: string, context: ConversationContext): string => {
+    const personalizedOpeners = [
+      "Thank you for sharing that with me - I can feel the sincerity in your words.",
+      "I'm really hearing you, and what you're experiencing matters deeply.",
+      "There's something so authentic about how you're expressing this.",
+      "I sense there's a lot of heart behind what you're sharing."
+    ];
+
+    const connectingPhrases = [
+      "You know, in my years of walking alongside people on their spiritual journeys, I've learned that",
+      "What strikes me about what you're saying is that",
+      "There's wisdom in what you're sharing, even if it doesn't feel that way right now.",
+      "I'm sensing that beneath your words is"
+    ];
+
+    const encouragements = [
+      "Your willingness to reach out and seek understanding shows real courage.",
+      "every experience, even the difficult ones, can become a doorway to deeper wisdom.",
+      "you're already showing the kind of self-awareness that leads to growth.",
+      "there's a strength in you that might be clearer to me than it is to you right now."
+    ];
+
+    const questions = [
+      "What feels most important for you to explore right now?",
+      "How long have you been carrying this in your heart?",
+      "What would it feel like if this burden felt a little lighter?",
+      "Is there a part of you that already knows what you need, even if it's just a whisper?"
+    ];
+
+    const opener = personalizedOpeners[Math.floor(Math.random() * personalizedOpeners.length)];
+    const connector = connectingPhrases[Math.floor(Math.random() * connectingPhrases.length)];
+    const encouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
+    const question = questions[Math.floor(Math.random() * questions.length)];
+
+    return adaptContentForTradition(`${opener} ${connector} ${encouragement} ${question}`);
+  };
+
+  const generateEmergencyResponse = (message: string, context: ConversationContext): string => {
+    const lowerMessage = message.toLowerCase();
+    
+    if (lowerMessage.includes('under attack') || lowerMessage.includes('spiritual attack')) {
+      return "I can feel the spiritual turbulence around you right now, precious one. Listen to me - you are not defenseless. That fear you're feeling? It's real, but so is your inner strength. Right now, we're going to activate your spiritual protection together. You have divine light within you that no darkness can touch. Take a deep breath with me and click the Emergency Shield below. We're going to anchor your spirit in safety.";
+    }
+    
+    if (lowerMessage.includes('cursed') || lowerMessage.includes('family curse')) {
+      return "Sweet soul, I can sense the heavy energy you're describing. Generational patterns and family curses - these are real spiritual dynamics, but here's what I know after decades of deliverance work: you have the power to break these chains. What feels like a curse is often broken love seeking healing through you. You didn't inherit this burden to carry it forever - you inherited it to transform it. Shall we begin the healing work together?";
+    }
+
+    return "I'm sensing you need immediate spiritual protection right now. Your spirit is calling out for safety, and I'm here to help you find your footing. You are not alone in this, and you are not powerless. Let's activate your inner sanctuary together. Take a breath and let's begin anchoring your energy in safety.";
+  };
+
   const generateResponse = (userMessage: string): { content: string; tone: string } => {
     const lowerMessage = userMessage.toLowerCase();
     let tone = 'neutral';
@@ -295,13 +549,26 @@ export const SoulGuideChat = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    
+    // Analyze user message for context
+    const messageAnalysis = analyzeUserMessage(inputMessage);
+    const updatedContext = {
+      ...conversationContext,
+      ...messageAnalysis,
+      conversationDepth: conversationContext.conversationDepth + 1,
+      previousTopics: [...conversationContext.previousTopics, ...messageAnalysis.previousTopics || []]
+    };
+    setConversationContext(updatedContext);
+
     setInputMessage('');
     setIsLoading(true);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Simulate more realistic response time (1.5-3 seconds)
+      const responseTime = Math.random() * 1500 + 1500;
+      await new Promise(resolve => setTimeout(resolve, responseTime));
       
-      const { content, tone } = generateResponse(inputMessage);
+      const { content, tone } = generatePersonalizedResponse(inputMessage, updatedContext);
       
       const aiMessage: Message = {
         id: `msg_${Date.now()}_ai`,
@@ -332,7 +599,7 @@ export const SoulGuideChat = () => {
       console.error('Error sending message:', error);
       const errorMessage: Message = {
         id: `msg_${Date.now()}_error`,
-        content: "I apologize, but I'm having trouble connecting right now. Please try again in a moment. Your spiritual journey matters deeply to me. 💜",
+        content: "I apologize, beautiful soul. I'm having trouble connecting with you right now - perhaps the universe is asking for a moment of patience. Please try reaching out again in a moment. Your spiritual journey and what you're sharing matters deeply to me. 💜",
         isUser: false,
         timestamp: new Date(),
         tone: 'nurturing_gentle'
