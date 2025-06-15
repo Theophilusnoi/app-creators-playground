@@ -23,11 +23,11 @@ class VoiceService {
       // Use fetch directly to get binary data instead of supabase.functions.invoke
       const { data: { session } } = await supabase.auth.getSession();
       
-      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/generate-speech`, {
+      const response = await fetch(`https://oyzbmwznxwsfhajvialr.supabase.co/functions/v1/generate-speech`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token || supabase.supabaseKey}`,
+          'Authorization': `Bearer ${session?.access_token || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95emJtd3pueHdzZmhhanZpYWxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0MDI2MzcsImV4cCI6MjA2MDk3ODYzN30.ig0-A78kSPOM3UBd_bxfekPmDTWTV_e4fHAFBZCSXVA'}`,
         },
         body: JSON.stringify({
           text: options.text,
