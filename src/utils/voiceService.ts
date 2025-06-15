@@ -30,29 +30,29 @@ class VoiceService {
         throw new Error(error.message)
       }
 
-      // Check if we received an error response (JSON)
-      if (data && typeof data === 'object' && data.error) {
-        throw new Error(data.error)
-      }
-
-      // The edge function returns binary audio data directly
-      if (data instanceof ArrayBuffer || data instanceof Uint8Array) {
-        const audioBlob = new Blob([data], { type: 'audio/mpeg' })
-        const audioUrl = URL.createObjectURL(audioBlob)
+      // The edge function now returns binary audio data directly
+      if (data) {
+        // Convert the response to a Blob with the correct MIME type
+        let audioBlob: Blob;
+        
+        if (data instanceof ArrayBuffer) {
+          audioBlob = new Blob([data], { type: 'audio/mpeg' });
+        } else if (data instanceof Uint8Array) {
+          audioBlob = new Blob([data], { type: 'audio/mpeg' });
+        } else {
+          // Fallback: treat as binary data
+          audioBlob = new Blob([data], { type: 'audio/mpeg' });
+        }
+        
+        const audioUrl = URL.createObjectURL(audioBlob);
+        
         return {
           success: true,
           audioUrl
-        }
+        };
       }
 
-      // Fallback: if data is not binary, try to create blob anyway
-      const audioBlob = new Blob([data], { type: 'audio/mpeg' })
-      const audioUrl = URL.createObjectURL(audioBlob)
-
-      return {
-        success: true,
-        audioUrl
-      }
+      throw new Error('No audio data received');
     } catch (error) {
       console.error('Voice generation failed:', error)
       return {
