@@ -30,7 +30,22 @@ class VoiceService {
         throw new Error(error.message)
       }
 
-      // The edge function returns audio data directly
+      // Check if we received an error response (JSON)
+      if (data && typeof data === 'object' && data.error) {
+        throw new Error(data.error)
+      }
+
+      // The edge function returns binary audio data directly
+      if (data instanceof ArrayBuffer || data instanceof Uint8Array) {
+        const audioBlob = new Blob([data], { type: 'audio/mpeg' })
+        const audioUrl = URL.createObjectURL(audioBlob)
+        return {
+          success: true,
+          audioUrl
+        }
+      }
+
+      // Fallback: if data is not binary, try to create blob anyway
       const audioBlob = new Blob([data], { type: 'audio/mpeg' })
       const audioUrl = URL.createObjectURL(audioBlob)
 
@@ -45,12 +60,6 @@ class VoiceService {
         error: error instanceof Error ? error.message : 'Unknown error'
       }
     }
-  }
-
-  // Legacy method - no longer needed but kept for compatibility
-  setApiKey(key: string) {
-    // This method is now a no-op since we use Supabase secrets
-    console.log('API key management is now handled by Supabase secrets')
   }
 
   cleanup(audioUrl?: string) {
