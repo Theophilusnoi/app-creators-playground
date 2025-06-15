@@ -3,7 +3,7 @@ import React from 'react';
 import { MeditationTracker } from '@/components/spiritual/MeditationTracker';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { Lotus, Moon, Sun } from 'lucide-react';
+import { Sparkle, Moon, Sun } from 'lucide-react';
 
 export default function MeditationEnvironment() {
   const navigate = useNavigate();
@@ -20,7 +20,7 @@ export default function MeditationEnvironment() {
         </Button>
       </div>
       <div className="mb-8 flex flex-col items-center">
-        <Lotus className="w-16 h-16 text-purple-300 animate-pulse mb-4" />
+        <Sparkle className="w-16 h-16 text-purple-300 animate-pulse mb-4" />
         <h1 className="text-4xl font-bold text-white mb-2">Meditation Environment</h1>
         <p className="text-purple-200 text-center max-w-xl">
           Enter a tranquil space to focus, relax, and meditate. Use the timer, choose your session, and unwind free from distractions.
