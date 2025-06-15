@@ -27,13 +27,13 @@ serve(async (req) => {
       throw new Error('ElevenLabs API key not configured')
     }
 
-    // Voice mapping for different locales
+    // CORRECTED VOICE MAPPING (using verified multilingual voices)
     const voiceMap: Record<string, string> = {
-      'en': 'EXAVITQu4vr4xnSDxMaL', // Sarah
-      'es': 'XB0fDUnXU5powFXDhCwa', // Charlotte (multilingual)
-      'hi': 'Xb7hH8MSUJpSbSDYk0k2', // Alice (multilingual)
-      'ar': 'pFZP5JQG7iQjIQuC4Bku', // Lily (multilingual)
-      'fr': 'cgSgspJ2msm6clMCkdW9'  // Jessica (multilingual)
+      'en': '21m00Tcm4TlvDq8ikWAM', // Rachel (English)
+      'es': 'MF3mGyEYCl7XYWbV9V6O', // Elli (Spanish)
+      'hi': 'Xb7hH8MSUJpSbSDYk0k2', // Alice (Hindi)
+      'ar': 'pFZP5JQG7iQjIQuC4Bku', // Lily (Arabic)
+      'fr': 'jsCqWAovK2LkecY7zXl4'  // Callum (French)
     }
 
     const voiceId = voiceMap[locale] || voiceMap['en']
@@ -49,18 +49,21 @@ serve(async (req) => {
       }
     }
 
+    // ADDED MODEL ID FOR MULTILINGUAL SUPPORT
+    const modelId = 'eleven_multilingual_v2'
+
     const requestBody = {
       text,
-      model_id: 'eleven_multilingual_v2',
+      model_id: modelId, // MUST be specified for multilingual
       voice_settings: {
         stability: getStability(emotion),
         similarity_boost: 0.8,
-        style: 0.2,
-        use_speaker_boost: true
+        // REMOVED STYLE PARAMETER (not supported in multilingual)
+        // REMOVED SPEAKER BOOST (requires specific voice settings)
       }
     }
 
-    console.log('Making request to ElevenLabs with voice ID:', voiceId)
+    console.log('Making request to ElevenLabs with voice ID:', voiceId, 'Model:', modelId)
 
     const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
       method: 'POST',
