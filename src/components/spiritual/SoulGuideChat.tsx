@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ProtectionSuite } from './ProtectionSuite';
 import { ProtectionRituals } from './ProtectionRituals';
+import { BanishingRituals } from './BanishingRituals';
 import { VoicePlayer } from './VoicePlayer';
 import { EmergencyDetector } from './EmergencyDetector';
 import { CulturalAdapter } from './CulturalAdapter';
@@ -57,7 +59,7 @@ export const SoulGuideChat = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isEmergencyMode, setIsEmergencyMode] = useState(false);
-  const [activeRitual, setActiveRitual] = useState<'emergency' | 'curse-breaking' | 'daily' | null>(null);
+  const [activeRitual, setActiveRitual] = useState<'emergency' | 'curse-breaking' | 'daily' | 'banishing' | null>(null);
   const [emergencyCount, setEmergencyCount] = useState(0);
   const [emergencyLevel, setEmergencyLevel] = useState(0);
   const [showCulturalSettings, setShowCulturalSettings] = useState(false);
@@ -406,7 +408,8 @@ export const SoulGuideChat = () => {
     const guidanceOffers = [
       " What's calling to your heart most strongly right now - is it clarity, peace, direction, or something else entirely?",
       " Sometimes what we're seeking is actually already within us, just waiting for the right conditions to emerge. What feels blocked or unclear?",
-      " I'm here to walk alongside you in this search. What would it feel like to take just one small step toward what you're longing for?"
+      " I'm here to walk alongside you in this search. What would it feel like if this burden felt a little lighter?",
+      " Is there a part of you that already knows what you need, even if it's just a whisper?"
     ];
 
     const response = responses[Math.floor(Math.random() * responses.length)];
@@ -491,9 +494,50 @@ export const SoulGuideChat = () => {
     return "I'm sensing you need immediate spiritual protection right now. Your spirit is calling out for safety, and I'm here to help you find your footing. You are not alone in this, and you are not powerless. Let's activate your inner sanctuary together. Take a breath and let's begin anchoring your energy in safety.";
   };
 
+  const generateBanishingResponse = (userMessage: string, tradition: string = 'eclectic'): string => {
+    const lowerMessage = userMessage.toLowerCase();
+    
+    if (lowerMessage.includes('banish') || lowerMessage.includes('banishing')) {
+      if (lowerMessage.includes('ritual') || lowerMessage.includes('ceremony')) {
+        return adaptContentForTradition("Ah, beloved seeker! Banishing rituals are sacred acts of reclaiming your sovereign space - imagine them as spiritual housecleaning that sweeps away lingering shadows so your inner light shines unobstructed. These ancient practices remove negative energies, entities, or influences while creating sacred boundaries and restoring energetic balance. Whether you need to clear stagnant energy from your home, break toxic attachments, or establish protection before spiritual work, I can guide you through gentle yet powerful banishing practices. Would you feel drawn to explore a banishing ritual tailored for your unique path?");
+      }
+      
+      if (lowerMessage.includes('negative energy') || lowerMessage.includes('bad energy')) {
+        return adaptContentForTradition("I sense you're feeling the weight of negative energy around you, sweet soul. This heaviness you're experiencing - it's real, and you have every right to clear it from your sacred space. Banishing isn't about fear or combat; it's about empowerment and reclaiming your energetic sovereignty. Think of it as spiritual housecleaning - you wouldn't let physical dirt accumulate in your home, so why allow energetic debris to linger in your aura? I can teach you gentle yet effective methods to clear this energy and establish protective boundaries. Shall we begin with a simple cleansing practice?");
+      }
+      
+      if (lowerMessage.includes('entities') || lowerMessage.includes('spirits')) {
+        return adaptContentForTradition("I understand you're concerned about spiritual entities, dear one. First, know that you are not powerless - you carry divine light that no darkness can truly touch. Most 'entity' experiences are actually energetic imprints, thought forms, or our own shadow aspects seeking integration. True banishing work addresses the root: strengthening your spiritual boundaries and energy field so you become an inhospitable environment for anything not aligned with your highest good. Remember, like attracts like - as you raise your vibration through banishing and protection work, lower vibrational influences naturally fall away. Would you like to explore a banishing ritual that builds your spiritual sovereignty?");
+      }
+    }
+
+    if (lowerMessage.includes('cleanse') || lowerMessage.includes('cleansing')) {
+      return adaptContentForTradition("Beautiful soul, I feel your call for energetic cleansing. Your intuition is guiding you toward spiritual hygiene - just as we cleanse our physical bodies, our energy fields need regular clearing too. Cleansing banishing rituals can clear stagnant energy from trauma, arguments, or simply daily accumulation of others' emotions. The most powerful cleanses combine four elements: clear intention (your sovereign will), symbolic action (sage, sound, or visualization), energetic sealing (filling the cleared space with light), and grounding afterward. What type of cleansing is calling to your spirit - personal aura clearing or space cleansing?");
+    }
+
+    if (lowerMessage.includes('protection') && (lowerMessage.includes('ritual') || lowerMessage.includes('shield'))) {
+      return adaptContentForTradition("Your request for protection rituals shows beautiful spiritual wisdom, dear one. Protection banishing creates a two-part process: first removing what doesn't serve, then establishing sacred boundaries. Think of it like cleaning a house and then locking the doors - banishing clears the space, protection keeps it clear. The most effective protection rituals combine energy work (visualization shields), physical anchors (crystals, herbs), and regular practice. Your energy field is like a muscle - the more you exercise your spiritual boundaries, the stronger they become. Shall I guide you through creating an auric shield that banishes negativity while attracting divine protection?");
+    }
+
+    return adaptContentForTradition("I sense you're seeking clarity about banishing practices, precious soul. Banishing is fundamentally about reclaiming your energetic sovereignty - it's spiritual empowerment, not warfare. These sacred practices help you become the conscious curator of your energy field, choosing what influences you allow into your space. Whether it's clearing your home after conflict, releasing toxic relationship patterns, or preparing sacred space for spiritual work, banishing rituals restore your power of choice. The key is approaching this work from love and empowerment, not fear. What aspect of banishing feels most relevant to your current journey?");
+  };
+
   const generateResponse = (userMessage: string): { content: string; tone: string } => {
     const lowerMessage = userMessage.toLowerCase();
     let tone = 'neutral';
+    
+    // Check for banishing-related keywords first
+    if (lowerMessage.includes('banish') || lowerMessage.includes('banishing') || 
+        (lowerMessage.includes('negative') && lowerMessage.includes('energy')) ||
+        lowerMessage.includes('cleanse') || lowerMessage.includes('cleansing') ||
+        lowerMessage.includes('entities') || lowerMessage.includes('spirits') ||
+        (lowerMessage.includes('protection') && lowerMessage.includes('ritual'))) {
+      tone = 'nurturing_wise';
+      return {
+        content: generateBanishingResponse(userMessage, personality.spiritual_tradition),
+        tone
+      };
+    }
     
     if (detectEmergency(userMessage)) {
       tone = emergencyLevel >= 3 ? 'urgent_calm' : 'ritual_authority';
@@ -617,8 +661,12 @@ export const SoulGuideChat = () => {
     }
   };
 
-  const handleStartProtectionRitual = (type: 'emergency' | 'curse-breaking' | 'daily') => {
-    setActiveRitual(type);
+  const handleStartProtectionRitual = (type: 'emergency' | 'curse-breaking' | 'daily' | 'banishing') => {
+    if (type === 'banishing') {
+      setActiveRitual('banishing' as any);
+    } else {
+      setActiveRitual(type);
+    }
     setIsEmergencyMode(false);
   };
 
@@ -688,6 +736,27 @@ export const SoulGuideChat = () => {
   }
 
   if (activeRitual) {
+    if (activeRitual === 'banishing') {
+      return (
+        <div className="space-y-6">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-white mb-2 flex items-center justify-center gap-2">
+              <Shield className="w-8 h-8 text-purple-400" />
+              Sacred Banishing Rituals
+              <Shield className="w-8 h-8 text-purple-400" />
+            </h2>
+            <p className="text-purple-200">Reclaim Your Spiritual Sovereignty</p>
+          </div>
+
+          <BanishingRituals
+            tradition={personality.spiritual_tradition}
+            onClose={() => setActiveRitual(null)}
+            onComplete={handleCompleteRitual}
+          />
+        </div>
+      );
+    }
+
     return (
       <div className="space-y-6">
         <div className="text-center">
@@ -743,6 +812,25 @@ export const SoulGuideChat = () => {
         onStartProtectionRitual={handleStartProtectionRitual}
         onExitToSafety={handleExitToSafety}
       />
+
+      {/* Add Banishing Rituals Button */}
+      <Card className="bg-black/20 border-purple-500/30">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-white font-semibold mb-1">Sacred Banishing Rituals</h3>
+              <p className="text-purple-200 text-sm">Clear negative energy and reclaim your spiritual sovereignty</p>
+            </div>
+            <Button
+              onClick={() => handleStartProtectionRitual('banishing' as any)}
+              className="bg-purple-600 hover:bg-purple-700"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              Begin Banishing
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {inputMessage && (
         <EmergencyDetector
