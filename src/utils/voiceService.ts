@@ -18,41 +18,54 @@ export interface VoiceResponse {
 class VoiceService {
   async generateSpeech(options: VoiceOptions): Promise<VoiceResponse> {
     try {
-      const { data, error } = await supabase.functions.invoke('generate-speech', {
-        body: {
+      console.log('Calling Supabase edge function with options:', options);
+      
+      // Use fetch directly to get binary data instead of supabase.functions.invoke
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/generate-speech`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token || supabase.supabaseKey}`,
+        },
+        body: JSON.stringify({
           text: options.text,
           locale: options.locale,
           emotion: options.emotion
-        }
-      })
+        })
+      });
 
-      if (error) {
-        throw new Error(error.message)
+      console.log('Edge function response status:', response.status);
+      console.log('Response content-type:', response.headers.get('content-type'));
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Edge function error:', errorText);
+        throw new Error(errorText);
       }
 
-      // The edge function now returns binary audio data directly
-      if (data) {
-        // Convert the response to a Blob with the correct MIME type
-        let audioBlob: Blob;
+      // Check if response is audio data
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('audio')) {
+        // Get binary audio data
+        const audioBuffer = await response.arrayBuffer();
+        console.log('Received audio buffer, size:', audioBuffer.byteLength);
         
-        if (data instanceof ArrayBuffer) {
-          audioBlob = new Blob([data], { type: 'audio/mpeg' });
-        } else if (data instanceof Uint8Array) {
-          audioBlob = new Blob([data], { type: 'audio/mpeg' });
-        } else {
-          // Fallback: treat as binary data
-          audioBlob = new Blob([data], { type: 'audio/mpeg' });
-        }
-        
+        // Create blob and URL
+        const audioBlob = new Blob([audioBuffer], { type: 'audio/mpeg' });
         const audioUrl = URL.createObjectURL(audioBlob);
         
         return {
           success: true,
           audioUrl
         };
+      } else {
+        // Handle JSON error response
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Unknown error');
       }
 
-      throw new Error('No audio data received');
     } catch (error) {
       console.error('Voice generation failed:', error)
       return {

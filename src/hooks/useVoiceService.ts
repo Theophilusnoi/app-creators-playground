@@ -32,10 +32,10 @@ export const useVoiceService = () => {
         }
 
         // Create new audio element
-        const audio = new Audio(response.audioUrl);
+        const audio = new Audio();
         currentAudioRef.current = audio;
         
-        // Set up event handlers before attempting to play
+        // Set up event handlers before setting src
         audio.onloadeddata = () => {
           console.log('Audio data loaded successfully');
         };
@@ -63,7 +63,9 @@ export const useVoiceService = () => {
           currentAudioRef.current = null;
         };
 
-        // Attempt to play the audio
+        // Set source and attempt to play
+        audio.src = response.audioUrl;
+        
         try {
           setIsPlaying(true);
           await audio.play();
