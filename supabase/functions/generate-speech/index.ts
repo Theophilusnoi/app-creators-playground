@@ -14,11 +14,15 @@ serve(async (req) => {
   try {
     const { text, locale, emotion } = await req.json()
     
+    console.log('Request received:', { text: text?.substring(0, 50), locale, emotion })
+    
     if (!text) {
       throw new Error('No text provided')
     }
 
     const apiKey = Deno.env.get('ELEVENLABS_API_KEY')
+    console.log('API Key status:', apiKey ? 'Present' : 'Missing')
+    
     if (!apiKey) {
       throw new Error('ElevenLabs API key not configured')
     }
@@ -33,6 +37,7 @@ serve(async (req) => {
     }
 
     const voiceId = voiceMap[locale] || voiceMap['en']
+    console.log('Using voice ID:', voiceId)
 
     // Emotion to stability mapping
     const getStability = (emotion?: string) => {
@@ -44,6 +49,19 @@ serve(async (req) => {
       }
     }
 
+    const requestBody = {
+      text,
+      model_id: 'eleven_multilingual_v2',
+      voice_settings: {
+        stability: getStability(emotion),
+        similarity_boost: 0.8,
+        style: 0.2,
+        use_speaker_boost: true
+      }
+    }
+
+    console.log('Making request to ElevenLabs with voice ID:', voiceId)
+
     const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
       method: 'POST',
       headers: {
@@ -51,23 +69,19 @@ serve(async (req) => {
         'Content-Type': 'application/json',
         'xi-api-key': apiKey
       },
-      body: JSON.stringify({
-        text,
-        model_id: 'eleven_multilingual_v2',
-        voice_settings: {
-          stability: getStability(emotion),
-          similarity_boost: 0.8,
-          style: 0.2,
-          use_speaker_boost: true
-        }
-      })
+      body: JSON.stringify(requestBody)
     })
 
+    console.log('ElevenLabs response status:', response.status)
+
     if (!response.ok) {
-      throw new Error(`ElevenLabs API error: ${response.status}`)
+      const errorText = await response.text()
+      console.error('ElevenLabs API error:', response.status, errorText)
+      throw new Error(`ElevenLabs API error: ${response.status} - ${errorText}`)
     }
 
     const audioBuffer = await response.arrayBuffer()
+    console.log('Audio generated successfully, size:', audioBuffer.byteLength)
     
     return new Response(audioBuffer, {
       headers: {
