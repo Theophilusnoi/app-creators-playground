@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/components/auth/AuthProvider";
 import { AuthPage } from "@/components/auth/AuthPage";
 import SpiritualDashboard from "./pages/SpiritualDashboard";
+import MeditationEnvironment from "./pages/MeditationEnvironment";
 import NotFound from "./pages/NotFound";
 import './i18n'; // Initialize i18n
 
@@ -31,6 +31,7 @@ const AppContent = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<SpiritualDashboard />} />
+        <Route path="/meditation" element={<MeditationEnvironment />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

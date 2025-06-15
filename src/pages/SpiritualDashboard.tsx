@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SpiritualAssessment } from '@/components/spiritual/SpiritualAssessment';
@@ -27,11 +26,14 @@ import {
   Moon,
   Eye,
   Sparkles,
-  Globe
+  Globe,
+  Lotus
 } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 
 export default function SpiritualDashboard() {
   const [hasCompletedAssessment, setHasCompletedAssessment] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-4">
@@ -39,6 +41,13 @@ export default function SpiritualDashboard() {
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">SpiritualMind Pro</h1>
           <p className="text-purple-200">Your journey to inner wisdom and enlightenment</p>
+          <Button 
+            onClick={() => navigate('/meditation')} 
+            className="mt-4 bg-purple-600 hover:bg-purple-700 text-white"
+          >
+            <Lotus className="w-5 h-5 mr-2" />
+            Enter Meditation Environment
+          </Button>
         </div>
 
         <Tabs defaultValue="seraphina" className="w-full">
