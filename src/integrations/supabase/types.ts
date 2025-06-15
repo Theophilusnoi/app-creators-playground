@@ -164,6 +164,45 @@ export type Database = {
           },
         ]
       }
+      meditation_sessions: {
+        Row: {
+          actual_duration: number | null
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          difficulty_level: string | null
+          id: string
+          meditation_type: string
+          notes: string | null
+          planned_duration: number
+          user_id: string
+        }
+        Insert: {
+          actual_duration?: number | null
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          difficulty_level?: string | null
+          id?: string
+          meditation_type: string
+          notes?: string | null
+          planned_duration: number
+          user_id: string
+        }
+        Update: {
+          actual_duration?: number | null
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          difficulty_level?: string | null
+          id?: string
+          meditation_type?: string
+          notes?: string | null
+          planned_duration?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           budget: number | null
