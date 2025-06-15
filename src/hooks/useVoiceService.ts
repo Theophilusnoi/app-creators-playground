@@ -39,7 +39,7 @@ export const useVoiceService = () => {
         audio.onerror = () => {
           toast({
             title: "Voice Error",
-            description: "Failed to play audio guidance. Showing text instead.",
+            description: "Failed to play audio guidance. Please try again.",
             variant: "destructive"
           });
           voiceService.cleanup(response.audioUrl);
@@ -77,14 +77,9 @@ export const useVoiceService = () => {
     }
   }, [currentAudio]);
 
-  const setApiKey = useCallback((key: string) => {
-    voiceService.setApiKey(key);
-  }, []);
-
   return {
     generateAndPlay,
     stopAudio,
-    setApiKey,
     isGenerating,
     isPlaying: !!currentAudio
   };
