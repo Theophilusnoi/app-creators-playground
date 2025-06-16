@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -119,10 +120,12 @@ export const MeditationTimer = ({ onComplete }: MeditationTimerProps) => {
 
   const pauseMeditation = () => {
     setIsActive(false);
+    console.log('Meditation paused');
   };
 
   const resumeMeditation = () => {
     setIsActive(true);
+    console.log('Meditation resumed');
   };
 
   const resetMeditation = () => {
@@ -131,14 +134,23 @@ export const MeditationTimer = ({ onComplete }: MeditationTimerProps) => {
     setCurrentPhase('preparation');
     setStartTime(null);
     setAiGuidanceText('');
+    console.log('Meditation reset');
   };
 
   const skipForward = () => {
-    setTimeRemaining(prev => Math.max(0, prev - 30));
+    setTimeRemaining(prev => {
+      const newTime = Math.max(0, prev - 30);
+      console.log('Skipped forward 30 seconds, new time:', newTime);
+      return newTime;
+    });
   };
 
   const skipBack = () => {
-    setTimeRemaining(prev => Math.min(duration * 60, prev + 30));
+    setTimeRemaining(prev => {
+      const newTime = Math.min(duration * 60, prev + 30);
+      console.log('Skipped back 30 seconds, new time:', newTime);
+      return newTime;
+    });
   };
 
   const completeMeditation = () => {
@@ -146,6 +158,12 @@ export const MeditationTimer = ({ onComplete }: MeditationTimerProps) => {
 
     const actualDurationMs = Date.now() - startTime;
     const actualDurationMinutes = Math.round(actualDurationMs / 60000);
+
+    console.log('Meditation completed:', {
+      meditation_type: selectedType,
+      planned_duration: duration,
+      actual_duration: actualDurationMinutes
+    });
 
     onComplete({
       meditation_type: selectedType,
@@ -245,18 +263,37 @@ export const MeditationTimer = ({ onComplete }: MeditationTimerProps) => {
             )}
 
             <div className="flex justify-around">
-              <Button onClick={skipBack} variant="outline" size="icon" className="border-gray-600 text-white hover:bg-gray-700">
+              <Button 
+                onClick={skipBack} 
+                variant="outline" 
+                size="icon" 
+                className="border-gray-600 text-white hover:bg-gray-700"
+              >
                 <SkipBack className="w-5 h-5" />
               </Button>
-              <Button onClick={isActive ? pauseMeditation : resumeMeditation} variant="outline" size="icon" className="border-gray-600 text-white hover:bg-gray-700">
+              <Button 
+                onClick={isActive ? pauseMeditation : resumeMeditation} 
+                variant="outline" 
+                size="icon" 
+                className="border-gray-600 text-white hover:bg-gray-700"
+              >
                 {isActive ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
               </Button>
-              <Button onClick={skipForward} variant="outline" size="icon" className="border-gray-600 text-white hover:bg-gray-700">
+              <Button 
+                onClick={skipForward} 
+                variant="outline" 
+                size="icon" 
+                className="border-gray-600 text-white hover:bg-gray-700"
+              >
                 <SkipForward className="w-5 h-5" />
               </Button>
             </div>
 
-            <Button onClick={resetMeditation} variant="secondary" className="w-full bg-gray-700 hover:bg-gray-600 text-white">
+            <Button 
+              onClick={resetMeditation} 
+              variant="secondary" 
+              className="w-full bg-gray-700 hover:bg-gray-600 text-white"
+            >
               <RotateCcw className="w-4 h-4 mr-2" />
               Reset
             </Button>
