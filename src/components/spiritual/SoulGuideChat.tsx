@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +13,7 @@ import { VoicePlayer } from './VoicePlayer';
 import { EmergencyDetector } from './EmergencyDetector';
 import { CulturalAdapter } from './CulturalAdapter';
 import { MessageCircle, Send, Heart, Sparkles, Shield, AlertTriangle, Settings } from "lucide-react";
+import { generateGeminiResponse, buildSeraphinaSystemPrompt } from '@/services/geminiService';
 
 interface Message {
   id: string;
@@ -604,28 +604,43 @@ export const SoulGuideChat = () => {
     };
     setConversationContext(updatedContext);
 
+    const currentInput = inputMessage;
     setInputMessage('');
     setIsLoading(true);
 
     try {
-      // Simulate more realistic response time (1.5-3 seconds)
-      const responseTime = Math.random() * 1500 + 1500;
-      await new Promise(resolve => setTimeout(resolve, responseTime));
-      
-      const { content, tone } = generatePersonalizedResponse(inputMessage, updatedContext);
-      
+      // Check for emergency first
+      if (detectEmergency(currentInput)) {
+        const emergencyLevel = currentInput.toLowerCase().includes('attack') || 
+                             currentInput.toLowerCase().includes('terrified') ? 3 : 2;
+        await handleEmergencyDetected(emergencyLevel);
+      }
+
+      // Build system prompt for Seraphina
+      const systemPrompt = buildSeraphinaSystemPrompt(personality, personality.spiritual_tradition);
+
+      // Get AI response using Gemini
+      const geminiResponse = await generateGeminiResponse({
+        message: currentInput,
+        context: updatedContext,
+        personality,
+        conversationHistory: messages.slice(-10), // Last 10 messages for context
+        systemPrompt
+      });
+
       const aiMessage: Message = {
         id: `msg_${Date.now()}_ai`,
-        content,
+        content: geminiResponse.response,
         isUser: false,
         timestamp: new Date(),
         isEmergency: emergencyLevel >= 2,
-        tone
+        tone: geminiResponse.tone
       };
 
       const updatedMessages = [...messages, userMessage, aiMessage];
       setMessages(updatedMessages);
 
+      // Save to database
       if (conversationId) {
         const conversationData: ConversationData = { messages: updatedMessages };
         
@@ -643,7 +658,7 @@ export const SoulGuideChat = () => {
       console.error('Error sending message:', error);
       const errorMessage: Message = {
         id: `msg_${Date.now()}_error`,
-        content: "I apologize, beautiful soul. I'm having trouble connecting with you right now - perhaps the universe is asking for a moment of patience. Please try reaching out again in a moment. Your spiritual journey and what you're sharing matters deeply to me. 💜",
+        content: "I apologize, beautiful soul. I'm having trouble connecting with divine wisdom right now - perhaps the universe is asking for a moment of patience. Please try reaching out again in a moment. Your spiritual journey and what you're sharing matters deeply to me. 💜",
         isUser: false,
         timestamp: new Date(),
         tone: 'nurturing_gentle'

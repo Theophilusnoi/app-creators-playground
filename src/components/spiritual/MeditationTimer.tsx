@@ -1,140 +1,181 @@
-
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Heart, Play, Pause, RotateCcw, Star, Volume2 } from "lucide-react";
-import { BreathingGuide } from './BreathingGuide';
-import { useVoiceService } from '@/hooks/useVoiceService';
-import { meditationService } from '@/services/meditationService';
+import { Slider } from "@/components/ui/slider";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useAuth } from '@/components/auth/AuthProvider';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useGeminiChat } from '@/hooks/useGeminiChat';
+import {
+  Play,
+  Pause,
+  SkipForward,
+  SkipBack,
+  RotateCcw,
+  CheckCircle2,
+  Loader2,
+  BrainCircuit
+} from "lucide-react";
 
-interface MeditationType {
-  id: number;
-  name: string;
-  description: string;
-  duration: number[];
-  difficulty: string;
-  instructions: string;
-  voiceGuidance: string[];
+interface MeditationTimerProps {
+  onComplete: () => void;
 }
 
-const meditationTypes: MeditationType[] = [
+interface MeditationType {
+  value: string;
+  label: string;
+  description: string;
+}
+
+const MEDITATION_TYPES: MeditationType[] = [
   {
-    id: 1,
-    name: "Mindfulness",
-    description: "Present moment awareness",
-    duration: [5, 10, 15, 20],
-    difficulty: "Beginner",
-    instructions: "Focus on your breath and observe thoughts without judgment",
-    voiceGuidance: [
-      "Welcome to mindfulness meditation. Find a comfortable position and close your eyes.",
-      "Begin by taking three deep breaths, feeling yourself settle into this moment.",
-      "Now, simply observe your natural breath without trying to change it.",
-      "When thoughts arise, gently acknowledge them and return to your breath.",
-      "You're doing beautifully. Continue to rest in this peaceful awareness."
-    ]
+    value: 'mindfulness',
+    label: 'Mindfulness Meditation',
+    description: 'Focus on present moment awareness'
   },
   {
-    id: 2,
-    name: "Shadow Integration",
-    description: "Working with difficult emotions",
-    duration: [10, 15, 20, 30],
-    difficulty: "Intermediate",
-    instructions: "Embrace and integrate difficult emotions with compassion",
-    voiceGuidance: [
-      "Today we explore shadow integration. Breathe deeply and create a safe inner space.",
-      "Allow any difficult emotions or thoughts to surface without resistance.",
-      "Meet these aspects of yourself with curiosity and compassion.",
-      "Remember, integration comes through acceptance, not rejection.",
-      "You are whole and complete, embracing all parts of yourself."
-    ]
+    value: 'breathwork',
+    label: 'Breathwork Meditation',
+    description: 'Control and awareness of breath'
   },
   {
-    id: 3,
-    name: "Loving Kindness",
-    description: "Cultivating compassion",
-    duration: [10, 15, 20, 25],
-    difficulty: "Beginner",
-    instructions: "Send love and kindness to yourself and others",
-    voiceGuidance: [
-      "Let's cultivate loving kindness. Begin by placing a hand on your heart.",
-      "Start by sending love to yourself: 'May I be happy, may I be peaceful.'",
-      "Now extend this love to someone dear to you.",
-      "Gradually include neutral people, then those you find challenging.",
-      "Feel your heart expanding with boundless compassion for all beings."
-    ]
+    value: 'visualization',
+    label: 'Visualization Meditation',
+    description: 'Using mental imagery for relaxation'
   },
   {
-    id: 4,
-    name: "Chakra Alignment",
-    description: "Energy center balancing",
-    duration: [15, 20, 30, 45],
-    difficulty: "Advanced",
-    instructions: "Balance and align your seven energy centers",
-    voiceGuidance: [
-      "We'll journey through your chakras. Visualize a column of light through your spine.",
-      "Starting at the base, see a red light spinning slowly, grounding you.",
-      "Move up to orange at your sacrum, yellow at your solar plexus.",
-      "Green light at your heart, blue at your throat, indigo at your third eye.",
-      "Finally, violet light at your crown, connecting you to divine consciousness."
-    ]
+    value: 'loving_kindness',
+    label: 'Loving-Kindness Meditation',
+    description: 'Cultivating feelings of love and compassion'
+  },
+  {
+    value: 'body_scan',
+    label: 'Body Scan Meditation',
+    description: 'Systematic attention to body sensations'
   }
 ];
 
-export const MeditationTimer: React.FC = () => {
-  const [selectedMeditation, setSelectedMeditation] = useState(meditationTypes[0]);
-  const [selectedDuration, setSelectedDuration] = useState(10);
-  const [isActive, setIsActive] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(selectedDuration * 60);
-  const [sessionComplete, setSessionComplete] = useState(false);
-  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
-  const [guidanceStep, setGuidanceStep] = useState(0);
-  const [showBreathingGuide, setShowBreathingGuide] = useState(false);
-
-  const { generateAndPlay, isGenerating } = useVoiceService();
+export const MeditationTimer = ({ onComplete }: MeditationTimerProps) => {
+  const { user } = useAuth();
   const { toast } = useToast();
+  const { generateMeditationGuidance, isLoading: isGeneratingGuidance } = useGeminiChat();
+  const [selectedType, setSelectedType] = useState<string>('mindfulness');
+  const [duration, setDuration] = useState<number>(5);
+  const [timeRemaining, setTimeRemaining] = useState<number>(duration * 60);
+  const [isActive, setIsActive] = useState<boolean>(false);
+  const [currentPhase, setCurrentPhase] = useState<'preparation' | 'active' | 'completion'>('preparation');
+  const [aiGuidanceText, setAiGuidanceText] = useState<string>('');
 
-  // Timer countdown logic
   useEffect(() => {
-    let intervalId: NodeJS.Timeout;
+    let interval: NodeJS.Timeout;
 
-    if (isActive && timeLeft > 0) {
-      intervalId = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            setIsActive(false);
-            setSessionComplete(true);
-            completeSession();
-            return 0;
-          }
-          return prev - 1;
-        });
+    if (isActive && timeRemaining > 0) {
+      interval = setInterval(() => {
+        setTimeRemaining(prev => prev - 1);
       }, 1000);
+    } else if (timeRemaining === 0 && isActive) {
+      setIsActive(false);
+      setCurrentPhase('completion');
+      logMeditation();
+      setTimeout(() => {
+        onComplete();
+      }, 3000);
     }
 
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [isActive, timeLeft]);
+    return () => clearInterval(interval);
+  }, [isActive, timeRemaining, onComplete]);
 
-  // Voice guidance at intervals
-  useEffect(() => {
-    if (isActive && !sessionComplete) {
-      const totalDuration = selectedDuration * 60;
-      const elapsed = totalDuration - timeLeft;
-      const intervalTime = Math.floor(totalDuration / selectedMeditation.voiceGuidance.length);
-      
-      if (elapsed > 0 && elapsed % intervalTime === 0) {
-        const stepIndex = Math.floor(elapsed / intervalTime) - 1;
-        if (stepIndex >= 0 && stepIndex < selectedMeditation.voiceGuidance.length && stepIndex !== guidanceStep) {
-          setGuidanceStep(stepIndex);
-          playGuidance(selectedMeditation.voiceGuidance[stepIndex]);
-        }
+  const generatePersonalizedGuidance = async () => {
+    if (!selectedType || duration <= 0) return;
+
+    try {
+      const response = await generateMeditationGuidance(
+        selectedType,
+        duration,
+        'universal' // Could be made dynamic based on user preference
+      );
+      setAiGuidanceText(response.response);
+    } catch (error) {
+      console.error('Error generating meditation guidance:', error);
+      setAiGuidanceText('Begin by finding a comfortable position and allowing your breath to flow naturally...');
+    }
+  };
+
+  const startMeditation = async () => {
+    if (!selectedType || duration <= 0) return;
+    
+    setIsActive(true);
+    setTimeRemaining(duration * 60);
+    setCurrentPhase('preparation');
+    
+    // Generate AI guidance
+    await generatePersonalizedGuidance();
+    
+    // Log meditation start
+    if (user) {
+      supabase
+        .from('daily_protection_logs')
+        .insert({
+          user_id: user.id,
+          practice_type: 'meditation',
+          practice_details: { 
+            meditation_type: selectedType,
+            duration_minutes: duration,
+            started_at: new Date().toISOString()
+          }
+        })
+        .then(() => console.log('Meditation logged'));
+    }
+  };
+
+  const pauseMeditation = () => {
+    setIsActive(false);
+  };
+
+  const resumeMeditation = () => {
+    setIsActive(true);
+  };
+
+  const resetMeditation = () => {
+    setIsActive(false);
+    setTimeRemaining(duration * 60);
+    setCurrentPhase('preparation');
+  };
+
+  const skipForward = () => {
+    setTimeRemaining(prev => Math.max(0, prev - 30));
+  };
+
+  const skipBack = () => {
+    setTimeRemaining(prev => Math.min(duration * 60, prev + 30));
+  };
+
+  const logMeditation = async () => {
+    try {
+      if (user) {
+        await supabase
+          .from('daily_protection_logs')
+          .update({
+            practice_details: { 
+              meditation_type: selectedType,
+              duration_minutes: duration,
+              completed_at: new Date().toISOString()
+            }
+          })
+          .eq('user_id', user.id)
+          .eq('practice_type', 'meditation');
       }
+
+      toast({
+        title: "Meditation Complete",
+        description: "Your mind has been stilled and your spirit renewed.",
+      });
+    } catch (error) {
+      console.error('Error logging meditation:', error);
     }
-  }, [timeLeft, isActive, selectedMeditation, guidanceStep, sessionComplete]);
+  };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -142,221 +183,109 @@ export const MeditationTimer: React.FC = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const startTimer = async () => {
-    // Create new session in database
-    const session = await meditationService.createSession({
-      meditation_type: selectedMeditation.name,
-      planned_duration: selectedDuration,
-      completed: false,
-      difficulty_level: selectedMeditation.difficulty
-    });
-
-    if (session) {
-      setCurrentSessionId(session.id!);
-      setIsActive(true);
-      setTimeLeft(selectedDuration * 60);
-      setSessionComplete(false);
-      setGuidanceStep(0);
-      
-      // Play initial guidance
-      playGuidance(selectedMeditation.voiceGuidance[0]);
-      
-      toast({
-        title: "Meditation Started",
-        description: `Beginning ${selectedDuration}-minute ${selectedMeditation.name} session`,
-      });
-    }
-  };
-
-  const pauseTimer = () => {
-    setIsActive(false);
-  };
-
-  const resetTimer = () => {
-    setIsActive(false);
-    setTimeLeft(selectedDuration * 60);
-    setSessionComplete(false);
-    setCurrentSessionId(null);
-    setGuidanceStep(0);
-    setShowBreathingGuide(false);
-  };
-
-  const completeSession = async () => {
-    if (currentSessionId) {
-      const actualDuration = Math.round((selectedDuration * 60 - timeLeft) / 60);
-      const success = await meditationService.completeSession(currentSessionId, actualDuration);
-      
-      if (success) {
-        toast({
-          title: "Session Complete! 🧘‍♀️",
-          description: `You meditated for ${actualDuration} minutes. Well done!`,
-        });
-      }
-    }
-  };
-
-  const playGuidance = useCallback(async (text: string) => {
-    await generateAndPlay({
-      text,
-      emotion: 'compassionate'
-    });
-  }, [generateAndPlay]);
-
-  const toggleBreathingGuide = () => {
-    setShowBreathingGuide(!showBreathingGuide);
-  };
-
-  const progressPercentage = ((selectedDuration * 60 - timeLeft) / (selectedDuration * 60)) * 100;
-
   return (
-    <div className="space-y-6">
-      {/* Meditation Selection */}
-      <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="text-white">Choose Your Practice</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Meditation Types */}
-          <div className="space-y-3">
-            {meditationTypes.map((meditation) => (
-              <div
-                key={meditation.id}
-                className={`p-3 rounded-lg cursor-pointer transition-all ${
-                  selectedMeditation.id === meditation.id
-                    ? 'bg-purple-600/30 border border-purple-400'
-                    : 'bg-purple-900/20 hover:bg-purple-800/30'
-                }`}
-                onClick={() => !isActive && setSelectedMeditation(meditation)}
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-medium text-white">{meditation.name}</h3>
-                    <p className="text-sm text-purple-300">{meditation.description}</p>
-                  </div>
-                  <Badge variant="outline" className="border-purple-400 text-purple-200">
-                    {meditation.difficulty}
-                  </Badge>
-                </div>
-              </div>
-            ))}
-          </div>
+    <Card className="bg-black/30 border-green-500/30 backdrop-blur-sm">
+      <CardHeader>
+        <CardTitle className="text-white flex items-center justify-between">
+          Sacred Meditation Timer
+        </CardTitle>
+      </CardHeader>
+      
+      <CardContent className="space-y-6">
+        {currentPhase === 'preparation' && (
+          <div className="space-y-4">
+            <Select value={selectedType} onValueChange={setSelectedType}>
+              <SelectTrigger className="bg-gray-800/50 border-gray-600 text-white w-full">
+                <SelectValue placeholder="Select Meditation Type" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-800 text-white">
+                {MEDITATION_TYPES.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          {/* Duration Selection */}
-          <div className="space-y-3">
-            <label className="text-white font-medium">Duration</label>
-            <div className="grid grid-cols-4 gap-2">
-              {selectedMeditation.duration.map((duration) => (
-                <Button
-                  key={duration}
-                  variant={selectedDuration === duration ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => !isActive && setSelectedDuration(duration)}
-                  disabled={isActive}
-                  className={selectedDuration === duration 
-                    ? "bg-purple-600 hover:bg-purple-700" 
-                    : "border-purple-400 text-purple-200 hover:bg-purple-400/20"
-                  }
-                >
-                  {duration}m
-                </Button>
-              ))}
+            <div className="space-y-2">
+              <h4 className="text-white font-semibold">Duration ({duration} min)</h4>
+              <Slider
+                defaultValue={[duration]}
+                max={60}
+                min={1}
+                step={1}
+                onValueChange={(value) => setDuration(value[0])}
+                className="text-purple-500"
+              />
             </div>
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Meditation Timer */}
-      <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center">
-            <Heart className="w-5 h-5 mr-2 text-purple-400" />
-            Meditation Timer
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Timer Display */}
-          <div className="text-center">
-            {showBreathingGuide && isActive ? (
-              <BreathingGuide isActive={isActive} pattern="simple" />
-            ) : (
-              <div className="w-48 h-48 mx-auto rounded-full border-4 border-purple-500/30 flex items-center justify-center bg-gradient-to-br from-purple-900/30 to-indigo-900/30">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-white mb-2">
-                    {formatTime(timeLeft)}
-                  </div>
-                  <div className="text-sm text-purple-300">
-                    {selectedMeditation.name}
-                  </div>
+            <Button 
+              onClick={startMeditation}
+              className="w-full bg-green-600 hover:bg-green-700"
+              disabled={isGeneratingGuidance}
+            >
+              {isGeneratingGuidance ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating Guidance...
+                </>
+              ) : (
+                <>
+                  <Play className="w-4 h-4 mr-2" />
+                  Begin Meditation
+                </>
+              )}
+            </Button>
+          </div>
+        )}
+
+        {currentPhase === 'active' && (
+          <div className="space-y-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-green-400">
+                {formatTime(timeRemaining)}
+              </div>
+              <p className="text-green-200">Focus on your breath...</p>
+            </div>
+
+            {currentPhase === 'active' && aiGuidanceText && (
+              <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 border border-purple-500/50 rounded-lg p-6 text-center mb-6">
+                <div className="text-sm text-purple-200 mb-2">Guided by Seraphina</div>
+                <div className="text-purple-100 leading-relaxed text-sm whitespace-pre-line">
+                  {aiGuidanceText}
                 </div>
               </div>
             )}
-            
-            <Progress 
-              value={progressPercentage} 
-              className="mt-4 h-2"
-            />
-          </div>
 
-          {/* Instructions */}
-          <div className="bg-purple-900/20 rounded-lg p-4 text-center">
-            <p className="text-purple-200 text-sm">
-              {selectedMeditation.instructions}
-            </p>
-          </div>
+            <div className="flex justify-around">
+              <Button onClick={skipBack} variant="outline" size="icon">
+                <SkipBack className="w-5 h-5" />
+              </Button>
+              <Button onClick={isActive ? pauseMeditation : resumeMeditation} variant="outline" size="icon">
+                {isActive ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+              </Button>
+              <Button onClick={skipForward} variant="outline" size="icon">
+                <SkipForward className="w-5 h-5" />
+              </Button>
+            </div>
 
-          {/* Timer Controls */}
-          <div className="flex justify-center space-x-4">
-            {!isActive ? (
-              <Button 
-                onClick={startTimer}
-                disabled={isGenerating}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
-              >
-                <Play className="w-4 h-4 mr-2" />
-                Start Session
-              </Button>
-            ) : (
-              <Button 
-                onClick={pauseTimer}
-                variant="outline"
-                className="border-purple-400 text-purple-200"
-              >
-                <Pause className="w-4 h-4 mr-2" />
-                Pause
-              </Button>
-            )}
-            
-            <Button 
-              onClick={resetTimer}
-              variant="outline"
-              className="border-purple-400 text-purple-200"
-            >
+            <Button onClick={resetMeditation} variant="secondary" className="w-full">
               <RotateCcw className="w-4 h-4 mr-2" />
               Reset
             </Button>
-
-            <Button 
-              onClick={toggleBreathingGuide}
-              variant="outline"
-              className="border-purple-400 text-purple-200"
-            >
-              <Heart className="w-4 h-4 mr-2" />
-              {showBreathingGuide ? 'Hide' : 'Show'} Guide
-            </Button>
           </div>
+        )}
 
-          {/* Session Complete */}
-          {sessionComplete && (
-            <div className="bg-green-900/30 border border-green-500/30 rounded-lg p-4 text-center">
-              <Star className="w-8 h-8 mx-auto text-green-300 mb-2" />
-              <h3 className="font-medium text-green-300 mb-1">Session Complete!</h3>
-              <p className="text-green-200 text-sm">
-                You've completed {selectedDuration} minutes of {selectedMeditation.name}
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+        {currentPhase === 'completion' && (
+          <div className="text-center">
+            <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
+            <h3 className="text-2xl font-bold text-white mb-2">Meditation Complete</h3>
+            <p className="text-green-200">
+              Your mind has been stilled and your spirit renewed.
+            </p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
