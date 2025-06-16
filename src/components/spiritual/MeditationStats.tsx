@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -21,10 +20,12 @@ export const MeditationStats: React.FC = () => {
 
   const loadStats = async () => {
     try {
+      setLoading(true);
       const userStats = await meditationService.getUserStats();
       setStats(userStats);
     } catch (error) {
       console.error('Error loading meditation stats:', error);
+      // Keep default stats on error
     } finally {
       setLoading(false);
     }

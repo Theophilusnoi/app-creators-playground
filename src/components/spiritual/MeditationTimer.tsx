@@ -1,11 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useAuth } from '@/components/auth/AuthProvider';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useGeminiChat } from '@/hooks/useGeminiChat';
 import {
@@ -15,12 +13,15 @@ import {
   SkipBack,
   RotateCcw,
   CheckCircle2,
-  Loader2,
-  BrainCircuit
+  Loader2
 } from "lucide-react";
 
 interface MeditationTimerProps {
-  onComplete: () => void;
+  onComplete: (sessionData: {
+    meditation_type: string;
+    planned_duration: number;
+    actual_duration: number;
+  }) => void;
 }
 
 interface MeditationType {
@@ -58,7 +59,6 @@ const MEDITATION_TYPES: MeditationType[] = [
 ];
 
 export const MeditationTimer = ({ onComplete }: MeditationTimerProps) => {
-  const { user } = useAuth();
   const { toast } = useToast();
   const { generateMeditationGuidance, isLoading: isGeneratingGuidance } = useGeminiChat();
   const [selectedType, setSelectedType] = useState<string>('mindfulness');
@@ -67,6 +67,11 @@ export const MeditationTimer = ({ onComplete }: MeditationTimerProps) => {
   const [isActive, setIsActive] = useState<boolean>(false);
   const [currentPhase, setCurrentPhase] = useState<'preparation' | 'active' | 'completion'>('preparation');
   const [aiGuidanceText, setAiGuidanceText] = useState<string>('');
+  const [startTime, setStartTime] = useState<number | null>(null);
+
+  useEffect(() => {
+    setTimeRemaining(duration * 60);
+  }, [duration]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -78,14 +83,11 @@ export const MeditationTimer = ({ onComplete }: MeditationTimerProps) => {
     } else if (timeRemaining === 0 && isActive) {
       setIsActive(false);
       setCurrentPhase('completion');
-      logMeditation();
-      setTimeout(() => {
-        onComplete();
-      }, 3000);
+      completeMeditation();
     }
 
     return () => clearInterval(interval);
-  }, [isActive, timeRemaining, onComplete]);
+  }, [isActive, timeRemaining]);
 
   const generatePersonalizedGuidance = async () => {
     if (!selectedType || duration <= 0) return;
@@ -94,7 +96,7 @@ export const MeditationTimer = ({ onComplete }: MeditationTimerProps) => {
       const response = await generateMeditationGuidance(
         selectedType,
         duration,
-        'universal' // Could be made dynamic based on user preference
+        'universal'
       );
       setAiGuidanceText(response.response);
     } catch (error) {
@@ -108,26 +110,11 @@ export const MeditationTimer = ({ onComplete }: MeditationTimerProps) => {
     
     setIsActive(true);
     setTimeRemaining(duration * 60);
-    setCurrentPhase('preparation');
+    setCurrentPhase('active');
+    setStartTime(Date.now());
     
     // Generate AI guidance
     await generatePersonalizedGuidance();
-    
-    // Log meditation start
-    if (user) {
-      supabase
-        .from('daily_protection_logs')
-        .insert({
-          user_id: user.id,
-          practice_type: 'meditation',
-          practice_details: { 
-            meditation_type: selectedType,
-            duration_minutes: duration,
-            started_at: new Date().toISOString()
-          }
-        })
-        .then(() => console.log('Meditation logged'));
-    }
   };
 
   const pauseMeditation = () => {
@@ -142,6 +129,8 @@ export const MeditationTimer = ({ onComplete }: MeditationTimerProps) => {
     setIsActive(false);
     setTimeRemaining(duration * 60);
     setCurrentPhase('preparation');
+    setStartTime(null);
+    setAiGuidanceText('');
   };
 
   const skipForward = () => {
@@ -152,29 +141,23 @@ export const MeditationTimer = ({ onComplete }: MeditationTimerProps) => {
     setTimeRemaining(prev => Math.min(duration * 60, prev + 30));
   };
 
-  const logMeditation = async () => {
-    try {
-      if (user) {
-        await supabase
-          .from('daily_protection_logs')
-          .update({
-            practice_details: { 
-              meditation_type: selectedType,
-              duration_minutes: duration,
-              completed_at: new Date().toISOString()
-            }
-          })
-          .eq('user_id', user.id)
-          .eq('practice_type', 'meditation');
-      }
+  const completeMeditation = () => {
+    if (!startTime) return;
 
-      toast({
-        title: "Meditation Complete",
-        description: "Your mind has been stilled and your spirit renewed.",
-      });
-    } catch (error) {
-      console.error('Error logging meditation:', error);
-    }
+    const actualDurationMs = Date.now() - startTime;
+    const actualDurationMinutes = Math.round(actualDurationMs / 60000);
+
+    onComplete({
+      meditation_type: selectedType,
+      planned_duration: duration,
+      actual_duration: actualDurationMinutes
+    });
+
+    setTimeout(() => {
+      setCurrentPhase('preparation');
+      setStartTime(null);
+      setAiGuidanceText('');
+    }, 3000);
   };
 
   const formatTime = (seconds: number) => {
@@ -198,9 +181,9 @@ export const MeditationTimer = ({ onComplete }: MeditationTimerProps) => {
               <SelectTrigger className="bg-gray-800/50 border-gray-600 text-white w-full">
                 <SelectValue placeholder="Select Meditation Type" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 text-white">
+              <SelectContent className="bg-gray-800 text-white border-gray-600">
                 {MEDITATION_TYPES.map((type) => (
-                  <SelectItem key={type.value} value={type.value}>
+                  <SelectItem key={type.value} value={type.value} className="text-white hover:bg-gray-700">
                     {type.label}
                   </SelectItem>
                 ))}
@@ -210,7 +193,7 @@ export const MeditationTimer = ({ onComplete }: MeditationTimerProps) => {
             <div className="space-y-2">
               <h4 className="text-white font-semibold">Duration ({duration} min)</h4>
               <Slider
-                defaultValue={[duration]}
+                value={[duration]}
                 max={60}
                 min={1}
                 step={1}
@@ -248,7 +231,7 @@ export const MeditationTimer = ({ onComplete }: MeditationTimerProps) => {
               <p className="text-green-200">Focus on your breath...</p>
             </div>
 
-            {currentPhase === 'active' && aiGuidanceText && (
+            {aiGuidanceText && (
               <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 border border-purple-500/50 rounded-lg p-6 text-center mb-6">
                 <div className="text-sm text-purple-200 mb-2">Guided by Seraphina</div>
                 <div className="text-purple-100 leading-relaxed text-sm whitespace-pre-line">
@@ -258,18 +241,18 @@ export const MeditationTimer = ({ onComplete }: MeditationTimerProps) => {
             )}
 
             <div className="flex justify-around">
-              <Button onClick={skipBack} variant="outline" size="icon">
+              <Button onClick={skipBack} variant="outline" size="icon" className="border-gray-600 text-white hover:bg-gray-700">
                 <SkipBack className="w-5 h-5" />
               </Button>
-              <Button onClick={isActive ? pauseMeditation : resumeMeditation} variant="outline" size="icon">
+              <Button onClick={isActive ? pauseMeditation : resumeMeditation} variant="outline" size="icon" className="border-gray-600 text-white hover:bg-gray-700">
                 {isActive ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
               </Button>
-              <Button onClick={skipForward} variant="outline" size="icon">
+              <Button onClick={skipForward} variant="outline" size="icon" className="border-gray-600 text-white hover:bg-gray-700">
                 <SkipForward className="w-5 h-5" />
               </Button>
             </div>
 
-            <Button onClick={resetMeditation} variant="secondary" className="w-full">
+            <Button onClick={resetMeditation} variant="secondary" className="w-full bg-gray-700 hover:bg-gray-600 text-white">
               <RotateCcw className="w-4 h-4 mr-2" />
               Reset
             </Button>
