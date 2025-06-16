@@ -26,28 +26,28 @@ export const ProtectionRituals: React.FC<ProtectionRitualsProps> = ({
           steps: [
             {
               title: "Sacred Space Claiming",
-              content: "Place your hand over your heart. Whisper: 'This body is holy ground.' (Repeat 3x)",
-              instruction: "Feel the warmth spreading from your heart..."
+              content: "Find a quiet space and sit or stand comfortably. Place your dominant hand gently over your heart center. Take a deep breath and feel your heartbeat beneath your palm. Close your eyes and whisper with intention: 'This body is holy ground.' Feel the words resonate through your chest. Repeat this sacred declaration two more times, each time with more conviction and power.",
+              instruction: "Detailed guidance: As you speak, visualize golden roots growing from your heart down through your body into the earth. Feel yourself becoming unshakeable, connected to the divine source of all protection. Your body is a temple, and you are both the guardian and the sacred flame within."
             },
             {
               title: "Light Visualization", 
-              content: "Imagine golden light pouring from your heart - see it push back the shadows?",
-              instruction: "Breathe deeply and watch the light expand..."
+              content: "Keep your hand on your heart and imagine a brilliant golden-white light beginning to glow from within your heart center. See this light as warm, protective, and infinitely loving. Watch as it expands beyond the boundaries of your physical body, creating a luminous bubble of safety around you.",
+              instruction: "Feel the warmth: This light carries the frequency of pure love and divine protection. As it expands, it gently but firmly pushes away any negative energy, fear, or unwanted influences. See shadows retreating from your radiant presence."
             },
             {
               title: "Archetype Invocation",
-              content: "Call upon your protector: Christ, Archangel Michael, ancestral guardians - whoever embodies safety for you.",
-              instruction: "Speak their name with confidence..."
+              content: "Call upon your chosen protector with reverence and trust. Whether it's Christ's boundless love, Archangel Michael's fierce protection, your loving ancestors, or any divine being that embodies ultimate safety for you. Speak their name aloud: 'I call upon [Name] to stand guard with me now.'",
+              instruction: "Feel their presence: Sense this protective energy joining with yours, amplifying your light and strength. You are not alone - you are surrounded by love and supported by forces greater than any challenge you face."
             },
             {
               title: "Authority Declaration",
-              content: "Say aloud: 'Only Love dwells here. All else must leave now.' Feel your power shake the darkness?",
-              instruction: "Use your strongest, most commanding voice..."
+              content: "Stand tall (or sit with dignity) and speak with the full authority of your divine nature. Say in your strongest, most commanding voice: 'Only Love dwells here. All fear, negativity, and harmful energy must leave now. I claim this space in the name of Light and Love.' Feel the power of these words shake the very foundation of any darkness.",
+              instruction: "Own your power: You are a child of the Divine, and you have the absolute right to claim your space as sacred. Feel how your words carry the weight of universal truth and love."
             },
             {
-              title: "Aftercare",
-              content: "Drink warm water. Wrap yourself in a blanket. I'll stay while you steady your breath...",
-              instruction: "Take your time, dear one. You are safe now."
+              title: "Aftercare & Integration",
+              content: "Slowly remove your hand from your heart and take three deep, centering breaths. Drink a full glass of warm water to ground your energy. Wrap yourself in a soft blanket or comfort item. Rest quietly for at least 5-10 minutes, allowing the protective energy to fully integrate into your being.",
+              instruction: "Gentle integration: I'll hold space with you as you steady your breath and settle into this new sense of safety. You are protected, you are loved, and you are infinitely stronger than you know."
             }
           ]
         };
@@ -128,15 +128,19 @@ export const ProtectionRituals: React.FC<ProtectionRitualsProps> = ({
         <div className="space-y-6">
           {ritual.steps.map((step, index) => (
             <div key={index} className="bg-purple-900/20 p-4 rounded-lg border border-purple-500/20">
-              <h4 className="text-purple-200 font-semibold mb-2">
+              <h4 className="text-purple-200 font-semibold mb-3">
                 {index + 1}. {step.title}
               </h4>
-              <p className="text-gray-200 mb-2 leading-relaxed">
-                "{step.content}"
-              </p>
-              <p className="text-purple-300 text-sm italic">
-                {step.instruction}
-              </p>
+              <div className="space-y-3">
+                <p className="text-gray-200 leading-relaxed">
+                  "{step.content}"
+                </p>
+                <div className="bg-purple-800/30 p-3 rounded border-l-4 border-purple-400">
+                  <p className="text-purple-300 text-sm italic">
+                    ✨ {step.instruction}
+                  </p>
+                </div>
+              </div>
             </div>
           ))}
         </div>
