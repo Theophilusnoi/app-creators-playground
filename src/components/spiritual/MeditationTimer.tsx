@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,7 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from '@/hooks/use-toast';
 import { useGeminiChat } from '@/hooks/useGeminiChat';
+import { VoicePlayer } from './VoicePlayer';
 import {
   Play,
   Pause,
@@ -234,9 +234,13 @@ export const MeditationTimer = ({ onComplete }: MeditationTimerProps) => {
             {aiGuidanceText && (
               <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 border border-purple-500/50 rounded-lg p-6 text-center mb-6">
                 <div className="text-sm text-purple-200 mb-2">Guided by Seraphina</div>
-                <div className="text-purple-100 leading-relaxed text-sm whitespace-pre-line">
+                <div className="text-purple-100 leading-relaxed text-sm whitespace-pre-line mb-4">
                   {aiGuidanceText}
                 </div>
+                <VoicePlayer 
+                  script={aiGuidanceText} 
+                  tone="nurturing_gentle"
+                />
               </div>
             )}
 
