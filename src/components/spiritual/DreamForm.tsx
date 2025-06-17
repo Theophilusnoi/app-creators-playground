@@ -212,11 +212,7 @@ export const DreamForm: React.FC<DreamFormProps> = ({ onClose }) => {
 
       // Offer voice confirmation
       try {
-        await generateAndPlay(
-          "Your dream has been saved to your journal. Would you like to analyze it now for deeper insights?",
-          "en",
-          "calm"
-        );
+        await generateAndPlay("Your dream has been saved to your journal. Would you like to analyze it now for deeper insights?");
       } catch (voiceError) {
         console.error('Voice playback error:', voiceError);
       }
