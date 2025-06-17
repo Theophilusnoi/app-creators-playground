@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,8 +16,8 @@ interface LightLanguageRecord {
   decoded_message: string;
   galactic_origin: string;
   personal_resonance: number;
-  authenticity_score: number;
   created_at: string;
+  authenticity_score: number;
 }
 
 export const LightLanguageTranslator = () => {
