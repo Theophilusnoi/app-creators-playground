@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { VoicePlayer } from '@/components/spiritual/VoicePlayer';
-import { Search, Sparkles, Heart, PlayCircle, Shield, Zap } from 'lucide-react';
+import { Search, Sparkles, Heart, PlayCircle, Shield, Zap, Play, Pause, Volume2 } from 'lucide-react';
 
 // TypeScript interface for angel entities
 interface AngelEntity {
@@ -37,7 +36,11 @@ const AngelicAssistance = () => {
   const [activeTab, setActiveTab] = useState('directory');
   const [isInvoking, setIsInvoking] = useState(false);
   const [connectionActive, setConnectionActive] = useState(false);
+  const [isPlayingGuide, setIsPlayingGuide] = useState(false);
+  const [currentStep, setCurrentStep] = useState(-1);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const { toast } = useToast();
+  const guideTimer = useRef<NodeJS.Timeout | null>(null);
   
   // Complete data for angelic entities with detailed guides
   useEffect(() => {
@@ -430,6 +433,73 @@ const AngelicAssistance = () => {
     }
   };
 
+  const playInvocationGuide = async () => {
+    if (!selectedAngel) return;
+    
+    try {
+      setIsPlayingGuide(true);
+      setCurrentStep(0);
+      
+      // Play introduction
+      toast({
+        title: `🎵 Starting Invocation Guide`,
+        description: `Beginning step-by-step guidance for invoking ${selectedAngel.name}`,
+      });
+      
+      // Parse the invocation guide steps
+      const steps = selectedAngel.invocationGuide.split('\n').filter(step => step.trim().length > 0);
+      
+      // Play each step with pauses
+      for (let i = 0; i < steps.length; i++) {
+        setCurrentStep(i);
+        
+        await new Promise(resolve => {
+          guideTimer.current = setTimeout(resolve, 3000 * playbackSpeed); // Adjustable pause
+        });
+        
+        if (!isPlayingGuide) break; // Check if user stopped
+      }
+      
+      // Play conclusion
+      toast({
+        title: `✨ Invocation Complete`,
+        description: `You have completed the invocation of ${selectedAngel.name}. Divine connection established.`,
+      });
+      
+    } catch (error) {
+      console.error('Guide playback error:', error);
+      toast({
+        title: "Guide Playback Failed",
+        description: "Could not play the invocation guide",
+        variant: "destructive"
+      });
+    } finally {
+      setIsPlayingGuide(false);
+      setCurrentStep(-1);
+    }
+  };
+
+  const stopGuide = () => {
+    if (guideTimer.current) {
+      clearTimeout(guideTimer.current);
+      guideTimer.current = null;
+    }
+    setIsPlayingGuide(false);
+    setCurrentStep(-1);
+  };
+
+  const togglePlaybackSpeed = () => {
+    const speeds = [0.8, 1, 1.2, 1.5];
+    const currentIndex = speeds.indexOf(playbackSpeed);
+    const nextIndex = (currentIndex + 1) % speeds.length;
+    setPlaybackSpeed(speeds[nextIndex]);
+    
+    toast({
+      title: "Playback Speed",
+      description: `Set to ${speeds[nextIndex]}x`,
+    });
+  };
+
   const startMeditation = (angel: AngelEntity) => {
     setConnectionActive(true);
     toast({
@@ -579,7 +649,7 @@ const AngelicAssistance = () => {
                   )}
                 </div>
 
-                {/* Tabbed Content */}
+                {/* Tabbed Content with Voice Integration */}
                 <Tabs defaultValue="guide" className="w-full">
                   <TabsList className="grid w-full grid-cols-4 bg-black/30">
                     <TabsTrigger value="guide">Invocation Guide</TabsTrigger>
@@ -589,13 +659,77 @@ const AngelicAssistance = () => {
                   </TabsList>
 
                   <TabsContent value="guide" className="space-y-4">
-                    <div>
+                    <div className="flex items-center justify-between">
                       <h5 className="text-lg font-semibold text-white mb-3">How to Invoke {selectedAngel.name}</h5>
-                      <div className="bg-black/40 p-4 rounded-lg border border-purple-500/20">
-                        <pre className="text-purple-100 whitespace-pre-wrap font-sans text-sm leading-relaxed">
-                          {selectedAngel.invocationGuide}
-                        </pre>
+                      
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={togglePlaybackSpeed}
+                          className="text-purple-200 hover:text-white"
+                          title="Change playback speed"
+                        >
+                          <span className="text-sm font-mono">{playbackSpeed}x</span>
+                        </Button>
+                        
+                        {isPlayingGuide ? (
+                          <Button
+                            onClick={stopGuide}
+                            className="bg-amber-500 hover:bg-amber-600 text-white"
+                            size="sm"
+                          >
+                            <Pause className="mr-2 h-4 w-4" />
+                            Stop Guide
+                          </Button>
+                        ) : (
+                          <Button
+                            onClick={playInvocationGuide}
+                            className="bg-purple-600 hover:bg-purple-700 text-white"
+                            size="sm"
+                          >
+                            <Play className="mr-2 h-4 w-4" />
+                            Play Guide
+                          </Button>
+                        )}
                       </div>
+                    </div>
+
+                    <div className="bg-black/40 p-4 rounded-lg border border-purple-500/20">
+                      <div className="space-y-3">
+                        {selectedAngel.invocationGuide.split('\n').filter(step => step.trim().length > 0).map((step, index) => (
+                          <div 
+                            key={index} 
+                            className={`flex items-start p-3 rounded-lg transition-all ${
+                              currentStep === index
+                                ? 'bg-purple-600/30 border border-purple-400'
+                                : 'bg-transparent'
+                            }`}
+                          >
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 text-sm font-medium ${
+                              currentStep === index 
+                                ? 'bg-purple-500 text-white' 
+                                : 'bg-purple-200/20 text-purple-200'
+                            }`}>
+                              {index + 1}
+                            </div>
+                            <p className="flex-grow text-purple-100">{step.trim()}</p>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {isPlayingGuide && (
+                        <div className="mt-4 p-3 bg-purple-500/20 rounded-lg flex items-center border border-purple-400/30">
+                          <div className="animate-pulse mr-3">
+                            <Volume2 className="text-purple-300 w-5 h-5" />
+                          </div>
+                          <p className="text-purple-200">
+                            {currentStep >= 0 
+                              ? `Following step ${currentStep + 1}...` 
+                              : "Preparing the invocation guide..."}
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     <div>
@@ -661,7 +795,7 @@ const AngelicAssistance = () => {
                         </p>
                       </div>
                     </div>
-                    <div className="flex justify-center">
+                    <div className="flex justify-center gap-3">
                       <Button 
                         onClick={() => startMeditation(selectedAngel)}
                         className="bg-blue-600 hover:bg-blue-700"
@@ -669,6 +803,10 @@ const AngelicAssistance = () => {
                         <Shield className="w-4 h-4 mr-2" />
                         Begin Evocation
                       </Button>
+                      <VoicePlayer 
+                        script={selectedAngel.evocationGuide}
+                        tone="nurturing_gentle"
+                      />
                     </div>
                   </TabsContent>
 
