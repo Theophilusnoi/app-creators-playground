@@ -7,7 +7,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
-import { Shield, Zap, Heart, AlertTriangle, Eye, Sparkles, Clock, CheckCircle } from 'lucide-react';
+import { Shield, Zap, Heart, AlertTriangle, Eye, Sparkles, Clock, CheckCircle, HelpCircle } from 'lucide-react';
 import { ARVisualizationPlaceholder } from './ARVisualizationPlaceholder';
 
 interface RitualActivation {
@@ -294,6 +294,8 @@ const RitualActivationDisplay: React.FC<{
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  const [showQuestionDialog, setShowQuestionDialog] = useState(false);
+  const [userQuestion, setUserQuestion] = useState('');
 
   const instructions = activation.ritual.instructions;
   const steps = instructions?.steps || [];
@@ -317,6 +319,17 @@ const RitualActivationDisplay: React.FC<{
   const handlePrevStep = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handleAskQuestion = () => {
+    if (userQuestion.trim()) {
+      toast({
+        title: "Question Submitted",
+        description: "Your question about ritual performance has been recorded for guidance.",
+      });
+      setUserQuestion('');
+      setShowQuestionDialog(false);
     }
   };
 
@@ -355,17 +368,20 @@ const RitualActivationDisplay: React.FC<{
       {instructions?.preparation && (
         <Card className="bg-blue-900/20 border-blue-500/30">
           <CardHeader>
-            <CardTitle className="text-blue-200 text-lg">Preparation</CardTitle>
+            <CardTitle className="text-blue-200 text-lg">Preparation Required</CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-2">
-              {instructions.preparation.map((prep: string, index: number) => (
-                <li key={index} className="text-blue-100 flex items-start gap-2">
-                  <span className="text-blue-400 font-bold">•</span>
-                  {prep}
-                </li>
-              ))}
-            </ul>
+            <div className="space-y-3">
+              <p className="text-blue-100 font-semibold mb-3">Before starting, please ensure you have:</p>
+              <ul className="space-y-2">
+                {instructions.preparation.map((prep: string, index: number) => (
+                  <li key={index} className="text-blue-100 flex items-start gap-2">
+                    <span className="text-blue-400 font-bold">•</span>
+                    {prep}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -382,6 +398,7 @@ const RitualActivationDisplay: React.FC<{
                   disabled={currentStep === 0}
                   variant="outline" 
                   size="sm"
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 disabled:opacity-50"
                 >
                   Previous
                 </Button>
@@ -390,6 +407,7 @@ const RitualActivationDisplay: React.FC<{
                   disabled={currentStep === steps.length - 1}
                   variant="outline" 
                   size="sm"
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 disabled:opacity-50"
                 >
                   Next
                 </Button>
@@ -398,7 +416,7 @@ const RitualActivationDisplay: React.FC<{
           </CardHeader>
           <CardContent>
             {steps[currentStep] && (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h4 className="text-xl font-semibold text-white">
                     {steps[currentStep].action}
@@ -420,12 +438,29 @@ const RitualActivationDisplay: React.FC<{
                   </Button>
                 </div>
                 
-                <p className="text-gray-200 leading-relaxed">
-                  {steps[currentStep].details}
-                </p>
+                <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-600/30">
+                  <h5 className="text-white font-semibold mb-3">What to do:</h5>
+                  <p className="text-gray-200 leading-relaxed mb-4">
+                    {steps[currentStep].details}
+                  </p>
+                  
+                  {steps[currentStep].specific_actions && (
+                    <div className="mb-4">
+                      <h6 className="text-purple-300 font-semibold mb-2">Specific Actions:</h6>
+                      <ul className="space-y-1">
+                        {steps[currentStep].specific_actions.map((action: string, index: number) => (
+                          <li key={index} className="text-gray-300 flex items-start gap-2">
+                            <span className="text-purple-400">▶</span>
+                            {action}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
                 
                 {steps[currentStep].timing && (
-                  <div className="flex items-center gap-2 text-purple-300">
+                  <div className="flex items-center gap-2 text-purple-300 bg-purple-900/20 rounded-lg p-3">
                     <Clock className="w-4 h-4" />
                     <span>Timing: {steps[currentStep].timing}</span>
                   </div>
@@ -433,9 +468,18 @@ const RitualActivationDisplay: React.FC<{
                 
                 {steps[currentStep].visualization && (
                   <div className="bg-purple-900/30 rounded-lg p-4 border-l-4 border-purple-500">
-                    <h5 className="text-purple-200 font-semibold mb-2">Visualization:</h5>
+                    <h5 className="text-purple-200 font-semibold mb-2">Visualization Guide:</h5>
                     <p className="text-purple-100 italic">
                       {steps[currentStep].visualization}
+                    </p>
+                  </div>
+                )}
+
+                {steps[currentStep].expected_sensations && (
+                  <div className="bg-blue-900/20 rounded-lg p-4 border-l-4 border-blue-400">
+                    <h5 className="text-blue-200 font-semibold mb-2">What You Might Experience:</h5>
+                    <p className="text-blue-100">
+                      {steps[currentStep].expected_sensations}
                     </p>
                   </div>
                 )}
@@ -445,7 +489,7 @@ const RitualActivationDisplay: React.FC<{
         </Card>
       )}
 
-      {/* Required Materials */}
+      {/* Required Materials and Step Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="bg-green-900/20 border-green-500/30">
           <CardHeader>
@@ -462,7 +506,6 @@ const RitualActivationDisplay: React.FC<{
           </CardContent>
         </Card>
 
-        {/* Step Overview */}
         <Card className="bg-gray-900/20 border-gray-500/30">
           <CardHeader>
             <CardTitle className="text-gray-200">Step Overview</CardTitle>
@@ -495,6 +538,51 @@ const RitualActivationDisplay: React.FC<{
           </CardContent>
         </Card>
       </div>
+
+      {/* Ask Question Button */}
+      <div className="flex justify-center">
+        <Button
+          onClick={() => setShowQuestionDialog(true)}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3"
+          size="lg"
+        >
+          <HelpCircle className="w-5 h-5 mr-2" />
+          Ask Question About Ritual Performance
+        </Button>
+      </div>
+
+      {/* Question Dialog */}
+      {showQuestionDialog && (
+        <Card className="bg-indigo-900/20 border-indigo-500/30">
+          <CardHeader>
+            <CardTitle className="text-indigo-200">Ask About Ritual Performance</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <textarea
+              value={userQuestion}
+              onChange={(e) => setUserQuestion(e.target.value)}
+              placeholder="What would you like to know about performing this ritual correctly?"
+              className="w-full h-24 p-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 resize-none"
+            />
+            <div className="flex gap-2 justify-end">
+              <Button
+                onClick={() => setShowQuestionDialog(false)}
+                variant="outline"
+                className="bg-gray-700 border-gray-600 text-white hover:bg-gray-600"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleAskQuestion}
+                className="bg-indigo-600 hover:bg-indigo-700"
+                disabled={!userQuestion.trim()}
+              >
+                Submit Question
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Safety Incidents */}
       {activation.safetyCheck.incidents.length > 0 && (
