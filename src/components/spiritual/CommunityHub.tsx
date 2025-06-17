@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -52,6 +53,7 @@ interface UserParticipation {
   current_day: number;
   is_completed: boolean;
   streak_days: number;
+  total_points_earned: number;
 }
 
 export const CommunityHub = () => {
@@ -193,6 +195,46 @@ export const CommunityHub = () => {
 
     } catch (error) {
       console.error('Error joining challenge:', error);
+    }
+  };
+
+  const joinCircle = async (circleId: string) => {
+    if (!user) return;
+    
+    try {
+      // TODO: Implement actual circle joining logic when circles backend is ready
+      console.log('Joining circle:', circleId);
+      
+      // Update local state for now
+      setCircles(prev => 
+        prev.map(circle => 
+          circle.id === circleId 
+            ? { ...circle, current_members: circle.current_members + 1 }
+            : circle
+        )
+      );
+    } catch (error) {
+      console.error('Error joining circle:', error);
+    }
+  };
+
+  const registerForEvent = async (eventId: string) => {
+    if (!user) return;
+    
+    try {
+      // TODO: Implement actual event registration logic when events backend is ready
+      console.log('Registering for event:', eventId);
+      
+      // Update local state for now
+      setLiveEvents(prev => 
+        prev.map(event => 
+          event.id === eventId 
+            ? { ...event, current_attendees: event.current_attendees + 1 }
+            : event
+        )
+      );
+    } catch (error) {
+      console.error('Error registering for event:', error);
     }
   };
 
