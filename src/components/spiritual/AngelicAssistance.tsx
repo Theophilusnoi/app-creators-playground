@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { VoicePlayer } from '@/components/spiritual/VoicePlayer';
+import { AngelMeditationInterface } from './AngelMeditationInterface';
 import { Search, Sparkles, Heart, PlayCircle, Shield, Zap, Play, Pause, Volume2 } from 'lucide-react';
 
 // TypeScript interface for angel entities
@@ -39,6 +41,7 @@ const AngelicAssistance = () => {
   const [isPlayingGuide, setIsPlayingGuide] = useState(false);
   const [currentStep, setCurrentStep] = useState(-1);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [showMeditation, setShowMeditation] = useState(false);
   const { toast } = useToast();
   const guideTimer = useRef<NodeJS.Timeout | null>(null);
   
@@ -501,12 +504,28 @@ const AngelicAssistance = () => {
   };
 
   const startMeditation = (angel: AngelEntity) => {
-    setConnectionActive(true);
+    setSelectedAngel(angel);
+    setShowMeditation(true);
     toast({
-      title: `🧘‍♀️ Meditation with ${angel.name}`,
-      description: "Beginning guided meditation session. Find a comfortable position.",
+      title: `🧘‍♀️ Starting Meditation with ${angel.name}`,
+      description: "Prepare yourself for a divine connection.",
     });
   };
+
+  const handleBackFromMeditation = () => {
+    setShowMeditation(false);
+    setActiveTab('directory');
+  };
+
+  // Show meditation interface if meditation is active
+  if (showMeditation && selectedAngel) {
+    return (
+      <AngelMeditationInterface
+        angel={selectedAngel}
+        onBack={handleBackFromMeditation}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -597,7 +616,6 @@ const AngelicAssistance = () => {
                         className="flex-1 border-purple-500/50 text-purple-200 hover:bg-purple-900/50"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setSelectedAngel(angel);
                           startMeditation(angel);
                         }}
                       >
