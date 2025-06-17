@@ -47,6 +47,141 @@ export type Database = {
           },
         ]
       }
+      akashic_access: {
+        Row: {
+          access_level: number | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          karmic_insights: string | null
+          lifetime_focus: string
+          records_retrieved: Json | null
+          soul_signature: string
+          user_id: string
+          verification_hash: string | null
+        }
+        Insert: {
+          access_level?: number | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          karmic_insights?: string | null
+          lifetime_focus: string
+          records_retrieved?: Json | null
+          soul_signature: string
+          user_id: string
+          verification_hash?: string | null
+        }
+        Update: {
+          access_level?: number | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          karmic_insights?: string | null
+          lifetime_focus?: string
+          records_retrieved?: Json | null
+          soul_signature?: string
+          user_id?: string
+          verification_hash?: string | null
+        }
+        Relationships: []
+      }
+      consciousness_vault: {
+        Row: {
+          created_at: string | null
+          encrypted_essence: string
+          id: string
+          multi_factor_decryption: Json | null
+          quantum_key: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          encrypted_essence: string
+          id?: string
+          multi_factor_decryption?: Json | null
+          quantum_key?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          encrypted_essence?: string
+          id?: string
+          multi_factor_decryption?: Json | null
+          quantum_key?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      consciousness_waves: {
+        Row: {
+          amplitude_variance: number | null
+          coherence_score: number | null
+          created_at: string | null
+          frequency_spectrum: number[] | null
+          id: string
+          measured_at: string | null
+          user_id: string
+          wave_pattern: Json
+        }
+        Insert: {
+          amplitude_variance?: number | null
+          coherence_score?: number | null
+          created_at?: string | null
+          frequency_spectrum?: number[] | null
+          id?: string
+          measured_at?: string | null
+          user_id: string
+          wave_pattern?: Json
+        }
+        Update: {
+          amplitude_variance?: number | null
+          coherence_score?: number | null
+          created_at?: string | null
+          frequency_spectrum?: number[] | null
+          id?: string
+          measured_at?: string | null
+          user_id?: string
+          wave_pattern?: Json
+        }
+        Relationships: []
+      }
+      cosmic_gateways: {
+        Row: {
+          access_codes: string[] | null
+          consciousness_shift: number | null
+          created_at: string | null
+          dimension_level: number | null
+          gateway_name: string
+          id: string
+          return_transition: string | null
+          session_log: string | null
+          user_id: string
+        }
+        Insert: {
+          access_codes?: string[] | null
+          consciousness_shift?: number | null
+          created_at?: string | null
+          dimension_level?: number | null
+          gateway_name: string
+          id?: string
+          return_transition?: string | null
+          session_log?: string | null
+          user_id: string
+        }
+        Update: {
+          access_codes?: string[] | null
+          consciousness_shift?: number | null
+          created_at?: string | null
+          dimension_level?: number | null
+          gateway_name?: string
+          id?: string
+          return_transition?: string | null
+          session_log?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_protection_logs: {
         Row: {
           completed_at: string | null
@@ -203,6 +338,39 @@ export type Database = {
           },
         ]
       }
+      energy_grids: {
+        Row: {
+          coordinates: Json
+          created_at: string | null
+          energy_flow: number | null
+          grid_type: string
+          id: string
+          node_connections: Json | null
+          stabilization_factor: number | null
+          user_id: string
+        }
+        Insert: {
+          coordinates?: Json
+          created_at?: string | null
+          energy_flow?: number | null
+          grid_type: string
+          id?: string
+          node_connections?: Json | null
+          stabilization_factor?: number | null
+          user_id: string
+        }
+        Update: {
+          coordinates?: Json
+          created_at?: string | null
+          energy_flow?: number | null
+          grid_type?: string
+          id?: string
+          node_connections?: Json | null
+          stabilization_factor?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       galactic_council_sessions: {
         Row: {
           archetype_contacted: string
@@ -235,6 +403,72 @@ export type Database = {
           id?: string
           session_duration?: number | null
           soul_mission_insights?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      galactic_heritage: {
+        Row: {
+          created_at: string | null
+          genetic_markers: string[] | null
+          id: string
+          lineage_percentage: number | null
+          soul_mission_alignment: number | null
+          star_system_origin: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          genetic_markers?: string[] | null
+          id?: string
+          lineage_percentage?: number | null
+          soul_mission_alignment?: number | null
+          star_system_origin: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          genetic_markers?: string[] | null
+          id?: string
+          lineage_percentage?: number | null
+          soul_mission_alignment?: number | null
+          star_system_origin?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      life_force_channels: {
+        Row: {
+          blockages_detected: string[] | null
+          channel_capacity: number
+          created_at: string | null
+          flow_rate: number | null
+          id: string
+          last_activated: string | null
+          purification_level: number | null
+          source_connection: string | null
+          user_id: string
+        }
+        Insert: {
+          blockages_detected?: string[] | null
+          channel_capacity: number
+          created_at?: string | null
+          flow_rate?: number | null
+          id?: string
+          last_activated?: string | null
+          purification_level?: number | null
+          source_connection?: string | null
+          user_id: string
+        }
+        Update: {
+          blockages_detected?: string[] | null
+          channel_capacity?: number
+          created_at?: string | null
+          flow_rate?: number | null
+          id?: string
+          last_activated?: string | null
+          purification_level?: number | null
+          source_connection?: string | null
           user_id?: string
         }
         Relationships: []
@@ -314,6 +548,42 @@ export type Database = {
         }
         Relationships: []
       }
+      merkaba_activations: {
+        Row: {
+          activation_level: number | null
+          biofield_response: Json | null
+          completed_at: string | null
+          created_at: string | null
+          frequency_hz: number
+          geometric_pattern: string | null
+          id: string
+          spin_direction: string | null
+          user_id: string
+        }
+        Insert: {
+          activation_level?: number | null
+          biofield_response?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          frequency_hz: number
+          geometric_pattern?: string | null
+          id?: string
+          spin_direction?: string | null
+          user_id: string
+        }
+        Update: {
+          activation_level?: number | null
+          biofield_response?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          frequency_hz?: number
+          geometric_pattern?: string | null
+          id?: string
+          spin_direction?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       morphogenetic_fields: {
         Row: {
           baseline_signature: Json | null
@@ -389,6 +659,39 @@ export type Database = {
         }
         Relationships: []
       }
+      plasma_healing: {
+        Row: {
+          cellular_regeneration: number | null
+          created_at: string | null
+          dna_activation_percent: number | null
+          id: string
+          photon_intensity: number | null
+          plasma_color: string | null
+          session_duration: unknown | null
+          user_id: string
+        }
+        Insert: {
+          cellular_regeneration?: number | null
+          created_at?: string | null
+          dna_activation_percent?: number | null
+          id?: string
+          photon_intensity?: number | null
+          plasma_color?: string | null
+          session_duration?: unknown | null
+          user_id: string
+        }
+        Update: {
+          cellular_regeneration?: number | null
+          created_at?: string | null
+          dna_activation_percent?: number | null
+          id?: string
+          photon_intensity?: number | null
+          plasma_color?: string | null
+          session_duration?: unknown | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           budget: number | null
@@ -428,6 +731,27 @@ export type Database = {
           timeline_end?: string | null
           timeline_start?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      quantum_entanglement: {
+        Row: {
+          created_at: string | null
+          entanglement_strength: number | null
+          node_a: string
+          node_b: string
+        }
+        Insert: {
+          created_at?: string | null
+          entanglement_strength?: number | null
+          node_a: string
+          node_b: string
+        }
+        Update: {
+          created_at?: string | null
+          entanglement_strength?: number | null
+          node_a?: string
+          node_b?: string
         }
         Relationships: []
       }
@@ -642,6 +966,72 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      soul_blueprints: {
+        Row: {
+          activation_points: Json | null
+          blueprint_data: Json
+          created_at: string | null
+          id: string
+          modifications: Json | null
+          updated_at: string | null
+          user_id: string
+          version_hash: string
+        }
+        Insert: {
+          activation_points?: Json | null
+          blueprint_data?: Json
+          created_at?: string | null
+          id?: string
+          modifications?: Json | null
+          updated_at?: string | null
+          user_id: string
+          version_hash: string
+        }
+        Update: {
+          activation_points?: Json | null
+          blueprint_data?: Json
+          created_at?: string | null
+          id?: string
+          modifications?: Json | null
+          updated_at?: string | null
+          user_id?: string
+          version_hash?: string
+        }
+        Relationships: []
+      }
+      soul_fragments: {
+        Row: {
+          created_at: string | null
+          emotional_charge: Json | null
+          fragment_source: string
+          id: string
+          re_integration_level: number | null
+          recovered_at: string | null
+          recovery_method: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          emotional_charge?: Json | null
+          fragment_source: string
+          id?: string
+          re_integration_level?: number | null
+          recovered_at?: string | null
+          recovery_method?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          emotional_charge?: Json | null
+          fragment_source?: string
+          id?: string
+          re_integration_level?: number | null
+          recovered_at?: string | null
+          recovery_method?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       soul_guide_conversations: {
         Row: {
@@ -950,6 +1340,39 @@ export type Database = {
           },
         ]
       }
+      stellar_language: {
+        Row: {
+          created_at: string | null
+          decoded_meaning: string | null
+          id: string
+          input_symbol: string
+          multidimensional_context: Json | null
+          star_origin: string | null
+          user_id: string
+          vibration_frequency: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          decoded_meaning?: string | null
+          id?: string
+          input_symbol: string
+          multidimensional_context?: Json | null
+          star_origin?: string | null
+          user_id: string
+          vibration_frequency?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          decoded_meaning?: string | null
+          id?: string
+          input_symbol?: string
+          multidimensional_context?: Json | null
+          star_origin?: string | null
+          user_id?: string
+          vibration_frequency?: number | null
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           created_at: string | null
@@ -985,6 +1408,42 @@ export type Database = {
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      time_capsules: {
+        Row: {
+          capsule_content: string
+          created_at: string | null
+          encryption_key: string | null
+          id: string
+          open_at: string | null
+          retrieval_conditions: Json | null
+          target_timeline: string
+          temporal_coordinates: Json | null
+          user_id: string
+        }
+        Insert: {
+          capsule_content: string
+          created_at?: string | null
+          encryption_key?: string | null
+          id?: string
+          open_at?: string | null
+          retrieval_conditions?: Json | null
+          target_timeline: string
+          temporal_coordinates?: Json | null
+          user_id: string
+        }
+        Update: {
+          capsule_content?: string
+          created_at?: string | null
+          encryption_key?: string | null
+          id?: string
+          open_at?: string | null
+          retrieval_conditions?: Json | null
+          target_timeline?: string
+          temporal_coordinates?: Json | null
           user_id?: string
         }
         Relationships: []
