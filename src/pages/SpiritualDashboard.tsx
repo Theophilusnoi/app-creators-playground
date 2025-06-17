@@ -13,6 +13,7 @@ import { DreamForm } from '@/components/spiritual/DreamForm';
 import { ShadowWorkForm } from '@/components/spiritual/ShadowWorkForm';
 import { SynchronicityForm } from '@/components/spiritual/SynchronicityForm';
 import { CulturalAdapter } from '@/components/spiritual/CulturalAdapter';
+import { RitualActivationSystem } from '@/components/spiritual/RitualActivationSystem';
 import { 
   Brain, 
   TrendingUp, 
@@ -27,7 +28,8 @@ import {
   Eye,
   Sparkles,
   Globe,
-  Star
+  Star,
+  Shield
 } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -61,10 +63,14 @@ export default function SpiritualDashboard() {
         </div>
 
         <Tabs defaultValue="seraphina" className="w-full">
-          <TabsList className="grid w-full grid-cols-6 lg:grid-cols-13 bg-black/30 mb-8">
+          <TabsList className="grid w-full grid-cols-7 lg:grid-cols-14 bg-black/30 mb-8">
             <TabsTrigger value="seraphina" className="data-[state=active]:bg-purple-600">
               <MessageCircle className="w-4 h-4 mr-2" />
               Seraphina
+            </TabsTrigger>
+            <TabsTrigger value="rituals" className="data-[state=active]:bg-purple-600">
+              <Shield className="w-4 h-4 mr-2" />
+              Rituals
             </TabsTrigger>
             <TabsTrigger value="cultural" className="data-[state=active]:bg-purple-600">
               <Globe className="w-4 h-4 mr-2" />
@@ -118,6 +124,10 @@ export default function SpiritualDashboard() {
 
           <TabsContent value="seraphina">
             <SoulGuideChat />
+          </TabsContent>
+
+          <TabsContent value="rituals">
+            <RitualActivationSystem />
           </TabsContent>
 
           <TabsContent value="cultural">
