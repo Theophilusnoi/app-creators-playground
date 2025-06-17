@@ -14,8 +14,11 @@ interface MorphogeneticField {
   field_type: string;
   current_resonance: number;
   tuning_frequency: number;
-  harmonic_convergence: boolean;
   created_at: string;
+  updated_at: string;
+  baseline_signature: any;
+  interference_patterns: any;
+  calibration_data: any;
 }
 
 export const MorphogeneticFieldTuning = () => {
@@ -95,7 +98,6 @@ export const MorphogeneticFieldTuning = () => {
           field_type: selectedFieldType,
           current_resonance: resonance,
           tuning_frequency: tuningFrequency[0],
-          harmonic_convergence: harmonic,
           baseline_signature: {
             initial_frequency: tuningFrequency[0],
             timestamp: new Date().toISOString(),
@@ -272,7 +274,7 @@ export const MorphogeneticFieldTuning = () => {
                         <Badge className={`${fieldType?.color} border-current`} variant="outline">
                           {fieldType?.label}
                         </Badge>
-                        {field.harmonic_convergence && (
+                        {field.current_resonance > 0.85 && (
                           <Badge className="bg-gold-600 text-white flex items-center gap-1">
                             <Zap className="w-3 h-3" />
                             Harmonic

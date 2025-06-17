@@ -17,7 +17,7 @@ interface LightLanguageRecord {
   galactic_origin: string;
   personal_resonance: number;
   created_at: string;
-  authenticity_score: number;
+  archetypal_symbols: any;
 }
 
 export const LightLanguageTranslator = () => {
@@ -94,7 +94,6 @@ export const LightLanguageTranslator = () => {
       const translation = generateTranslation(originalPattern, inputMode);
       const origin = galacticOrigins[Math.floor(Math.random() * galacticOrigins.length)];
       const resonance = Math.random() * 0.9 + 0.1;
-      const authenticity = Math.random() * 0.8 + 0.2;
       
       const { error } = await supabase
         .from('light_language_records')
@@ -105,7 +104,6 @@ export const LightLanguageTranslator = () => {
           decoded_message: translation,
           galactic_origin: origin,
           personal_resonance: resonance,
-          authenticity_score: authenticity,
           archetypal_symbols: {
             symbols: extractSymbols(originalPattern),
             frequency_signature: generateFrequencySignature(),

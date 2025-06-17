@@ -13,9 +13,11 @@ interface TimelineSession {
   timeline_period: string;
   healing_focus: string;
   ancestral_integration: boolean;
-  karmic_release_level: number;
   created_at: string;
   completed_at: string;
+  resonance_shifts: any;
+  probable_futures: any;
+  session_data: any;
 }
 
 export const TimelineHealing = () => {
@@ -97,7 +99,6 @@ export const TimelineHealing = () => {
       // Simulate healing process
       await new Promise(resolve => setTimeout(resolve, 4000));
 
-      const karmicLevel = Math.floor(Math.random() * 7) + 1;
       const ancestralHealing = Math.random() > 0.4; // 60% chance
       
       const { error } = await supabase
@@ -107,7 +108,6 @@ export const TimelineHealing = () => {
           timeline_period: selectedPeriod,
           healing_focus: healingFocus,
           ancestral_integration: ancestralHealing,
-          karmic_release_level: karmicLevel,
           resonance_shifts: {
             before_frequency: Math.random() * 300 + 100,
             after_frequency: Math.random() * 400 + 400,
@@ -131,7 +131,7 @@ export const TimelineHealing = () => {
 
       toast({
         title: "Timeline Healing Complete! ⚡",
-        description: `${ancestralHealing ? 'Ancestral patterns' : 'Personal timeline'} healed at level ${karmicLevel}`,
+        description: `${ancestralHealing ? 'Ancestral patterns' : 'Personal timeline'} healed successfully`,
       });
 
       setHealingFocus('');
@@ -169,18 +169,6 @@ export const TimelineHealing = () => {
       auric_field_strength: Math.random() * 0.5 + 0.5,
       dimensional_coherence: Math.random() * 0.8 + 0.2
     };
-  };
-
-  const getKarmicLevelColor = (level: number) => {
-    if (level >= 6) return 'text-gold-400';
-    if (level >= 4) return 'text-green-400';
-    return 'text-blue-400';
-  };
-
-  const getKarmicLevelLabel = (level: number) => {
-    if (level >= 6) return 'Deep Release';
-    if (level >= 4) return 'Significant';
-    return 'Gentle';
   };
 
   return (
@@ -286,13 +274,7 @@ export const TimelineHealing = () => {
                           Ancestral
                         </Badge>
                       )}
-                      <Badge className={`${getKarmicLevelColor(session.karmic_release_level)} border-current`} variant="outline">
-                        {getKarmicLevelLabel(session.karmic_release_level)}
-                      </Badge>
                     </div>
-                    <span className="text-purple-300 text-sm">
-                      Level {session.karmic_release_level}
-                    </span>
                   </div>
                   
                   <p className="text-purple-200 text-sm mb-2">
