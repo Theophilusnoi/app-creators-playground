@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +10,7 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { Moon, Save, Mic, MicOff } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
 import { useVoiceService } from '@/hooks/useVoiceService';
+import { useDreams } from '@/hooks/useDreams';
 
 // TypeScript declarations for Web Speech API
 declare global {
@@ -70,6 +70,7 @@ interface DreamFormProps {
 
 export const DreamForm: React.FC<DreamFormProps> = ({ onClose }) => {
   const { user } = useAuth();
+  const { addDream } = useDreams();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -167,7 +168,14 @@ export const DreamForm: React.FC<DreamFormProps> = ({ onClose }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to save your dream",
+        variant: "destructive"
+      });
+      return;
+    }
 
     if (!formData.title || !formData.description) {
       toast({
@@ -180,37 +188,14 @@ export const DreamForm: React.FC<DreamFormProps> = ({ onClose }) => {
 
     setLoading(true);
     try {
-      // Extract potential symbols from the dream content
-      const symbolWords = ["water", "flying", "animal", "death", "house", "tree", "fire", 
-                          "darkness", "light", "mirror", "door", "stair", "snake", "bird", 
-                          "cat", "dog", "ocean", "mountain", "forest", "temple", "church"];
-                          
-      const symbolMatches = formData.description.toLowerCase().match(
-        new RegExp(`\\b(${symbolWords.join('|')})(s|es)?\\b`, 'g')
-      );
-      
-      const detectedSymbols = symbolMatches ? [...new Set(symbolMatches)] : [];
-
-      const { error } = await supabase
-        .from('dreams')
-        .insert([{
-          user_id: user.id,
-          title: formData.title,
-          content: formData.description,
-          analysis: null, // Will be filled by AI analysis later
-          emotions: formData.emotions,
-          symbols: detectedSymbols,
-          dream_date: formData.date
-        }]);
-
-      if (error) throw error;
-      
-      toast({
-        title: "Dream Saved",
-        description: "Your dream has been recorded successfully",
+      await addDream({
+        title: formData.title,
+        content: formData.description,
+        emotions: formData.emotions,
+        dream_date: formData.date
       });
 
-      // Offer voice confirmation
+      // Offer voice confirmation with error handling
       try {
         await generateAndPlay({
           text: "Your dream has been saved to your journal. Would you like to analyze it now for deeper insights?",
@@ -218,6 +203,7 @@ export const DreamForm: React.FC<DreamFormProps> = ({ onClose }) => {
         });
       } catch (voiceError) {
         console.error('Voice playback error:', voiceError);
+        // Continue without voice - this is not critical
       }
       
       if (onClose) onClose();
@@ -231,11 +217,7 @@ export const DreamForm: React.FC<DreamFormProps> = ({ onClose }) => {
         date: new Date().toISOString().split('T')[0]
       });
     } catch (error: any) {
-      toast({
-        title: "Error Saving Dream",
-        description: error.message,
-        variant: "destructive"
-      });
+      // Error is already handled in addDream
     } finally {
       setLoading(false);
     }
@@ -277,33 +259,31 @@ export const DreamForm: React.FC<DreamFormProps> = ({ onClose }) => {
           <div>
             <div className="flex justify-between items-center mb-1">
               <Label className="text-purple-200">Dream Description</Label>
-              {recognition && (
-                <div>
-                  {isListening ? (
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="destructive"
-                      onClick={stopListening}
-                      className="h-8"
-                    >
-                      <MicOff className="w-4 h-4 mr-1" />
-                      Stop Recording
-                    </Button>
-                  ) : (
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={startListening}
-                      className="border-purple-500/30 text-purple-200 hover:bg-purple-700/30 h-8"
-                    >
-                      <Mic className="w-4 h-4 mr-1" />
-                      Voice Record
-                    </Button>
-                  )}
-                </div>
-              )}
+              <div>
+                {isListening ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="destructive"
+                    onClick={stopListening}
+                    className="h-8"
+                  >
+                    <MicOff className="w-4 h-4 mr-1" />
+                    Stop Recording
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={startListening}
+                    className="border-purple-500/30 text-purple-200 hover:bg-purple-700/30 h-8"
+                  >
+                    <Mic className="w-4 h-4 mr-1" />
+                    Voice Record
+                  </Button>
+                )}
+              </div>
             </div>
             
             <Textarea
