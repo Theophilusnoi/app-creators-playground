@@ -1,5 +1,5 @@
+
 import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SpiritualAssessment } from '@/components/spiritual/SpiritualAssessment';
 import { ProgressVisualization } from '@/components/spiritual/ProgressVisualization';
 import { RecommendationsSystem } from '@/components/spiritual/RecommendationsSystem';
@@ -14,29 +14,62 @@ import { ShadowWorkForm } from '@/components/spiritual/ShadowWorkForm';
 import { SynchronicityForm } from '@/components/spiritual/SynchronicityForm';
 import { CulturalAdapter } from '@/components/spiritual/CulturalAdapter';
 import { RitualActivationSystem } from '@/components/spiritual/RitualActivationSystem';
+import { TopNavigation } from '@/components/spiritual/TopNavigation';
 import { 
-  Brain, 
-  TrendingUp, 
-  Lightbulb, 
-  MessageCircle, 
-  Users, 
-  Trophy, 
-  Heart,
-  Gift,
-  Play,
-  Moon,
-  Eye,
   Sparkles,
-  Globe,
-  Star,
-  Shield
+  Star
 } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 
 export default function SpiritualDashboard() {
   const [hasCompletedAssessment, setHasCompletedAssessment] = useState(false);
+  const [activeTab, setActiveTab] = useState('seraphina');
   const navigate = useNavigate();
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'seraphina':
+        return <SoulGuideChat />;
+      case 'rituals':
+        return <RitualActivationSystem />;
+      case 'cultural':
+        return <CulturalAdapter />;
+      case 'community':
+        return <CommunityHub />;
+      case 'progress':
+        return <GamificationDashboard />;
+      case 'mood':
+        return <MoodTracker />;
+      case 'meditation':
+        return <MeditationTracker />;
+      case 'dreams':
+        return <DreamForm />;
+      case 'shadow':
+        return <ShadowWorkForm />;
+      case 'sync':
+        return <SynchronicityForm />;
+      case 'assessment':
+        return !hasCompletedAssessment ? (
+          <SpiritualAssessment onComplete={() => setHasCompletedAssessment(true)} />
+        ) : (
+          <div className="text-center text-white">
+            <h2 className="text-2xl font-bold mb-4">Assessment Complete!</h2>
+            <p className="text-purple-200">
+              Check your recommendations and progress in the other tabs.
+            </p>
+          </div>
+        );
+      case 'insights':
+        return <ProgressVisualization />;
+      case 'recommendations':
+        return <RecommendationsSystem />;
+      case 'referrals':
+        return <ReferralSystem />;
+      default:
+        return <SoulGuideChat />;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-4">
@@ -62,131 +95,11 @@ export default function SpiritualDashboard() {
           </div>
         </div>
 
-        <Tabs defaultValue="seraphina" className="w-full">
-          <TabsList className="grid w-full grid-cols-7 lg:grid-cols-14 bg-black/30 mb-8">
-            <TabsTrigger value="seraphina" className="data-[state=active]:bg-purple-600">
-              <MessageCircle className="w-4 h-4 mr-2" />
-              Seraphina
-            </TabsTrigger>
-            <TabsTrigger value="rituals" className="data-[state=active]:bg-purple-600">
-              <Shield className="w-4 h-4 mr-2" />
-              Rituals
-            </TabsTrigger>
-            <TabsTrigger value="cultural" className="data-[state=active]:bg-purple-600">
-              <Globe className="w-4 h-4 mr-2" />
-              Cultural
-            </TabsTrigger>
-            <TabsTrigger value="community" className="data-[state=active]:bg-purple-600">
-              <Users className="w-4 h-4 mr-2" />
-              Community
-            </TabsTrigger>
-            <TabsTrigger value="progress" className="data-[state=active]:bg-purple-600">
-              <Trophy className="w-4 h-4 mr-2" />
-              Progress
-            </TabsTrigger>
-            <TabsTrigger value="mood" className="data-[state=active]:bg-purple-600">
-              <Heart className="w-4 h-4 mr-2" />
-              Mood
-            </TabsTrigger>
-            <TabsTrigger value="meditation" className="data-[state=active]:bg-purple-600">
-              <Play className="w-4 h-4 mr-2" />
-              Meditate
-            </TabsTrigger>
-            <TabsTrigger value="dreams" className="data-[state=active]:bg-purple-600">
-              <Moon className="w-4 h-4 mr-2" />
-              Dreams
-            </TabsTrigger>
-            <TabsTrigger value="shadow" className="data-[state=active]:bg-purple-600">
-              <Eye className="w-4 h-4 mr-2" />
-              Shadow
-            </TabsTrigger>
-            <TabsTrigger value="sync" className="data-[state=active]:bg-purple-600">
-              <Sparkles className="w-4 h-4 mr-2" />
-              Sync
-            </TabsTrigger>
-            <TabsTrigger value="assessment" className="data-[state=active]:bg-purple-600">
-              <Brain className="w-4 h-4 mr-2" />
-              Assessment
-            </TabsTrigger>
-            <TabsTrigger value="insights" className="data-[state=active]:bg-purple-600">
-              <TrendingUp className="w-4 h-4 mr-2" />
-              Insights
-            </TabsTrigger>
-            <TabsTrigger value="recommendations" className="data-[state=active]:bg-purple-600">
-              <Lightbulb className="w-4 h-4 mr-2" />
-              Guidance
-            </TabsTrigger>
-            <TabsTrigger value="referrals" className="data-[state=active]:bg-purple-600">
-              <Gift className="w-4 h-4 mr-2" />
-              Invite
-            </TabsTrigger>
-          </TabsList>
+        <TopNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
-          <TabsContent value="seraphina">
-            <SoulGuideChat />
-          </TabsContent>
-
-          <TabsContent value="rituals">
-            <RitualActivationSystem />
-          </TabsContent>
-
-          <TabsContent value="cultural">
-            <CulturalAdapter />
-          </TabsContent>
-
-          <TabsContent value="community">
-            <CommunityHub />
-          </TabsContent>
-
-          <TabsContent value="progress">
-            <GamificationDashboard />
-          </TabsContent>
-
-          <TabsContent value="mood">
-            <MoodTracker />
-          </TabsContent>
-
-          <TabsContent value="meditation">
-            <MeditationTracker />
-          </TabsContent>
-
-          <TabsContent value="dreams">
-            <DreamForm />
-          </TabsContent>
-
-          <TabsContent value="shadow">
-            <ShadowWorkForm />
-          </TabsContent>
-
-          <TabsContent value="sync">
-            <SynchronicityForm />
-          </TabsContent>
-
-          <TabsContent value="assessment">
-            {!hasCompletedAssessment ? (
-              <SpiritualAssessment onComplete={() => setHasCompletedAssessment(true)} />
-            ) : (
-              <div className="text-center text-white">
-                <h2 className="text-2xl font-bold mb-4">Assessment Complete!</h2>
-                <p className="text-purple-200">
-                  Check your recommendations and progress in the other tabs.
-                </p>
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="insights">
-            <ProgressVisualization />
-          </TabsContent>
-
-          <TabsContent value="recommendations">
-            <RecommendationsSystem />
-          </TabsContent>
-
-          <TabsContent value="referrals">
-            <ReferralSystem />
-          </TabsContent>
-        </Tabs>
+        <div className="bg-black/30 border border-purple-500/30 backdrop-blur-sm rounded-lg p-6">
+          {renderTabContent()}
+        </div>
       </div>
     </div>
   );
