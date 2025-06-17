@@ -182,6 +182,82 @@ export type Database = {
         }
         Relationships: []
       }
+      cultural_adaptations: {
+        Row: {
+          created_at: string
+          disclaimer: string | null
+          id: string
+          material_substitutions: string[] | null
+          modified_instructions: Json | null
+          ritual_id: string
+          tradition: string
+        }
+        Insert: {
+          created_at?: string
+          disclaimer?: string | null
+          id?: string
+          material_substitutions?: string[] | null
+          modified_instructions?: Json | null
+          ritual_id: string
+          tradition: string
+        }
+        Update: {
+          created_at?: string
+          disclaimer?: string | null
+          id?: string
+          material_substitutions?: string[] | null
+          modified_instructions?: Json | null
+          ritual_id?: string
+          tradition?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cultural_adaptations_ritual_id_fkey"
+            columns: ["ritual_id"]
+            isOneToOne: false
+            referencedRelation: "psalm_rituals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cultural_safety_logs: {
+        Row: {
+          created_at: string
+          details: Json | null
+          id: string
+          passed: boolean
+          ritual_id: string
+          safety_check_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          details?: Json | null
+          id?: string
+          passed?: boolean
+          ritual_id: string
+          safety_check_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json | null
+          id?: string
+          passed?: boolean
+          ritual_id?: string
+          safety_check_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cultural_safety_logs_ritual_id_fkey"
+            columns: ["ritual_id"]
+            isOneToOne: false
+            referencedRelation: "psalm_rituals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_protection_logs: {
         Row: {
           completed_at: string | null
@@ -734,6 +810,45 @@ export type Database = {
         }
         Relationships: []
       }
+      psalm_rituals: {
+        Row: {
+          created_at: string
+          id: string
+          instructions: Json | null
+          min_user_level: number
+          psalm_number: number
+          required_materials: string[] | null
+          safety_rating: number
+          seal_svg: string | null
+          situation: string
+          time_constraints: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          instructions?: Json | null
+          min_user_level?: number
+          psalm_number: number
+          required_materials?: string[] | null
+          safety_rating?: number
+          seal_svg?: string | null
+          situation: string
+          time_constraints?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          instructions?: Json | null
+          min_user_level?: number
+          psalm_number?: number
+          required_materials?: string[] | null
+          safety_rating?: number
+          seal_svg?: string | null
+          situation?: string
+          time_constraints?: string | null
+        }
+        Relationships: []
+      }
       quantum_entanglement: {
         Row: {
           created_at: string | null
@@ -837,6 +952,62 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      ritual_activations: {
+        Row: {
+          activated_at: string
+          id: string
+          ritual_id: string
+          safety_incidents: Json | null
+          user_id: string
+        }
+        Insert: {
+          activated_at?: string
+          id?: string
+          ritual_id: string
+          safety_incidents?: Json | null
+          user_id: string
+        }
+        Update: {
+          activated_at?: string
+          id?: string
+          ritual_id?: string
+          safety_incidents?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ritual_activations_ritual_id_fkey"
+            columns: ["ritual_id"]
+            isOneToOne: false
+            referencedRelation: "psalm_rituals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sacred_texts: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          title: string
+          tradition: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          title: string
+          tradition: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          title?: string
+          tradition?: string
+        }
+        Relationships: []
       }
       schedule_acknowledgments: {
         Row: {
@@ -1582,6 +1753,39 @@ export type Database = {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_spiritual_profiles: {
+        Row: {
+          access_level: number
+          completed_safety_training: boolean
+          created_at: string
+          id: string
+          spiritual_experience_years: number | null
+          tradition: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_level?: number
+          completed_safety_training?: boolean
+          created_at?: string
+          id?: string
+          spiritual_experience_years?: number | null
+          tradition?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_level?: number
+          completed_safety_training?: boolean
+          created_at?: string
+          id?: string
+          spiritual_experience_years?: number | null
+          tradition?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
