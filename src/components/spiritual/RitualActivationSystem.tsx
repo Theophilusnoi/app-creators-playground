@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
-import { Shield, Zap, Heart, AlertTriangle, Eye, Sparkles } from 'lucide-react';
+import { Shield, Zap, Heart, AlertTriangle, Eye, Sparkles, Clock, CheckCircle } from 'lucide-react';
 import { ARVisualizationPlaceholder } from './ARVisualizationPlaceholder';
 
 interface RitualActivation {
@@ -282,7 +283,7 @@ export const RitualActivationSystem: React.FC = () => {
   );
 };
 
-// Ritual Activation Display Component
+// Enhanced Ritual Activation Display Component
 const RitualActivationDisplay: React.FC<{
   activation: RitualActivation;
   onEmergencyExit: () => void;
@@ -291,44 +292,208 @@ const RitualActivationDisplay: React.FC<{
   selectedSituation: string;
 }> = ({ activation, onEmergencyExit, showARViewer, onToggleAR, selectedSituation }) => {
   const { toast } = useToast();
+  const [currentStep, setCurrentStep] = useState(0);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+
+  const instructions = activation.ritual.instructions;
+  const steps = instructions?.steps || [];
+
+  const handleStepComplete = (stepIndex: number) => {
+    if (!completedSteps.includes(stepIndex)) {
+      setCompletedSteps([...completedSteps, stepIndex]);
+      toast({
+        title: "Step Completed ✓",
+        description: `Step ${stepIndex + 1} marked as complete`,
+      });
+    }
+  };
+
+  const handleNextStep = () => {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* Ritual Information */}
+      {/* Ritual Information Header */}
       <div className="bg-purple-900/20 rounded-lg p-6 border border-purple-500/30">
-        <h3 className="text-xl font-bold text-white mb-4">
+        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+          <Shield className="w-6 h-6" />
           {activation.ritual.sacred_texts?.title} - Psalm {activation.ritual.psalm_number}
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h4 className="text-purple-200 font-semibold mb-2">Instructions:</h4>
-            <div className="text-white space-y-2">
-              {activation.ritual.instructions?.steps?.map((step: string, index: number) => (
-                <div key={index} className="flex items-start gap-2">
-                  <span className="text-purple-400 font-bold">{index + 1}.</span>
-                  <span>{step}</span>
-                </div>
-              ))}
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div className="flex items-center gap-2 text-purple-200">
+            <Clock className="w-4 h-4" />
+            Duration: {instructions?.duration || '20-30 minutes'}
           </div>
-          
-          <div>
-            <h4 className="text-purple-200 font-semibold mb-2">Required Materials:</h4>
+          <div className="text-purple-200">
+            Steps: {steps.length} total
+          </div>
+          <div className="text-purple-200">
+            Completed: {completedSteps.length}/{steps.length}
+          </div>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="w-full bg-gray-700 rounded-full h-2 mb-4">
+          <div 
+            className="bg-purple-600 h-2 rounded-full transition-all duration-300" 
+            style={{ width: `${(completedSteps.length / steps.length) * 100}%` }}
+          ></div>
+        </div>
+      </div>
+
+      {/* Preparation Steps */}
+      {instructions?.preparation && (
+        <Card className="bg-blue-900/20 border-blue-500/30">
+          <CardHeader>
+            <CardTitle className="text-blue-200 text-lg">Preparation</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {instructions.preparation.map((prep: string, index: number) => (
+                <li key={index} className="text-blue-100 flex items-start gap-2">
+                  <span className="text-blue-400 font-bold">•</span>
+                  {prep}
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Step-by-Step Instructions */}
+      {steps.length > 0 && (
+        <Card className="bg-gray-900/30 border-gray-600/30">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center justify-between">
+              <span>Step {currentStep + 1} of {steps.length}</span>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={handlePrevStep} 
+                  disabled={currentStep === 0}
+                  variant="outline" 
+                  size="sm"
+                >
+                  Previous
+                </Button>
+                <Button 
+                  onClick={handleNextStep} 
+                  disabled={currentStep === steps.length - 1}
+                  variant="outline" 
+                  size="sm"
+                >
+                  Next
+                </Button>
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {steps[currentStep] && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xl font-semibold text-white">
+                    {steps[currentStep].action}
+                  </h4>
+                  <Button
+                    onClick={() => handleStepComplete(currentStep)}
+                    className={`${
+                      completedSteps.includes(currentStep) 
+                        ? 'bg-green-600 hover:bg-green-700' 
+                        : 'bg-purple-600 hover:bg-purple-700'
+                    }`}
+                    size="sm"
+                  >
+                    {completedSteps.includes(currentStep) ? (
+                      <><CheckCircle className="w-4 h-4 mr-1" /> Completed</>
+                    ) : (
+                      'Mark Complete'
+                    )}
+                  </Button>
+                </div>
+                
+                <p className="text-gray-200 leading-relaxed">
+                  {steps[currentStep].details}
+                </p>
+                
+                {steps[currentStep].timing && (
+                  <div className="flex items-center gap-2 text-purple-300">
+                    <Clock className="w-4 h-4" />
+                    <span>Timing: {steps[currentStep].timing}</span>
+                  </div>
+                )}
+                
+                {steps[currentStep].visualization && (
+                  <div className="bg-purple-900/30 rounded-lg p-4 border-l-4 border-purple-500">
+                    <h5 className="text-purple-200 font-semibold mb-2">Visualization:</h5>
+                    <p className="text-purple-100 italic">
+                      {steps[currentStep].visualization}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Required Materials */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="bg-green-900/20 border-green-500/30">
+          <CardHeader>
+            <CardTitle className="text-green-200">Required Materials</CardTitle>
+          </CardHeader>
+          <CardContent>
             <div className="flex flex-wrap gap-2">
               {activation.ritual.required_materials?.map((material: string, index: number) => (
-                <Badge key={index} variant="outline" className="text-white border-purple-400">
+                <Badge key={index} variant="outline" className="text-white border-green-400">
                   {material.replace(/_/g, ' ')}
                 </Badge>
               ))}
             </div>
-            
-            <div className="mt-4">
-              <h4 className="text-purple-200 font-semibold mb-2">Duration:</h4>
-              <p className="text-white">{activation.ritual.instructions?.duration || '15-30 minutes'}</p>
+          </CardContent>
+        </Card>
+
+        {/* Step Overview */}
+        <Card className="bg-gray-900/20 border-gray-500/30">
+          <CardHeader>
+            <CardTitle className="text-gray-200">Step Overview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {steps.map((step: any, index: number) => (
+                <div 
+                  key={index} 
+                  className={`flex items-center gap-2 p-2 rounded cursor-pointer transition-colors ${
+                    index === currentStep 
+                      ? 'bg-purple-600/30 border border-purple-500' 
+                      : 'hover:bg-gray-800/50'
+                  }`}
+                  onClick={() => setCurrentStep(index)}
+                >
+                  {completedSteps.includes(index) ? (
+                    <CheckCircle className="w-4 h-4 text-green-400" />
+                  ) : (
+                    <div className="w-4 h-4 border border-gray-400 rounded-full"></div>
+                  )}
+                  <span className={`text-sm ${
+                    index === currentStep ? 'text-white font-semibold' : 'text-gray-300'
+                  }`}>
+                    {step.action}
+                  </span>
+                </div>
+              ))}
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Safety Incidents */}
