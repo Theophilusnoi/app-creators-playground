@@ -15,7 +15,8 @@ import {
   TrendingUp,
   Lightbulb,
   Gift,
-  MessageCircle
+  MessageCircle,
+  Crown
 } from "lucide-react";
 
 interface TopNavigationProps {
@@ -37,13 +38,14 @@ const navigationItems = [
   { id: 'assessment', label: 'Assessment', icon: Brain, color: 'from-cyan-600 to-blue-600' },
   { id: 'insights', label: 'Insights', icon: TrendingUp, color: 'from-green-600 to-cyan-600' },
   { id: 'recommendations', label: 'Guidance', icon: Lightbulb, color: 'from-orange-600 to-yellow-600' },
+  { id: 'angelic', label: 'Angels', icon: Crown, color: 'from-gold-500 to-yellow-500' },
   { id: 'referrals', label: 'Invite', icon: Gift, color: 'from-red-600 to-orange-600' },
 ];
 
 export const TopNavigation: React.FC<TopNavigationProps> = ({ activeTab, onTabChange }) => {
   return (
     <div className="w-full bg-black/20 backdrop-blur-sm rounded-lg p-4 mb-6">
-      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 lg:grid-cols-14 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 lg:grid-cols-15 gap-2">
         {navigationItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
