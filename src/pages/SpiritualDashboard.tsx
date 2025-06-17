@@ -26,7 +26,8 @@ import {
   Moon,
   Eye,
   Sparkles,
-  Globe
+  Globe,
+  Star
 } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -41,13 +42,22 @@ export default function SpiritualDashboard() {
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">SpiritualMind Pro</h1>
           <p className="text-purple-200">Your journey to inner wisdom and enlightenment</p>
-          <Button 
-            onClick={() => navigate('/meditation')} 
-            className="mt-4 bg-purple-600 hover:bg-purple-700 text-white"
-          >
-            <Sparkles className="w-5 h-5 mr-2" />
-            Enter Meditation Environment
-          </Button>
+          <div className="flex gap-4 justify-center mt-4">
+            <Button 
+              onClick={() => navigate('/meditation')} 
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              <Sparkles className="w-5 h-5 mr-2" />
+              Enter Meditation Environment
+            </Button>
+            <Button 
+              onClick={() => navigate('/quantum-spiritual')} 
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
+            >
+              <Star className="w-5 h-5 mr-2" />
+              Quantum Spiritual Technologies
+            </Button>
+          </div>
         </div>
 
         <Tabs defaultValue="seraphina" className="w-full">

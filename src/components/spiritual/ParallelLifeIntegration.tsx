@@ -16,8 +16,8 @@ interface ParallelRecord {
   wisdom_insights: string;
   healing_received: boolean;
   integration_level: number;
-  timeline_encryption_key: string;
-  verified_crossing: boolean;
+  timeline_encryption_key?: string;
+  verified_crossing?: boolean;
   accessed_at: string;
 }
 

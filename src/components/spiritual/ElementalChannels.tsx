@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
-import { Globe, Flame, Droplets, Wind, Mountain, Sparkles2 } from 'lucide-react';
+import { Globe, Flame, Droplets, Wind, Mountain, Sparkles } from 'lucide-react';
 
 interface ElementalCommunication {
   id: string;
@@ -74,7 +74,7 @@ export const ElementalChannels = () => {
     {
       id: 'ether',
       name: 'Ether',
-      icon: Sparkles2,
+      icon: Sparkles,
       color: 'text-purple-400',
       bgColor: 'bg-purple-900/20',
       borderColor: 'border-purple-500/30',
@@ -146,7 +146,7 @@ export const ElementalChannels = () => {
       
       const { error } = await supabase
         .from('elemental_communications')
-        .insert([{
+        .insert({
           user_id: user.id,
           element: selectedElement,
           message_symbol: messageSymbol,
@@ -155,7 +155,7 @@ export const ElementalChannels = () => {
           communication_method: communicationMethod,
           intensity_level: Math.floor(Math.random() * 10) + 1,
           location_data: locationData
-        }]);
+        });
 
       if (error) throw error;
 
@@ -355,7 +355,7 @@ export const ElementalChannels = () => {
           >
             {isChanneling ? (
               <>
-                <Sparkles2 className="w-4 h-4 mr-2 animate-pulse" />
+                <Sparkles className="w-4 h-4 mr-2 animate-pulse" />
                 Channeling {selectedElementData?.name} Energy...
               </>
             ) : (
@@ -391,7 +391,7 @@ export const ElementalChannels = () => {
         <Card className="bg-emerald-900/20 border-emerald-500/30">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
-              <Sparkles2 className="w-5 h-5 text-emerald-400" />
+              <Sparkles className="w-5 h-5 text-emerald-400" />
               Elemental Response
             </CardTitle>
           </CardHeader>

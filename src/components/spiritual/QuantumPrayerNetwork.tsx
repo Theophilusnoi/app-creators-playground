@@ -25,8 +25,8 @@ interface PrayerSession {
   focal_point: string;
   intensity: number;
   participants: number;
-  collective_coherence: number;
-  quantum_entanglement_score: number;
+  collective_coherence?: number;
+  quantum_entanglement_score?: number;
   started_at: string;
   celestial_event_id?: string;
 }
@@ -50,15 +50,26 @@ export const QuantumPrayerNetwork = () => {
 
   const fetchCelestialEvents = async () => {
     try {
-      const { data, error } = await supabase
-        .from('celestial_events')
-        .select('*')
-        .gte('exact_time', new Date().toISOString())
-        .order('exact_time', { ascending: true })
-        .limit(5);
-
-      if (error) throw error;
-      setCelestialEvents(data || []);
+      // For now, use mock data since celestial_events table may not be available yet
+      const mockEvents: CelestialEvent[] = [
+        {
+          id: '1',
+          event_name: 'Winter Solstice 2024',
+          event_type: 'solstice',
+          exact_time: '2024-12-21T09:21:00Z',
+          astrological_significance: 'Deepest introspection and rebirth',
+          energy_profile: { intensity: 0.9, transformation: 0.95 }
+        },
+        {
+          id: '2',
+          event_name: 'Full Moon Portal',
+          event_type: 'full_moon',
+          exact_time: '2024-12-15T09:02:00Z',
+          astrological_significance: 'Emotional release and illumination',
+          energy_profile: { intensity: 0.7, clarity: 0.85 }
+        }
+      ];
+      setCelestialEvents(mockEvents);
     } catch (error) {
       console.error('Error fetching celestial events:', error);
     }

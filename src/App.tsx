@@ -8,6 +8,7 @@ import { AuthPage } from "@/components/auth/AuthPage";
 import SpiritualDashboard from "./pages/SpiritualDashboard";
 import MeditationEnvironment from "./pages/MeditationEnvironment";
 import NotFound from "./pages/NotFound";
+import QuantumSpiritualDashboard from "./pages/QuantumSpiritualDashboard";
 import './i18n'; // Initialize i18n
 
 const queryClient = new QueryClient();
@@ -32,6 +33,11 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={<SpiritualDashboard />} />
         <Route path="/meditation" element={<MeditationEnvironment />} />
+        <Route path="/quantum-spiritual" element={
+          <div className="min-h-screen bg-gradient-to-br from-purple-900 via-black to-indigo-900">
+            <QuantumSpiritualDashboard />
+          </div>
+        } />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
