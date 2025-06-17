@@ -12,6 +12,58 @@ import { Moon, Save, Mic, MicOff } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
 import { useVoiceService } from '@/hooks/useVoiceService';
 
+// TypeScript declarations for Web Speech API
+declare global {
+  interface Window {
+    SpeechRecognition: typeof SpeechRecognition;
+    webkitSpeechRecognition: typeof SpeechRecognition;
+  }
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start(): void;
+  stop(): void;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: (event: SpeechRecognitionErrorEvent) => void;
+  onend: () => void;
+}
+
+interface SpeechRecognitionEvent {
+  resultIndex: number;
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionResultList {
+  length: number;
+  item(index: number): SpeechRecognitionResult;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognitionResult {
+  isFinal: boolean;
+  length: number;
+  item(index: number): SpeechRecognitionAlternative;
+  [index: number]: SpeechRecognitionAlternative;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
+}
+
+interface SpeechRecognitionErrorEvent {
+  error: string;
+  message: string;
+}
+
+declare var SpeechRecognition: {
+  prototype: SpeechRecognition;
+  new(): SpeechRecognition;
+};
+
 interface DreamFormProps {
   onClose?: () => void;
 }
@@ -159,11 +211,15 @@ export const DreamForm: React.FC<DreamFormProps> = ({ onClose }) => {
       });
 
       // Offer voice confirmation
-      await generateAndPlay(
-        "Your dream has been saved to your journal. Would you like to analyze it now for deeper insights?",
-        "en",
-        "calm"
-      );
+      try {
+        await generateAndPlay(
+          "Your dream has been saved to your journal. Would you like to analyze it now for deeper insights?",
+          "en",
+          "calm"
+        );
+      } catch (voiceError) {
+        console.error('Voice playback error:', voiceError);
+      }
       
       if (onClose) onClose();
       
