@@ -77,13 +77,10 @@ serve(async (req) => {
       throw profileError;
     }
 
-    // 2. Find appropriate ritual
+    // 2. Find appropriate ritual (removed the invalid join)
     const { data: rituals, error: ritualError } = await supabaseClient
       .from('psalm_rituals')
-      .select(`
-        *,
-        sacred_texts(title, tradition, description)
-      `)
+      .select('*')
       .eq('situation', situation)
       .lte('min_user_level', userProfile.access_level)
       .order('safety_rating', { ascending: false });
@@ -96,7 +93,19 @@ serve(async (req) => {
     const selectedRitual = rituals[0];
     console.log('Selected ritual:', selectedRitual.id, 'safety rating:', selectedRitual.safety_rating);
 
-    // 3. Check for cultural adaptations
+    // 3. Get sacred text information separately
+    const { data: sacredText } = await supabaseClient
+      .from('sacred_texts')
+      .select('*')
+      .eq('title', `Psalm ${selectedRitual.psalm_number}`)
+      .single();
+
+    // Add sacred text info to ritual if found
+    if (sacredText) {
+      selectedRitual.sacred_texts = sacredText;
+    }
+
+    // 4. Check for cultural adaptations
     const { data: adaptation } = await supabaseClient
       .from('cultural_adaptations')
       .select('*')
@@ -104,7 +113,7 @@ serve(async (req) => {
       .eq('tradition', userProfile.tradition)
       .single();
 
-    // 4. Perform safety checks
+    // 5. Perform safety checks
     const safetyCheck: SafetyCheck = await performSafetyChecks(
       selectedRitual,
       userProfile,
@@ -112,10 +121,10 @@ serve(async (req) => {
       supabaseClient
     );
 
-    // 5. Generate AR components
+    // 6. Generate AR components
     const arComponents = generateARComponents(selectedRitual.seal_svg);
 
-    // 6. Apply cultural adaptations if they exist
+    // 7. Apply cultural adaptations if they exist
     let adaptedRitual = { ...selectedRitual };
     if (adaptation) {
       adaptedRitual = {
@@ -126,7 +135,7 @@ serve(async (req) => {
       };
     }
 
-    // 7. Log ritual activation
+    // 8. Log ritual activation
     const { error: logError } = await supabaseClient
       .from('ritual_activations')
       .insert({
@@ -137,7 +146,7 @@ serve(async (req) => {
 
     if (logError) console.warn('Failed to log activation:', logError);
 
-    // 8. Return comprehensive ritual package
+    // 9. Return comprehensive ritual package
     const response = {
       ritual: adaptedRitual,
       safetyCheck,
