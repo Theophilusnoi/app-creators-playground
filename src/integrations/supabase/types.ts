@@ -1833,6 +1833,48 @@ export type Database = {
         }
         Relationships: []
       }
+      synchronicities: {
+        Row: {
+          created_at: string
+          date_occurred: string
+          description: string
+          id: string
+          meaning: string | null
+          significance: number
+          synchronicity_type: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date_occurred?: string
+          description: string
+          id?: string
+          meaning?: string | null
+          significance: number
+          synchronicity_type: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date_occurred?: string
+          description?: string
+          id?: string
+          meaning?: string | null
+          significance?: number
+          synchronicity_type?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       time_capsules: {
         Row: {
           capsule_content: string

@@ -5,51 +5,56 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { Sparkles, Save } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sparkles, Save, X } from "lucide-react";
+import { useSynchronicities } from '@/hooks/useSynchronicities';
 
-export const SynchronicityForm = () => {
-  const { user } = useAuth();
+interface SynchronicityFormProps {
+  onClose: () => void;
+}
+
+const synchronicityTypes = [
+  "Number Sequences",
+  "Animal Messengers", 
+  "Repeated Words/Phrases",
+  "Meaningful Coincidences",
+  "Dreams & Reality"
+];
+
+export const SynchronicityForm: React.FC<SynchronicityFormProps> = ({ onClose }) => {
+  const { addSynchronicity } = useSynchronicities();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    synchronicity_type: '',
     significance: 3,
     tags: '',
+    meaning: '',
     date_occurred: new Date().toISOString().split('T')[0]
   });
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!formData.title.trim() || !formData.description.trim() || !formData.synchronicity_type) {
+      return;
+    }
 
     setLoading(true);
     try {
-      // Using the dreams table to store synchronicity data temporarily
-      const { error } = await supabase
-        .from('dreams')
-        .insert([{
-          user_id: user.id,
-          title: `Synchronicity: ${formData.title}`,
-          content: formData.description,
-          emotions: formData.tags.split(',').map(tag => tag.trim()),
-          analysis: `Significance level: ${formData.significance}/5`,
-          dream_date: formData.date_occurred
-        }]);
-
-      if (error) throw error;
-      
-      alert('Synchronicity recorded successfully!');
-      setFormData({
-        title: '',
-        description: '',
-        significance: 3,
-        tags: '',
-        date_occurred: new Date().toISOString().split('T')[0]
+      await addSynchronicity({
+        title: formData.title,
+        description: formData.description,
+        synchronicity_type: formData.synchronicity_type,
+        significance: formData.significance,
+        tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0),
+        meaning: formData.meaning || undefined,
+        date_occurred: formData.date_occurred
       });
+      
+      onClose();
     } catch (error: any) {
-      alert('Error saving synchronicity: ' + error.message);
+      console.error('Error saving synchronicity:', error);
     } finally {
       setLoading(false);
     }
@@ -58,10 +63,20 @@ export const SynchronicityForm = () => {
   return (
     <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
       <CardHeader>
-        <CardTitle className="text-white flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-purple-400" />
-          Record Synchronicity
-        </CardTitle>
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-white flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-purple-400" />
+            Record Synchronicity
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="text-purple-300 hover:text-white"
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -74,6 +89,23 @@ export const SynchronicityForm = () => {
               required
               className="bg-black/20 border-purple-500/30 text-white placeholder-purple-300"
             />
+          </div>
+
+          <div>
+            <Label className="text-purple-200">Type</Label>
+            <Select 
+              value={formData.synchronicity_type}
+              onValueChange={(value) => setFormData({...formData, synchronicity_type: value})}
+            >
+              <SelectTrigger className="bg-black/20 border-purple-500/30 text-white">
+                <SelectValue placeholder="Select synchronicity type" />
+              </SelectTrigger>
+              <SelectContent>
+                {synchronicityTypes.map((type) => (
+                  <SelectItem key={type} value={type}>{type}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           
           <div className="grid grid-cols-2 gap-4">
@@ -121,15 +153,30 @@ export const SynchronicityForm = () => {
               className="bg-black/20 border-purple-500/30 text-white placeholder-purple-300"
             />
           </div>
+
+          <div>
+            <Label className="text-purple-200">Meaning (Optional)</Label>
+            <Input
+              value={formData.meaning}
+              onChange={(e) => setFormData({...formData, meaning: e.target.value})}
+              placeholder="What might this be telling you?"
+              className="bg-black/20 border-purple-500/30 text-white placeholder-purple-300"
+            />
+          </div>
           
-          <Button 
-            type="submit" 
-            disabled={loading}
-            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
-          >
-            <Save className="w-4 h-4 mr-2" />
-            {loading ? 'Saving...' : 'Record Synchronicity'}
-          </Button>
+          <div className="flex space-x-3">
+            <Button 
+              type="submit" 
+              disabled={loading}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              {loading ? 'Saving...' : 'Record Synchronicity'}
+            </Button>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+          </div>
         </form>
       </CardContent>
     </Card>
