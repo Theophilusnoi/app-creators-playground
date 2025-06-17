@@ -86,6 +86,196 @@ export type Database = {
         }
         Relationships: []
       }
+      challenge_content: {
+        Row: {
+          challenge_id: string | null
+          content: Json
+          created_at: string
+          day_number: number
+          description: string
+          difficulty_level: string | null
+          duration_minutes: number | null
+          id: string
+          practice_type: string
+          resources: Json | null
+          title: string
+        }
+        Insert: {
+          challenge_id?: string | null
+          content?: Json
+          created_at?: string
+          day_number: number
+          description: string
+          difficulty_level?: string | null
+          duration_minutes?: number | null
+          id?: string
+          practice_type: string
+          resources?: Json | null
+          title: string
+        }
+        Update: {
+          challenge_id?: string | null
+          content?: Json
+          created_at?: string
+          day_number?: number
+          description?: string
+          difficulty_level?: string | null
+          duration_minutes?: number | null
+          id?: string
+          practice_type?: string
+          resources?: Json | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_content_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenge_discussions: {
+        Row: {
+          challenge_id: string | null
+          content: string
+          created_at: string
+          discussion_type: string | null
+          id: string
+          likes_count: number | null
+          parent_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          challenge_id?: string | null
+          content: string
+          created_at?: string
+          discussion_type?: string | null
+          id?: string
+          likes_count?: number | null
+          parent_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string | null
+          content?: string
+          created_at?: string
+          discussion_type?: string | null
+          id?: string
+          likes_count?: number | null
+          parent_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_discussions_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "challenge_discussions_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "challenge_discussions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenge_milestones: {
+        Row: {
+          achieved_at: string
+          badge_earned: string | null
+          description: string | null
+          id: string
+          milestone_day: number | null
+          milestone_type: string
+          participation_id: string | null
+          points_awarded: number | null
+          user_id: string
+        }
+        Insert: {
+          achieved_at?: string
+          badge_earned?: string | null
+          description?: string | null
+          id?: string
+          milestone_day?: number | null
+          milestone_type: string
+          participation_id?: string | null
+          points_awarded?: number | null
+          user_id: string
+        }
+        Update: {
+          achieved_at?: string
+          badge_earned?: string | null
+          description?: string | null
+          id?: string
+          milestone_day?: number | null
+          milestone_type?: string
+          participation_id?: string | null
+          points_awarded?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_milestones_participation_id_fkey"
+            columns: ["participation_id"]
+            isOneToOne: false
+            referencedRelation: "user_challenge_participations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenges: {
+        Row: {
+          created_at: string
+          description: string
+          difficulty_level: string
+          duration_days: number
+          featured: boolean | null
+          id: string
+          is_active: boolean | null
+          max_participants: number | null
+          reward_points: number
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          difficulty_level?: string
+          duration_days: number
+          featured?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          max_participants?: number | null
+          reward_points?: number
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          difficulty_level?: string
+          duration_days?: number
+          featured?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          max_participants?: number | null
+          reward_points?: number
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       consciousness_vault: {
         Row: {
           created_at: string | null
@@ -254,6 +444,66 @@ export type Database = {
             columns: ["ritual_id"]
             isOneToOne: false
             referencedRelation: "psalm_rituals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_check_ins: {
+        Row: {
+          challenge_id: string | null
+          completed_at: string
+          created_at: string
+          day_number: number
+          id: string
+          insights: Json | null
+          mood_after: number | null
+          mood_before: number | null
+          participation_id: string | null
+          practice_duration_minutes: number | null
+          reflection_notes: string | null
+          user_id: string
+        }
+        Insert: {
+          challenge_id?: string | null
+          completed_at?: string
+          created_at?: string
+          day_number: number
+          id?: string
+          insights?: Json | null
+          mood_after?: number | null
+          mood_before?: number | null
+          participation_id?: string | null
+          practice_duration_minutes?: number | null
+          reflection_notes?: string | null
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string | null
+          completed_at?: string
+          created_at?: string
+          day_number?: number
+          id?: string
+          insights?: Json | null
+          mood_after?: number | null
+          mood_before?: number | null
+          participation_id?: string | null
+          practice_duration_minutes?: number | null
+          reflection_notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_check_ins_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_check_ins_participation_id_fkey"
+            columns: ["participation_id"]
+            isOneToOne: false
+            referencedRelation: "user_challenge_participations"
             referencedColumns: ["id"]
           },
         ]
@@ -1657,6 +1907,53 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_challenge_participations: {
+        Row: {
+          challenge_id: string | null
+          completed_at: string | null
+          current_day: number | null
+          id: string
+          is_completed: boolean | null
+          joined_at: string
+          last_activity_date: string | null
+          streak_days: number | null
+          total_points_earned: number | null
+          user_id: string
+        }
+        Insert: {
+          challenge_id?: string | null
+          completed_at?: string | null
+          current_day?: number | null
+          id?: string
+          is_completed?: boolean | null
+          joined_at?: string
+          last_activity_date?: string | null
+          streak_days?: number | null
+          total_points_earned?: number | null
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string | null
+          completed_at?: string | null
+          current_day?: number | null
+          id?: string
+          is_completed?: boolean | null
+          joined_at?: string
+          last_activity_date?: string | null
+          streak_days?: number | null
+          total_points_earned?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_challenge_participations_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_curse_journeys: {
         Row: {

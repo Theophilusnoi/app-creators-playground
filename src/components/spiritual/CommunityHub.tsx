@@ -1,11 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from '@/components/auth/AuthProvider';
-import { Users, Calendar, Trophy, Star, Plus, Clock, Heart } from "lucide-react";
+import { Users, Calendar, Trophy, Star, Plus, Clock, Heart, ArrowLeft } from "lucide-react";
+import { supabase } from '@/integrations/supabase/client';
+import { ChallengeDetailView } from './ChallengeDetailView';
 
 interface Challenge {
   id: string;
@@ -14,12 +15,11 @@ interface Challenge {
   type: string;
   difficulty_level: string;
   duration_days: number;
-  current_participants: number;
   max_participants: number;
   reward_points: number;
   featured: boolean;
-  start_date: string;
-  end_date: string;
+  is_active: boolean;
+  current_participants?: number;
 }
 
 interface Circle {
@@ -46,12 +46,21 @@ interface LiveEvent {
   is_premium: boolean;
 }
 
+interface UserParticipation {
+  id: string;
+  challenge_id: string;
+  current_day: number;
+  is_completed: boolean;
+  streak_days: number;
+}
+
 export const CommunityHub = () => {
   const { user } = useAuth();
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [circles, setCircles] = useState<Circle[]>([]);
   const [liveEvents, setLiveEvents] = useState<LiveEvent[]>([]);
-  const [userChallenges, setUserChallenges] = useState<string[]>([]);
+  const [userParticipations, setUserParticipations] = useState<UserParticipation[]>([]);
+  const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -64,52 +73,42 @@ export const CommunityHub = () => {
     setLoading(true);
     
     try {
-      // Mock data for demonstration - replace with actual API calls when types are updated
-      const mockChallenges: Challenge[] = [
-        {
-          id: '1',
-          title: '21-Day Mindfulness Challenge',
-          description: 'Build a daily mindfulness practice with guided meditations and community support.',
-          type: 'group',
-          difficulty_level: 'beginner',
-          duration_days: 21,
-          current_participants: 156,
-          max_participants: 500,
-          reward_points: 100,
-          featured: true,
-          start_date: '2024-01-01',
-          end_date: '2024-01-21'
-        },
-        {
-          id: '2',
-          title: 'Compassion Cultivation',
-          description: 'Develop loving-kindness and compassion through daily practices and reflection.',
-          type: 'group',
-          difficulty_level: 'intermediate',
-          duration_days: 14,
-          current_participants: 89,
-          max_participants: 200,
-          reward_points: 75,
-          featured: false,
-          start_date: '2024-01-15',
-          end_date: '2024-01-29'
-        },
-        {
-          id: '3',
-          title: 'Inner Peace Journey',
-          description: 'Advanced practices for finding deep inner stillness and peace.',
-          type: 'individual',
-          difficulty_level: 'advanced',
-          duration_days: 30,
-          current_participants: 34,
-          max_participants: 100,
-          reward_points: 150,
-          featured: true,
-          start_date: '2024-02-01',
-          end_date: '2024-03-02'
-        }
-      ];
+      // Load challenges from database
+      const { data: challengesData, error: challengesError } = await supabase
+        .from('challenges')
+        .select('*')
+        .eq('is_active', true)
+        .order('featured', { ascending: false });
 
+      if (challengesError) throw challengesError;
+
+      // Load user participations
+      const { data: participationsData, error: participationsError } = await supabase
+        .from('user_challenge_participations')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (participationsError) throw participationsError;
+
+      // Get participant counts for each challenge
+      const challengesWithCounts = await Promise.all(
+        challengesData.map(async (challenge) => {
+          const { count } = await supabase
+            .from('user_challenge_participations')
+            .select('*', { count: 'exact', head: true })
+            .eq('challenge_id', challenge.id);
+
+          return {
+            ...challenge,
+            current_participants: count || 0
+          };
+        })
+      );
+
+      setChallenges(challengesWithCounts);
+      setUserParticipations(participationsData || []);
+
+      // Mock data for circles and events (to be implemented later)
       const mockCircles: Circle[] = [
         {
           id: '1',
@@ -130,16 +129,6 @@ export const CommunityHub = () => {
           max_members: 30,
           is_private: false,
           tags: ['books', 'discussion', 'wisdom']
-        },
-        {
-          id: '3',
-          name: 'Anxiety & Mindfulness',
-          description: 'Safe space for those using mindfulness to navigate anxiety and stress.',
-          type: 'support_group',
-          current_members: 67,
-          max_members: 100,
-          is_private: true,
-          tags: ['anxiety', 'support', 'healing']
         }
       ];
 
@@ -155,37 +144,11 @@ export const CommunityHub = () => {
           current_attendees: 234,
           max_attendees: 1000,
           is_premium: false
-        },
-        {
-          id: '2',
-          title: 'Shadow Work Workshop',
-          description: 'Explore and integrate your shadow self with compassionate guidance.',
-          event_type: 'workshop',
-          instructor_name: 'Dr. Michael Rivera',
-          scheduled_at: '2024-01-25T20:00:00Z',
-          duration_minutes: 90,
-          current_attendees: 45,
-          max_attendees: 50,
-          is_premium: true
-        },
-        {
-          id: '3',
-          title: 'Q&A with Spiritual Teacher',
-          description: 'Ask your questions about spiritual practice and awakening.',
-          event_type: 'qna',
-          instructor_name: 'Lama Tenzin',
-          scheduled_at: '2024-01-30T19:00:00Z',
-          duration_minutes: 60,
-          current_attendees: 89,
-          max_attendees: 200,
-          is_premium: false
         }
       ];
 
-      setChallenges(mockChallenges);
       setCircles(mockCircles);
       setLiveEvents(mockEvents);
-      setUserChallenges(['1']); // Mock user participation
       
     } catch (error) {
       console.error('Error loading community data:', error);
@@ -198,14 +161,32 @@ export const CommunityHub = () => {
     if (!user) return;
 
     try {
-      // Mock join action
-      setUserChallenges(prev => [...prev, challengeId]);
+      // Check if user is already participating
+      const existingParticipation = userParticipations.find(p => p.challenge_id === challengeId);
+      if (existingParticipation) return;
+
+      // Create new participation
+      const { data, error } = await supabase
+        .from('user_challenge_participations')
+        .insert({
+          user_id: user.id,
+          challenge_id: challengeId,
+          current_day: 1,
+          last_activity_date: new Date().toISOString().split('T')[0]
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Update local state
+      setUserParticipations(prev => [...prev, data]);
       
       // Update participant count
       setChallenges(prev => 
         prev.map(c => 
           c.id === challengeId 
-            ? { ...c, current_participants: c.current_participants + 1 }
+            ? { ...c, current_participants: (c.current_participants || 0) + 1 }
             : c
         )
       );
@@ -215,39 +196,18 @@ export const CommunityHub = () => {
     }
   };
 
-  const joinCircle = async (circleId: string) => {
-    if (!user) return;
-
-    try {
-      // Mock join action
-      setCircles(prev => 
-        prev.map(c => 
-          c.id === circleId 
-            ? { ...c, current_members: c.current_members + 1 }
-            : c
-        )
-      );
-
-    } catch (error) {
-      console.error('Error joining circle:', error);
-    }
+  const isUserParticipating = (challengeId: string) => {
+    return userParticipations.some(p => p.challenge_id === challengeId);
   };
 
-  const registerForEvent = async (eventId: string) => {
-    if (!user) return;
+  const getUserParticipation = (challengeId: string) => {
+    return userParticipations.find(p => p.challenge_id === challengeId);
+  };
 
-    try {
-      // Mock registration
-      setLiveEvents(prev => 
-        prev.map(e => 
-          e.id === eventId 
-            ? { ...e, current_attendees: e.current_attendees + 1 }
-            : e
-        )
-      );
-
-    } catch (error) {
-      console.error('Error registering for event:', error);
+  const handleChallengeClick = (challenge: Challenge) => {
+    const participation = getUserParticipation(challenge.id);
+    if (participation) {
+      setSelectedChallenge(challenge);
     }
   };
 
@@ -265,6 +225,28 @@ export const CommunityHub = () => {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-white">Loading community...</div>
+      </div>
+    );
+  }
+
+  // Show challenge detail view if a challenge is selected
+  if (selectedChallenge) {
+    const participation = getUserParticipation(selectedChallenge.id);
+    return (
+      <div className="space-y-6">
+        <Button 
+          onClick={() => setSelectedChallenge(null)}
+          variant="ghost" 
+          className="text-white hover:bg-white/10"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Community
+        </Button>
+        <ChallengeDetailView 
+          challenge={selectedChallenge} 
+          participation={participation}
+          onUpdate={loadCommunityData}
+        />
       </div>
     );
   }
@@ -294,58 +276,85 @@ export const CommunityHub = () => {
 
         <TabsContent value="challenges" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {challenges.map((challenge) => (
-              <Card key={challenge.id} className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
-                <CardHeader className="pb-4">
-                  <div className="flex justify-between items-start">
-                    <CardTitle className="text-white text-lg">{challenge.title}</CardTitle>
-                    {challenge.featured && (
-                      <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                    )}
-                  </div>
-                  <div className="flex gap-2">
-                    <Badge variant="outline" className={`${getDifficultyColor(challenge.difficulty_level)} text-white border-0`}>
-                      {challenge.difficulty_level}
-                    </Badge>
-                    <Badge variant="outline" className="border-purple-400 text-purple-200">
-                      {challenge.duration_days} days
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-purple-200 text-sm mb-4">{challenge.description}</p>
-                  
-                  <div className="space-y-3">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-purple-300">Participants</span>
-                      <span className="text-white">
-                        {challenge.current_participants}/{challenge.max_participants || '∞'}
-                      </span>
+            {challenges.map((challenge) => {
+              const isParticipating = isUserParticipating(challenge.id);
+              const participation = getUserParticipation(challenge.id);
+              
+              return (
+                <Card 
+                  key={challenge.id} 
+                  className={`bg-black/30 border-purple-500/30 backdrop-blur-sm transition-all duration-200 ${
+                    isParticipating ? 'cursor-pointer hover:bg-black/40' : ''
+                  }`}
+                  onClick={() => isParticipating ? handleChallengeClick(challenge) : undefined}
+                >
+                  <CardHeader className="pb-4">
+                    <div className="flex justify-between items-start">
+                      <CardTitle className="text-white text-lg">{challenge.title}</CardTitle>
+                      {challenge.featured && (
+                        <Star className="w-5 h-5 text-yellow-400 fill-current" />
+                      )}
                     </div>
+                    <div className="flex gap-2">
+                      <Badge variant="outline" className={`${getDifficultyColor(challenge.difficulty_level)} text-white border-0`}>
+                        {challenge.difficulty_level}
+                      </Badge>
+                      <Badge variant="outline" className="border-purple-400 text-purple-200">
+                        {challenge.duration_days} days
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-purple-200 text-sm mb-4">{challenge.description}</p>
                     
-                    <div className="flex justify-between text-sm">
-                      <span className="text-purple-300">Reward</span>
-                      <span className="text-yellow-400">{challenge.reward_points} points</span>
-                    </div>
+                    <div className="space-y-3">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-purple-300">Participants</span>
+                        <span className="text-white">
+                          {challenge.current_participants}/{challenge.max_participants || '∞'}
+                        </span>
+                      </div>
+                      
+                      <div className="flex justify-between text-sm">
+                        <span className="text-purple-300">Reward</span>
+                        <span className="text-yellow-400">{challenge.reward_points} points</span>
+                      </div>
 
-                    {userChallenges.includes(challenge.id) ? (
-                      <Button disabled className="w-full bg-green-600">
-                        <Heart className="w-4 h-4 mr-2" />
-                        Joined
-                      </Button>
-                    ) : (
-                      <Button 
-                        onClick={() => joinChallenge(challenge.id)}
-                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Join Challenge
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                      {isParticipating ? (
+                        <div className="space-y-2">
+                          {participation && (
+                            <div className="text-sm text-purple-200">
+                              Day {participation.current_day} of {challenge.duration_days}
+                            </div>
+                          )}
+                          <Button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleChallengeClick(challenge);
+                            }}
+                            className="w-full bg-green-600 hover:bg-green-700"
+                          >
+                            <Heart className="w-4 h-4 mr-2" />
+                            Continue Journey
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            joinChallenge(challenge.id);
+                          }}
+                          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Join Challenge
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </TabsContent>
 
