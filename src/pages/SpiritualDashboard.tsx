@@ -25,6 +25,11 @@ const SpiritualDashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('seraphina');
 
+  const handleAssessmentComplete = () => {
+    // Navigate to Seraphina chat after assessment completion
+    setActiveTab('seraphina');
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 flex items-center justify-center">
@@ -80,7 +85,7 @@ const SpiritualDashboard = () => {
           </TabsContent>
 
           <TabsContent value="assessment">
-            <SpiritualAssessment />
+            <SpiritualAssessment onComplete={handleAssessmentComplete} />
           </TabsContent>
 
           <TabsContent value="insights">
