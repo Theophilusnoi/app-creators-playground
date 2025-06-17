@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 import { Shield, Zap, Heart, AlertTriangle, Eye, Sparkles } from 'lucide-react';
+import { ARVisualizationPlaceholder } from './ARVisualizationPlaceholder';
 
 interface RitualActivation {
   ritual: any;
@@ -258,6 +258,7 @@ export const RitualActivationSystem: React.FC = () => {
                 onEmergencyExit={handleEmergencyExit}
                 showARViewer={showARViewer}
                 onToggleAR={() => setShowARViewer(!showARViewer)}
+                selectedSituation={selectedSituation}
               />
             )}
           </CardContent>
@@ -287,7 +288,8 @@ const RitualActivationDisplay: React.FC<{
   onEmergencyExit: () => void;
   showARViewer: boolean;
   onToggleAR: () => void;
-}> = ({ activation, onEmergencyExit, showARViewer, onToggleAR }) => {
+  selectedSituation: string;
+}> = ({ activation, onEmergencyExit, showARViewer, onToggleAR, selectedSituation }) => {
   const { toast } = useToast();
 
   return (
@@ -364,20 +366,12 @@ const RitualActivationDisplay: React.FC<{
         </div>
       )}
 
-      {/* AR Visualization Placeholder */}
+      {/* Enhanced AR Visualization */}
       {showARViewer && (
-        <div className="bg-black rounded-lg p-8 border border-purple-500/50 min-h-[400px] flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-32 h-32 mx-auto mb-4 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full flex items-center justify-center animate-pulse">
-              <Sparkles className="w-12 h-12 text-white" />
-            </div>
-            <h4 className="text-xl text-white mb-2">Sacred AR Space Active</h4>
-            <p className="text-purple-200">AR visualization would appear here in production</p>
-            <p className="text-sm text-gray-400 mt-2">
-              Sacred geometry, protective circles, and guided visualizations
-            </p>
-          </div>
-        </div>
+        <ARVisualizationPlaceholder 
+          ritualType={selectedSituation}
+          sealSvg={activation.ritual.seal_svg}
+        />
       )}
     </div>
   );
