@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,8 +6,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
-import { Shield, Zap, Heart, AlertTriangle, Eye, Sparkles, Clock, CheckCircle, HelpCircle } from 'lucide-react';
+import { Shield, Zap, Heart, AlertTriangle, Eye, Sparkles, Clock, CheckCircle, HelpCircle, MessageCircle } from 'lucide-react';
 import { ARVisualizationPlaceholder } from './ARVisualizationPlaceholder';
+import { generateGeminiResponse } from '@/services/geminiService';
 
 interface RitualActivation {
   ritual: any;
@@ -296,6 +296,9 @@ const RitualActivationDisplay: React.FC<{
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [showQuestionDialog, setShowQuestionDialog] = useState(false);
   const [userQuestion, setUserQuestion] = useState('');
+  const [isLoadingAnswer, setIsLoadingAnswer] = useState(false);
+  const [aiResponse, setAiResponse] = useState('');
+  const [showResponseDialog, setShowResponseDialog] = useState(false);
 
   const instructions = activation.ritual.instructions;
   const steps = instructions?.steps || [];
@@ -322,15 +325,65 @@ const RitualActivationDisplay: React.FC<{
     }
   };
 
-  const handleAskQuestion = () => {
+  const handleAskQuestion = async () => {
     if (userQuestion.trim()) {
-      toast({
-        title: "Question Submitted",
-        description: "Your question about ritual performance has been recorded for guidance.",
-      });
-      setUserQuestion('');
+      setIsLoadingAnswer(true);
       setShowQuestionDialog(false);
+      
+      try {
+        // Create context about the current ritual
+        const ritualContext = {
+          situation: selectedSituation,
+          psalmNumber: activation.ritual.psalm_number,
+          currentStep: currentStep + 1,
+          totalSteps: steps.length,
+          completedSteps: completedSteps.length,
+          stepName: steps[currentStep]?.action || 'Unknown',
+          tradition: activation.userProfile.tradition
+        };
+
+        const systemPrompt = `You are Seraphina, an experienced spiritual guide specializing in ritual guidance and deliverance ministry. A practitioner is currently performing a ${selectedSituation} ritual using Psalm ${activation.ritual.psalm_number} and has a question about the performance.
+
+Current ritual context:
+- Ritual type: ${selectedSituation}
+- Psalm: ${activation.ritual.psalm_number}
+- Current step: ${currentStep + 1} of ${steps.length} (${steps[currentStep]?.action || 'Unknown'})
+- Steps completed: ${completedSteps.length}
+- Tradition: ${activation.userProfile.tradition}
+
+Provide helpful, practical guidance that:
+1. Directly addresses their question
+2. Relates to their current ritual step if relevant
+3. Offers reassurance and encouragement
+4. Includes safety considerations if needed
+5. Maintains respect for their spiritual tradition
+6. Speaks as an experienced practitioner who has guided many through similar rituals
+
+Keep responses warm, knowledgeable, and supportive. Address them as "dear one" or "precious soul" naturally.`;
+
+        const response = await generateGeminiResponse({
+          message: userQuestion,
+          context: ritualContext,
+          systemPrompt: systemPrompt
+        });
+
+        setAiResponse(response.response);
+        setShowResponseDialog(true);
+        
+      } catch (error) {
+        console.error('Error getting AI response:', error);
+        setAiResponse("I apologize, dear one. I'm having difficulty connecting to provide guidance right now. Please trust your intuition and continue with your ritual practice. If you're experiencing any concerns, consider pausing the ritual and grounding yourself with deep breaths. Your spiritual journey is sacred, and sometimes the answers come from within. 💜");
+        setShowResponseDialog(true);
+      } finally {
+        setIsLoadingAnswer(false);
+        setUserQuestion('');
+      }
     }
+  };
+
+  const closeResponseDialog = () => {
+    setShowResponseDialog(false);
+    setAiResponse('');
   };
 
   return (
@@ -545,9 +598,10 @@ const RitualActivationDisplay: React.FC<{
           onClick={() => setShowQuestionDialog(true)}
           className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3"
           size="lg"
+          disabled={isLoadingAnswer}
         >
           <HelpCircle className="w-5 h-5 mr-2" />
-          Ask Question About Ritual Performance
+          {isLoadingAnswer ? 'Getting Guidance...' : 'Ask Question About Ritual Performance'}
         </Button>
       </div>
 
@@ -575,9 +629,36 @@ const RitualActivationDisplay: React.FC<{
               <Button
                 onClick={handleAskQuestion}
                 className="bg-indigo-600 hover:bg-indigo-700"
-                disabled={!userQuestion.trim()}
+                disabled={!userQuestion.trim() || isLoadingAnswer}
               >
-                Submit Question
+                {isLoadingAnswer ? 'Getting Guidance...' : 'Submit Question'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* AI Response Dialog */}
+      {showResponseDialog && (
+        <Card className="bg-purple-900/20 border-purple-500/30">
+          <CardHeader>
+            <CardTitle className="text-purple-200 flex items-center gap-2">
+              <MessageCircle className="w-5 h-5" />
+              Spiritual Guidance from Seraphina
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-600/30">
+              <p className="text-gray-200 leading-relaxed whitespace-pre-wrap">
+                {aiResponse}
+              </p>
+            </div>
+            <div className="flex justify-end">
+              <Button
+                onClick={closeResponseDialog}
+                className="bg-purple-600 hover:bg-purple-700"
+              >
+                Thank You
               </Button>
             </div>
           </CardContent>
