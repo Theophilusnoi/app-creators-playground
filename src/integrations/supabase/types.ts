@@ -113,6 +113,45 @@ export type Database = {
         }
         Relationships: []
       }
+      elemental_communications: {
+        Row: {
+          communication_method: string | null
+          created_at: string | null
+          element: string
+          elemental_type: string | null
+          id: string
+          intensity_level: number | null
+          location_data: Json | null
+          message_symbol: string | null
+          response_received: boolean | null
+          user_id: string
+        }
+        Insert: {
+          communication_method?: string | null
+          created_at?: string | null
+          element: string
+          elemental_type?: string | null
+          id?: string
+          intensity_level?: number | null
+          location_data?: Json | null
+          message_symbol?: string | null
+          response_received?: boolean | null
+          user_id: string
+        }
+        Update: {
+          communication_method?: string | null
+          created_at?: string | null
+          element?: string
+          elemental_type?: string | null
+          id?: string
+          intensity_level?: number | null
+          location_data?: Json | null
+          message_symbol?: string | null
+          response_received?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       emergency_sessions: {
         Row: {
           created_at: string | null
@@ -164,6 +203,78 @@ export type Database = {
           },
         ]
       }
+      galactic_council_sessions: {
+        Row: {
+          archetype_contacted: string
+          communication_method: string | null
+          created_at: string | null
+          free_will_confirmed: boolean | null
+          guidance_received: string | null
+          id: string
+          session_duration: number | null
+          soul_mission_insights: string | null
+          user_id: string
+        }
+        Insert: {
+          archetype_contacted: string
+          communication_method?: string | null
+          created_at?: string | null
+          free_will_confirmed?: boolean | null
+          guidance_received?: string | null
+          id?: string
+          session_duration?: number | null
+          soul_mission_insights?: string | null
+          user_id: string
+        }
+        Update: {
+          archetype_contacted?: string
+          communication_method?: string | null
+          created_at?: string | null
+          free_will_confirmed?: boolean | null
+          guidance_received?: string | null
+          id?: string
+          session_duration?: number | null
+          soul_mission_insights?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      light_language_records: {
+        Row: {
+          archetypal_symbols: Json | null
+          created_at: string | null
+          decoded_message: string | null
+          galactic_origin: string | null
+          id: string
+          input_mode: string
+          original_pattern: string | null
+          personal_resonance: number | null
+          user_id: string
+        }
+        Insert: {
+          archetypal_symbols?: Json | null
+          created_at?: string | null
+          decoded_message?: string | null
+          galactic_origin?: string | null
+          id?: string
+          input_mode: string
+          original_pattern?: string | null
+          personal_resonance?: number | null
+          user_id: string
+        }
+        Update: {
+          archetypal_symbols?: Json | null
+          created_at?: string | null
+          decoded_message?: string | null
+          galactic_origin?: string | null
+          id?: string
+          input_mode?: string
+          original_pattern?: string | null
+          personal_resonance?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       meditation_sessions: {
         Row: {
           actual_duration: number | null
@@ -200,6 +311,81 @@ export type Database = {
           notes?: string | null
           planned_duration?: number
           user_id?: string
+        }
+        Relationships: []
+      }
+      morphogenetic_fields: {
+        Row: {
+          baseline_signature: Json | null
+          calibration_data: Json | null
+          created_at: string | null
+          current_resonance: number | null
+          field_type: string
+          id: string
+          interference_patterns: Json | null
+          tuning_frequency: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          baseline_signature?: Json | null
+          calibration_data?: Json | null
+          created_at?: string | null
+          current_resonance?: number | null
+          field_type: string
+          id?: string
+          interference_patterns?: Json | null
+          tuning_frequency?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          baseline_signature?: Json | null
+          calibration_data?: Json | null
+          created_at?: string | null
+          current_resonance?: number | null
+          field_type?: string
+          id?: string
+          interference_patterns?: Json | null
+          tuning_frequency?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      parallel_self_records: {
+        Row: {
+          accessed_at: string | null
+          created_at: string | null
+          healing_received: boolean | null
+          id: string
+          integration_level: number | null
+          timeline_hash: string
+          timeline_signature: Json | null
+          user_id: string
+          wisdom_insights: string | null
+        }
+        Insert: {
+          accessed_at?: string | null
+          created_at?: string | null
+          healing_received?: boolean | null
+          id?: string
+          integration_level?: number | null
+          timeline_hash: string
+          timeline_signature?: Json | null
+          user_id: string
+          wisdom_insights?: string | null
+        }
+        Update: {
+          accessed_at?: string | null
+          created_at?: string | null
+          healing_received?: boolean | null
+          id?: string
+          integration_level?: number | null
+          timeline_hash?: string
+          timeline_signature?: Json | null
+          user_id?: string
+          wisdom_insights?: string | null
         }
         Relationships: []
       }
@@ -242,6 +428,42 @@ export type Database = {
           timeline_end?: string | null
           timeline_start?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      quantum_prayer_log: {
+        Row: {
+          created_at: string | null
+          duration: unknown | null
+          energy_signature: Json | null
+          focal_point: string
+          id: string
+          intensity: number | null
+          participants: number | null
+          started_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          duration?: unknown | null
+          energy_signature?: Json | null
+          focal_point: string
+          id?: string
+          intensity?: number | null
+          participants?: number | null
+          started_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          duration?: unknown | null
+          energy_signature?: Json | null
+          focal_point?: string
+          id?: string
+          intensity?: number | null
+          participants?: number | null
+          started_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -763,6 +985,45 @@ export type Database = {
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      timeline_healing_sessions: {
+        Row: {
+          ancestral_integration: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          healing_focus: string | null
+          id: string
+          probable_futures: Json | null
+          resonance_shifts: Json | null
+          session_data: Json | null
+          timeline_period: string
+          user_id: string
+        }
+        Insert: {
+          ancestral_integration?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          healing_focus?: string | null
+          id?: string
+          probable_futures?: Json | null
+          resonance_shifts?: Json | null
+          session_data?: Json | null
+          timeline_period: string
+          user_id: string
+        }
+        Update: {
+          ancestral_integration?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          healing_focus?: string | null
+          id?: string
+          probable_futures?: Json | null
+          resonance_shifts?: Json | null
+          session_data?: Json | null
+          timeline_period?: string
           user_id?: string
         }
         Relationships: []
