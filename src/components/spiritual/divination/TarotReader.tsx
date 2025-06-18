@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { useVoiceService } from '@/hooks/useVoiceService';
-import { Cards, Volume2 } from 'lucide-react';
+import { Zap, Volume2 } from 'lucide-react';
 
 interface TarotCard {
   id: number;
@@ -111,7 +110,7 @@ export const TarotReader: React.FC = () => {
     <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="flex items-center gap-3 text-white">
-          <Cards className="text-amber-400" />
+          <Zap className="text-amber-400" />
           Tarot Wisdom
         </CardTitle>
       </CardHeader>
@@ -122,7 +121,7 @@ export const TarotReader: React.FC = () => {
             onClick={() => drawTarotCards(3)}
             className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white"
           >
-            <Cards className="mr-2" size={16} />
+            <Zap className="mr-2" size={16} />
             Draw 3-Card Spread
           </Button>
           <p className="mt-2 text-sm text-purple-300">

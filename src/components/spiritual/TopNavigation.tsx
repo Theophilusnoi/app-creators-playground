@@ -17,7 +17,7 @@ import {
   Gift,
   MessageCircle,
   Crown,
-  Crystal
+  Zap
 } from "lucide-react";
 
 interface TopNavigationProps {
@@ -40,7 +40,7 @@ const navigationItems = [
   { id: 'insights', label: 'Insights', icon: TrendingUp, color: 'from-green-600 to-cyan-600' },
   { id: 'recommendations', label: 'Guidance', icon: Lightbulb, color: 'from-orange-600 to-yellow-600' },
   { id: 'angelic', label: 'Angels', icon: Crown, color: 'from-gold-500 to-yellow-500' },
-  { id: 'divination', label: 'Divination', icon: Crystal, color: 'from-violet-600 to-purple-600' },
+  { id: 'divination', label: 'Divination', icon: Zap, color: 'from-violet-600 to-purple-600' },
   { id: 'referrals', label: 'Invite', icon: Gift, color: 'from-red-600 to-orange-600' },
 ];
 

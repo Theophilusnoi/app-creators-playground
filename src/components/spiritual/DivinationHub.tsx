@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { PalmReader } from './divination/PalmReader';
 import { TarotReader } from './divination/TarotReader';
-import { Hand, Cards } from 'lucide-react';
+import { Hand, Zap } from 'lucide-react';
 
 const DivinationHub = () => {
   const [activeTab, setActiveTab] = useState('palm');
@@ -23,7 +23,7 @@ const DivinationHub = () => {
             Palm Reading
           </TabsTrigger>
           <TabsTrigger value="tarot" className="flex items-center gap-2 data-[state=active]:bg-purple-600">
-            <Cards size={16} />
+            <Zap size={16} />
             Tarot Reading
           </TabsTrigger>
         </TabsList>
