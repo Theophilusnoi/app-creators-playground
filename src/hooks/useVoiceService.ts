@@ -7,7 +7,9 @@ import { useToast } from '@/hooks/use-toast';
 export const useVoiceService = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [audioReady, setAudioReady] = useState(false);
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
+  const pendingAudioRef = useRef<string | null>(null);
   const { i18n } = useTranslation();
   const { toast } = useToast();
 
@@ -31,58 +33,17 @@ export const useVoiceService = () => {
           voiceService.cleanup(currentAudioRef.current.src);
         }
 
-        // Create new audio element
-        const audio = new Audio();
-        currentAudioRef.current = audio;
-        
-        // Set up event handlers before setting src
-        audio.onloadeddata = () => {
-          console.log('Audio data loaded successfully');
-        };
+        // Store the audio URL for user-initiated playback
+        pendingAudioRef.current = response.audioUrl;
+        setAudioReady(true);
 
-        audio.oncanplaythrough = () => {
-          console.log('Audio ready to play through');
-        };
+        // Show toast with play button instead of auto-playing
+        toast({
+          title: "Divine Voice Ready",
+          description: "Your spiritual guidance is ready. Click the play button to listen.",
+        });
 
-        audio.onended = () => {
-          console.log('Audio playback ended');
-          setIsPlaying(false);
-          voiceService.cleanup(response.audioUrl);
-          currentAudioRef.current = null;
-        };
-
-        audio.onerror = (error) => {
-          console.error('Audio playback error:', error);
-          toast({
-            title: "Voice Error",
-            description: "Failed to play audio guidance. Please try again.",
-            variant: "destructive"
-          });
-          setIsPlaying(false);
-          voiceService.cleanup(response.audioUrl);
-          currentAudioRef.current = null;
-        };
-
-        // Set source and attempt to play
-        audio.src = response.audioUrl;
-        
-        try {
-          setIsPlaying(true);
-          await audio.play();
-          console.log('Audio playback started successfully');
-          return true;
-        } catch (playError) {
-          console.error('Audio play failed:', playError);
-          setIsPlaying(false);
-          toast({
-            title: "Voice Error",
-            description: "Could not start audio playback. Please ensure your browser allows audio.",
-            variant: "destructive"
-          });
-          voiceService.cleanup(response.audioUrl);
-          currentAudioRef.current = null;
-          return false;
-        }
+        return true;
       } else {
         console.error('Voice generation failed:', response.error);
         toast({
@@ -105,6 +66,62 @@ export const useVoiceService = () => {
     }
   }, [i18n.language, toast]);
 
+  const playReadyAudio = useCallback(async () => {
+    if (!pendingAudioRef.current) {
+      toast({
+        title: "No Audio Ready",
+        description: "Please generate the reading first",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Create new audio element
+      const audio = new Audio();
+      currentAudioRef.current = audio;
+      
+      // Set up event handlers
+      audio.onended = () => {
+        console.log('Audio playback ended');
+        setIsPlaying(false);
+        setAudioReady(false);
+        voiceService.cleanup(pendingAudioRef.current!);
+        pendingAudioRef.current = null;
+        currentAudioRef.current = null;
+      };
+
+      audio.onerror = (error) => {
+        console.error('Audio playback error:', error);
+        toast({
+          title: "Voice Error",
+          description: "Failed to play audio guidance. Please try again.",
+          variant: "destructive"
+        });
+        setIsPlaying(false);
+        setAudioReady(false);
+        voiceService.cleanup(pendingAudioRef.current!);
+        pendingAudioRef.current = null;
+        currentAudioRef.current = null;
+      };
+
+      // Set source and play (user-initiated, so should work)
+      audio.src = pendingAudioRef.current;
+      setIsPlaying(true);
+      await audio.play();
+      console.log('Audio playback started successfully');
+      
+    } catch (error) {
+      console.error('Failed to play audio:', error);
+      setIsPlaying(false);
+      toast({
+        title: "Playback Failed",
+        description: "Could not start audio playback. Your browser may be blocking audio.",
+        variant: "destructive"
+      });
+    }
+  }, [toast]);
+
   const stopAudio = useCallback(() => {
     if (currentAudioRef.current) {
       currentAudioRef.current.pause();
@@ -114,12 +131,21 @@ export const useVoiceService = () => {
       currentAudioRef.current = null;
       setIsPlaying(false);
     }
+    
+    // Clean up pending audio as well
+    if (pendingAudioRef.current) {
+      voiceService.cleanup(pendingAudioRef.current);
+      pendingAudioRef.current = null;
+      setAudioReady(false);
+    }
   }, []);
 
   return {
     generateAndPlay,
+    playReadyAudio,
     stopAudio,
     isGenerating,
-    isPlaying
+    isPlaying,
+    audioReady
   };
 };

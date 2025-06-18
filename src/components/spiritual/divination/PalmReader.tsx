@@ -5,7 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useVoiceService } from '@/hooks/useVoiceService';
 import { supabase } from '@/integrations/supabase/client';
-import { Scan, Hand, Upload } from 'lucide-react';
+import { Scan, Hand, Upload, Volume2 } from 'lucide-react';
 
 interface PalmAnalysis {
   lifeLineReading: {
@@ -50,7 +50,7 @@ export const PalmReader: React.FC = () => {
   const [palmReading, setPalmReading] = useState<PalmAnalysis | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const { toast } = useToast();
-  const { generateAndPlay } = useVoiceService();
+  const { generateAndPlay, playReadyAudio, audioReady } = useVoiceService();
 
   // Handle image upload
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,8 +126,8 @@ export const PalmReader: React.FC = () => {
           description: `Analysis completed with ${data.analysis.confidenceScore}% confidence`,
         });
 
-        // Generate voice reading
-        generateAndPlay({
+        // Generate voice reading but don't auto-play
+        await generateAndPlay({
           text: `Your divine palm reading is complete. ${data.analysis.overallReading}`,
           emotion: 'compassionate'
         });
@@ -250,10 +250,22 @@ export const PalmReader: React.FC = () => {
             <div className="space-y-6">
               {palmReading ? (
                 <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-6 border border-purple-200 shadow-sm">
-                  <h3 className="font-semibold text-lg text-purple-800 mb-4 flex items-center gap-2">
-                    <Scan size={18} />
-                    Your Divine Palm Reading
-                  </h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-lg text-purple-800 flex items-center gap-2">
+                      <Scan size={18} />
+                      Your Divine Palm Reading
+                    </h3>
+                    
+                    {audioReady && (
+                      <Button
+                        onClick={playReadyAudio}
+                        className="flex items-center gap-2 px-3 py-1 text-sm bg-green-600 hover:bg-green-700 text-white rounded-lg"
+                      >
+                        <Volume2 size={14} />
+                        Play Voice
+                      </Button>
+                    )}
+                  </div>
                   
                   <div className="space-y-4 mb-6">
                     <div className="bg-white/70 rounded-lg p-4">
