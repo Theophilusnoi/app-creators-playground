@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useVoiceService } from '@/hooks/useVoiceService';
-import { Scan, RotateCw, Camera, Hand } from 'lucide-react';
+import { Camera, RotateCw, Scan, Hand } from 'lucide-react';
 
 export const PalmReader: React.FC = () => {
   const [isScanning, setIsScanning] = useState(false);
@@ -154,66 +154,69 @@ export const PalmReader: React.FC = () => {
   }, []);
 
   return (
-    <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-3 text-white">
-          <Hand className="text-purple-400" />
+    <div className="w-full max-w-4xl mx-auto p-4">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-purple-800 mb-2 flex items-center justify-center gap-3">
+          <Hand className="text-purple-600" size={32} />
           Sacred Palm Reader
-        </CardTitle>
-      </CardHeader>
+        </h1>
+        <p className="text-gray-600">
+          Reveal your life path through ancient palmistry wisdom
+        </p>
+      </div>
       
-      <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Camera Section */}
-          <div className="space-y-4">
-            <div className="border-2 border-dashed border-purple-500/50 rounded-lg aspect-square relative overflow-hidden bg-black/20">
-              {cameraStatus === 'active' ? (
-                <>
-                  <video 
-                    ref={videoRef} 
-                    autoPlay 
-                    playsInline 
-                    muted
-                    className="w-full h-full object-cover"
-                  />
-                  {!isScanning && (
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <div className="border-4 border-white border-dashed rounded-full w-64 h-64 animate-pulse" />
-                      <div className="absolute text-white font-semibold text-center">
-                        Position your palm here
+      <Card className="overflow-hidden border border-purple-200 shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+          <CardTitle className="flex items-center gap-3">
+            <Scan size={24} /> Divine Palm Analysis
+          </CardTitle>
+        </CardHeader>
+        
+        <CardContent className="p-4 md:p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Camera Section */}
+            <div className="space-y-6">
+              <div className="aspect-square bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl border-2 border-dashed border-purple-300 relative overflow-hidden">
+                {cameraStatus === 'active' ? (
+                  <>
+                    <video 
+                      ref={videoRef} 
+                      autoPlay 
+                      playsInline 
+                      muted
+                      className="w-full h-full object-cover"
+                    />
+                    {!isScanning && (
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="border-4 border-white border-dashed rounded-full w-64 h-64 animate-pulse" />
+                        <div className="absolute text-white font-semibold text-center">
+                          Position your palm here
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center">
-                  <div className="bg-purple-100/20 rounded-full p-4 mb-4">
-                    {cameraStatus === 'error' ? (
-                      <Camera size={48} className="text-red-400" />
-                    ) : cameraStatus === 'starting' ? (
-                      <RotateCw className="animate-spin" size={48} className="text-purple-400" />
-                    ) : (
-                      <Camera size={48} className="text-purple-400" />
                     )}
-                  </div>
-                  
-                  <h3 className="text-xl font-semibold mb-2 text-white">
-                    {cameraStatus === 'error' 
-                      ? 'Camera Access Required' 
-                      : cameraStatus === 'starting'
-                      ? 'Starting Camera...'
-                      : 'Camera Ready'}
-                  </h3>
-                  
-                  <p className="text-purple-200 mb-4">
-                    {cameraStatus === 'error'
-                      ? 'Please enable camera permissions to use palm scanning'
-                      : cameraStatus === 'starting'
-                      ? 'Initializing divine vision technology'
-                      : 'Click to start camera'}
-                  </p>
-                  
-                  {cameraStatus !== 'starting' && (
+                  </>
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center">
+                    <div className="bg-purple-100 rounded-full p-4 mb-4">
+                      {cameraStatus === 'error' ? (
+                        <Camera size={48} className="text-red-500" />
+                      ) : (
+                        <Camera size={48} className="text-purple-500" />
+                      )}
+                    </div>
+                    
+                    <h3 className="text-xl font-semibold mb-2 text-purple-800">
+                      {cameraStatus === 'error' 
+                        ? 'Camera Access Required' 
+                        : 'Starting Camera...'}
+                    </h3>
+                    
+                    <p className="text-gray-600 mb-4">
+                      {cameraStatus === 'error'
+                        ? 'Please enable camera permissions to use palm scanning'
+                        : 'Initializing divine vision technology'}
+                    </p>
+                    
                     <Button 
                       onClick={initCamera}
                       className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
@@ -221,150 +224,140 @@ export const PalmReader: React.FC = () => {
                       <RotateCw className="mr-2" size={16} />
                       {cameraStatus === 'error' ? 'Retry Camera' : 'Start Camera'}
                     </Button>
-                  )}
-                </div>
-              )}
+                  </div>
+                )}
+                
+                {isScanning && (
+                  <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center">
+                    <div className="animate-pulse mb-4">
+                      <Scan size={48} className="text-white mx-auto" />
+                    </div>
+                    <div className="w-full max-w-xs mx-auto">
+                      <Progress value={scanProgress} className="bg-white/20 h-3" />
+                      <p className="mt-3 text-white text-center">
+                        Scanning palm lines... {scanProgress}%
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
               
-              {isScanning && (
-                <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center">
-                  <div className="animate-pulse mb-4">
-                    <Scan size={48} className="text-white mx-auto" />
-                  </div>
-                  <div className="w-full max-w-xs mx-auto">
-                    <Progress value={scanProgress} className="bg-white/20 h-3" />
-                    <p className="mt-3 text-white text-center">
-                      Scanning palm lines... {scanProgress}%
-                    </p>
-                  </div>
-                </div>
-              )}
+              <Button
+                onClick={startPalmScan}
+                disabled={isScanning || cameraStatus !== 'active'}
+                className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-6 text-lg font-semibold shadow-lg"
+              >
+                {isScanning ? (
+                  <span className="flex items-center justify-center">
+                    <RotateCw className="animate-spin mr-2" size={20} /> Scanning Palm
+                  </span>
+                ) : (
+                  <span className="flex items-center justify-center">
+                    <Scan className="mr-2" size={20} /> Scan My Palm
+                  </span>
+                )}
+              </Button>
             </div>
             
-            <Button
-              onClick={startPalmScan}
-              disabled={isScanning || cameraStatus !== 'active'}
-              className={`w-full ${
-                cameraStatus === 'active' && !isScanning
-                  ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white'
-                  : 'bg-gray-600 text-gray-300 cursor-not-allowed'
-              } py-6 text-lg font-semibold`}
-            >
-              {isScanning ? (
-                <span className="flex items-center justify-center">
-                  <RotateCw className="animate-spin mr-2" size={20} /> Scanning Palm
-                </span>
-              ) : (
-                <span className="flex items-center justify-center">
-                  <Scan className="mr-2" size={20} /> Scan My Palm
-                </span>
-              )}
-            </Button>
-            
-            {cameraStatus !== 'active' && !isScanning && (
-              <p className="text-xs text-purple-400 text-center">
-                Camera must be active to scan
-              </p>
-            )}
-          </div>
-          
-          {/* Results Section */}
-          <div className="space-y-6">
-            <div className="bg-black/20 border border-purple-500/30 rounded-lg p-5">
-              <h3 className="font-semibold text-lg text-white mb-4">
-                Palm Lines & Meanings
-              </h3>
-              
-              <div className="space-y-4">
-                <div className="flex items-start">
-                  <div className="bg-purple-600 text-white rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0 text-sm">
-                    ❤️
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-white">Heart Line</h4>
-                    <p className="text-purple-200 text-sm">Emotional nature, relationships, and heart health</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <div className="bg-purple-600 text-white rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0 text-sm">
-                    🧠
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-white">Head Line</h4>
-                    <p className="text-purple-200 text-sm">Intellect, thinking style, and decision-making</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <div className="bg-purple-600 text-white rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0 text-sm">
-                    🌟
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-white">Life Line</h4>
-                    <p className="text-purple-200 text-sm">Vitality, life journey, and physical health</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <div className="bg-purple-600 text-white rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0 text-sm">
-                    🛤️
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-white">Fate Line</h4>
-                    <p className="text-purple-200 text-sm">Career path, life direction, and destiny</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <div className="bg-purple-600 text-white rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0 text-sm">
-                    ☀️
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-white">Sun Line</h4>
-                    <p className="text-purple-200 text-sm">Creativity, success, and public recognition</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            {palmReading && (
-              <div className="bg-gradient-to-br from-purple-900/50 to-indigo-900/50 rounded-lg border border-purple-500/30 p-6">
-                <h4 className="font-semibold text-purple-200 mb-2 flex items-center gap-2">
-                  <Scan size={18} /> Your Palm Reading
-                </h4>
-                <p className="text-purple-100 leading-relaxed mb-4 italic">"{palmReading}"</p>
-                
-                <div className="mt-4 p-4 bg-black/20 rounded-lg border border-purple-500/20">
-                  <h4 className="font-medium text-purple-200 mb-2">Interpretation Guidance</h4>
-                  <ul className="text-sm text-purple-300 space-y-1">
-                    <li>• Palmistry reveals potential, not fixed destiny</li>
-                    <li>• Lines can change over time as you grow</li>
-                    <li>• Use this insight as guidance, not prediction</li>
-                    <li>• Combine with meditation for deeper understanding</li>
-                  </ul>
-                </div>
-              </div>
-            )}
-            
-            {!palmReading && (
-              <div className="bg-gradient-to-br from-indigo-900/50 to-purple-900/50 rounded-lg p-8 text-center border border-indigo-500/30">
-                <div className="text-5xl mb-4">🔮</div>
-                <h3 className="font-semibold text-lg text-white mb-2">
-                  Awaiting Your Palm Scan
+            {/* Results Section */}
+            <div className="space-y-6">
+              <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-5 border border-purple-200">
+                <h3 className="font-semibold text-lg text-purple-800 mb-4">
+                  Palm Lines & Meanings
                 </h3>
-                <p className="text-purple-200">
-                  Scan your palm to receive a personalized reading based on ancient palmistry wisdom combined with modern spiritual insights.
-                </p>
+                
+                <div className="space-y-4">
+                  <div className="flex items-start">
+                    <div className="bg-purple-100 text-purple-800 rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0">
+                      ❤️
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-purple-700">Heart Line</h4>
+                      <p className="text-gray-600 text-sm">Emotional nature, relationships, and heart health</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start">
+                    <div className="bg-purple-100 text-purple-800 rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0">
+                      🧠
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-purple-700">Head Line</h4>
+                      <p className="text-gray-600 text-sm">Intellect, thinking style, and decision-making</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start">
+                    <div className="bg-purple-100 text-purple-800 rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0">
+                      🌟
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-purple-700">Life Line</h4>
+                      <p className="text-gray-600 text-sm">Vitality, life journey, and physical health</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start">
+                    <div className="bg-purple-100 text-purple-800 rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0">
+                      🛤️
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-purple-700">Fate Line</h4>
+                      <p className="text-gray-600 text-sm">Career path, life direction, and destiny</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start">
+                    <div className="bg-purple-100 text-purple-800 rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0">
+                      ☀️
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-purple-700">Sun Line</h4>
+                      <p className="text-gray-600 text-sm">Creativity, success, and public recognition</p>
+                    </div>
+                  </div>
+                </div>
               </div>
-            )}
+              
+              {palmReading && (
+                <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 shadow-sm">
+                  <h3 className="font-semibold text-lg text-indigo-800 mb-3 flex items-center gap-2">
+                    <Scan size={18} /> Your Palm Reading
+                  </h3>
+                  <p className="text-gray-700 mb-4 italic">"{palmReading}"</p>
+                  
+                  <div className="mt-4 p-4 bg-white rounded-lg border border-purple-100">
+                    <h4 className="font-medium text-purple-700 mb-2">Interpretation Guidance</h4>
+                    <ul className="text-sm text-gray-600 space-y-1">
+                      <li>• Palmistry reveals potential, not fixed destiny</li>
+                      <li>• Lines can change over time as you grow</li>
+                      <li>• Use this insight as guidance, not prediction</li>
+                      <li>• Combine with meditation for deeper understanding</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+              
+              {!palmReading && (
+                <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-8 text-center border border-indigo-200">
+                  <div className="text-5xl mb-4">🔮</div>
+                  <h3 className="font-semibold text-lg text-indigo-800 mb-2">
+                    Awaiting Your Palm Scan
+                  </h3>
+                  <p className="text-gray-600">
+                    Scan your palm to receive a personalized reading based on ancient palmistry wisdom combined with modern spiritual insights.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-        
-        <div className="mt-8 text-center text-sm text-purple-400">
-          <p>For best results: Position your palm flat with fingers together in the scanning area under good lighting.</p>
-          <p>✨ Palmistry is an ancient art for self-reflection - your choices shape your destiny ✨</p>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+      
+      <div className="mt-8 text-center text-sm text-gray-500">
+        <p>For best results: Position your palm flat with fingers together in the scanning area under good lighting.</p>
+        <p>Palmistry is an ancient art for self-reflection - your choices shape your destiny.</p>
+      </div>
+    </div>
   );
 };
