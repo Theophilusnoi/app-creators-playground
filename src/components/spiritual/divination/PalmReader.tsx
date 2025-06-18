@@ -41,6 +41,7 @@ export const PalmReader: React.FC = () => {
 
   const initCamera = async () => {
     try {
+      console.log('Initializing camera...');
       setCameraStatus('starting');
       
       // Stop any existing stream
@@ -57,36 +58,70 @@ export const PalmReader: React.FC = () => {
         } 
       });
       
+      console.log('Camera stream obtained successfully');
       streamRef.current = stream;
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         
-        // Wait for video to load and start playing
-        videoRef.current.onloadedmetadata = () => {
-          if (videoRef.current) {
-            videoRef.current.play().then(() => {
-              setCameraStatus('active');
-              console.log('Camera successfully activated');
-            }).catch(e => {
-              console.error("Video play error:", e);
-              setCameraStatus('error');
-            });
-          }
-        };
+        // Use Promise-based approach for more reliable video loading
+        const videoElement = videoRef.current;
+        
+        await new Promise<void>((resolve, reject) => {
+          const timeout = setTimeout(() => {
+            reject(new Error('Video loading timeout'));
+          }, 10000); // 10 second timeout
+          
+          const onLoadedMetadata = () => {
+            console.log('Video metadata loaded');
+            clearTimeout(timeout);
+            videoElement.removeEventListener('loadedmetadata', onLoadedMetadata);
+            videoElement.removeEventListener('error', onError);
+            resolve();
+          };
+          
+          const onError = (e: Event) => {
+            console.error('Video error:', e);
+            clearTimeout(timeout);
+            videoElement.removeEventListener('loadedmetadata', onLoadedMetadata);
+            videoElement.removeEventListener('error', onError);
+            reject(new Error('Video loading failed'));
+          };
+          
+          videoElement.addEventListener('loadedmetadata', onLoadedMetadata);
+          videoElement.addEventListener('error', onError);
+        });
+        
+        // Play the video
+        await videoRef.current.play();
+        console.log('Camera successfully activated');
+        setCameraStatus('active');
       }
     } catch (err) {
       console.error("Camera error:", err);
       setCameraStatus('error');
+      
+      let errorMessage = "Could not access camera. ";
+      if (err instanceof Error) {
+        if (err.message.includes('Permission denied') || err.name === 'NotAllowedError') {
+          errorMessage += "Please allow camera permissions and try again.";
+        } else if (err.message.includes('timeout')) {
+          errorMessage += "Camera took too long to initialize. Please try again.";
+        } else {
+          errorMessage += "Please check camera availability and try again.";
+        }
+      }
+      
       toast({
         title: "Camera Error",
-        description: "Could not access camera. Please check permissions and try again.",
+        description: errorMessage,
         variant: "destructive"
       });
     }
   };
 
   const stopCamera = () => {
+    console.log('Stopping camera...');
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
@@ -107,6 +142,7 @@ export const PalmReader: React.FC = () => {
       return;
     }
     
+    console.log('Starting palm scan...');
     setIsScanning(true);
     setScanProgress(0);
     setPalmReading('');
