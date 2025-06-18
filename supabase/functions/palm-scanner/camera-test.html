@@ -1,0 +1,312 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palm Scanner Camera Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        video, canvas {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        .error {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .success {
+            color: #51cf66;
+            background: rgba(81, 207, 102, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .reading-item {
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        .confidence {
+            font-weight: bold;
+            color: #ffd43b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔮 Palm Scanner Camera Test</h1>
+        <p>Test the camera functionality and palm analysis edge function</p>
+        
+        <div>
+            <button id="startCamera">📹 Start Camera</button>
+            <button id="capturePhoto" disabled>📸 Capture & Analyze Palm</button>
+            <button id="stopCamera" disabled>⏹️ Stop Camera</button>
+        </div>
+
+        <div>
+            <video id="video" autoplay muted style="display: none;"></video>
+            <canvas id="canvas" style="display: none;"></canvas>
+        </div>
+
+        <div>
+            <input type="file" id="fileInput" accept="image/*" style="margin: 10px 0;">
+            <button id="analyzeFile">📁 Analyze Uploaded Image</button>
+        </div>
+
+        <div id="results" class="results" style="display: none;">
+            <h3>Palm Analysis Results</h3>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const startCameraBtn = document.getElementById('startCamera');
+        const captureBtn = document.getElementById('capturePhoto');
+        const stopCameraBtn = document.getElementById('stopCamera');
+        const fileInput = document.getElementById('fileInput');
+        const analyzeFileBtn = document.getElementById('analyzeFile');
+        const results = document.getElementById('results');
+        const resultsContent = document.getElementById('resultsContent');
+
+        let stream = null;
+
+        // Camera functions
+        startCameraBtn.addEventListener('click', async () => {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                });
+                
+                video.srcObject = stream;
+                video.style.display = 'block';
+                
+                startCameraBtn.disabled = true;
+                captureBtn.disabled = false;
+                stopCameraBtn.disabled = false;
+                
+                console.log('Camera started successfully');
+            } catch (error) {
+                console.error('Camera error:', error);
+                showError('Camera access denied or not available: ' + error.message);
+            }
+        });
+
+        captureBtn.addEventListener('click', () => {
+            captureAndAnalyze();
+        });
+
+        stopCameraBtn.addEventListener('click', () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+                video.style.display = 'none';
+                
+                startCameraBtn.disabled = false;
+                captureBtn.disabled = true;
+                stopCameraBtn.disabled = true;
+            }
+        });
+
+        // File upload analysis
+        analyzeFileBtn.addEventListener('click', () => {
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    analyzePalm(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                showError('Please select an image file first');
+            }
+        });
+
+        function captureAndAnalyze() {
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0);
+            
+            canvas.toBlob((blob) => {
+                if (blob) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        analyzePalm(e.target.result);
+                    };
+                    reader.readAsDataURL(blob);
+                }
+            }, 'image/jpeg', 0.8);
+        }
+
+        async function analyzePalm(imageData) {
+            showLoading();
+            
+            try {
+                console.log('Sending image for analysis...');
+                const response = await fetch('https://oyzbmwznxwsfhajvialr.supabase.co/functions/v1/palm-scanner', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95emJtd3pueHdzZmhhanZpYWxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0MDI2MzcsImV4cCI6MjA2MDk3ODYzN30.ig0-A78kSPOM3UBd_bxfekPmDTWTV_e4fHAFBZCSXVA'
+                    },
+                    body: JSON.stringify({
+                        image: imageData,
+                        analysisType: 'spiritual'
+                    })
+                });
+
+                const result = await response.json();
+                console.log('Analysis result:', result);
+
+                if (result.success) {
+                    showResults(result.analysis);
+                } else {
+                    showError(result.error || 'Analysis failed');
+                }
+
+            } catch (error) {
+                console.error('Analysis error:', error);
+                showError('Network error: ' + error.message);
+            }
+        }
+
+        function showLoading() {
+            results.style.display = 'block';
+            resultsContent.innerHTML = `
+                <div class="loading">
+                    <p>🔮 Analyzing palm lines...</p>
+                    <p>Please wait while we decode your spiritual energy...</p>
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            results.style.display = 'block';
+            resultsContent.innerHTML = `
+                <div class="error">
+                    <h4>❌ Error</h4>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+
+        function showResults(analysis) {
+            results.style.display = 'block';
+            resultsContent.innerHTML = `
+                <div class="success">
+                    <h4>✨ Palm Analysis Complete</h4>
+                    <p>Confidence: <span class="confidence">${analysis.confidenceScore}%</span></p>
+                    <p>Image Quality: <span class="confidence">${analysis.imageQuality}</span></p>
+                </div>
+
+                <div class="reading-item">
+                    <h4>💖 ${analysis.lifeLineReading.name}</h4>
+                    <p><strong>Reading:</strong> ${analysis.lifeLineReading.reading}</p>
+                    <p><strong>Meaning:</strong> ${analysis.lifeLineReading.meaning}</p>
+                    <p><strong>Spiritual Insight:</strong> ${analysis.lifeLineReading.spiritualInsight}</p>
+                </div>
+
+                <div class="reading-item">
+                    <h4>❤️ ${analysis.heartLineReading.name}</h4>
+                    <p><strong>Reading:</strong> ${analysis.heartLineReading.reading}</p>
+                    <p><strong>Meaning:</strong> ${analysis.heartLineReading.meaning}</p>
+                    <p><strong>Spiritual Insight:</strong> ${analysis.heartLineReading.spiritualInsight}</p>
+                </div>
+
+                <div class="reading-item">
+                    <h4>🧠 ${analysis.headLineReading.name}</h4>
+                    <p><strong>Reading:</strong> ${analysis.headLineReading.reading}</p>
+                    <p><strong>Meaning:</strong> ${analysis.headLineReading.meaning}</p>
+                    <p><strong>Spiritual Insight:</strong> ${analysis.headLineReading.spiritualInsight}</p>
+                </div>
+
+                <div class="reading-item">
+                    <h4>🌟 ${analysis.fateLineReading.name}</h4>
+                    <p><strong>Reading:</strong> ${analysis.fateLineReading.reading}</p>
+                    <p><strong>Meaning:</strong> ${analysis.fateLineReading.meaning}</p>
+                    <p><strong>Spiritual Insight:</strong> ${analysis.fateLineReading.spiritualInsight}</p>
+                </div>
+
+                <div class="reading-item">
+                    <h4>🎁 Spiritual Gifts</h4>
+                    <p>${analysis.spiritualGifts}</p>
+                </div>
+
+                <div class="reading-item">
+                    <h4>⚡ Growth Areas</h4>
+                    <p>${analysis.challenges}</p>
+                </div>
+
+                <div class="reading-item">
+                    <h4>🙏 Divine Guidance</h4>
+                    <p>${analysis.guidance}</p>
+                </div>
+
+                <div class="reading-item">
+                    <h4>🔮 Overall Reading</h4>
+                    <p>${analysis.overallReading}</p>
+                </div>
+            `;
+        }
+
+        // Test the function on page load
+        console.log('Palm Scanner Camera Test loaded');
+        console.log('Camera available:', !!navigator.mediaDevices?.getUserMedia);
+    </script>
+</body>
+</html>
