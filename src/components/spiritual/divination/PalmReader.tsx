@@ -33,13 +33,22 @@ export const PalmReader: React.FC = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
   const [palmReading, setPalmReading] = useState('');
-  const [cameraActive, setCameraActive] = useState(false);
+  const [cameraStatus, setCameraStatus] = useState<'inactive' | 'starting' | 'active' | 'error'>('inactive');
   const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const { toast } = useToast();
   const { generateAndPlay } = useVoiceService();
 
   const initCamera = async () => {
     try {
+      setCameraStatus('starting');
+      
+      // Stop any existing stream
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
+      
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { 
           facingMode: 'environment',
@@ -47,28 +56,57 @@ export const PalmReader: React.FC = () => {
           height: { ideal: 720 }
         } 
       });
+      
+      streamRef.current = stream;
+      
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        setCameraActive(true);
+        
+        // Wait for video to load and start playing
+        videoRef.current.onloadedmetadata = () => {
+          if (videoRef.current) {
+            videoRef.current.play().then(() => {
+              setCameraStatus('active');
+              console.log('Camera successfully activated');
+            }).catch(e => {
+              console.error("Video play error:", e);
+              setCameraStatus('error');
+            });
+          }
+        };
       }
     } catch (err) {
+      console.error("Camera error:", err);
+      setCameraStatus('error');
       toast({
         title: "Camera Error",
-        description: "Could not access camera. Please check permissions.",
+        description: "Could not access camera. Please check permissions and try again.",
         variant: "destructive"
       });
     }
   };
 
   const stopCamera = () => {
-    if (videoRef.current?.srcObject) {
-      const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
-      tracks.forEach(track => track.stop());
-      setCameraActive(false);
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
     }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setCameraStatus('inactive');
   };
 
   const startPalmScan = () => {
+    if (cameraStatus !== 'active') {
+      toast({
+        title: "Camera Not Ready",
+        description: "Please wait for camera to initialize completely.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsScanning(true);
     setScanProgress(0);
     setPalmReading('');
@@ -97,10 +135,31 @@ export const PalmReader: React.FC = () => {
   };
 
   useEffect(() => {
+    // Auto-initialize camera on component mount
+    initCamera();
+    
     return () => {
       stopCamera();
     };
   }, []);
+
+  const getCameraStatusText = () => {
+    switch (cameraStatus) {
+      case 'starting': return 'Starting camera...';
+      case 'active': return 'Camera active';
+      case 'error': return 'Camera error - click to retry';
+      default: return 'Camera not active';
+    }
+  };
+
+  const getCameraStatusColor = () => {
+    switch (cameraStatus) {
+      case 'starting': return 'text-yellow-400';
+      case 'active': return 'text-green-400';
+      case 'error': return 'text-red-400';
+      default: return 'text-purple-400';
+    }
+  };
 
   return (
     <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
@@ -108,6 +167,9 @@ export const PalmReader: React.FC = () => {
         <CardTitle className="flex items-center gap-3 text-white">
           <Scan className="text-purple-400" />
           Palmistry Analysis
+          <div className={`ml-auto text-sm ${getCameraStatusColor()}`}>
+            {getCameraStatusText()}
+          </div>
         </CardTitle>
       </CardHeader>
       
@@ -125,7 +187,7 @@ export const PalmReader: React.FC = () => {
                     <p className="text-purple-300">Scanning your palm...</p>
                   </div>
                 </div>
-              ) : cameraActive ? (
+              ) : cameraStatus === 'active' ? (
                 <>
                   <video 
                     ref={videoRef} 
@@ -141,28 +203,48 @@ export const PalmReader: React.FC = () => {
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <div className="text-center text-purple-300">
-                    <Camera size={48} className="mx-auto mb-2" />
-                    <p>Camera not active</p>
+                    <Camera size={48} className={`mx-auto mb-2 ${getCameraStatusColor()}`} />
+                    <p className="mb-4">{getCameraStatusText()}</p>
+                    {cameraStatus === 'starting' && (
+                      <div className="animate-pulse">
+                        <RotateCw className="animate-spin mx-auto" size={24} />
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
             </div>
             
             <div className="space-y-2">
-              {!cameraActive && (
+              {(cameraStatus === 'inactive' || cameraStatus === 'error') && (
                 <Button
                   onClick={initCamera}
+                  disabled={cameraStatus === 'starting'}
                   className="w-full bg-purple-600 hover:bg-purple-700 text-white"
                 >
                   <Camera className="mr-2" size={16} />
-                  Start Camera
+                  {cameraStatus === 'error' ? 'Retry Camera' : 'Start Camera'}
+                </Button>
+              )}
+              
+              {cameraStatus === 'active' && (
+                <Button
+                  onClick={stopCamera}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white"
+                >
+                  <Camera className="mr-2" size={16} />
+                  Stop Camera
                 </Button>
               )}
               
               <Button
                 onClick={startPalmScan}
-                disabled={isScanning || !cameraActive}
-                className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                disabled={isScanning || cameraStatus !== 'active'}
+                className={`w-full ${
+                  cameraStatus === 'active' && !isScanning
+                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white'
+                    : 'bg-gray-600 text-gray-300 cursor-not-allowed'
+                }`}
               >
                 {isScanning ? (
                   <>
@@ -176,6 +258,12 @@ export const PalmReader: React.FC = () => {
                   </>
                 )}
               </Button>
+              
+              {cameraStatus !== 'active' && !isScanning && (
+                <p className="text-xs text-purple-400 text-center">
+                  Camera must be active to scan
+                </p>
+              )}
             </div>
           </div>
           
