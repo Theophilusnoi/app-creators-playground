@@ -23,7 +23,7 @@ import { ReferralSystem } from '@/components/spiritual/ReferralSystem';
 
 const SpiritualDashboard = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('seraphina');
+  const [activeTab, setActiveTab] = useState('sync');
 
   const handleAssessmentComplete = () => {
     // Navigate to Seraphina chat after assessment completion
