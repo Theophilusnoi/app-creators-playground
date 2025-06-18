@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -252,7 +251,7 @@ export const PalmReader: React.FC = () => {
             </div>
             
             <div className="space-y-2">
-              {(cameraStatus === 'inactive' || cameraStatus === 'error') && (
+              {cameraStatus === 'inactive' || cameraStatus === 'error' ? (
                 <Button
                   onClick={initCamera}
                   disabled={cameraStatus === 'starting'}
@@ -261,7 +260,7 @@ export const PalmReader: React.FC = () => {
                   <Camera className="mr-2" size={16} />
                   {cameraStatus === 'error' ? 'Retry Camera' : 'Start Camera'}
                 </Button>
-              )}
+              ) : null}
               
               {cameraStatus === 'active' && (
                 <Button
