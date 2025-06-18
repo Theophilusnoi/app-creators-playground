@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { TopNavigation } from '@/components/spiritual/TopNavigation';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -19,6 +19,7 @@ import { SpiritualAssessment } from '@/components/spiritual/SpiritualAssessment'
 import { EmergencyAnalyticsDashboard } from '@/components/spiritual/EmergencyAnalyticsDashboard';
 import { RecommendationsSystem } from '@/components/spiritual/RecommendationsSystem';
 import AngelicAssistance from '@/components/spiritual/AngelicAssistance';
+import DivinationHub from '@/components/spiritual/DivinationHub';
 import { ReferralSystem } from '@/components/spiritual/ReferralSystem';
 
 const SpiritualDashboard = () => {
@@ -98,6 +99,10 @@ const SpiritualDashboard = () => {
 
           <TabsContent value="angelic">
             <AngelicAssistance />
+          </TabsContent>
+
+          <TabsContent value="divination">
+            <DivinationHub />
           </TabsContent>
 
           <TabsContent value="referrals">
