@@ -1,16 +1,53 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useVoiceService } from '@/hooks/useVoiceService';
+import { supabase } from '@/integrations/supabase/client';
 import { Scan, Hand, Upload } from 'lucide-react';
 
+interface PalmAnalysis {
+  lifeLineReading: {
+    name: string;
+    reading: string;
+    meaning: string;
+    spiritualInsight: string;
+    strength: string;
+  };
+  heartLineReading: {
+    name: string;
+    reading: string;
+    meaning: string;
+    spiritualInsight: string;
+    strength: string;
+  };
+  headLineReading: {
+    name: string;
+    reading: string;
+    meaning: string;
+    spiritualInsight: string;
+    strength: string;
+  };
+  fateLineReading: {
+    name: string;
+    reading: string;
+    meaning: string;
+    spiritualInsight: string;
+    strength: string;
+  };
+  spiritualGifts: string;
+  challenges: string;
+  guidance: string;
+  overallReading: string;
+  confidenceScore: number;
+  imageQuality: string;
+}
+
 export const PalmReader: React.FC = () => {
-  const [isScanning, setIsScanning] = useState(false);
-  const [scanProgress, setScanProgress] = useState(0);
-  const [palmReading, setPalmReading] = useState('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisProgress, setAnalysisProgress] = useState(0);
+  const [palmReading, setPalmReading] = useState<PalmAnalysis | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const { toast } = useToast();
   const { generateAndPlay } = useVoiceService();
@@ -24,67 +61,92 @@ export const PalmReader: React.FC = () => {
         setUploadedImage(e.target?.result as string);
         toast({
           title: "Image Uploaded",
-          description: "Your palm image is ready for analysis",
+          description: "Your palm image is ready for divine analysis",
         });
       };
       reader.readAsDataURL(file);
+    } else {
+      toast({
+        title: "Invalid File",
+        description: "Please upload a valid image file",
+        variant: "destructive"
+      });
     }
   };
 
-  // Start palm analysis (no camera required)
-  const startPalmAnalysis = async () => {
-    setIsScanning(true);
-    setScanProgress(0);
-    setPalmReading('');
-    
-    // Simulate analysis process
-    simulatePalmAnalysis();
-  };
+  // Analyze palm using the edge function
+  const analyzePalm = async () => {
+    if (!uploadedImage) {
+      toast({
+        title: "No Image",
+        description: "Please upload a palm image first",
+        variant: "destructive"
+      });
+      return;
+    }
 
-  // Simulate palm analysis
-  const simulatePalmAnalysis = () => {
-    // Simulate scanning process
-    const interval = setInterval(() => {
-      setScanProgress(prev => {
-        const newProgress = prev + 5;
-        if (newProgress >= 100) {
-          clearInterval(interval);
-          generatePalmReading();
-          return 100;
+    setIsAnalyzing(true);
+    setAnalysisProgress(0);
+    setPalmReading(null);
+    
+    // Simulate progress
+    const progressInterval = setInterval(() => {
+      setAnalysisProgress(prev => {
+        if (prev >= 90) {
+          clearInterval(progressInterval);
+          return 90;
         }
-        return newProgress;
+        return prev + 10;
       });
     }, 200);
-  };
 
-  // Generate palm reading
-  const generatePalmReading = () => {
-    // Mock readings for palm analysis
-    const mockReadings = [
-      "Your heart line is long and clear, indicating deep emotional connections and a capacity for meaningful relationships.",
-      "The head line shows creativity and strong problem-solving abilities, suggesting you approach challenges with innovative thinking.",
-      "Your life line suggests vitality and resilience, indicating you have the energy to overcome obstacles and pursue your goals.",
-      "The fate line reveals a path with significant changes and opportunities, suggesting you're entering a transformative period.",
-      "You have a square palm shape which indicates a practical, down-to-earth nature and strong organizational skills.",
-      "The Apollo line is prominent, suggesting potential for recognition and success in creative endeavors.",
-      "Your Mercury line shows strong communication skills and potential for success in business or teaching.",
-      "The Venus mount is well-developed, indicating a passionate nature and appreciation for life's pleasures."
-    ];
-    
-    // Generate a reading
-    const reading = mockReadings[Math.floor(Math.random() * mockReadings.length)];
-    setPalmReading(reading);
-    setIsScanning(false);
-    
-    toast({
-      title: "Reading Complete",
-      description: "Your palm analysis is ready",
-    });
+    try {
+      console.log('🔮 Calling palm-scanner edge function...');
+      
+      const { data, error } = await supabase.functions.invoke('palm-scanner', {
+        body: {
+          image: uploadedImage,
+          analysisType: 'spiritual'
+        }
+      });
 
-    generateAndPlay({
-      text: `Your palm reading reveals: ${reading}. This suggests a path of growth and discovery.`,
-      emotion: 'compassionate'
-    });
+      clearInterval(progressInterval);
+      setAnalysisProgress(100);
+
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
+
+      if (data?.success && data?.analysis) {
+        setPalmReading(data.analysis);
+        
+        toast({
+          title: "Divine Reading Complete",
+          description: `Analysis completed with ${data.analysis.confidenceScore}% confidence`,
+        });
+
+        // Generate voice reading
+        generateAndPlay({
+          text: `Your divine palm reading is complete. ${data.analysis.overallReading}`,
+          emotion: 'compassionate'
+        });
+      } else {
+        throw new Error(data?.error || 'Analysis failed');
+      }
+    } catch (error) {
+      console.error('Palm analysis error:', error);
+      clearInterval(progressInterval);
+      
+      toast({
+        title: "Analysis Failed",
+        description: error instanceof Error ? error.message : "Failed to analyze palm. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzing(false);
+      setTimeout(() => setAnalysisProgress(0), 2000);
+    }
   };
 
   return (
@@ -95,7 +157,7 @@ export const PalmReader: React.FC = () => {
           Sacred Palm Reader
         </h1>
         <p className="text-gray-600">
-          Reveal your life path through ancient palmistry wisdom
+          Reveal your divine purpose through ancient palmistry wisdom
         </p>
       </div>
       
@@ -119,15 +181,15 @@ export const PalmReader: React.FC = () => {
                       alt="Uploaded palm" 
                       className="w-full h-full object-cover rounded-xl"
                     />
-                    {isScanning && (
+                    {isAnalyzing && (
                       <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center">
                         <div className="animate-pulse mb-4">
                           <Scan size={48} className="text-white mx-auto" />
                         </div>
                         <div className="w-full max-w-xs mx-auto">
-                          <Progress value={scanProgress} className="bg-white/20 h-3" />
+                          <Progress value={analysisProgress} className="bg-white/20 h-3" />
                           <p className="mt-3 text-white text-center">
-                            Analyzing palm lines... {scanProgress}%
+                            Divine analysis in progress... {analysisProgress}%
                           </p>
                         </div>
                       </div>
@@ -166,11 +228,11 @@ export const PalmReader: React.FC = () => {
               </div>
               
               <Button
-                onClick={startPalmAnalysis}
-                disabled={isScanning || !uploadedImage}
+                onClick={analyzePalm}
+                disabled={isAnalyzing || !uploadedImage}
                 className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-6 text-lg font-semibold shadow-lg"
               >
-                {isScanning ? (
+                {isAnalyzing ? (
                   <span className="flex items-center justify-center">
                     <Scan className="animate-spin mr-2" size={20} />
                     Analyzing Palm
@@ -186,93 +248,106 @@ export const PalmReader: React.FC = () => {
             
             {/* Results Section */}
             <div className="space-y-6">
-              <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-5 border border-purple-200">
-                <h3 className="font-semibold text-lg text-purple-800 mb-4">
-                  Palm Lines & Meanings
-                </h3>
-                
-                <div className="space-y-4">
-                  <div className="flex items-start">
-                    <div className="bg-purple-100 text-purple-800 rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0">
-                      ❤️
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-purple-700">Heart Line</h4>
-                      <p className="text-gray-600 text-sm">Emotional nature, relationships, and heart health</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start">
-                    <div className="bg-purple-100 text-purple-800 rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0">
-                      🧠
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-purple-700">Head Line</h4>
-                      <p className="text-gray-600 text-sm">Intellect, thinking style, and decision-making</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start">
-                    <div className="bg-purple-100 text-purple-800 rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0">
-                      🌟
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-purple-700">Life Line</h4>
-                      <p className="text-gray-600 text-sm">Vitality, life journey, and physical health</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start">
-                    <div className="bg-purple-100 text-purple-800 rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0">
-                      🛤️
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-purple-700">Fate Line</h4>
-                      <p className="text-gray-600 text-sm">Career path, life direction, and destiny</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start">
-                    <div className="bg-purple-100 text-purple-800 rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0">
-                      ☀️
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-purple-700">Sun Line</h4>
-                      <p className="text-gray-600 text-sm">Creativity, success, and public recognition</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {palmReading && (
-                <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 shadow-sm">
-                  <h3 className="font-semibold text-lg text-indigo-800 mb-3 flex items-center gap-2">
+              {palmReading ? (
+                <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-6 border border-purple-200 shadow-sm">
+                  <h3 className="font-semibold text-lg text-purple-800 mb-4 flex items-center gap-2">
                     <Scan size={18} />
-                    Your Palm Reading
+                    Your Divine Palm Reading
                   </h3>
-                  <p className="text-gray-700 mb-4 italic">"{palmReading}"</p>
                   
-                  <div className="mt-4 p-4 bg-white rounded-lg border border-purple-100">
-                    <h4 className="font-medium text-purple-700 mb-2">Interpretation Guidance</h4>
-                    <ul className="text-sm text-gray-600 space-y-1">
-                      <li>• Palmistry reveals potential, not fixed destiny</li>
-                      <li>• Lines can change over time as you grow</li>
-                      <li>• Use this insight as guidance, not prediction</li>
-                      <li>• Combine with meditation for deeper understanding</li>
-                    </ul>
+                  <div className="space-y-4 mb-6">
+                    <div className="bg-white/70 rounded-lg p-4">
+                      <h4 className="font-semibold text-purple-700 mb-2">💖 {palmReading.lifeLineReading.name}</h4>
+                      <p className="text-sm text-gray-700 mb-2">{palmReading.lifeLineReading.reading}</p>
+                      <p className="text-xs text-purple-600 italic">{palmReading.lifeLineReading.spiritualInsight}</p>
+                    </div>
+                    
+                    <div className="bg-white/70 rounded-lg p-4">
+                      <h4 className="font-semibold text-purple-700 mb-2">❤️ {palmReading.heartLineReading.name}</h4>
+                      <p className="text-sm text-gray-700 mb-2">{palmReading.heartLineReading.reading}</p>
+                      <p className="text-xs text-purple-600 italic">{palmReading.heartLineReading.spiritualInsight}</p>
+                    </div>
+                    
+                    <div className="bg-white/70 rounded-lg p-4">
+                      <h4 className="font-semibold text-purple-700 mb-2">🧠 {palmReading.headLineReading.name}</h4>
+                      <p className="text-sm text-gray-700 mb-2">{palmReading.headLineReading.reading}</p>
+                      <p className="text-xs text-purple-600 italic">{palmReading.headLineReading.spiritualInsight}</p>
+                    </div>
+                    
+                    <div className="bg-white/70 rounded-lg p-4">
+                      <h4 className="font-semibold text-purple-700 mb-2">🌟 {palmReading.fateLineReading.name}</h4>
+                      <p className="text-sm text-gray-700 mb-2">{palmReading.fateLineReading.reading}</p>
+                      <p className="text-xs text-purple-600 italic">{palmReading.fateLineReading.spiritualInsight}</p>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-4 border border-yellow-200">
+                      <h4 className="font-semibold text-orange-700 mb-2">🎁 Your Spiritual Gifts</h4>
+                      <p className="text-sm text-gray-700">{palmReading.spiritualGifts}</p>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200">
+                      <h4 className="font-semibold text-blue-700 mb-2">🙏 Divine Guidance</h4>
+                      <p className="text-sm text-gray-700">{palmReading.guidance}</p>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg p-4 border border-purple-300">
+                      <h4 className="font-semibold text-purple-700 mb-2">🔮 Overall Reading</h4>
+                      <p className="text-sm text-gray-700 font-medium">{palmReading.overallReading}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="text-center text-sm text-gray-500">
+                    <p>Confidence: {palmReading.confidenceScore}% | Quality: {palmReading.imageQuality}</p>
                   </div>
                 </div>
-              )}
-              
-              {!palmReading && (
-                <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-8 text-center border border-indigo-200">
-                  <div className="text-5xl mb-4">🔮</div>
-                  <h3 className="font-semibold text-lg text-indigo-800 mb-2">
-                    Ready for Palm Analysis
+              ) : (
+                // ... keep existing code (palm reading guide)
+                <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-5 border border-purple-200">
+                  <h3 className="font-semibold text-lg text-purple-800 mb-4">
+                    Palm Lines & Spiritual Meanings
                   </h3>
-                  <p className="text-gray-600">
-                    Upload a clear photo of your palm to receive a personalized reading based on ancient palmistry wisdom.
-                  </p>
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-start">
+                      <div className="bg-purple-100 text-purple-800 rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0">
+                        ❤️
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-purple-700">Heart Line</h4>
+                        <p className="text-gray-600 text-sm">Divine love, spiritual relationships, and heart chakra energy</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start">
+                      <div className="bg-purple-100 text-purple-800 rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0">
+                        🧠
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-purple-700">Head Line</h4>
+                        <p className="text-gray-600 text-sm">Divine wisdom, spiritual discernment, and mental clarity</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start">
+                      <div className="bg-purple-100 text-purple-800 rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0">
+                        🌟
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-purple-700">Life Line</h4>
+                        <p className="text-gray-600 text-sm">Divine vitality, spiritual journey, and life force energy</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start">
+                      <div className="bg-purple-100 text-purple-800 rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0">
+                        🛤️
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-purple-700">Fate Line</h4>
+                        <p className="text-gray-600 text-sm">Divine destiny, spiritual mission, and sacred purpose</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -282,7 +357,7 @@ export const PalmReader: React.FC = () => {
       
       <div className="mt-8 text-center text-sm text-gray-500">
         <p>For best results: Upload a clear, well-lit photo of your palm with fingers together.</p>
-        <p>Palmistry is an ancient art for self-reflection - your choices shape your destiny.</p>
+        <p>Divine palmistry reveals spiritual insights - your faith and choices shape your destiny.</p>
       </div>
     </div>
   );
