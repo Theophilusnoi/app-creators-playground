@@ -8,8 +8,6 @@ import { useVoiceService } from '@/hooks/useVoiceService';
 import { Camera, RotateCw, Scan, Hand } from 'lucide-react';
 
 export const PalmReader: React.FC = () => {
-  console.log('PalmReader component rendering...');
-  
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
   const [palmReading, setPalmReading] = useState('');
@@ -22,7 +20,6 @@ export const PalmReader: React.FC = () => {
   // Initialize camera
   const initCamera = async () => {
     try {
-      console.log('Initializing camera...');
       setCameraStatus('starting');
       
       // Clean up any existing stream
@@ -55,7 +52,6 @@ export const PalmReader: React.FC = () => {
         // Play video
         await videoRef.current.play();
         setCameraStatus('active');
-        console.log('Camera initialized successfully');
       }
     } catch (err) {
       console.error("Camera error:", err);
@@ -79,7 +75,6 @@ export const PalmReader: React.FC = () => {
       return;
     }
     
-    console.log('Starting palm scan...');
     setIsScanning(true);
     setScanProgress(0);
     setPalmReading('');
@@ -103,7 +98,6 @@ export const PalmReader: React.FC = () => {
 
   // Simulate palm analysis
   const simulatePalmAnalysis = () => {
-    console.log('Simulating palm analysis...');
     // Simulate scanning process
     const interval = setInterval(() => {
       setScanProgress(prev => {
@@ -120,7 +114,6 @@ export const PalmReader: React.FC = () => {
 
   // Generate palm reading
   const generatePalmReading = () => {
-    console.log('Generating palm reading...');
     // In a real app, this would come from an AI API
     const mockReadings = [
       "Your heart line is long and clear, indicating deep emotional connections and a capacity for meaningful relationships.",
@@ -151,7 +144,6 @@ export const PalmReader: React.FC = () => {
 
   // Initialize camera on mount
   useEffect(() => {
-    console.log('PalmReader useEffect running...');
     initCamera();
     
     return () => {
@@ -160,8 +152,6 @@ export const PalmReader: React.FC = () => {
       }
     };
   }, []);
-
-  console.log('About to render PalmReader JSX...');
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4">
