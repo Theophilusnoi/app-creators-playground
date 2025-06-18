@@ -1,56 +1,34 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useVoiceService } from '@/hooks/useVoiceService';
-import { Scan, RotateCw, Camera } from 'lucide-react';
-
-interface PalmLine {
-  id: string;
-  name: string;
-  description: string;
-}
-
-const palmLines: PalmLine[] = [
-  { id: 'life', name: 'Life Line', description: 'Represents vitality and life journey' },
-  { id: 'heart', name: 'Heart Line', description: 'Shows emotional nature and relationships' },
-  { id: 'head', name: 'Head Line', description: 'Indicates intellect and thinking style' },
-  { id: 'fate', name: 'Fate Line', description: 'Reveals career path and life direction' },
-  { id: 'sun', name: 'Sun Line', description: 'Relates to creativity and success' },
-];
-
-const mockReadings = [
-  "Your heart line is long and clear, indicating deep emotional connections and a capacity for lasting love.",
-  "The head line shows creativity and strong problem-solving abilities, suggesting an analytical yet intuitive mind.",
-  "Your life line suggests vitality and resilience, with potential for a long and fulfilling journey.",
-  "The fate line indicates a path with significant changes and opportunities for growth and transformation.",
-  "You have a square palm, which suggests practicality and a down-to-earth nature with strong leadership qualities."
-];
-
-type CameraStatus = 'inactive' | 'starting' | 'active' | 'error';
+import { Scan, RotateCw, Camera, Hand } from 'lucide-react';
 
 export const PalmReader: React.FC = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
   const [palmReading, setPalmReading] = useState('');
-  const [cameraStatus, setCameraStatus] = useState<CameraStatus>('inactive');
+  const [cameraStatus, setCameraStatus] = useState<'inactive' | 'starting' | 'active' | 'error'>('inactive');
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const { toast } = useToast();
   const { generateAndPlay } = useVoiceService();
-
+  
+  // Initialize camera
   const initCamera = async () => {
     try {
-      console.log('Initializing camera...');
       setCameraStatus('starting');
       
-      // Stop any existing stream
+      // Clean up any existing stream
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
         streamRef.current = null;
       }
       
+      // Request camera access
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { 
           facingMode: 'environment',
@@ -59,172 +37,137 @@ export const PalmReader: React.FC = () => {
         } 
       });
       
-      console.log('Camera stream obtained successfully');
       streamRef.current = stream;
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         
-        // Use Promise-based approach for more reliable video loading
-        const videoElement = videoRef.current;
-        
-        await new Promise<void>((resolve, reject) => {
-          const timeout = setTimeout(() => {
-            reject(new Error('Video loading timeout'));
-          }, 10000); // 10 second timeout
-          
-          const onLoadedMetadata = () => {
-            console.log('Video metadata loaded');
-            clearTimeout(timeout);
-            videoElement.removeEventListener('loadedmetadata', onLoadedMetadata);
-            videoElement.removeEventListener('error', onError);
-            resolve();
-          };
-          
-          const onError = (e: Event) => {
-            console.error('Video error:', e);
-            clearTimeout(timeout);
-            videoElement.removeEventListener('loadedmetadata', onLoadedMetadata);
-            videoElement.removeEventListener('error', onError);
-            reject(new Error('Video loading failed'));
-          };
-          
-          videoElement.addEventListener('loadedmetadata', onLoadedMetadata);
-          videoElement.addEventListener('error', onError);
+        // Wait for video to load metadata
+        await new Promise((resolve) => {
+          if (videoRef.current) {
+            videoRef.current.onloadedmetadata = resolve;
+          }
         });
         
-        // Play the video
+        // Play video
         await videoRef.current.play();
-        console.log('Camera successfully activated');
         setCameraStatus('active');
       }
     } catch (err) {
       console.error("Camera error:", err);
       setCameraStatus('error');
-      
-      let errorMessage = "Could not access camera. ";
-      if (err instanceof Error) {
-        if (err.message.includes('Permission denied') || err.name === 'NotAllowedError') {
-          errorMessage += "Please allow camera permissions and try again.";
-        } else if (err.message.includes('timeout')) {
-          errorMessage += "Camera took too long to initialize. Please try again.";
-        } else {
-          errorMessage += "Please check camera availability and try again.";
-        }
-      }
-      
       toast({
-        title: "Camera Error",
-        description: errorMessage,
+        title: "Camera Access Required",
+        description: "Please enable camera permissions in your browser settings.",
         variant: "destructive"
       });
     }
   };
 
-  const stopCamera = () => {
-    console.log('Stopping camera...');
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
-    }
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
-    }
-    setCameraStatus('inactive');
-  };
-
-  const startPalmScan = () => {
+  // Start palm scanning
+  const startPalmScan = async () => {
     if (cameraStatus !== 'active') {
       toast({
         title: "Camera Not Ready",
-        description: "Please wait for camera to initialize completely.",
+        description: "Please wait for camera to initialize",
         variant: "destructive"
       });
       return;
     }
     
-    console.log('Starting palm scan...');
     setIsScanning(true);
     setScanProgress(0);
     setPalmReading('');
     
-    const interval = setInterval(() => {
-      setScanProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          analyzePalm();
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 500);
+    // Capture frame from video
+    const canvas = document.createElement('canvas');
+    const video = videoRef.current;
+    if (video) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        // In a real app, this image would be sent to an AI API
+        // For now, we'll simulate processing
+        simulatePalmAnalysis();
+      }
+    }
   };
 
-  const analyzePalm = () => {
+  // Simulate palm analysis
+  const simulatePalmAnalysis = () => {
+    // Simulate scanning process
+    const interval = setInterval(() => {
+      setScanProgress(prev => {
+        const newProgress = prev + 5;
+        if (newProgress >= 100) {
+          clearInterval(interval);
+          generatePalmReading();
+          return 100;
+        }
+        return newProgress;
+      });
+    }, 200);
+  };
+
+  // Generate palm reading
+  const generatePalmReading = () => {
+    // In a real app, this would come from an AI API
+    const mockReadings = [
+      "Your heart line is long and clear, indicating deep emotional connections and a capacity for meaningful relationships.",
+      "The head line shows creativity and strong problem-solving abilities, suggesting you approach challenges with innovative thinking.",
+      "Your life line suggests vitality and resilience, indicating you have the energy to overcome obstacles and pursue your goals.",
+      "The fate line reveals a path with significant changes and opportunities, suggesting you're entering a transformative period.",
+      "You have a square palm shape which indicates a practical, down-to-earth nature and strong organizational skills.",
+      "The Apollo line is prominent, suggesting potential for recognition and success in creative endeavors.",
+      "Your Mercury line shows strong communication skills and potential for success in business or teaching.",
+      "The Venus mount is well-developed, indicating a passionate nature and appreciation for life's pleasures."
+    ];
+    
+    // Generate a reading
     const reading = mockReadings[Math.floor(Math.random() * mockReadings.length)];
     setPalmReading(reading);
     setIsScanning(false);
     
+    toast({
+      title: "Reading Complete",
+      description: "Your palm analysis is ready",
+    });
+
     generateAndPlay({
       text: `Your palm reading reveals: ${reading}. This suggests a path of growth and discovery.`,
       emotion: 'compassionate'
     });
   };
 
+  // Initialize camera on mount
   useEffect(() => {
-    // Auto-initialize camera on component mount
     initCamera();
     
     return () => {
-      stopCamera();
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
     };
   }, []);
-
-  const getCameraStatusText = () => {
-    switch (cameraStatus) {
-      case 'starting': return 'Starting camera...';
-      case 'active': return 'Camera active';
-      case 'error': return 'Camera error - click to retry';
-      default: return 'Camera not active';
-    }
-  };
-
-  const getCameraStatusColor = () => {
-    switch (cameraStatus) {
-      case 'starting': return 'text-yellow-400';
-      case 'active': return 'text-green-400';
-      case 'error': return 'text-red-400';
-      default: return 'text-purple-400';
-    }
-  };
 
   return (
     <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="flex items-center gap-3 text-white">
-          <Scan className="text-purple-400" />
-          Palmistry Analysis
-          <div className={`ml-auto text-sm ${getCameraStatusColor()}`}>
-            {getCameraStatusText()}
-          </div>
+          <Hand className="text-purple-400" />
+          Sacred Palm Reader
         </CardTitle>
       </CardHeader>
       
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Camera Section */}
           <div className="space-y-4">
             <div className="border-2 border-dashed border-purple-500/50 rounded-lg aspect-square relative overflow-hidden bg-black/20">
-              {isScanning ? (
-                <div className="w-full h-full flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="animate-pulse mb-4">
-                      <Scan size={48} className="text-purple-400 mx-auto" />
-                    </div>
-                    <Progress value={scanProgress} className="w-full max-w-xs mx-auto mb-2" />
-                    <p className="text-purple-300">Scanning your palm...</p>
-                  </div>
-                </div>
-              ) : cameraStatus === 'active' ? (
+              {cameraStatus === 'active' ? (
                 <>
                   <video 
                     ref={videoRef} 
@@ -233,104 +176,193 @@ export const PalmReader: React.FC = () => {
                     muted
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="border-4 border-white/50 border-dashed rounded-full w-64 h-64" />
-                  </div>
+                  {!isScanning && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div className="border-4 border-white border-dashed rounded-full w-64 h-64 animate-pulse" />
+                      <div className="absolute text-white font-semibold text-center">
+                        Position your palm here
+                      </div>
+                    </div>
+                  )}
                 </>
               ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <div className="text-center text-purple-300">
-                    <Camera size={48} className={`mx-auto mb-2 ${getCameraStatusColor()}`} />
-                    <p className="mb-4">{getCameraStatusText()}</p>
-                    {cameraStatus === 'starting' && (
-                      <div className="animate-pulse">
-                        <RotateCw className="animate-spin mx-auto" size={24} />
-                      </div>
+                <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center">
+                  <div className="bg-purple-100/20 rounded-full p-4 mb-4">
+                    {cameraStatus === 'error' ? (
+                      <Camera size={48} className="text-red-400" />
+                    ) : cameraStatus === 'starting' ? (
+                      <RotateCw className="animate-spin" size={48} className="text-purple-400" />
+                    ) : (
+                      <Camera size={48} className="text-purple-400" />
                     )}
                   </div>
+                  
+                  <h3 className="text-xl font-semibold mb-2 text-white">
+                    {cameraStatus === 'error' 
+                      ? 'Camera Access Required' 
+                      : cameraStatus === 'starting'
+                      ? 'Starting Camera...'
+                      : 'Camera Ready'}
+                  </h3>
+                  
+                  <p className="text-purple-200 mb-4">
+                    {cameraStatus === 'error'
+                      ? 'Please enable camera permissions to use palm scanning'
+                      : cameraStatus === 'starting'
+                      ? 'Initializing divine vision technology'
+                      : 'Click to start camera'}
+                  </p>
+                  
+                  {cameraStatus !== 'starting' && (
+                    <Button 
+                      onClick={initCamera}
+                      className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                    >
+                      <RotateCw className="mr-2" size={16} />
+                      {cameraStatus === 'error' ? 'Retry Camera' : 'Start Camera'}
+                    </Button>
+                  )}
+                </div>
+              )}
+              
+              {isScanning && (
+                <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center">
+                  <div className="animate-pulse mb-4">
+                    <Scan size={48} className="text-white mx-auto" />
+                  </div>
+                  <div className="w-full max-w-xs mx-auto">
+                    <Progress value={scanProgress} className="bg-white/20 h-3" />
+                    <p className="mt-3 text-white text-center">
+                      Scanning palm lines... {scanProgress}%
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
             
-            <div className="space-y-2">
-              {(cameraStatus === 'inactive' || cameraStatus === 'error') && (
-                <Button
-                  onClick={initCamera}
-                  disabled={false}
-                  className="w-full bg-purple-600 hover:bg-purple-700 text-white"
-                >
-                  <Camera className="mr-2" size={16} />
-                  {cameraStatus === 'error' ? 'Retry Camera' : 'Start Camera'}
-                </Button>
+            <Button
+              onClick={startPalmScan}
+              disabled={isScanning || cameraStatus !== 'active'}
+              className={`w-full ${
+                cameraStatus === 'active' && !isScanning
+                  ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white'
+                  : 'bg-gray-600 text-gray-300 cursor-not-allowed'
+              } py-6 text-lg font-semibold`}
+            >
+              {isScanning ? (
+                <span className="flex items-center justify-center">
+                  <RotateCw className="animate-spin mr-2" size={20} /> Scanning Palm
+                </span>
+              ) : (
+                <span className="flex items-center justify-center">
+                  <Scan className="mr-2" size={20} /> Scan My Palm
+                </span>
               )}
-              
-              {cameraStatus === 'active' && (
-                <Button
-                  onClick={stopCamera}
-                  className="w-full bg-red-600 hover:bg-red-700 text-white"
-                >
-                  <Camera className="mr-2" size={16} />
-                  Stop Camera
-                </Button>
-              )}
-              
-              <Button
-                onClick={startPalmScan}
-                disabled={isScanning || cameraStatus !== 'active'}
-                className={`w-full ${
-                  cameraStatus === 'active' && !isScanning
-                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white'
-                    : 'bg-gray-600 text-gray-300 cursor-not-allowed'
-                }`}
-              >
-                {isScanning ? (
-                  <>
-                    <RotateCw className="animate-spin mr-2" size={16} />
-                    Scanning
-                  </>
-                ) : (
-                  <>
-                    <Scan className="mr-2" size={16} />
-                    Scan My Palm
-                  </>
-                )}
-              </Button>
-              
-              {cameraStatus !== 'active' && !isScanning && (
-                <p className="text-xs text-purple-400 text-center">
-                  Camera must be active to scan
-                </p>
-              )}
-            </div>
+            </Button>
+            
+            {cameraStatus !== 'active' && !isScanning && (
+              <p className="text-xs text-purple-400 text-center">
+                Camera must be active to scan
+              </p>
+            )}
           </div>
           
+          {/* Results Section */}
           <div className="space-y-6">
-            <h3 className="font-semibold text-lg text-white">Palm Lines & Meanings</h3>
-            
-            <div className="space-y-3">
-              {palmLines.map(line => (
-                <div key={line.id} className="flex items-start p-3 bg-black/20 border border-purple-500/30 rounded-lg">
-                  <div className="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 flex-shrink-0 text-sm font-bold">
-                    {line.name.charAt(0)}
+            <div className="bg-black/20 border border-purple-500/30 rounded-lg p-5">
+              <h3 className="font-semibold text-lg text-white mb-4">
+                Palm Lines & Meanings
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="flex items-start">
+                  <div className="bg-purple-600 text-white rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0 text-sm">
+                    ❤️
                   </div>
                   <div>
-                    <h4 className="font-medium text-white">{line.name}</h4>
-                    <p className="text-sm text-purple-200">{line.description}</p>
+                    <h4 className="font-medium text-white">Heart Line</h4>
+                    <p className="text-purple-200 text-sm">Emotional nature, relationships, and heart health</p>
                   </div>
                 </div>
-              ))}
+                
+                <div className="flex items-start">
+                  <div className="bg-purple-600 text-white rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0 text-sm">
+                    🧠
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-white">Head Line</h4>
+                    <p className="text-purple-200 text-sm">Intellect, thinking style, and decision-making</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start">
+                  <div className="bg-purple-600 text-white rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0 text-sm">
+                    🌟
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-white">Life Line</h4>
+                    <p className="text-purple-200 text-sm">Vitality, life journey, and physical health</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start">
+                  <div className="bg-purple-600 text-white rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0 text-sm">
+                    🛤️
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-white">Fate Line</h4>
+                    <p className="text-purple-200 text-sm">Career path, life direction, and destiny</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start">
+                  <div className="bg-purple-600 text-white rounded-lg w-10 h-10 flex items-center justify-center mr-3 flex-shrink-0 text-sm">
+                    ☀️
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-white">Sun Line</h4>
+                    <p className="text-purple-200 text-sm">Creativity, success, and public recognition</p>
+                  </div>
+                </div>
+              </div>
             </div>
             
             {palmReading && (
-              <div className="mt-4 p-4 bg-gradient-to-br from-purple-900/50 to-indigo-900/50 rounded-lg border border-purple-500/30">
-                <h4 className="font-semibold text-purple-200 mb-2">Your Palm Reading</h4>
-                <p className="text-purple-100 leading-relaxed">{palmReading}</p>
-                <div className="mt-4 text-sm text-purple-300">
-                  <p>✨ Remember: Palmistry reveals possibilities, not certainties. Your choices shape your destiny.</p>
+              <div className="bg-gradient-to-br from-purple-900/50 to-indigo-900/50 rounded-lg border border-purple-500/30 p-6">
+                <h4 className="font-semibold text-purple-200 mb-2 flex items-center gap-2">
+                  <Scan size={18} /> Your Palm Reading
+                </h4>
+                <p className="text-purple-100 leading-relaxed mb-4 italic">"{palmReading}"</p>
+                
+                <div className="mt-4 p-4 bg-black/20 rounded-lg border border-purple-500/20">
+                  <h4 className="font-medium text-purple-200 mb-2">Interpretation Guidance</h4>
+                  <ul className="text-sm text-purple-300 space-y-1">
+                    <li>• Palmistry reveals potential, not fixed destiny</li>
+                    <li>• Lines can change over time as you grow</li>
+                    <li>• Use this insight as guidance, not prediction</li>
+                    <li>• Combine with meditation for deeper understanding</li>
+                  </ul>
                 </div>
               </div>
             )}
+            
+            {!palmReading && (
+              <div className="bg-gradient-to-br from-indigo-900/50 to-purple-900/50 rounded-lg p-8 text-center border border-indigo-500/30">
+                <div className="text-5xl mb-4">🔮</div>
+                <h3 className="font-semibold text-lg text-white mb-2">
+                  Awaiting Your Palm Scan
+                </h3>
+                <p className="text-purple-200">
+                  Scan your palm to receive a personalized reading based on ancient palmistry wisdom combined with modern spiritual insights.
+                </p>
+              </div>
+            )}
           </div>
+        </div>
+        
+        <div className="mt-8 text-center text-sm text-purple-400">
+          <p>For best results: Position your palm flat with fingers together in the scanning area under good lighting.</p>
+          <p>✨ Palmistry is an ancient art for self-reflection - your choices shape your destiny ✨</p>
         </div>
       </CardContent>
     </Card>
