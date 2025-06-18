@@ -5,7 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useVoiceService } from '@/hooks/useVoiceService';
 import { supabase } from '@/integrations/supabase/client';
-import { Scan, RotateCw, Camera, Video, VideoOff, RotateCcw, Upload } from 'lucide-react';
+import { Scan, RotateCw, Camera, Video, VideoOff, RotateCcw, Upload, AlertCircle } from 'lucide-react';
 
 interface PalmLine {
   id: string;
@@ -73,76 +73,292 @@ export const PalmReader: React.FC = () => {
   const [palmReading, setPalmReading] = useState<PalmAnalysis | null>(null);
   const [scanQuality, setScanQuality] = useState<number>(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  
-  // Get available camera devices
-  useEffect(() => {
-    const getCameras = async () => {
-      try {
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const cameras = devices.filter(device => device.kind === 'videoinput');
-        setCameraDevices(cameras);
-        if (cameras.length > 0) {
-          setSelectedCamera(cameras[0].deviceId);
-        }
-      } catch (err) {
-        console.error('Camera enumeration error:', err);
-      }
-    };
-    
-    getCameras();
-  }, []);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [permissionStatus, setPermissionStatus] = useState<'prompt' | 'granted' | 'denied' | 'unknown'>('unknown');
+  const [isRetrying, setIsRetrying] = useState(false);
 
-  // Start/stop camera based on state
-  useEffect(() => {
-    const startCamera = async () => {
-      if (!selectedCamera || !videoRef.current) return;
-      
-      try {
-        const constraints = {
-          video: { 
-            deviceId: { exact: selectedCamera },
-            facingMode: 'environment',
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          }
-        };
-        
-        const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-        videoRef.current.srcObject = mediaStream;
-        setStream(mediaStream);
-        setIsCameraActive(true);
-      } catch (err) {
-        console.error('Camera access error:', err);
-        toast({
-          title: 'Camera Error',
-          description: 'Could not access the camera',
-          variant: 'destructive',
-        });
-        setIsCameraActive(false);
+  // Check camera permissions
+  const checkCameraPermission = async () => {
+    try {
+      console.log('🔍 Checking camera permissions...');
+      if (navigator.permissions) {
+        const permission = await navigator.permissions.query({ name: 'camera' as PermissionName });
+        console.log('📹 Camera permission status:', permission.state);
+        setPermissionStatus(permission.state as any);
+        return permission.state === 'granted';
       }
-    };
+      return false;
+    } catch (err) {
+      console.warn('⚠️ Permission check failed:', err);
+      setPermissionStatus('unknown');
+      return false;
+    }
+  };
+
+  // Get available camera devices with improved error handling
+  const getCameraDevices = async () => {
+    try {
+      console.log('📱 Getting camera devices...');
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const cameras = devices.filter(device => device.kind === 'videoinput');
+      console.log('📹 Found cameras:', cameras.length, cameras.map(c => c.label || 'Unknown Camera'));
+      
+      setCameraDevices(cameras);
+      if (cameras.length > 0 && !selectedCamera) {
+        // Prefer back camera if available
+        const backCamera = cameras.find(camera => 
+          camera.label.toLowerCase().includes('back') || 
+          camera.label.toLowerCase().includes('rear') ||
+          camera.label.toLowerCase().includes('environment')
+        );
+        setSelectedCamera(backCamera?.deviceId || cameras[0].deviceId);
+      }
+      return cameras;
+    } catch (err) {
+      console.error('❌ Camera enumeration error:', err);
+      setCameraError('Unable to detect camera devices. Please check your camera permissions.');
+      toast({
+        title: 'Camera Detection Failed',
+        description: 'Could not detect available cameras. Please check permissions.',
+        variant: 'destructive',
+      });
+      return [];
+    }
+  };
+
+  // Enhanced camera startup with multiple fallback strategies
+  const startCamera = async (retryAttempt = 0) => {
+    if (!selectedCamera || !videoRef.current) {
+      console.warn('⚠️ No camera selected or video ref missing');
+      return false;
+    }
     
-    const stopCamera = () => {
+    try {
+      console.log(`🎥 Starting camera attempt ${retryAttempt + 1}...`);
+      setCameraError(null);
+      
+      // Stop existing stream
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
         setStream(null);
       }
-      if (videoRef.current) {
-        videoRef.current.srcObject = null;
+      
+      // Progressive constraint fallback strategy
+      const constraintOptions = [
+        // High quality with specific device
+        {
+          video: {
+            deviceId: { exact: selectedCamera },
+            facingMode: 'environment',
+            width: { ideal: 1280, min: 640 },
+            height: { ideal: 720, min: 480 }
+          }
+        },
+        // Medium quality with device preference
+        {
+          video: {
+            deviceId: selectedCamera,
+            width: { ideal: 1024, min: 480 },
+            height: { ideal: 576, min: 360 }
+          }
+        },
+        // Basic quality with device preference
+        {
+          video: {
+            deviceId: selectedCamera,
+            width: 640,
+            height: 480
+          }
+        },
+        // Fallback to any camera
+        {
+          video: {
+            facingMode: 'environment',
+            width: 640,
+            height: 480
+          }
+        },
+        // Ultimate fallback
+        {
+          video: true
+        }
+      ];
+
+      let mediaStream: MediaStream | null = null;
+      let lastError: Error | null = null;
+
+      for (let i = 0; i < constraintOptions.length; i++) {
+        try {
+          console.log(`📹 Trying constraint option ${i + 1}:`, constraintOptions[i]);
+          mediaStream = await navigator.mediaDevices.getUserMedia(constraintOptions[i]);
+          console.log('✅ Camera stream acquired successfully');
+          break;
+        } catch (err) {
+          console.warn(`⚠️ Constraint option ${i + 1} failed:`, err);
+          lastError = err as Error;
+          continue;
+        }
       }
+
+      if (!mediaStream) {
+        throw lastError || new Error('All camera constraint options failed');
+      }
+
+      // Setup video stream
+      videoRef.current.srcObject = mediaStream;
+      setStream(mediaStream);
+      
+      // Wait for video to be ready
+      await new Promise<void>((resolve, reject) => {
+        if (!videoRef.current) {
+          reject(new Error('Video element not available'));
+          return;
+        }
+        
+        const video = videoRef.current;
+        const timeoutId = setTimeout(() => {
+          reject(new Error('Video loading timeout'));
+        }, 10000);
+        
+        video.onloadedmetadata = () => {
+          clearTimeout(timeoutId);
+          console.log('📹 Video metadata loaded, dimensions:', video.videoWidth, 'x', video.videoHeight);
+          resolve();
+        };
+        
+        video.onerror = () => {
+          clearTimeout(timeoutId);
+          reject(new Error('Video loading error'));
+        };
+      });
+
+      await videoRef.current.play();
+      setIsCameraActive(true);
+      setPermissionStatus('granted');
+      
+      toast({
+        title: "Camera Ready",
+        description: "Divine vision activated - ready to scan your palm",
+      });
+      
+      return true;
+    } catch (err) {
+      console.error(`❌ Camera start error (attempt ${retryAttempt + 1}):`, err);
+      
+      const error = err as Error;
+      let errorMessage = 'Camera access failed';
+      
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        errorMessage = 'Camera permission denied. Please allow camera access and try again.';
+        setPermissionStatus('denied');
+      } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+        errorMessage = 'No camera found. Please connect a camera device.';
+      } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+        errorMessage = 'Camera is already in use by another application.';
+      } else if (error.name === 'OverconstrainedError' || error.name === 'ConstraintNotSatisfiedError') {
+        errorMessage = 'Camera does not support the required settings.';
+      } else if (error.message.includes('timeout')) {
+        errorMessage = 'Camera startup timeout. Please try again.';
+      }
+      
+      setCameraError(errorMessage);
       setIsCameraActive(false);
+      
+      // Retry logic for certain errors
+      if (retryAttempt < 2 && !error.name.includes('NotAllowed') && !error.name.includes('PermissionDenied')) {
+        console.log(`🔄 Retrying camera start in 1 second... (attempt ${retryAttempt + 2})`);
+        setTimeout(() => startCamera(retryAttempt + 1), 1000);
+        return false;
+      }
+      
+      toast({
+        title: 'Camera Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+      
+      return false;
+    }
+  };
+
+  // Stop camera with cleanup
+  const stopCamera = () => {
+    console.log('🛑 Stopping camera...');
+    if (stream) {
+      stream.getTracks().forEach(track => {
+        console.log('🔒 Stopping track:', track.kind, track.label);
+        track.stop();
+      });
+      setStream(null);
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setIsCameraActive(false);
+    setCameraError(null);
+  };
+
+  // Initialize camera devices on component mount
+  useEffect(() => {
+    const initializeCameras = async () => {
+      console.log('🚀 Initializing camera system...');
+      await checkCameraPermission();
+      await getCameraDevices();
     };
     
-    if (isCameraActive) {
-      startCamera();
-    } else {
-      stopCamera();
-    }
+    initializeCameras();
     
     return () => {
       stopCamera();
     };
-  }, [isCameraActive, selectedCamera, toast]);
+  }, []);
+
+  // Handle camera toggle
+  const toggleCamera = async () => {
+    if (isCameraActive) {
+      stopCamera();
+    } else {
+      setIsRetrying(true);
+      const hasPermission = await checkCameraPermission();
+      if (!hasPermission && permissionStatus === 'denied') {
+        toast({
+          title: 'Camera Permission Required',
+          description: 'Please enable camera permissions in your browser settings and refresh the page.',
+          variant: 'destructive',
+        });
+        setIsRetrying(false);
+        return;
+      }
+      
+      const devices = await getCameraDevices();
+      if (devices.length === 0) {
+        setIsRetrying(false);
+        return;
+      }
+      
+      await startCamera();
+      setIsRetrying(false);
+    }
+  };
+
+  // Switch to next camera
+  const switchCamera = async () => {
+    if (cameraDevices.length < 2) return;
+    
+    console.log('🔄 Switching camera...');
+    const currentIndex = cameraDevices.findIndex(device => device.deviceId === selectedCamera);
+    const nextIndex = (currentIndex + 1) % cameraDevices.length;
+    const newCameraId = cameraDevices[nextIndex].deviceId;
+    
+    console.log('📹 Switching from camera', currentIndex, 'to camera', nextIndex);
+    setSelectedCamera(newCameraId);
+    
+    // Restart camera with new selection
+    if (isCameraActive) {
+      stopCamera();
+      setTimeout(() => startCamera(), 500);
+    }
+  };
 
   // Handle image upload
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -282,26 +498,6 @@ export const PalmReader: React.FC = () => {
     }
   };
 
-  // Toggle camera on/off
-  const toggleCamera = () => {
-    setIsCameraActive(!isCameraActive);
-  };
-
-  // Switch to next camera
-  const switchCamera = () => {
-    if (cameraDevices.length < 2) return;
-    
-    const currentIndex = cameraDevices.findIndex(device => device.deviceId === selectedCamera);
-    const nextIndex = (currentIndex + 1) % cameraDevices.length;
-    setSelectedCamera(cameraDevices[nextIndex].deviceId);
-    
-    // Restart camera with new selection
-    if (isCameraActive) {
-      setIsCameraActive(false);
-      setTimeout(() => setIsCameraActive(true), 100);
-    }
-  };
-
   // Reset scanner
   const resetScanner = () => {
     setCapturedImage(null);
@@ -337,14 +533,21 @@ export const PalmReader: React.FC = () => {
                 variant={isCameraActive ? "destructive" : "secondary"} 
                 size="icon"
                 onClick={toggleCamera}
+                disabled={isRetrying}
               >
-                {isCameraActive ? <VideoOff size={20} /> : <Video size={20} />}
+                {isRetrying ? (
+                  <RotateCw className="animate-spin" size={20} />
+                ) : isCameraActive ? (
+                  <VideoOff size={20} />
+                ) : (
+                  <Video size={20} />
+                )}
               </Button>
               <Button 
                 variant="secondary" 
                 size="icon"
                 onClick={switchCamera}
-                disabled={cameraDevices.length < 2}
+                disabled={cameraDevices.length < 2 || !isCameraActive}
                 title={`Switch camera (${cameraDevices.length} available)`}
               >
                 <RotateCcw size={20} />
@@ -357,6 +560,13 @@ export const PalmReader: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Camera Preview Section */}
             <div className="relative bg-black rounded-xl overflow-hidden border-2 border-indigo-500">
+              {cameraError && (
+                <div className="absolute top-2 left-2 right-2 z-10 bg-red-900/90 backdrop-blur-sm text-white p-2 rounded-lg text-sm flex items-center">
+                  <AlertCircle className="mr-2 flex-shrink-0" size={16} />
+                  <span>{cameraError}</span>
+                </div>
+              )}
+              
               <video 
                 ref={videoRef} 
                 autoPlay 
@@ -368,7 +578,19 @@ export const PalmReader: React.FC = () => {
               {!isCameraActive && (
                 <div className="w-full h-64 flex flex-col items-center justify-center bg-gray-900">
                   <Camera className="text-gray-600 w-16 h-16 mb-4" />
-                  <p className="text-gray-500 mb-4">Camera is disabled</p>
+                  {permissionStatus === 'denied' ? (
+                    <div className="text-center">
+                      <p className="text-gray-500 mb-2">Camera permission denied</p>
+                      <p className="text-sm text-gray-600 mb-4">Please allow camera access in your browser</p>
+                    </div>
+                  ) : cameraError ? (
+                    <div className="text-center">
+                      <p className="text-red-400 mb-2">Camera Error</p>
+                      <p className="text-sm text-gray-600 mb-4">Please check camera availability</p>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 mb-4">Camera is disabled</p>
+                  )}
                   
                   {/* Upload option when camera is off */}
                   <div className="text-center">
@@ -542,6 +764,9 @@ export const PalmReader: React.FC = () => {
       <div className="mt-8 text-center text-sm text-gray-500">
         <p>For best results: Use a clear, well-lit photo of your palm with fingers together.</p>
         <p>Divine palmistry reveals spiritual insights - your faith and choices shape your destiny.</p>
+        {cameraDevices.length > 0 && (
+          <p className="mt-2">📹 {cameraDevices.length} camera{cameraDevices.length > 1 ? 's' : ''} detected</p>
+        )}
       </div>
     </div>
   );
