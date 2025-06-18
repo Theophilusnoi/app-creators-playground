@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,11 +28,13 @@ const mockReadings = [
   "You have a square palm, which suggests practicality and a down-to-earth nature with strong leadership qualities."
 ];
 
+type CameraStatus = 'inactive' | 'starting' | 'active' | 'error';
+
 export const PalmReader: React.FC = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
   const [palmReading, setPalmReading] = useState('');
-  const [cameraStatus, setCameraStatus] = useState<'inactive' | 'starting' | 'active' | 'error'>('inactive');
+  const [cameraStatus, setCameraStatus] = useState<CameraStatus>('inactive');
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const { toast } = useToast();
@@ -255,7 +256,7 @@ export const PalmReader: React.FC = () => {
               {(cameraStatus === 'inactive' || cameraStatus === 'error') && (
                 <Button
                   onClick={initCamera}
-                  disabled={cameraStatus === 'starting'}
+                  disabled={false}
                   className="w-full bg-purple-600 hover:bg-purple-700 text-white"
                 >
                   <Camera className="mr-2" size={16} />
