@@ -78,7 +78,7 @@ CREATE POLICY "Users can rate specialists" ON specialist_ratings
 CREATE POLICY "Users can view own sessions" ON emergency_sessions
   FOR SELECT USING (auth.uid() = user_id);
 
--- Function to get emergency metrics
+-- Function to get emergency metrics (already updated in previous migration)
 CREATE OR REPLACE FUNCTION get_emergency_metrics()
 RETURNS JSON AS $$
 DECLARE
@@ -86,20 +86,27 @@ DECLARE
 BEGIN
   SELECT json_build_object(
     'responseTimes', (
-      SELECT COALESCE(json_agg(json_build_object(
-        'timestamp', triggered_at,
-        'value', response_time_seconds
-      )), '[]'::json)
-      FROM spiritual_emergencies
-      WHERE response_time_seconds IS NOT NULL
-      ORDER BY triggered_at DESC
-      LIMIT 100
+      SELECT COALESCE(json_agg(
+        json_build_object(
+          'timestamp', triggered_at,
+          'value', response_time_seconds
+        )
+      ), '[]'::json)
+      FROM (
+        SELECT triggered_at, response_time_seconds
+        FROM spiritual_emergencies
+        WHERE response_time_seconds IS NOT NULL
+        ORDER BY triggered_at DESC
+        LIMIT 100
+      ) rt
     ),
     'traditionDistribution', (
-      SELECT COALESCE(json_agg(json_build_object(
-        'tradition', tradition,
-        'count', count
-      )), '[]'::json)
+      SELECT COALESCE(json_agg(
+        json_build_object(
+          'tradition', tradition,
+          'count', count
+        )
+      ), '[]'::json)
       FROM (
         SELECT tradition, COUNT(*) as count
         FROM spiritual_emergencies
@@ -108,15 +115,18 @@ BEGIN
       ) t
     ),
     'resolutionRates', (
-      SELECT COALESCE(json_agg(json_build_object(
-        'crisis_level', crisis_level,
-        'rate', resolution_rate
-      )), '[]'::json)
+      SELECT COALESCE(json_agg(
+        json_build_object(
+          'crisis_level', crisis_level,
+          'rate', resolution_rate
+        )
+      ), '[]'::json)
       FROM (
         SELECT 
           crisis_level,
           ROUND(100.0 * SUM(CASE WHEN resolved THEN 1 ELSE 0 END) / COUNT(*)) as resolution_rate
         FROM spiritual_emergencies
+        WHERE crisis_level IS NOT NULL
         GROUP BY crisis_level
       ) r
     ),
@@ -124,7 +134,9 @@ BEGIN
       SELECT COUNT(*) FROM spiritual_emergencies
     ),
     'averageResponseTime', (
-      SELECT ROUND(AVG(response_time_seconds)) FROM spiritual_emergencies WHERE response_time_seconds IS NOT NULL
+      SELECT COALESCE(ROUND(AVG(response_time_seconds)), 0) 
+      FROM spiritual_emergencies 
+      WHERE response_time_seconds IS NOT NULL
     )
   ) INTO result;
   
@@ -139,3 +151,30 @@ INSERT INTO specialists (name, email, credentials, traditions, languages, rating
 ('Rev. Michael Torres', 'michael@example.com', ARRAY['Ordained Minister', 'Deliverance Specialist'], ARRAY['christian'], ARRAY['en', 'es'], 4.7, false),
 ('Dr. Priya Sharma', 'priya@example.com', ARRAY['Ayurvedic Healer', 'Vedic Scholar'], ARRAY['hindu'], ARRAY['en', 'hi'], 4.6, true)
 ON CONFLICT (email) DO NOTHING;
+
+-- Insert sample emergency data for testing analytics
+-- Note: These use hardcoded UUIDs for testing - in production these would be real user IDs
+INSERT INTO spiritual_emergencies (
+  user_id, 
+  triggered_at, 
+  resolved_at, 
+  crisis_level, 
+  crisis_type, 
+  protocol_used, 
+  tradition, 
+  human_specialist_involved, 
+  response_time_seconds, 
+  resolved
+) VALUES
+-- Recent emergencies with various traditions and crisis levels
+('00000000-0000-0000-0000-000000000001', NOW() - INTERVAL '2 hours', NOW() - INTERVAL '1 hour', 1, 'anxiety', 'breathing_protocol', 'christian', false, 45, true),
+('00000000-0000-0000-0000-000000000002', NOW() - INTERVAL '4 hours', NOW() - INTERVAL '3 hours', 2, 'spiritual_attack', 'protection_protocol', 'buddhist', true, 120, true),
+('00000000-0000-0000-0000-000000000003', NOW() - INTERVAL '6 hours', NOW() - INTERVAL '5 hours', 1, 'meditation_overwhelm', 'grounding_protocol', 'hindu', false, 30, true),
+('00000000-0000-0000-0000-000000000004', NOW() - INTERVAL '8 hours', NULL, 3, 'possession_symptoms', 'emergency_protocol', 'christian', true, 180, false),
+('00000000-0000-0000-0000-000000000005', NOW() - INTERVAL '12 hours', NOW() - INTERVAL '11 hours', 2, 'dark_night_soul', 'counseling_protocol', 'eclectic', true, 90, true),
+('00000000-0000-0000-0000-000000000006', NOW() - INTERVAL '1 day', NOW() - INTERVAL '23 hours', 1, 'energy_overwhelm', 'shielding_protocol', 'buddhist', false, 60, true),
+('00000000-0000-0000-0000-000000000007', NOW() - INTERVAL '2 days', NOW() - INTERVAL '47 hours', 2, 'astral_projection_stuck', 'retrieval_protocol', 'hindu', true, 150, true),
+('00000000-0000-0000-0000-000000000008', NOW() - INTERVAL '3 days', NOW() - INTERVAL '71 hours', 1, 'chakra_imbalance', 'balancing_protocol', 'eclectic', false, 40, true),
+('00000000-0000-0000-0000-000000000009', NOW() - INTERVAL '5 days', NOW() - INTERVAL '4 days 22 hours', 3, 'entity_attachment', 'banishing_protocol', 'christian', true, 240, true),
+('00000000-0000-0000-0000-000000000010', NOW() - INTERVAL '1 week', NOW() - INTERVAL '6 days 23 hours', 2, 'psychic_overload', 'blocking_protocol', 'buddhist', false, 75, true)
+ON CONFLICT DO NOTHING;
