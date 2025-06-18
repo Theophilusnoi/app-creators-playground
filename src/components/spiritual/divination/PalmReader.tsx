@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,7 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useVoiceService } from '@/hooks/useVoiceService';
 import { supabase } from '@/integrations/supabase/client';
-import { Scan, RotateCw, Camera, Video, VideoOff, CameraSwitch, Upload } from 'lucide-react';
+import { Scan, RotateCw, Camera, Video, VideoOff, RotateCcw, Upload } from 'lucide-react';
 
 interface PalmLine {
   id: string;
@@ -348,7 +347,7 @@ export const PalmReader: React.FC = () => {
                 disabled={cameraDevices.length < 2}
                 title={`Switch camera (${cameraDevices.length} available)`}
               >
-                <CameraSwitch size={20} />
+                <RotateCcw size={20} />
               </Button>
             </div>
           </CardTitle>
