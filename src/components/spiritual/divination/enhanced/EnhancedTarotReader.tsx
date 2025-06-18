@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -84,7 +83,7 @@ export const EnhancedTarotReader: React.FC = () => {
       const cardNames = selectedCards.map(c => c.name).join(', ');
       generateAndPlay({
         text: `Your sacred tarot reading reveals ${cardNames}. The divine has spoken through these powerful cards about your spiritual journey.`,
-        emotion: 'mystical'
+        emotion: 'compassionate'
       });
     }, 3000);
   };
