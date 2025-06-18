@@ -1,99 +1,44 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useVoiceService } from '@/hooks/useVoiceService';
-import { Camera, RotateCw, Scan, Hand } from 'lucide-react';
+import { Scan, Hand, Upload } from 'lucide-react';
 
 export const PalmReader: React.FC = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
   const [palmReading, setPalmReading] = useState('');
-  const [cameraStatus, setCameraStatus] = useState<'inactive' | 'starting' | 'active' | 'error'>('inactive');
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const { toast } = useToast();
   const { generateAndPlay } = useVoiceService();
-  
-  // Initialize camera
-  const initCamera = async () => {
-    try {
-      setCameraStatus('starting');
-      
-      // Clean up any existing stream
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-        streamRef.current = null;
-      }
-      
-      // Request camera access
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-          facingMode: 'environment',
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        } 
-      });
-      
-      streamRef.current = stream;
-      
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        
-        // Wait for video to load metadata
-        await new Promise((resolve) => {
-          if (videoRef.current) {
-            videoRef.current.onloadedmetadata = resolve;
-          }
+
+  // Handle image upload
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setUploadedImage(e.target?.result as string);
+        toast({
+          title: "Image Uploaded",
+          description: "Your palm image is ready for analysis",
         });
-        
-        // Play video
-        await videoRef.current.play();
-        setCameraStatus('active');
-      }
-    } catch (err) {
-      console.error("Camera error:", err);
-      setCameraStatus('error');
-      toast({
-        title: "Camera Access Required",
-        description: "Please enable camera permissions in your browser settings.",
-        variant: "destructive"
-      });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  // Start palm scanning
-  const startPalmScan = async () => {
-    if (cameraStatus !== 'active') {
-      toast({
-        title: "Camera Not Ready",
-        description: "Please wait for camera to initialize",
-        variant: "destructive"
-      });
-      return;
-    }
-    
+  // Start palm analysis (no camera required)
+  const startPalmAnalysis = async () => {
     setIsScanning(true);
     setScanProgress(0);
     setPalmReading('');
     
-    // Capture frame from video
-    const canvas = document.createElement('canvas');
-    const video = videoRef.current;
-    if (video) {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-        // In a real app, this image would be sent to an AI API
-        // For now, we'll simulate processing
-        simulatePalmAnalysis();
-      }
-    }
+    // Simulate analysis process
+    simulatePalmAnalysis();
   };
 
   // Simulate palm analysis
@@ -114,7 +59,7 @@ export const PalmReader: React.FC = () => {
 
   // Generate palm reading
   const generatePalmReading = () => {
-    // In a real app, this would come from an AI API
+    // Mock readings for palm analysis
     const mockReadings = [
       "Your heart line is long and clear, indicating deep emotional connections and a capacity for meaningful relationships.",
       "The head line shows creativity and strong problem-solving abilities, suggesting you approach challenges with innovative thinking.",
@@ -142,17 +87,6 @@ export const PalmReader: React.FC = () => {
     });
   };
 
-  // Initialize camera on mount
-  useEffect(() => {
-    initCamera();
-    
-    return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
-    };
-  }, []);
-
   return (
     <div className="w-full max-w-4xl mx-auto p-4">
       <div className="text-center mb-8">
@@ -175,88 +109,76 @@ export const PalmReader: React.FC = () => {
         
         <CardContent className="p-4 md:p-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Camera Section */}
+            {/* Upload Section */}
             <div className="space-y-6">
               <div className="aspect-square bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl border-2 border-dashed border-purple-300 relative overflow-hidden">
-                {cameraStatus === 'active' ? (
-                  <>
-                    <video 
-                      ref={videoRef} 
-                      autoPlay 
-                      playsInline 
-                      muted
-                      className="w-full h-full object-cover"
+                {uploadedImage ? (
+                  <div className="w-full h-full relative">
+                    <img 
+                      src={uploadedImage} 
+                      alt="Uploaded palm" 
+                      className="w-full h-full object-cover rounded-xl"
                     />
-                    {!isScanning && (
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className="border-4 border-white border-dashed rounded-full w-64 h-64 animate-pulse" />
-                        <div className="absolute text-white font-semibold text-center">
-                          Position your palm here
+                    {isScanning && (
+                      <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center">
+                        <div className="animate-pulse mb-4">
+                          <Scan size={48} className="text-white mx-auto" />
+                        </div>
+                        <div className="w-full max-w-xs mx-auto">
+                          <Progress value={scanProgress} className="bg-white/20 h-3" />
+                          <p className="mt-3 text-white text-center">
+                            Analyzing palm lines... {scanProgress}%
+                          </p>
                         </div>
                       </div>
                     )}
-                  </>
+                  </div>
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center">
                     <div className="bg-purple-100 rounded-full p-4 mb-4">
-                      {cameraStatus === 'error' ? (
-                        <Camera size={48} className="text-red-500" />
-                      ) : (
-                        <Camera size={48} className="text-purple-500" />
-                      )}
+                      <Upload size={48} className="text-purple-500" />
                     </div>
                     
                     <h3 className="text-xl font-semibold mb-2 text-purple-800">
-                      {cameraStatus === 'error' 
-                        ? 'Camera Access Required' 
-                        : 'Starting Camera...'}
+                      Upload Palm Image
                     </h3>
                     
                     <p className="text-gray-600 mb-4">
-                      {cameraStatus === 'error'
-                        ? 'Please enable camera permissions to use palm scanning'
-                        : 'Initializing divine vision technology'}
+                      Upload a clear photo of your palm for divine analysis
                     </p>
                     
-                    <Button 
-                      onClick={initCamera}
-                      className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      id="palm-upload"
+                    />
+                    <label
+                      htmlFor="palm-upload"
+                      className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-3 rounded-lg cursor-pointer transition-colors"
                     >
-                      <RotateCw className="mr-2" size={16} />
-                      {cameraStatus === 'error' ? 'Retry Camera' : 'Start Camera'}
-                    </Button>
-                  </div>
-                )}
-                
-                {isScanning && (
-                  <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center">
-                    <div className="animate-pulse mb-4">
-                      <Scan size={48} className="text-white mx-auto" />
-                    </div>
-                    <div className="w-full max-w-xs mx-auto">
-                      <Progress value={scanProgress} className="bg-white/20 h-3" />
-                      <p className="mt-3 text-white text-center">
-                        Scanning palm lines... {scanProgress}%
-                      </p>
-                    </div>
+                      <Upload className="inline-block mr-2" size={16} />
+                      Choose Image
+                    </label>
                   </div>
                 )}
               </div>
               
               <Button
-                onClick={startPalmScan}
-                disabled={isScanning || cameraStatus !== 'active'}
+                onClick={startPalmAnalysis}
+                disabled={isScanning || !uploadedImage}
                 className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-6 text-lg font-semibold shadow-lg"
               >
                 {isScanning ? (
                   <span className="flex items-center justify-center">
-                    <RotateCw className="animate-spin mr-2" size={20} />
-                    Scanning Palm
+                    <Scan className="animate-spin mr-2" size={20} />
+                    Analyzing Palm
                   </span>
                 ) : (
                   <span className="flex items-center justify-center">
                     <Scan className="mr-2" size={20} />
-                    Scan My Palm
+                    Analyze My Palm
                   </span>
                 )}
               </Button>
@@ -346,10 +268,10 @@ export const PalmReader: React.FC = () => {
                 <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-8 text-center border border-indigo-200">
                   <div className="text-5xl mb-4">🔮</div>
                   <h3 className="font-semibold text-lg text-indigo-800 mb-2">
-                    Awaiting Your Palm Scan
+                    Ready for Palm Analysis
                   </h3>
                   <p className="text-gray-600">
-                    Scan your palm to receive a personalized reading based on ancient palmistry wisdom combined with modern spiritual insights.
+                    Upload a clear photo of your palm to receive a personalized reading based on ancient palmistry wisdom.
                   </p>
                 </div>
               )}
@@ -359,7 +281,7 @@ export const PalmReader: React.FC = () => {
       </Card>
       
       <div className="mt-8 text-center text-sm text-gray-500">
-        <p>For best results: Position your palm flat with fingers together in the scanning area under good lighting.</p>
+        <p>For best results: Upload a clear, well-lit photo of your palm with fingers together.</p>
         <p>Palmistry is an ancient art for self-reflection - your choices shape your destiny.</p>
       </div>
     </div>
