@@ -3,9 +3,10 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Star, Clock, Plus, Loader2, Trash2, Edit } from "lucide-react";
+import { Eye, Star, Clock, Plus, Loader2, Trash2, AlertCircle, RefreshCw } from "lucide-react";
 import { useSynchronicities } from '@/hooks/useSynchronicities';
 import { SynchronicityForm } from './SynchronicityForm';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 const synchronicityTypes = [
   { type: "Number Sequences", color: "bg-blue-500", examples: ["111", "222", "333", "11:11"] },
@@ -16,9 +17,17 @@ const synchronicityTypes = [
 ];
 
 export const SynchronicityDetector = () => {
-  const { synchronicities, loading, deleteSynchronicity } = useSynchronicities();
+  const { user } = useAuth();
+  const { synchronicities, loading, error, fetchSynchronicities, deleteSynchronicity } = useSynchronicities();
   const [showAddForm, setShowAddForm] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  console.log('🔍 SynchronicityDetector render:', {
+    user: user?.id || 'No user',
+    synchronicitiesCount: synchronicities.length,
+    loading,
+    error
+  });
 
   const handleDelete = async (id: string) => {
     setDeletingId(id);
@@ -29,6 +38,11 @@ export const SynchronicityDetector = () => {
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const handleRetry = () => {
+    console.log('🔄 Retrying fetch...');
+    fetchSynchronicities();
   };
 
   const formatDate = (dateString: string) => {
@@ -51,14 +65,56 @@ export const SynchronicityDetector = () => {
           <h2 className="text-2xl font-bold text-white mb-2">Synchronicity Tracker</h2>
           <p className="text-purple-200">Recognize and record meaningful patterns in your life</p>
         </div>
-        <Button 
-          onClick={() => setShowAddForm(true)}
-          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Record Synchronicity
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={handleRetry}
+            variant="outline"
+            size="sm"
+            disabled={loading}
+            className="text-purple-300 border-purple-500/30"
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <Button 
+            onClick={() => setShowAddForm(true)}
+            disabled={!user}
+            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white disabled:opacity-50"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Record Synchronicity
+          </Button>
+        </div>
       </div>
+
+      {/* Authentication Warning */}
+      {!user && (
+        <Card className="bg-red-900/20 border-red-500/30 backdrop-blur-sm">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2 text-red-300">
+              <AlertCircle className="w-5 h-5" />
+              <span>Please log in to access the Synchronicity Tracker</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Error Display */}
+      {error && (
+        <Card className="bg-red-900/20 border-red-500/30 backdrop-blur-sm">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-red-300">
+                <AlertCircle className="w-5 h-5" />
+                <span>Error: {error}</span>
+              </div>
+              <Button onClick={handleRetry} variant="outline" size="sm">
+                Try Again
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Synchronicity Types Guide */}
       <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
@@ -97,7 +153,7 @@ export const SynchronicityDetector = () => {
         <CardHeader>
           <CardTitle className="text-white flex items-center">
             <Star className="w-5 h-5 mr-2 text-purple-400" />
-            Your Synchronicities
+            Your Synchronicities ({synchronicities.length})
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -105,6 +161,14 @@ export const SynchronicityDetector = () => {
             <div className="flex items-center justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin text-purple-400" />
               <span className="ml-2 text-purple-200">Loading synchronicities...</span>
+            </div>
+          ) : !user ? (
+            <div className="text-center py-8">
+              <AlertCircle className="w-12 h-12 text-purple-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-white mb-2">Authentication Required</h3>
+              <p className="text-purple-300">
+                Please log in to view and record your synchronicities.
+              </p>
             </div>
           ) : synchronicities.length === 0 ? (
             <div className="text-center py-8">

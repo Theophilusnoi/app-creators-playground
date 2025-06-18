@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -24,8 +23,29 @@ export const useSynchronicities = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Test database connection
+  const testConnection = async () => {
+    try {
+      console.log('🔍 Testing database connection...');
+      const { data, error } = await supabase.from('synchronicities').select('count').limit(1);
+      if (error) {
+        console.error('❌ Database connection test failed:', error);
+        return false;
+      }
+      console.log('✅ Database connection test successful');
+      return true;
+    } catch (err) {
+      console.error('❌ Database connection test error:', err);
+      return false;
+    }
+  };
+
   const fetchSynchronicities = async () => {
+    console.log('🔍 Fetching synchronicities...');
+    console.log('👤 Current user:', user?.id || 'No user');
+    
     if (!user) {
+      console.log('⚠️ No user found, skipping fetch');
       setLoading(false);
       return;
     }
@@ -34,6 +54,13 @@ export const useSynchronicities = () => {
       setLoading(true);
       setError(null);
       
+      // Test connection first
+      const connectionOk = await testConnection();
+      if (!connectionOk) {
+        throw new Error('Database connection failed');
+      }
+      
+      console.log('📡 Executing query for user:', user.id);
       const { data, error } = await supabase
         .from('synchronicities')
         .select('*')
@@ -41,17 +68,25 @@ export const useSynchronicities = () => {
         .order('date_occurred', { ascending: false });
 
       if (error) {
-        console.error('Error fetching synchronicities:', error);
+        console.error('❌ Query error:', error);
+        console.error('Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
         throw error;
       }
       
+      console.log('✅ Query successful, records found:', data?.length || 0);
+      console.log('📄 Data:', data);
       setSynchronicities(data || []);
     } catch (err: any) {
-      console.error('Synchronicities fetch error:', err);
+      console.error('💥 Fetch synchronicities error:', err);
       setError(err.message || 'Failed to load synchronicities');
       toast({
         title: "Error Loading Synchronicities",
-        description: "Could not load your synchronicities. Please try again.",
+        description: err.message || "Could not load your synchronicities. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -68,29 +103,70 @@ export const useSynchronicities = () => {
     meaning?: string;
     date_occurred: string;
   }) => {
+    console.log('🚀 Starting addSynchronicity...');
+    console.log('📝 Form data:', synchronicityData);
+    console.log('👤 Current user:', user?.id || 'No user');
+
+    // Authentication check
     if (!user) {
-      throw new Error('Must be logged in to save synchronicities');
+      const errorMsg = 'Must be logged in to save synchronicities';
+      console.error('❌ Authentication error:', errorMsg);
+      toast({
+        title: "Authentication Required",
+        description: errorMsg,
+        variant: "destructive"
+      });
+      throw new Error(errorMsg);
+    }
+
+    // Validate required fields
+    const requiredFields = ['title', 'description', 'synchronicity_type'];
+    const missingFields = requiredFields.filter(field => !synchronicityData[field as keyof typeof synchronicityData]);
+    
+    if (missingFields.length > 0) {
+      const errorMsg = `Missing required fields: ${missingFields.join(', ')}`;
+      console.error('❌ Validation error:', errorMsg);
+      toast({
+        title: "Validation Error",
+        description: errorMsg,
+        variant: "destructive"
+      });
+      throw new Error(errorMsg);
     }
 
     try {
-      const { error } = await supabase
+      console.log('📡 Inserting synchronicity...');
+      
+      const insertData = {
+        user_id: user.id,
+        title: synchronicityData.title.trim(),
+        description: synchronicityData.description.trim(),
+        synchronicity_type: synchronicityData.synchronicity_type,
+        significance: synchronicityData.significance,
+        tags: synchronicityData.tags,
+        meaning: synchronicityData.meaning?.trim() || null,
+        date_occurred: synchronicityData.date_occurred
+      };
+
+      console.log('📄 Insert data:', insertData);
+
+      const { data, error } = await supabase
         .from('synchronicities')
-        .insert([{
-          user_id: user.id,
-          title: synchronicityData.title,
-          description: synchronicityData.description,
-          synchronicity_type: synchronicityData.synchronicity_type,
-          significance: synchronicityData.significance,
-          tags: synchronicityData.tags,
-          meaning: synchronicityData.meaning || null,
-          date_occurred: synchronicityData.date_occurred
-        }]);
+        .insert([insertData])
+        .select();
 
       if (error) {
-        console.error('Error saving synchronicity:', error);
+        console.error('❌ Insert error:', error);
+        console.error('Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
         throw error;
       }
 
+      console.log('✅ Insert successful:', data);
       await fetchSynchronicities();
       
       toast({
@@ -99,10 +175,11 @@ export const useSynchronicities = () => {
       });
       
     } catch (error: any) {
-      console.error('Error adding synchronicity:', error);
+      console.error('💥 Add synchronicity error:', error);
+      const errorMessage = error.message || "Failed to save your synchronicity";
       toast({
         title: "Error Saving Synchronicity",
-        description: error.message || "Failed to save your synchronicity",
+        description: errorMessage,
         variant: "destructive"
       });
       throw error;
@@ -180,6 +257,7 @@ export const useSynchronicities = () => {
   };
 
   useEffect(() => {
+    console.log('🔄 useEffect triggered, user changed:', user?.id || 'No user');
     fetchSynchronicities();
   }, [user]);
 
