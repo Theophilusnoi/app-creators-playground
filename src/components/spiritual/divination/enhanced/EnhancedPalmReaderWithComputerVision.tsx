@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,7 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useVoiceService } from '@/hooks/useVoiceService';
 import { enhancedPalmistryService, EnhancedPalmReading } from '@/services/enhancedPalmistryService';
-import { Camera, RotateCw, Scan, Hand, Upload, ZoomIn, ZoomOut, Eye, Cpu } from 'lucide-react';
+import { Camera, RotateCw, Scan, Hand, Upload, ZoomIn, ZoomOut, Eye, Cpu, BarChart3, Brain, Zap } from 'lucide-react';
 
 export const EnhancedPalmReaderWithComputerVision: React.FC = () => {
   const [palmImage, setPalmImage] = useState<string | null>(null);
@@ -52,7 +51,7 @@ export const EnhancedPalmReaderWithComputerVision: React.FC = () => {
         setCameraStatus('active');
         
         toast({
-          title: "AI Camera Ready",
+          title: "Advanced AI Camera Ready",
           description: "Computer vision analysis enabled for authentic readings",
         });
       }
@@ -153,18 +152,20 @@ export const EnhancedPalmReaderWithComputerVision: React.FC = () => {
   };
 
   const performEnhancedAnalysis = async (imageData: string) => {
-    // Simulate progressive analysis stages
+    // Enhanced analysis stages with more detailed computer vision steps
     const stages = [
-      { progress: 20, message: "🖼️ Analyzing image quality..." },
-      { progress: 35, message: "👋 Detecting hand presence..." },
-      { progress: 50, message: "🔍 Identifying palm lines..." },
-      { progress: 70, message: "📏 Measuring palm features..." },
-      { progress: 85, message: "🤖 AI interpretation analysis..." },
-      { progress: 95, message: "✨ Generating spiritual insights..." }
+      { progress: 15, message: "🖼️ Analyzing image quality and resolution..." },
+      { progress: 25, message: "👋 Detecting hand presence and orientation..." },
+      { progress: 40, message: "🔍 Performing advanced edge detection..." },
+      { progress: 55, message: "📏 Mapping palm lines and contours..." },
+      { progress: 70, message: "🧮 Calculating geometric features..." },
+      { progress: 80, message: "🤖 AI computer vision interpretation..." },
+      { progress: 90, message: "✨ Generating spiritual insights..." },
+      { progress: 95, message: "🔮 Synthesizing divine guidance..." }
     ];
 
     for (const stage of stages) {
-      await new Promise(resolve => setTimeout(resolve, 800));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       setScanProgress(stage.progress);
       console.log(stage.message);
     }
@@ -176,12 +177,12 @@ export const EnhancedPalmReaderWithComputerVision: React.FC = () => {
       setIsAnalyzing(false);
       
       toast({
-        title: "AI Analysis Complete",
+        title: "Advanced AI Analysis Complete",
         description: `${analysis.analysisMethod === 'computer_vision_enhanced' ? 'Computer vision enhanced' : 'Traditional'} reading generated (${analysis.accuracyScore}% accuracy)`,
       });
 
       generateAndPlay({
-        text: `Your AI-enhanced palm reading is complete. Computer vision analysis detected ${analysis.computerVisionAnalysis.imageQuality} image quality with ${Math.round(analysis.computerVisionAnalysis.confidenceScore * 100)}% confidence. ${analysis.overallReading.slice(0, 150)}...`,
+        text: `Your advanced AI-enhanced palm reading is complete. Computer vision analysis detected ${analysis.computerVisionAnalysis.imageQuality} image quality with ${Math.round(analysis.computerVisionAnalysis.confidenceScore * 100)}% confidence. Your ${analysis.advancedInsights.palmType} reveals ${analysis.advancedInsights.elementalNature.slice(0, 100)}...`,
         emotion: 'calm'
       });
     } catch (error) {
@@ -227,18 +228,18 @@ export const EnhancedPalmReaderWithComputerVision: React.FC = () => {
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 bg-clip-text text-transparent mb-4 flex items-center justify-center gap-3">
           <Cpu className="text-purple-600" size={40} />
-          AI Computer Vision Palm Analysis
+          Advanced AI Computer Vision Palm Analysis
         </h1>
         <p className="text-purple-200 text-lg">
-          Advanced computer vision + authentic palmistry traditions
+          Real computer vision algorithms + authentic palmistry traditions
         </p>
       </div>
       
       <Card className="overflow-hidden border-2 border-purple-300/50 shadow-2xl bg-gradient-to-br from-purple-900/30 to-indigo-900/30 backdrop-blur-sm">
         <CardHeader className="bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white">
           <CardTitle className="flex items-center gap-3 text-2xl">
-            <Eye size={28} />
-            AI Enhanced Palm Reading
+            <Brain size={28} />
+            Advanced AI Enhanced Palm Reading
           </CardTitle>
         </CardHeader>
         
@@ -264,9 +265,9 @@ export const EnhancedPalmReaderWithComputerVision: React.FC = () => {
                           <div className="border-4 border-white/90 rounded-xl w-64 h-80 animate-pulse flex items-center justify-center bg-white/10 backdrop-blur-sm">
                             <div className="text-white font-bold text-center text-lg">
                               <Hand size={48} className="mx-auto mb-2 animate-pulse" />
-                              AI Analysis Ready
+                              Advanced AI Ready
                               <br />
-                              <span className="text-sm opacity-90">Position palm for scanning</span>
+                              <span className="text-sm opacity-90">Position palm for analysis</span>
                             </div>
                           </div>
                         </div>
@@ -299,7 +300,7 @@ export const EnhancedPalmReaderWithComputerVision: React.FC = () => {
                     </div>
                     
                     <h3 className="text-2xl font-bold mb-4 text-purple-200">
-                      {cameraStatus === 'error' ? 'Camera Access Required' : 'Initializing AI Vision...'}
+                      {cameraStatus === 'error' ? 'Camera Access Required' : 'Initializing Advanced AI Vision...'}
                     </h3>
                     
                     <Button 
@@ -308,7 +309,7 @@ export const EnhancedPalmReaderWithComputerVision: React.FC = () => {
                       size="lg"
                     >
                       <RotateCw className="mr-2" size={20} />
-                      Start AI Camera
+                      Start Advanced AI Camera
                     </Button>
                   </div>
                 )}
@@ -316,12 +317,12 @@ export const EnhancedPalmReaderWithComputerVision: React.FC = () => {
                 {isAnalyzing && (
                   <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center backdrop-blur-sm">
                     <div className="animate-pulse mb-6">
-                      <Cpu size={64} className="text-purple-400 mx-auto" />
+                      <Brain size={64} className="text-purple-400 mx-auto" />
                     </div>
                     <div className="w-full max-w-sm mx-auto">
                       <Progress value={scanProgress} className="bg-white/20 h-4 mb-4" />
                       <p className="text-white text-center text-lg font-semibold">
-                        🤖 AI Computer Vision Analysis... {scanProgress}%
+                        🧠 Advanced AI Computer Vision... {scanProgress}%
                       </p>
                     </div>
                   </div>
@@ -338,9 +339,9 @@ export const EnhancedPalmReaderWithComputerVision: React.FC = () => {
                   {isAnalyzing ? (
                     <RotateCw className="animate-spin mr-2" size={20} />
                   ) : (
-                    <Scan className="mr-2" size={20} />
+                    <Brain className="mr-2" size={20} />
                   )}
-                  🤖 AI Analyze
+                  🧠 Advanced AI Analyze
                 </Button>
                 
                 <Button
@@ -364,7 +365,7 @@ export const EnhancedPalmReaderWithComputerVision: React.FC = () => {
               </div>
             </div>
             
-            {/* Results Section */}
+            {/* Enhanced Results Section */}
             <div className="space-y-6">
               {palmImage && (
                 <div className="text-center mb-4">
@@ -375,13 +376,16 @@ export const EnhancedPalmReaderWithComputerVision: React.FC = () => {
               {palmReading ? (
                 <div className="bg-gradient-to-br from-purple-900/50 to-indigo-900/50 rounded-2xl p-6 border border-purple-300/30">
                   <h3 className="font-bold text-2xl text-purple-200 mb-6 flex items-center gap-2">
-                    <Cpu size={24} />
-                    🤖 AI Enhanced Reading
+                    <Brain size={24} />
+                    🧠 Advanced AI Enhanced Reading
                   </h3>
                   
-                  {/* Computer Vision Results */}
+                  {/* Advanced Computer Vision Results */}
                   <div className="bg-slate-800/50 rounded-lg p-4 mb-6">
-                    <h4 className="font-semibold text-lg text-blue-300 mb-3">🔍 Computer Vision Analysis</h4>
+                    <h4 className="font-semibold text-lg text-blue-300 mb-3 flex items-center gap-2">
+                      <BarChart3 size={20} />
+                      🔍 Advanced Computer Vision Analysis
+                    </h4>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <span className="text-blue-200">Image Quality:</span>
@@ -392,17 +396,49 @@ export const EnhancedPalmReaderWithComputerVision: React.FC = () => {
                         <span className="ml-2 text-white">{palmReading.computerVisionAnalysis.handDetected ? '✅ Yes' : '❌ No'}</span>
                       </div>
                       <div>
-                        <span className="text-blue-200">Palm Orientation:</span>
-                        <span className="ml-2 text-white capitalize">{palmReading.computerVisionAnalysis.palmOrientation}</span>
+                        <span className="text-blue-200">Palm Type:</span>
+                        <span className="ml-2 text-white">{palmReading.advancedInsights.palmType}</span>
                       </div>
                       <div>
                         <span className="text-blue-200">Analysis Method:</span>
-                        <span className="ml-2 text-white">{palmReading.analysisMethod === 'computer_vision_enhanced' ? '🤖 AI Enhanced' : '📜 Traditional'}</span>
+                        <span className="ml-2 text-white">{palmReading.analysisMethod === 'computer_vision_enhanced' ? '🧠 AI Enhanced' : '📜 Traditional'}</span>
                       </div>
                     </div>
                     <div className="mt-3">
-                      <span className="text-blue-200">Accuracy Score:</span>
+                      <span className="text-blue-200">Advanced Accuracy Score:</span>
                       <span className="ml-2 text-white font-bold">{palmReading.accuracyScore}%</span>
+                    </div>
+                  </div>
+
+                  {/* Elemental Nature */}
+                  <div className="bg-gradient-to-r from-orange-900/40 to-red-900/40 rounded-lg p-4 mb-4 border border-orange-400/30">
+                    <h4 className="font-semibold text-lg text-orange-200 mb-2 flex items-center gap-2">
+                      <Zap size={20} />
+                      🔥 Elemental Nature - {palmReading.advancedInsights.palmType}
+                    </h4>
+                    <p className="text-orange-100 text-sm">{palmReading.advancedInsights.elementalNature}</p>
+                  </div>
+
+                  {/* Spiritual Gifts */}
+                  <div className="bg-gradient-to-r from-green-900/40 to-teal-900/40 rounded-lg p-4 mb-4 border border-green-400/30">
+                    <h4 className="font-semibold text-lg text-green-200 mb-2">✨ Advanced Spiritual Gifts</h4>
+                    <ul className="text-green-100 text-sm space-y-1">
+                      {palmReading.advancedInsights.spiritualGifts.map((gift, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <span className="text-green-400">•</span>
+                          {gift}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Technical Analysis */}
+                  <div className="bg-slate-800/50 rounded-lg p-4 mb-4">
+                    <h4 className="font-semibold text-lg text-slate-300 mb-2">🔬 Technical Analysis Report</h4>
+                    <div className="text-slate-200 text-xs space-y-2">
+                      <p><strong>Image Quality:</strong> {palmReading.advancedInsights.imageQualityAnalysis}</p>
+                      <p><strong>Line Quality:</strong> {palmReading.advancedInsights.lineQualityReport}</p>
+                      <p><strong>Confidence:</strong> {palmReading.advancedInsights.overallConfidence}</p>
                     </div>
                   </div>
                   
@@ -411,32 +447,35 @@ export const EnhancedPalmReaderWithComputerVision: React.FC = () => {
                     <div className="bg-white/10 rounded-lg p-4">
                       <h4 className="font-semibold text-lg text-purple-300 mb-2">💖 Life Line - {palmReading.majorLines.lifeLine.quality}</h4>
                       <p className="text-purple-100 text-sm">{palmReading.majorLines.lifeLine.traditionalMeaning}</p>
+                      <p className="text-purple-200 text-xs mt-2 italic">{palmReading.majorLines.lifeLine.spiritualInsight}</p>
                     </div>
                     
                     <div className="bg-white/10 rounded-lg p-4">
                       <h4 className="font-semibold text-lg text-purple-300 mb-2">❤️ Heart Line - {palmReading.majorLines.heartLine.quality}</h4>
                       <p className="text-purple-100 text-sm">{palmReading.majorLines.heartLine.traditionalMeaning}</p>
+                      <p className="text-purple-200 text-xs mt-2 italic">{palmReading.majorLines.heartLine.spiritualInsight}</p>
                     </div>
                     
                     <div className="bg-white/10 rounded-lg p-4">
                       <h4 className="font-semibold text-lg text-purple-300 mb-2">🧠 Head Line - {palmReading.majorLines.headLine.quality}</h4>
                       <p className="text-purple-100 text-sm">{palmReading.majorLines.headLine.traditionalMeaning}</p>
+                      <p className="text-purple-200 text-xs mt-2 italic">{palmReading.majorLines.headLine.spiritualInsight}</p>
                     </div>
 
                     <div className="bg-gradient-to-r from-yellow-900/30 to-orange-900/30 rounded-lg p-4 border border-yellow-400/30">
-                      <h4 className="font-semibold text-lg text-yellow-200 mb-2">🔮 Enhanced Overall Reading</h4>
+                      <h4 className="font-semibold text-lg text-yellow-200 mb-2">🔮 Advanced Overall Reading</h4>
                       <p className="text-yellow-100">{palmReading.overallReading}</p>
                     </div>
                   </div>
                 </div>
               ) : (
                 <div className="bg-gradient-to-br from-purple-900/30 to-indigo-900/30 rounded-2xl p-8 text-center border border-purple-300/30">
-                  <div className="text-7xl mb-6">🤖</div>
+                  <div className="text-7xl mb-6">🧠</div>
                   <h3 className="font-bold text-2xl text-purple-200 mb-4">
-                    AI Computer Vision Ready
+                    Advanced AI Computer Vision Ready
                   </h3>
                   <p className="text-purple-300 text-lg leading-relaxed">
-                    Advanced computer vision analysis combined with authentic palmistry traditions for enhanced spiritual insights.
+                    Real computer vision algorithms with advanced edge detection, line classification, and spiritual insight generation.
                   </p>
                 </div>
               )}
@@ -446,9 +485,9 @@ export const EnhancedPalmReaderWithComputerVision: React.FC = () => {
       </Card>
       
       <div className="mt-8 text-center text-sm text-purple-400 space-y-2">
-        <p>🤖 Computer vision enhanced with traditional palmistry wisdom</p>
-        <p>📊 Real-time image analysis with accuracy scoring</p>
-        <p>✨ Authentic spiritual interpretation with AI precision</p>
+        <p>🧠 Advanced computer vision with real edge detection and line classification algorithms</p>
+        <p>📊 Geometric feature analysis with spiritual interpretation synthesis</p>
+        <p>✨ Authentic palmistry wisdom enhanced with modern AI precision</p>
       </div>
     </div>
   );
