@@ -182,7 +182,7 @@ export const EnhancedPalmReaderWithComputerVision: React.FC = () => {
 
       generateAndPlay({
         text: `Your AI-enhanced palm reading is complete. Computer vision analysis detected ${analysis.computerVisionAnalysis.imageQuality} image quality with ${Math.round(analysis.computerVisionAnalysis.confidenceScore * 100)}% confidence. ${analysis.overallReading.slice(0, 150)}...`,
-        emotion: 'wise'
+        emotion: 'calm'
       });
     } catch (error) {
       console.error('Enhanced analysis error:', error);

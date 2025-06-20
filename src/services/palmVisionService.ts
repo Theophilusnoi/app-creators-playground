@@ -1,4 +1,3 @@
-
 export interface PalmVisionAnalysis {
   imageQuality: 'poor' | 'fair' | 'good' | 'excellent';
   handDetected: boolean;
@@ -175,7 +174,7 @@ class PalmVisionService {
     return 'unclear';
   }
 
-  private analyzeLineVisibility(imageData: ImageData): Record<string, number> {
+  private analyzeLineVisibility(imageData: ImageData): { lifeLine: number; heartLine: number; headLine: number; fateLine: number } {
     const { data, width, height } = imageData;
     
     // Simplified line detection using edge analysis in typical line regions
@@ -186,7 +185,12 @@ class PalmVisionService {
       fateLine: { x: 0.4, y: 0.1, w: 0.2, h: 0.8 }    // Central vertical
     };
     
-    const lineScores: Record<string, number> = {};
+    const lineScores: { lifeLine: number; heartLine: number; headLine: number; fateLine: number } = {
+      lifeLine: 0,
+      heartLine: 0,
+      headLine: 0,
+      fateLine: 0
+    };
     
     for (const [lineName, region] of Object.entries(regions)) {
       let edgeStrength = 0;
@@ -216,7 +220,7 @@ class PalmVisionService {
       }
       
       const avgEdgeStrength = pixelCount > 0 ? edgeStrength / pixelCount : 0;
-      lineScores[lineName] = Math.min(avgEdgeStrength / 50, 1); // Normalize to 0-1
+      lineScores[lineName as keyof typeof lineScores] = Math.min(avgEdgeStrength / 50, 1); // Normalize to 0-1
     }
     
     return lineScores;
@@ -245,7 +249,7 @@ class PalmVisionService {
     imageQuality: string,
     handDetected: boolean,
     palmOrientation: string,
-    lineVisibility: Record<string, number>
+    lineVisibility: { lifeLine: number; heartLine: number; headLine: number; fateLine: number }
   ): number {
     let score = 0;
     
