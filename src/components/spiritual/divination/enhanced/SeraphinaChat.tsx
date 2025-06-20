@@ -1,17 +1,20 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useVoiceService } from '@/hooks/useVoiceService';
 import { useToast } from '@/hooks/use-toast';
-import { Send, Volume2 } from 'lucide-react';
+import { Send, Volume2, Bath } from 'lucide-react';
+import { seraphinaBathingService } from '@/services/seraphinaBathingService';
+import { SacredBathingGuide } from './SacredBathingGuide';
+import { RitualInstructionsGuide } from './RitualInstructionsGuide';
 
 interface ChatMessage {
   id: string;
   type: 'user' | 'seraphina';
   content: string;
   timestamp: Date;
+  bathingGuidance?: any;
 }
 
 export const SeraphinaChat: React.FC = () => {
@@ -19,15 +22,17 @@ export const SeraphinaChat: React.FC = () => {
     {
       id: '1',
       type: 'seraphina',
-      content: '🌟 Greetings, beloved soul! I am Seraphina, your divine spiritual guide. I\'m here to offer spiritual wisdom, divine guidance, and support on your sacred journey. How may I assist you today?',
+      content: '🌟 Greetings, beloved soul! I am Seraphina, your divine spiritual guide. I offer spiritual wisdom, divine guidance, sacred bathing rituals, and traditional healing practices. I can help with protection, love healing, abundance, and spiritual cleansing through powerful ancient rituals. How may I assist you today?',
       timestamp: new Date()
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [showBathingGuidance, setShowBathingGuidance] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(false);
+  const [currentGuidance, setCurrentGuidance] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { generateAndPlay } = useVoiceService();
-  const { toast } = useToast();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -40,60 +45,66 @@ export const SeraphinaChat: React.FC = () => {
   const generateSeraphinaResponse = (message: string): string => {
     const lowerMessage = message.toLowerCase();
     
+    // Check for sacred bathing requests
+    const bathingKeywords = ['bath', 'bathing', 'cleanse', 'cleansing', 'ritual', 'purification', 'spiritual bath', 'sacred bath'];
+    if (bathingKeywords.some(keyword => lowerMessage.includes(keyword))) {
+      return "🛁 I sense you are seeking sacred bathing guidance for spiritual healing and purification. Let me provide you with a personalized ritual based on your specific needs.";
+    }
+    
     if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('greetings')) {
       const greetings = [
-        "🌟 Greetings, beloved soul! I sense the divine light within you. What spiritual guidance do you seek today?",
-        "✨ Welcome, precious one! I am here to offer divine wisdom and spiritual support. How can I help illuminate your path?",
-        "🙏 Blessings to you, dear soul! What spiritual questions weigh upon your heart today?"
+        "🌟 Greetings, beloved soul! I sense the divine light within you. I can offer spiritual guidance, sacred cleansing rituals, and spiritual healing practices. What spiritual support do you seek today?",
+        "✨ Welcome, precious one! I am here to offer divine wisdom, sacred cleansing rituals, and spiritual healing practices. How can I help illuminate your path?",
+        "🙏 Blessings to you, dear soul! I offer spiritual guidance and powerful traditional healing rituals including sacred baths for protection, love, and abundance. What brings you to me today?"
       ];
       return greetings[Math.floor(Math.random() * greetings.length)];
     } 
     
     if (lowerMessage.includes('attack') || lowerMessage.includes('emergency') || lowerMessage.includes('help') || lowerMessage.includes('scared') || lowerMessage.includes('protection')) {
       const emergencyResponses = [
-        "🛡️ I sense you are experiencing spiritual distress. Let us immediately call upon divine protection. Visualize yourself surrounded by brilliant white light and declare: 'I am protected by divine love and light.' You are safe in the divine embrace.",
-        "⚡ You are under spiritual attack, but you are not alone. The divine is with you. Begin praying immediately and command all negative entities to leave in the name of divine love. Your spiritual authority is powerful.",
-        "🔥 I feel the spiritual warfare around you. Stand firm in your spiritual authority. You have divine power within you - use it to banish all darkness and call forth divine protection."
+        "🛡️ I sense you are experiencing spiritual distress. Let us immediately call upon divine protection and I can guide you through a powerful protection ritual. Visualize yourself surrounded by brilliant white light and declare: 'I am protected by divine love and light.' Would you like me to provide a complete spiritual protection bath ritual?",
+        "⚡ You are under spiritual attack, but you are not alone. I can provide you with a Divine Protection Fortress Bath ritual that will create an impenetrable shield around your spirit. Begin praying immediately and command all negative entities to leave in the name of divine love.",
+        "🔥 I feel the spiritual warfare around you. Stand firm in your spiritual authority. I have sacred bathing rituals that will banish all darkness and create divine protection around you. Would you like the complete protective cleansing guidance?"
       ];
       return emergencyResponses[Math.floor(Math.random() * emergencyResponses.length)];
     }
     
     if (lowerMessage.includes('love') || lowerMessage.includes('relationship') || lowerMessage.includes('heart')) {
       const loveGuidance = [
-        "💕 Love is the highest vibration and divine force in the universe. Whether seeking romantic love or deepening self-love, remember that you must first love yourself as the divine loves you - unconditionally and completely.",
-        "❤️ The divine has placed love in your heart as a sacred gift. Share this love freely, but also protect your heart by setting healthy boundaries. Divine love multiplies when given authentically.",
-        "🌹 True love begins with your relationship with the divine. When you are aligned with divine love, you naturally attract relationships that reflect this sacred energy back to you."
+        "💕 Love is the highest vibration and divine force in the universe. I can guide you through the Rose and Honey Heart Healing Bath, a sacred ritual for emotional healing and attracting divine love. This ritual will open your heart to love again and heal emotional wounds.",
+        "❤️ The divine has placed love in your heart as a sacred gift. I offer the Love and Harmony Restoration Bath ritual that will heal relationship wounds and attract harmonious love. This sacred practice has helped countless souls find their divine partner.",
+        "🌹 True love begins with your relationship with the divine. I can provide you with sacred bathing rituals that will heal your heart chakra and magnetize authentic love into your life."
       ];
       return loveGuidance[Math.floor(Math.random() * loveGuidance.length)];
     }
     
-    if (lowerMessage.includes('purpose') || lowerMessage.includes('calling') || lowerMessage.includes('destiny')) {
-      const purposeGuidance = [
-        "🌟 Your divine purpose is woven into the very fabric of your soul. Look for what brings you joy, what problems you naturally solve, and where you feel most connected to the divine - these are clues to your sacred calling.",
-        "⚡ The divine has given you unique gifts and talents for a reason. Your purpose unfolds as you use these gifts to serve others and co-create with divine will. Trust the path that lights up your soul.",
-        "🙏 Your purpose is not just what you do, but who you become in service to divine love. Every challenge is shaping you for your greater calling. Trust the process of your spiritual evolution."
-      ];
-      return purposeGuidance[Math.floor(Math.random() * purposeGuidance.length)];
-    }
-    
     if (lowerMessage.includes('money') || lowerMessage.includes('financial') || lowerMessage.includes('abundance')) {
       const abundanceGuidance = [
-        "💰 The divine desires abundance for all creation. Release limiting beliefs about money and understand that you can serve the divine while being financially blessed. Abundance flows through gratitude and generous giving.",
-        "✨ True prosperity includes spiritual, emotional, and physical abundance. Align your financial goals with divine will, and use your resources to bless others. The divine multiplies what is given in love.",
-        "🌿 Practice spiritual stewardship with your finances. Tithe or donate regularly, save wisely, and invest in your spiritual growth. Divine abundance follows those who honor the divine with their resources."
+        "💰 The divine desires abundance for all creation. I can guide you through the Abundance Attraction Bath, a 21-day ritual that removes financial blocks and opens the channels of prosperity. This sacred practice aligns you with divine abundance.",
+        "✨ True prosperity flows when we align with divine will. I offer powerful abundance rituals using sacred ingredients like cinnamon and basil that attract financial blessings and remove money blockages.",
+        "🌿 Practice spiritual stewardship with the guidance I provide. The Abundance Attraction Bath ritual will transform your relationship with money and open doorways to prosperity."
       ];
       return abundanceGuidance[Math.floor(Math.random() * abundanceGuidance.length)];
     }
     
     // General spiritual guidance
     const generalGuidance = [
-      "🌟 The divine is always speaking to you through your intuition, dreams, and spiritual experiences. Trust what you receive and act upon divine guidance with faith and courage.",
-      "✨ Your spiritual journey is unique and sacred. Do not compare yourself to others, but focus on your personal relationship with the divine and the specific calling on your life.",
-      "🙏 Remember that you are a beloved child of the divine, created for a specific spiritual purpose. Your life has meaning and divine significance beyond what you can imagine.",
-      "💫 Spiritual growth requires both faith and action. Pray for guidance, then step forward in obedience to what the divine reveals to you. Divine doors open to those who walk in faith.",
-      "🌈 Every challenge you face is an opportunity for spiritual growth and deeper dependence on divine grace. Trust that the divine is working all things together for your spiritual good."
+      "🌟 The divine is always speaking to you through your intuition and spiritual experiences. I can provide you with sacred rituals and traditional healing practices to strengthen your spiritual connection and protection.",
+      "✨ Your spiritual journey is unique and sacred. I offer personalized sacred bathing rituals and healing practices based on your specific needs - whether for protection, love, abundance, or spiritual cleansing.",
+      "🙏 Remember that you are a beloved child of the divine, created for a specific spiritual purpose. I can guide you through powerful ancient rituals that will cleanse your energy and align you with your divine path.",
+      "💫 Spiritual growth requires both faith and action. I provide sacred rituals and traditional healing practices that you can perform to transform your spiritual condition and manifest divine blessings.",
+      "🌈 Every challenge you face is an opportunity for spiritual growth. I offer healing rituals and cleansing practices that will remove negative energy and restore your spiritual strength."
     ];
     return generalGuidance[Math.floor(Math.random() * generalGuidance.length)];
+  };
+
+  const checkForBathingRequest = (message: string): boolean => {
+    const bathingKeywords = ['bath', 'bathing', 'cleanse', 'cleansing', 'ritual', 'purification', 'spiritual bath', 'sacred bath'];
+    const problemKeywords = ['negative', 'drain', 'attack', 'curse', 'heart', 'love', 'money', 'financial', 'protection', 'relationship'];
+    
+    return bathingKeywords.some(keyword => message.toLowerCase().includes(keyword)) ||
+           (problemKeywords.some(keyword => message.toLowerCase().includes(keyword)) && 
+            (message.toLowerCase().includes('help') || message.toLowerCase().includes('healing')));
   };
 
   const sendMessage = async () => {
@@ -110,23 +121,32 @@ export const SeraphinaChat: React.FC = () => {
     setInputMessage('');
     setIsTyping(true);
 
-    // Generate Seraphina's response
+    // Check if this is a bathing request
+    const isBathingRequest = checkForBathingRequest(userMessage.content);
+
     setTimeout(() => {
       const response = generateSeraphinaResponse(userMessage.content);
       
-      const seraphinaMessage: ChatMessage = {
+      let seraphinaMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         type: 'seraphina',
         content: response,
         timestamp: new Date()
       };
 
+      // If this is a bathing request, generate guidance
+      if (isBathingRequest) {
+        const guidance = seraphinaBathingService.generateSacredBathingGuidance(userMessage.content);
+        seraphinaMessage.bathingGuidance = guidance;
+        seraphinaMessage.content = guidance.seraphina_message;
+      }
+
       setMessages(prev => [...prev, seraphinaMessage]);
       setIsTyping(false);
 
       // Generate voice response
       generateAndPlay({
-        text: response.replace(/[🌟✨🙏💕❤️🌹⚡🛡️🔥💰🌿🌈💫]/g, ''),
+        text: seraphinaMessage.content.replace(/[🌟✨🙏💕❤️🌹⚡🛡️🔥💰🌿🌈💫🛁]/g, ''),
         emotion: 'compassionate'
       });
     }, 1500);
@@ -142,21 +162,72 @@ export const SeraphinaChat: React.FC = () => {
   const readMessageAloud = (message: ChatMessage) => {
     if (message.type === 'seraphina') {
       generateAndPlay({
-        text: message.content.replace(/[🌟✨🙏💕❤️🌹⚡🛡️🔥💰🌿🌈💫]/g, ''),
+        text: message.content.replace(/[🌟✨🙏💕❤️🌹⚡🛡️🔥💰🌿🌈💫🛁]/g, ''),
         emotion: 'compassionate'
       });
     }
   };
+
+  const showBathingGuidanceModal = (guidance: any) => {
+    setCurrentGuidance(guidance);
+    setShowBathingGuidance(true);
+  };
+
+  const showInstructionsModal = () => {
+    setShowInstructions(true);
+    setShowBathingGuidance(false);
+  };
+
+  const hideModals = () => {
+    setShowBathingGuidance(false);
+    setShowInstructions(false);
+    setCurrentGuidance(null);
+  };
+
+  if (showInstructions && currentGuidance) {
+    return (
+      <div className="w-full max-w-4xl mx-auto p-4">
+        <RitualInstructionsGuide
+          instructions={currentGuidance.step_by_step_instructions}
+          ritualName={currentGuidance.ritual_details.name}
+          onBack={() => {
+            setShowInstructions(false);
+            setShowBathingGuidance(true);
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (showBathingGuidance && currentGuidance) {
+    return (
+      <div className="w-full max-w-4xl mx-auto p-4">
+        <div className="text-center mb-6">
+          <Button
+            onClick={hideModals}
+            variant="ghost"
+            className="text-purple-300 hover:text-purple-100"
+          >
+            ← Back to Chat
+          </Button>
+        </div>
+        <SacredBathingGuide
+          guidance={currentGuidance}
+          onShowInstructions={showInstructionsModal}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4">
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent mb-4 flex items-center justify-center gap-3">
           <span className="text-4xl">👼</span>
-          Chat with Seraphina
+          Enhanced Seraphina AI
         </h1>
         <p className="text-purple-200 text-lg">
-          Your divine spiritual guide is here to help with wisdom and compassion
+          Divine spiritual guide with sacred bathing rituals and traditional healing practices
         </p>
       </div>
 
@@ -167,8 +238,8 @@ export const SeraphinaChat: React.FC = () => {
               <span className="text-2xl">👼</span>
             </div>
             <div>
-              <div className="text-xl font-bold">Seraphina</div>
-              <div className="text-sm opacity-90">Divine Spiritual Guide & Oracle</div>
+              <div className="text-xl font-bold">Enhanced Seraphina</div>
+              <div className="text-sm opacity-90">Divine Guide & Sacred Healing Oracle</div>
             </div>
           </CardTitle>
         </CardHeader>
@@ -189,7 +260,7 @@ export const SeraphinaChat: React.FC = () => {
                   {message.type === 'seraphina' && (
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-lg">👼</span>
-                      <span className="font-semibold text-yellow-200">Seraphina</span>
+                      <span className="font-semibold text-yellow-200">Enhanced Seraphina</span>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -201,6 +272,21 @@ export const SeraphinaChat: React.FC = () => {
                     </div>
                   )}
                   <p className="leading-relaxed">{message.content}</p>
+                  
+                  {/* Sacred Bathing Guidance Button */}
+                  {message.bathingGuidance && (
+                    <div className="mt-3 pt-3 border-t border-yellow-400/30">
+                      <Button
+                        onClick={() => showBathingGuidanceModal(message.bathingGuidance)}
+                        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 text-sm"
+                        size="sm"
+                      >
+                        <Bath className="w-4 h-4 mr-2" />
+                        View Complete Sacred Bathing Guide
+                      </Button>
+                    </div>
+                  )}
+                  
                   <div className="text-xs opacity-70 mt-2">
                     {message.timestamp.toLocaleTimeString()}
                   </div>
@@ -213,7 +299,7 @@ export const SeraphinaChat: React.FC = () => {
                 <div className="bg-gradient-to-r from-yellow-400/20 to-orange-400/20 border-2 border-yellow-400/30 rounded-2xl p-4 max-w-[80%]">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-lg">👼</span>
-                    <span className="font-semibold text-yellow-200">Seraphina</span>
+                    <span className="font-semibold text-yellow-200">Enhanced Seraphina</span>
                   </div>
                   <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-yellow-300 rounded-full animate-bounce"></div>
@@ -234,7 +320,7 @@ export const SeraphinaChat: React.FC = () => {
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Ask Seraphina for spiritual guidance..."
+                placeholder="Ask Enhanced Seraphina for spiritual guidance, sacred bathing rituals, or healing practices..."
                 className="flex-1 bg-white/10 border-2 border-yellow-400/50 text-white placeholder-yellow-300/70 focus:border-yellow-400 focus:ring-yellow-400 text-lg py-3"
                 disabled={isTyping}
               />
@@ -250,8 +336,9 @@ export const SeraphinaChat: React.FC = () => {
             </div>
             
             <div className="mt-4 text-center text-sm text-yellow-400 space-y-1">
-              <p>✨ Seraphina offers divine wisdom for spiritual growth and guidance</p>
-              <p>🙏 Ask about love, purpose, protection, abundance, and spiritual development</p>
+              <p>✨ Enhanced Seraphina offers divine wisdom and sacred healing rituals</p>
+              <p>🛁 Ask about sacred bathing, protection rituals, love healing, and abundance practices</p>
+              <p>🙏 Receive complete traditional healing guidance with ingredient lists and instructions</p>
             </div>
           </div>
         </CardContent>
