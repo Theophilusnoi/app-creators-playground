@@ -50,12 +50,12 @@ export interface SpiritualGuidance {
 }
 
 class AuthenticPalmistryService {
-  private selectRandomFromArray<T>(array: T[]): T {
+  private selectRandomFromArray<T>(array: readonly T[]): T {
     return array[Math.floor(Math.random() * array.length)];
   }
 
   private determineElementalType(): 'fire' | 'water' | 'earth' | 'air' {
-    const elements = ['fire', 'water', 'earth', 'air'] as const;
+    const elements: ('fire' | 'water' | 'earth' | 'air')[] = ['fire', 'water', 'earth', 'air'];
     return this.selectRandomFromArray(elements);
   }
 
