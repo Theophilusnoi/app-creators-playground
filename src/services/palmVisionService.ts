@@ -752,7 +752,7 @@ class PalmVisionService {
     };
   }
 
-  private calculateCornerStrength(data: Uint8Array, x: number, y: number, width: number): number {
+  private calculateCornerStrength(data: Uint8ClampedArray, x: number, y: number, width: number): number {
     // Harris corner detection approximation
     const window = 3;
     let ixx = 0, iyy = 0, ixy = 0;
