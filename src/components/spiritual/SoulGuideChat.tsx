@@ -10,7 +10,7 @@ import { ProtectionSuite } from './ProtectionSuite';
 import { ProtectionRituals } from './ProtectionRituals';
 import { BanishingRituals } from './BanishingRituals';
 import { VoicePlayer } from './VoicePlayer';
-import { EmergencyDetector } from './EmergencyDetector';
+import { SpiritualEmergencyDetector } from './SpiritualEmergencyDetector';
 import { CulturalAdapter } from './CulturalAdapter';
 import { MessageCircle, Send, Heart, Sparkles, Shield, AlertTriangle, Settings } from "lucide-react";
 import { generateGeminiResponse, buildSeraphinaSystemPrompt } from '@/services/geminiService';
@@ -848,7 +848,7 @@ export const SoulGuideChat = () => {
       </Card>
 
       {inputMessage && (
-        <EmergencyDetector
+        <SpiritualEmergencyDetector
           message={inputMessage}
           onEmergencyDetected={handleEmergencyDetected}
           onEscalate={handleSpecialistEscalation}
