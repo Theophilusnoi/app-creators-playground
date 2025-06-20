@@ -5,9 +5,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/components/auth/AuthProvider";
+import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { AuthPage } from "@/components/auth/AuthPage";
 import SpiritualDashboard from "./pages/SpiritualDashboard";
 import MeditationEnvironment from "./pages/MeditationEnvironment";
+import PricingPage from "./pages/PricingPage";
+import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import NotFound from "./pages/NotFound";
 import QuantumSpiritualDashboard from "./pages/QuantumSpiritualDashboard";
 import './i18n'; // Initialize i18n
@@ -30,18 +33,22 @@ const AppContent = () => {
   }
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<SpiritualDashboard />} />
-        <Route path="/meditation" element={<MeditationEnvironment />} />
-        <Route path="/quantum-spiritual" element={
-          <div className="min-h-screen bg-gradient-to-br from-purple-900 via-black to-indigo-900">
-            <QuantumSpiritualDashboard />
-          </div>
-        } />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </BrowserRouter>
+    <SubscriptionProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<SpiritualDashboard />} />
+          <Route path="/meditation" element={<MeditationEnvironment />} />
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/subscription-success" element={<SubscriptionSuccess />} />
+          <Route path="/quantum-spiritual" element={
+            <div className="min-h-screen bg-gradient-to-br from-purple-900 via-black to-indigo-900">
+              <QuantumSpiritualDashboard />
+            </div>
+          } />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </SubscriptionProvider>
   );
 };
 

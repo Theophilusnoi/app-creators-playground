@@ -17,7 +17,8 @@ import {
   Gift,
   MessageCircle,
   Crown,
-  Zap
+  Zap,
+  CreditCard
 } from "lucide-react";
 
 interface TopNavigationProps {
@@ -27,6 +28,7 @@ interface TopNavigationProps {
 
 const navigationItems = [
   { id: 'seraphina', label: 'Seraphina', icon: MessageCircle, color: 'from-purple-600 to-indigo-600' },
+  { id: 'subscription', label: 'Subscription', icon: CreditCard, color: 'from-emerald-600 to-green-600' },
   { id: 'rituals', label: 'Rituals', icon: Shield, color: 'from-blue-600 to-purple-600' },
   { id: 'cultural', label: 'Cultural', icon: Globe, color: 'from-green-600 to-blue-600' },
   { id: 'community', label: 'Community', icon: Users, color: 'from-pink-600 to-red-600' },

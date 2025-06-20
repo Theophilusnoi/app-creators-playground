@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { TopNavigation } from '@/components/spiritual/TopNavigation';
 import { useAuth } from '@/components/auth/AuthProvider';
+import SubscriptionStatus from '@/components/subscription/SubscriptionStatus';
 
 // Import all spiritual components
 import { SoulGuideChat } from '@/components/spiritual/SoulGuideChat';
@@ -47,6 +48,10 @@ const SpiritualDashboard = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsContent value="seraphina">
             <SoulGuideChat />
+          </TabsContent>
+
+          <TabsContent value="subscription">
+            <SubscriptionStatus />
           </TabsContent>
 
           <TabsContent value="rituals">
