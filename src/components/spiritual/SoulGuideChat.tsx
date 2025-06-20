@@ -796,6 +796,40 @@ export const SoulGuideChat = () => {
     setShowProtectionSystem(false);
   };
 
+  const handleActivateMarriageBreaking = (breakingType: string) => {
+    setActiveRitual('spiritual-marriage');
+    setIsEmergencyMode(false);
+    
+    // Add message about marriage breaking activation
+    const breakingMessage: Message = {
+      id: `msg_${Date.now()}_marriage_breaking`,
+      content: `💔 Activating spiritual marriage breaking protocol for ${breakingType}. You have the divine right to choose your own spiritual connections. Let's reclaim your freedom together.`,
+      isUser: false,
+      timestamp: new Date(),
+      protectionType: breakingType,
+      tone: 'ritual_authority'
+    };
+    
+    setMessages(prev => [...prev, breakingMessage]);
+  };
+
+  const handleActivateEntityRemoval = (removalType: string) => {
+    setActiveRitual('entity-removal');
+    setIsEmergencyMode(false);
+    
+    // Add message about entity removal activation
+    const removalMessage: Message = {
+      id: `msg_${Date.now()}_entity_removal`,
+      content: `👁️ Activating entity removal protocol for ${removalType}. Your sacred space belongs to you alone. Let's clear all unwanted spiritual attachments now.`,
+      isUser: false,
+      timestamp: new Date(),
+      protectionType: removalType,
+      tone: 'ritual_authority'
+    };
+    
+    setMessages(prev => [...prev, removalMessage]);
+  };
+
   if (showCulturalSettings) {
     return (
       <div className="space-y-6">
