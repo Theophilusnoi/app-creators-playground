@@ -12,6 +12,11 @@ import { BanishingRituals } from './BanishingRituals';
 import { VoicePlayer } from './VoicePlayer';
 import { SpiritualEmergencyDetector } from './SpiritualEmergencyDetector';
 import { SpiritualProtectionSystem } from './SpiritualProtectionSystem';
+import { SpiritualMarriageDetector } from './SpiritualMarriageDetector';
+import { SpiritualMarriageBreaking } from './SpiritualMarriageBreaking';
+import { CurseBreakingSystem } from './CurseBreakingSystem';
+import { EntityAttachmentDetector } from './EntityAttachmentDetector';
+import { EntityRemovalSystem } from './EntityRemovalSystem';
 import { CulturalAdapter } from './CulturalAdapter';
 import { MessageCircle, Send, Heart, Sparkles, Shield, AlertTriangle, Settings } from "lucide-react";
 import { generateGeminiResponse, buildSeraphinaSystemPrompt } from '@/services/geminiService';
@@ -60,12 +65,17 @@ export const SoulGuideChat = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isEmergencyMode, setIsEmergencyMode] = useState(false);
-  const [activeRitual, setActiveRitual] = useState<'emergency' | 'curse-breaking' | 'daily' | 'banishing' | null>(null);
+  const [activeRitual, setActiveRitual] = useState<'emergency' | 'curse-breaking' | 'daily' | 'banishing' | 'spiritual-marriage' | 'entity-removal' | null>(null);
   const [emergencyCount, setEmergencyCount] = useState(0);
   const [emergencyLevel, setEmergencyLevel] = useState(0);
   const [showCulturalSettings, setShowCulturalSettings] = useState(false);
   const [showProtectionSystem, setShowProtectionSystem] = useState(false);
   const [protectionThreatType, setProtectionThreatType] = useState('');
+  const [spiritualMarriageType, setSpiritualMarriageType] = useState('');
+  const [curseType, setCurseType] = useState('');
+  const [entityType, setEntityType] = useState('');
+  const [curseSeverity, setCurseSeverity] = useState(0);
+  const [entitySeverity, setEntitySeverity] = useState(0);
   const [conversationContext, setConversationContext] = useState<ConversationContext>({
     previousTopics: [],
     emotionalState: 'calm',
@@ -176,7 +186,9 @@ export const SoulGuideChat = () => {
       'under attack', 'haunted', 'cursed', 'unsafe', 'evil', 'dark forces',
       'spiritual attack', 'possessed', 'demonic', 'negative entities',
       'overwhelmed', 'desperate', 'scared', 'terrified', 'nightmare',
-      'can\'t sleep', 'strange things happening', 'bad energy'
+      'can\'t sleep', 'strange things happening', 'bad energy',
+      'spiritual marriage', 'incubus', 'succubus', 'entity attachment',
+      'family curse', 'generational curse', 'cursed objects'
     ];
 
     const lowerMessage = message.toLowerCase();
@@ -202,11 +214,34 @@ export const SoulGuideChat = () => {
             protocol_used: level === 3 ? 'human_specialist' : level === 2 ? 'emergency_shield' : 'grounding',
             tradition: personality.spiritual_tradition,
             triggered_at: new Date().toISOString(),
-            response_time_seconds: Math.floor(Math.random() * 60) + 30 // Simulated response time
+            response_time_seconds: Math.floor(Math.random() * 60) + 30
           });
       } catch (error) {
         console.error('Error logging emergency:', error);
       }
+    }
+  };
+
+  const handleSpiritualMarriageDetected = (severity: number, marriageType: string) => {
+    setSpiritualMarriageType(marriageType);
+    if (severity >= 2) {
+      setIsEmergencyMode(true);
+    }
+  };
+
+  const handleCurseDetected = (severity: number, curseType: string) => {
+    setCurseType(curseType);
+    setCurseSeverity(severity);
+    if (severity >= 2) {
+      setIsEmergencyMode(true);
+    }
+  };
+
+  const handleEntityDetected = (severity: number, entityType: string) => {
+    setEntityType(entityType);
+    setEntitySeverity(severity);
+    if (severity >= 2) {
+      setIsEmergencyMode(true);
     }
   };
 
@@ -427,7 +462,7 @@ export const SoulGuideChat = () => {
     if (context.conversationDepth === 0) {
       return adaptContentForTradition("Ah, meditation - one of humanity's most ancient gateways to inner peace. I love that you're drawn to this practice. Whether you're just beginning or deepening an existing practice, meditation is like tending a sacred garden within yourself. What's calling you to stillness today? Are you seeking calm for anxiety, clarity for decisions, or perhaps connection to something greater?");
     } else {
-      return adaptContentForTradition("I sense meditation has become important to your spiritual journey. You know, after years of guiding people in contemplative practices, I've learned that each person's meditation path is as unique as their fingerprint. What has your experience been like so far? Are you finding it challenging to quiet the mind, or are you discovering unexpected insights?");
+      return adaptContentForTradition("I sense meditation has become important to your spiritual journey. After years of guiding people in contemplative practices, I've learned that each person's meditation path is as unique as their fingerprint. What has your experience been like so far? Are you finding it challenging to quiet the mind, or are you discovering unexpected insights?");
     }
   };
 
@@ -683,12 +718,8 @@ export const SoulGuideChat = () => {
     }
   };
 
-  const handleStartProtectionRitual = (type: 'emergency' | 'curse-breaking' | 'daily' | 'banishing') => {
-    if (type === 'banishing') {
-      setActiveRitual('banishing' as any);
-    } else {
-      setActiveRitual(type);
-    }
+  const handleStartProtectionRitual = (type: 'emergency' | 'curse-breaking' | 'daily' | 'banishing' | 'spiritual-marriage' | 'entity-removal') => {
+    setActiveRitual(type);
     setIsEmergencyMode(false);
   };
 
@@ -805,6 +836,71 @@ export const SoulGuideChat = () => {
     );
   }
 
+  if (activeRitual === 'spiritual-marriage') {
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-white mb-2 flex items-center justify-center gap-2">
+            <Heart className="w-8 h-8 text-red-400" />
+            Spiritual Marriage Breaking
+            <Heart className="w-8 h-8 text-red-400" />
+          </h2>
+          <p className="text-red-200">Reclaim Your Spiritual Freedom</p>
+        </div>
+
+        <SpiritualMarriageBreaking
+          marriageType={spiritualMarriageType}
+          onClose={() => setActiveRitual(null)}
+          onComplete={handleCompleteRitual}
+        />
+      </div>
+    );
+  }
+
+  if (activeRitual === 'curse-breaking') {
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-white mb-2 flex items-center justify-center gap-2">
+            <Shield className="w-8 h-8 text-orange-400" />
+            Curse Breaking System
+            <Shield className="w-8 h-8 text-orange-400" />
+          </h2>
+          <p className="text-orange-200">Break Free from All Curses</p>
+        </div>
+
+        <CurseBreakingSystem
+          curseType={curseType}
+          severity={curseSeverity}
+          onClose={() => setActiveRitual(null)}
+          onComplete={handleCompleteRitual}
+        />
+      </div>
+    );
+  }
+
+  if (activeRitual === 'entity-removal') {
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-white mb-2 flex items-center justify-center gap-2">
+            <Shield className="w-8 h-8 text-purple-400" />
+            Entity Removal System
+            <Shield className="w-8 h-8 text-purple-400" />
+          </h2>
+          <p className="text-purple-200">Reclaim Your Sacred Space</p>
+        </div>
+
+        <EntityRemovalSystem
+          entityType={entityType}
+          severity={entitySeverity}
+          onClose={() => setActiveRitual(null)}
+          onComplete={handleCompleteRitual}
+        />
+      </div>
+    );
+  }
+
   if (activeRitual) {
     if (activeRitual === 'banishing') {
       return (
@@ -883,32 +979,103 @@ export const SoulGuideChat = () => {
         onExitToSafety={handleExitToSafety}
       />
 
-      {/* Add Banishing Rituals Button */}
-      <Card className="bg-black/20 border-purple-500/30">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-white font-semibold mb-1">Sacred Banishing Rituals</h3>
-              <p className="text-purple-200 text-sm">Clear negative energy and reclaim your spiritual sovereignty</p>
+      {/* Enhanced Protection Rituals Menu */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="bg-black/20 border-purple-500/30">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-white font-semibold mb-1">Sacred Banishing Rituals</h3>
+                <p className="text-purple-200 text-sm">Clear negative energy and reclaim sovereignty</p>
+              </div>
+              <Button
+                onClick={() => handleStartProtectionRitual('banishing')}
+                className="bg-purple-600 hover:bg-purple-700"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Begin
+              </Button>
             </div>
-            <Button
-              onClick={() => handleStartProtectionRitual('banishing' as any)}
-              className="bg-purple-600 hover:bg-purple-700"
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Begin Banishing
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
+        <Card className="bg-black/20 border-red-500/30">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-white font-semibold mb-1">Spiritual Marriage Breaking</h3>
+                <p className="text-red-200 text-sm">Break unwanted spiritual marriages and bonds</p>
+              </div>
+              <Button
+                onClick={() => handleStartProtectionRitual('spiritual-marriage')}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                <Heart className="w-4 h-4 mr-2" />
+                Begin
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-black/20 border-orange-500/30">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-white font-semibold mb-1">Curse Breaking System</h3>
+                <p className="text-orange-200 text-sm">Remove all types of curses and negative patterns</p>
+              </div>
+              <Button
+                onClick={() => handleStartProtectionRitual('curse-breaking')}
+                className="bg-orange-600 hover:bg-orange-700"
+              >
+                <Shield className="w-4 h-4 mr-2" />
+                Begin
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-black/20 border-blue-500/30">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-white font-semibold mb-1">Entity Removal System</h3>
+                <p className="text-blue-200 text-sm">Clear entity attachments and reclaim your space</p>
+              </div>
+              <Button
+                onClick={() => handleStartProtectionRitual('entity-removal')}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Shield className="w-4 h-4 mr-2" />
+                Begin
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Enhanced Detection Systems */}
       {inputMessage && (
-        <SpiritualEmergencyDetector
-          message={inputMessage}
-          onEmergencyDetected={handleEmergencyDetected}
-          onActivateProtection={handleActivateProtection}
-          onEscalate={handleSpecialistEscalation}
-        />
+        <div className="space-y-4">
+          <SpiritualEmergencyDetector
+            message={inputMessage}
+            onEmergencyDetected={handleEmergencyDetected}
+            onActivateProtection={handleActivateProtection}
+            onEscalate={handleSpecialistEscalation}
+          />
+          
+          <SpiritualMarriageDetector
+            message={inputMessage}
+            onMarriageDetected={handleSpiritualMarriageDetected}
+            onActivateBreaking={handleActivateMarriageBreaking}
+          />
+          
+          <EntityAttachmentDetector
+            message={inputMessage}
+            onEntityDetected={handleEntityDetected}
+            onActivateRemoval={handleActivateEntityRemoval}
+          />
+        </div>
       )}
 
       <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm h-[600px] flex flex-col">
