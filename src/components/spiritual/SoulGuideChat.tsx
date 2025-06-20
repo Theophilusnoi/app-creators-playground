@@ -11,6 +11,7 @@ import { ProtectionRituals } from './ProtectionRituals';
 import { BanishingRituals } from './BanishingRituals';
 import { VoicePlayer } from './VoicePlayer';
 import { SpiritualEmergencyDetector } from './SpiritualEmergencyDetector';
+import { SpiritualProtectionSystem } from './SpiritualProtectionSystem';
 import { CulturalAdapter } from './CulturalAdapter';
 import { MessageCircle, Send, Heart, Sparkles, Shield, AlertTriangle, Settings } from "lucide-react";
 import { generateGeminiResponse, buildSeraphinaSystemPrompt } from '@/services/geminiService';
@@ -63,6 +64,8 @@ export const SoulGuideChat = () => {
   const [emergencyCount, setEmergencyCount] = useState(0);
   const [emergencyLevel, setEmergencyLevel] = useState(0);
   const [showCulturalSettings, setShowCulturalSettings] = useState(false);
+  const [showProtectionSystem, setShowProtectionSystem] = useState(false);
+  const [protectionThreatType, setProtectionThreatType] = useState('');
   const [conversationContext, setConversationContext] = useState<ConversationContext>({
     previousTopics: [],
     emotionalState: 'calm',
@@ -180,8 +183,10 @@ export const SoulGuideChat = () => {
     return emergencyKeywords.some(keyword => lowerMessage.includes(keyword));
   };
 
-  const handleEmergencyDetected = async (level: number) => {
+  const handleEmergencyDetected = async (level: number, threatType: string) => {
     setEmergencyLevel(level);
+    setProtectionThreatType(threatType);
+    
     if (level >= 2) {
       setIsEmergencyMode(true);
       setEmergencyCount(prev => prev + 1);
@@ -497,28 +502,30 @@ export const SoulGuideChat = () => {
   const generateBanishingResponse = (userMessage: string, tradition: string = 'eclectic'): string => {
     const lowerMessage = userMessage.toLowerCase();
     
-    if (lowerMessage.includes('banish') || lowerMessage.includes('banishing')) {
-      if (lowerMessage.includes('ritual') || lowerMessage.includes('ceremony')) {
-        return adaptContentForTradition("Ah, beloved seeker! Banishing rituals are sacred acts of reclaiming your sovereign space - imagine them as spiritual housecleaning that sweeps away lingering shadows so your inner light shines unobstructed. These ancient practices remove negative energies, entities, or influences while creating sacred boundaries and restoring energetic balance. Whether you need to clear stagnant energy from your home, break toxic attachments, or establish protection before spiritual work, I can guide you through gentle yet powerful banishing practices. Would you feel drawn to explore a banishing ritual tailored for your unique path?");
-      }
-      
-      if (lowerMessage.includes('negative energy') || lowerMessage.includes('bad energy')) {
-        return adaptContentForTradition("I sense you're feeling the weight of negative energy around you, sweet soul. This heaviness you're experiencing - it's real, and you have every right to clear it from your sacred space. Banishing isn't about fear or combat; it's about empowerment and reclaiming your energetic sovereignty. Think of it as spiritual housecleaning - you wouldn't let physical dirt accumulate in your home, so why allow energetic debris to linger in your aura? I can teach you gentle yet effective methods to clear this energy and establish protective boundaries. Shall we begin with a simple cleansing practice?");
-      }
-      
-      if (lowerMessage.includes('entities') || lowerMessage.includes('spirits')) {
-        return adaptContentForTradition("I understand you're concerned about spiritual entities, dear one. First, know that you are not powerless - you carry divine light that no darkness can truly touch. Most 'entity' experiences are actually energetic imprints, thought forms, or our own shadow aspects seeking integration. True banishing work addresses the root: strengthening your spiritual boundaries and energy field so you become an inhospitable environment for anything not aligned with your highest good. Remember, like attracts like - as you raise your vibration through banishing and protection work, lower vibrational influences naturally fall away. Would you like to explore a banishing ritual that builds your spiritual sovereignty?");
-      }
+    if (lowerMessage.includes('banish') || lowerMessage.includes('banishing') || 
+        (lowerMessage.includes('negative') && lowerMessage.includes('energy')) ||
+        lowerMessage.includes('cleanse') || lowerMessage.includes('cleansing') ||
+        lowerMessage.includes('entities') || lowerMessage.includes('spirits') ||
+        (lowerMessage.includes('protection') && lowerMessage.includes('ritual'))) {
+      return adaptContentForTradition("Ah, beloved seeker! Banishing rituals are sacred acts of reclaiming your sovereign space - imagine them as spiritual housecleaning that sweeps away lingering shadows so your inner light shines unobstructed. These ancient practices remove negative energies, entities, or influences while creating sacred boundaries and restoring energetic balance. Whether you need to clear stagnant energy from your home, break toxic attachments, or establish protection before spiritual work, I can guide you through gentle yet powerful banishing practices. Would you feel drawn to explore a banishing ritual tailored for your unique path?");
     }
-
+    
+    if (lowerMessage.includes('negative energy') || lowerMessage.includes('bad energy')) {
+      return adaptContentForTradition("I sense you're feeling the weight of negative energy around you, sweet soul. This heaviness you're experiencing - it's real, and you have every right to clear it from your sacred space. Banishing isn't about fear or combat; it's about empowerment and reclaiming your energetic sovereignty. Think of it as spiritual housecleaning - you wouldn't let physical dirt accumulate in your home, so why allow energetic debris to linger in your aura? I can teach you gentle yet effective methods to clear this energy and establish protective boundaries. Shall we begin with a simple cleansing practice?");
+    }
+    
+    if (lowerMessage.includes('entities') || lowerMessage.includes('spirits')) {
+      return adaptContentForTradition("I understand you're concerned about spiritual entities, dear one. First, know that you are not powerless - you carry divine light that no darkness can truly touch. Most 'entity' experiences are actually energetic imprints, thought forms, or our own shadow aspects seeking integration. True banishing work addresses the root: strengthening your spiritual boundaries and energy field so you become an inhospitable environment for anything not aligned with your highest good. Remember, like attracts like - as you raise your vibration through banishing and protection work, lower vibrational influences naturally fall away. Would you like to explore a banishing ritual that builds your spiritual sovereignty?");
+    }
+    
     if (lowerMessage.includes('cleanse') || lowerMessage.includes('cleansing')) {
       return adaptContentForTradition("Beautiful soul, I feel your call for energetic cleansing. Your intuition is guiding you toward spiritual hygiene - just as we cleanse our physical bodies, our energy fields need regular clearing too. Cleansing banishing rituals can clear stagnant energy from trauma, arguments, or simply daily accumulation of others' emotions. The most powerful cleanses combine four elements: clear intention (your sovereign will), symbolic action (sage, sound, or visualization), energetic sealing (filling the cleared space with light), and grounding afterward. What type of cleansing is calling to your spirit - personal aura clearing or space cleansing?");
     }
-
+    
     if (lowerMessage.includes('protection') && (lowerMessage.includes('ritual') || lowerMessage.includes('shield'))) {
       return adaptContentForTradition("Your request for protection rituals shows beautiful spiritual wisdom, dear one. Protection banishing creates a two-part process: first removing what doesn't serve, then establishing sacred boundaries. Think of it like cleaning a house and then locking the doors - banishing clears the space, protection keeps it clear. The most effective protection rituals combine energy work (visualization shields), physical anchors (crystals, herbs), and regular practice. Your energy field is like a muscle - the more you exercise your spiritual boundaries, the stronger they become. Shall I guide you through creating an auric shield that banishes negativity while attracting divine protection?");
     }
-
+    
     return adaptContentForTradition("I sense you're seeking clarity about banishing practices, precious soul. Banishing is fundamentally about reclaiming your energetic sovereignty - it's spiritual empowerment, not warfare. These sacred practices help you become the conscious curator of your energy field, choosing what influences you allow into your space. Whether it's clearing your home after conflict, releasing toxic relationship patterns, or preparing sacred space for spiritual work, banishing rituals restore your power of choice. The key is approaching this work from love and empowerment, not fear. What aspect of banishing feels most relevant to your current journey?");
   };
 
@@ -613,7 +620,7 @@ export const SoulGuideChat = () => {
       if (detectEmergency(currentInput)) {
         const emergencyLevel = currentInput.toLowerCase().includes('attack') || 
                              currentInput.toLowerCase().includes('terrified') ? 3 : 2;
-        await handleEmergencyDetected(emergencyLevel);
+        await handleEmergencyDetected(emergencyLevel, currentInput.toLowerCase().includes('attack') ? 'attack' : 'cursed');
       }
 
       // Build system prompt for Seraphina
@@ -732,6 +739,32 @@ export const SoulGuideChat = () => {
     setIsEmergencyMode(false);
   };
 
+  const handleActivateProtection = (protectionType: string) => {
+    setShowProtectionSystem(true);
+    setIsEmergencyMode(false);
+    
+    // Add message about protection activation
+    const protectionMessage: Message = {
+      id: `msg_${Date.now()}_protection`,
+      content: `🛡️ Activating ${protectionType} protection now! You are safe and protected. Let's strengthen your spiritual defenses together.`,
+      isUser: false,
+      timestamp: new Date(),
+      protectionType,
+      tone: 'ritual_authority'
+    };
+    
+    setMessages(prev => [...prev, protectionMessage]);
+  };
+
+  const handleProtectionComplete = (protectionType: string) => {
+    setShowProtectionSystem(false);
+    handleCompleteRitual(protectionType);
+  };
+
+  const handleCloseProtectionSystem = () => {
+    setShowProtectionSystem(false);
+  };
+
   if (showCulturalSettings) {
     return (
       <div className="space-y-6">
@@ -746,6 +779,28 @@ export const SoulGuideChat = () => {
           </Button>
         </div>
         <CulturalAdapter />
+      </div>
+    );
+  }
+
+  if (showProtectionSystem) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-white mb-2 flex items-center justify-center gap-2">
+            <Shield className="w-8 h-8 text-purple-400" />
+            Emergency Spiritual Protection
+            <Shield className="w-8 h-8 text-purple-400" />
+          </h2>
+          <p className="text-purple-200">Immediate Divine Protection Activated</p>
+        </div>
+
+        <SpiritualProtectionSystem
+          threatLevel={emergencyLevel}
+          threatType={protectionThreatType}
+          onProtectionComplete={handleProtectionComplete}
+          onClose={handleCloseProtectionSystem}
+        />
       </div>
     );
   }
@@ -851,6 +906,7 @@ export const SoulGuideChat = () => {
         <SpiritualEmergencyDetector
           message={inputMessage}
           onEmergencyDetected={handleEmergencyDetected}
+          onActivateProtection={handleActivateProtection}
           onEscalate={handleSpecialistEscalation}
         />
       )}
