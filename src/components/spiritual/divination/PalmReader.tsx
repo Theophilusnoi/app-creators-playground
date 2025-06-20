@@ -48,6 +48,34 @@ interface PalmAnalysis {
   overallReading: string;
   confidenceScore: number;
   imageQuality: string;
+  elementalType: string;
+  majorLines: {
+    lifeLine: {
+      name: string;
+      reading: string;
+      traditionalMeaning: string;
+      spiritualInsight: string;
+      culturalSource: string;
+    };
+    heartLine: {
+      name: string;
+      reading: string;
+      traditionalMeaning: string;
+      spiritualInsight: string;
+      culturalSource: string;
+    };
+  };
+  traditionalInterpretation: {
+    synthesis: string;
+    ayurvedicReading: string;
+    chineseReading: string;
+    westernReading: string;
+  };
+  spiritualGuidance: {
+    spiritualGifts: string[];
+    elementalPractices: string[];
+  };
+  culturalContext: string;
 }
 
 const palmLines: PalmLine[] = [
@@ -743,7 +771,7 @@ export const PalmReader: React.FC = () => {
                     <div className="space-y-4">
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="text-xl font-bold text-center text-purple-300">
-                          Divine Palm Reading
+                          Authentic Palm Reading
                         </h3>
                         
                         {voiceAvailable && (
@@ -771,28 +799,84 @@ export const PalmReader: React.FC = () => {
                           </Button>
                         )}
                       </div>
+
+                      {/* Elemental Type Display */}
+                      {palmReading.elementalType && (
+                        <div className="bg-gradient-to-r from-purple-800/50 to-indigo-800/50 rounded-lg p-3 border border-purple-500">
+                          <h4 className="font-semibold text-purple-200 mb-1 capitalize">
+                            🌟 {palmReading.elementalType} Elemental Soul
+                          </h4>
+                          <p className="text-xs text-purple-300">
+                            Your elemental nature guides your spiritual expression and divine gifts
+                          </p>
+                        </div>
+                      )}
                       
                       <div className="space-y-3 mb-4 max-h-48 overflow-y-auto">
+                        {/* Life Line */}
                         <div className="bg-white/70 rounded-lg p-3 text-gray-800">
-                          <h4 className="font-semibold text-purple-700 mb-1">💖 {palmReading.lifeLineReading.name}</h4>
-                          <p className="text-sm mb-1">{palmReading.lifeLineReading.reading}</p>
-                          <p className="text-xs text-purple-600 italic">{palmReading.lifeLineReading.spiritualInsight}</p>
+                          <h4 className="font-semibold text-purple-700 mb-1">💖 {palmReading.majorLines?.lifeLine?.name || palmReading.lifeLineReading?.name}</h4>
+                          <p className="text-sm mb-1">{palmReading.majorLines?.lifeLine?.traditionalMeaning || palmReading.lifeLineReading?.reading}</p>
+                          <p className="text-xs text-purple-600 italic">{palmReading.majorLines?.lifeLine?.spiritualInsight || palmReading.lifeLineReading?.spiritualInsight}</p>
+                          {palmReading.majorLines?.lifeLine?.culturalSource && (
+                            <p className="text-xs text-gray-600 mt-1">Source: {palmReading.majorLines.lifeLine.culturalSource}</p>
+                          )}
                         </div>
                         
+                        {/* Heart Line */}
                         <div className="bg-white/70 rounded-lg p-3 text-gray-800">
-                          <h4 className="font-semibold text-purple-700 mb-1">❤️ {palmReading.heartLineReading.name}</h4>
-                          <p className="text-sm mb-1">{palmReading.heartLineReading.reading}</p>
-                          <p className="text-xs text-purple-600 italic">{palmReading.heartLineReading.spiritualInsight}</p>
+                          <h4 className="font-semibold text-purple-700 mb-1">❤️ {palmReading.majorLines?.heartLine?.name || palmReading.heartLineReading?.name}</h4>
+                          <p className="text-sm mb-1">{palmReading.majorLines?.heartLine?.traditionalMeaning || palmReading.heartLineReading?.reading}</p>
+                          <p className="text-xs text-purple-600 italic">{palmReading.majorLines?.heartLine?.spiritualInsight || palmReading.heartLineReading?.spiritualInsight}</p>
+                          {palmReading.majorLines?.heartLine?.culturalSource && (
+                            <p className="text-xs text-gray-600 mt-1">Source: {palmReading.majorLines.heartLine.culturalSource}</p>
+                          )}
                         </div>
+
+                        {/* Traditional Interpretation */}
+                        {palmReading.traditionalInterpretation && (
+                          <div className="bg-gradient-to-r from-amber-100 to-orange-100 rounded-lg p-3 border border-amber-300 text-gray-800">
+                            <h4 className="font-semibold text-amber-700 mb-2">📜 Traditional Wisdom</h4>
+                            <p className="text-sm mb-2">{palmReading.traditionalInterpretation.synthesis}</p>
+                            <details className="text-xs">
+                              <summary className="cursor-pointer text-amber-600 hover:text-amber-800">View Ancient Traditions</summary>
+                              <div className="mt-2 space-y-1">
+                                <p><strong>Vedic:</strong> {palmReading.traditionalInterpretation.ayurvedicReading}</p>
+                                <p><strong>Chinese:</strong> {palmReading.traditionalInterpretation.chineseReading}</p>
+                                <p><strong>Western:</strong> {palmReading.traditionalInterpretation.westernReading}</p>
+                              </div>
+                            </details>
+                          </div>
+                        )}
+
+                        {/* Spiritual Guidance */}
+                        {palmReading.spiritualGuidance && (
+                          <div className="bg-gradient-to-r from-green-100 to-teal-100 rounded-lg p-3 border border-green-300 text-gray-800">
+                            <h4 className="font-semibold text-green-700 mb-2">🌟 Spiritual Guidance</h4>
+                            {palmReading.spiritualGifts && (
+                              <p className="text-sm mb-2"><strong>Divine Gift:</strong> {palmReading.spiritualGifts}</p>
+                            )}
+                            {palmReading.spiritualGuidance.spiritualGifts?.[0] && (
+                              <p className="text-sm mb-2"><strong>Sacred Ability:</strong> {palmReading.spiritualGuidance.spiritualGifts[0]}</p>
+                            )}
+                            {palmReading.spiritualGuidance.elementalPractices?.[0] && (
+                              <p className="text-xs text-green-600"><strong>Elemental Practice:</strong> {palmReading.spiritualGuidance.elementalPractices[0]}</p>
+                            )}
+                          </div>
+                        )}
                         
+                        {/* Overall Reading */}
                         <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg p-3 border border-purple-300 text-gray-800">
-                          <h4 className="font-semibold text-purple-700 mb-1">🔮 Overall Reading</h4>
+                          <h4 className="font-semibold text-purple-700 mb-1">🔮 Overall Sacred Reading</h4>
                           <p className="text-sm font-medium">{palmReading.overallReading}</p>
                         </div>
                       </div>
                       
                       <div className="text-center text-sm text-gray-300 mb-3">
                         <p>Confidence: {palmReading.confidenceScore}% | Quality: {palmReading.imageQuality}</p>
+                        {palmReading.culturalContext && (
+                          <p className="text-xs text-gray-400 mt-1">{palmReading.culturalContext}</p>
+                        )}
                       </div>
                       
                       <div className="flex justify-center">
