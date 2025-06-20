@@ -271,10 +271,20 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
     return guidance[Math.floor(Math.random() * guidance.length)];
   };
 
+  // Auto-initialize camera when component mounts
   useEffect(() => {
-    initCamera();
+    const autoStartCamera = () => {
+      // Only auto-start if user hasn't manually started camera yet
+      if (cameraStatus === 'inactive') {
+        initCamera();
+      }
+    };
+
+    // Small delay to ensure component is fully mounted
+    const timer = setTimeout(autoStartCamera, 1000);
     
     return () => {
+      clearTimeout(timer);
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
@@ -286,10 +296,10 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 bg-clip-text text-transparent mb-4 flex items-center justify-center gap-3">
           <Hand className="text-purple-600" size={40} />
-          📱 Advanced Camera Palm Reading
+          Sacred Palm Analysis Pro
         </h1>
         <p className="text-purple-200 text-lg">
-          Revolutionary camera integration for real-time palm analysis with enhanced spiritual insights
+          Advanced camera palm reading with enhanced spiritual AI analysis
         </p>
       </div>
       
