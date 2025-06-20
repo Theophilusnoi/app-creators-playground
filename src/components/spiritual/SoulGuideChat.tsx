@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,7 @@ import { SpiritualProtectionSystem } from './SpiritualProtectionSystem';
 import { SpiritualMarriageDetector } from './SpiritualMarriageDetector';
 import { SpiritualMarriageBreaking } from './SpiritualMarriageBreaking';
 import { CurseBreakingSystem } from './CurseBreakingSystem';
-import { EntityAttachmentDetector } from './EntityAttachmentDetector';
+import { EntityAttachmentDetector } from './entity/EntityAttachmentDetector';
 import { EntityRemovalSystem } from './EntityRemovalSystem';
 import { CulturalAdapter } from './CulturalAdapter';
 import { MessageCircle, Send, Heart, Sparkles, Shield, AlertTriangle, Settings } from "lucide-react";
