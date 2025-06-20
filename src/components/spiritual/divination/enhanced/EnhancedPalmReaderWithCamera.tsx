@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useVoiceService } from '@/hooks/useVoiceService';
-import { Camera, RotateCw, Scan, Hand, Upload } from 'lucide-react';
+import { Camera, RotateCw, Scan, Hand, Upload, ZoomIn, ZoomOut, Move } from 'lucide-react';
 
 interface PalmAnalysis {
   lifeLineReading: {
@@ -40,9 +40,12 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
   const [scanProgress, setScanProgress] = useState(0);
   const [cameraStatus, setCameraStatus] = useState<'inactive' | 'starting' | 'active' | 'error'>('inactive');
   const [showGuidance, setShowGuidance] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [palmDetected, setPalmDetected] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
   const { generateAndPlay } = useVoiceService();
 
@@ -76,6 +79,11 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
         
         await videoRef.current.play();
         setCameraStatus('active');
+        
+        toast({
+          title: "Camera Ready",
+          description: "Position your palm in the guide for optimal capture",
+        });
       }
     } catch (err) {
       console.error("Camera error:", err);
@@ -86,6 +94,27 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const cropPalmImage = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, video: HTMLVideoElement): string => {
+    // Calculate crop area for palm (center 60% of the image)
+    const cropWidth = video.videoWidth * 0.6;
+    const cropHeight = video.videoHeight * 0.6;
+    const cropX = (video.videoWidth - cropWidth) / 2;
+    const cropY = (video.videoHeight - cropHeight) / 2;
+    
+    // Set canvas to crop dimensions
+    canvas.width = cropWidth;
+    canvas.height = cropHeight;
+    
+    // Draw the cropped region
+    ctx.drawImage(
+      video,
+      cropX, cropY, cropWidth, cropHeight,  // Source rectangle
+      0, 0, cropWidth, cropHeight           // Destination rectangle
+    );
+    
+    return canvas.toDataURL('image/jpeg', 0.9);
   };
 
   const startPalmScan = async () => {
@@ -105,21 +134,12 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
     
     const canvas = document.createElement('canvas');
     const video = videoRef.current;
-    if (video) {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+    if (video && canvasRef.current) {
       const ctx = canvas.getContext('2d');
       if (ctx) {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        canvas.toBlob((blob) => {
-          if (blob) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-              setPalmImage(e.target?.result as string);
-            };
-            reader.readAsDataURL(blob);
-          }
-        }, 'image/jpeg', 0.8);
+        // Crop the image to focus only on palm area
+        const croppedImageData = cropPalmImage(canvas, ctx, video);
+        setPalmImage(croppedImageData);
       }
     }
     
@@ -131,7 +151,35 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
     if (file && file.type.startsWith('image/')) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        setPalmImage(e.target?.result as string);
+        const imageData = e.target?.result as string;
+        
+        // Create an image element to get dimensions for cropping
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          if (ctx) {
+            // Calculate crop area for uploaded image (center 70%)
+            const cropWidth = img.width * 0.7;
+            const cropHeight = img.height * 0.7;
+            const cropX = (img.width - cropWidth) / 2;
+            const cropY = (img.height - cropHeight) / 2;
+            
+            canvas.width = cropWidth;
+            canvas.height = cropHeight;
+            
+            ctx.drawImage(
+              img,
+              cropX, cropY, cropWidth, cropHeight,
+              0, 0, cropWidth, cropHeight
+            );
+            
+            const croppedImageData = canvas.toDataURL('image/jpeg', 0.9);
+            setPalmImage(croppedImageData);
+          }
+        };
+        img.src = imageData;
       };
       reader.readAsDataURL(file);
       
@@ -141,6 +189,16 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
       setShowGuidance(false);
       simulatePalmAnalysis();
     }
+  };
+
+  const adjustZoom = (direction: 'in' | 'out') => {
+    setZoomLevel(prev => {
+      const newZoom = direction === 'in' ? Math.min(prev + 0.2, 3) : Math.max(prev - 0.2, 1);
+      if (videoRef.current) {
+        videoRef.current.style.transform = `scale(${newZoom})`;
+      }
+      return newZoom;
+    });
   };
 
   const simulatePalmAnalysis = () => {
@@ -274,13 +332,11 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
   // Auto-initialize camera when component mounts
   useEffect(() => {
     const autoStartCamera = () => {
-      // Only auto-start if user hasn't manually started camera yet
       if (cameraStatus === 'inactive') {
         initCamera();
       }
     };
 
-    // Small delay to ensure component is fully mounted
     const timer = setTimeout(autoStartCamera, 1000);
     
     return () => {
@@ -313,7 +369,7 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
         
         <CardContent className="p-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Camera Section */}
+            {/* Enhanced Camera Section */}
             <div className="space-y-6">
               <div className="aspect-square bg-gradient-to-br from-purple-100/20 to-indigo-100/20 rounded-2xl border-2 border-dashed border-purple-400/50 relative overflow-hidden">
                 {cameraStatus === 'active' ? (
@@ -323,19 +379,60 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
                       autoPlay 
                       playsInline 
                       muted
-                      className="w-full h-full object-cover rounded-2xl"
+                      className="w-full h-full object-cover rounded-2xl transition-transform duration-300"
+                      style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'center center' }}
                     />
+                    
+                    {/* Palm Positioning Guide Overlay */}
                     {!isAnalyzing && (
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className="border-4 border-white/80 border-dashed rounded-full w-72 h-72 animate-pulse flex items-center justify-center">
-                          <div className="text-white font-bold text-center text-lg">
-                            Position your palm here
-                            <br />
-                            <span className="text-sm opacity-80">Keep steady and well-lit</span>
+                        {/* Main palm guide */}
+                        <div className="relative">
+                          <div className="border-4 border-white/90 rounded-xl w-64 h-80 animate-pulse flex items-center justify-center bg-white/10 backdrop-blur-sm">
+                            <div className="text-white font-bold text-center text-lg">
+                              <Hand size={48} className="mx-auto mb-2 animate-pulse" />
+                              Place your palm here
+                              <br />
+                              <span className="text-sm opacity-90">Keep fingers together</span>
+                            </div>
+                          </div>
+                          
+                          {/* Corner guides */}
+                          <div className="absolute -top-2 -left-2 w-6 h-6 border-l-4 border-t-4 border-yellow-400"></div>
+                          <div className="absolute -top-2 -right-2 w-6 h-6 border-r-4 border-t-4 border-yellow-400"></div>
+                          <div className="absolute -bottom-2 -left-2 w-6 h-6 border-l-4 border-b-4 border-yellow-400"></div>
+                          <div className="absolute -bottom-2 -right-2 w-6 h-6 border-r-4 border-b-4 border-yellow-400"></div>
+                          
+                          {/* Distance guide */}
+                          <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-white text-sm bg-black/70 px-3 py-1 rounded-full">
+                            📏 6-8 inches from camera
                           </div>
                         </div>
                       </div>
                     )}
+                    
+                    {/* Zoom Controls */}
+                    <div className="absolute top-4 right-4 flex flex-col gap-2">
+                      <Button
+                        onClick={() => adjustZoom('in')}
+                        disabled={zoomLevel >= 3}
+                        className="bg-black/70 hover:bg-black/90 text-white p-2 rounded-full"
+                        size="sm"
+                      >
+                        <ZoomIn size={16} />
+                      </Button>
+                      <Button
+                        onClick={() => adjustZoom('out')}
+                        disabled={zoomLevel <= 1}
+                        className="bg-black/70 hover:bg-black/90 text-white p-2 rounded-full"
+                        size="sm"
+                      >
+                        <ZoomOut size={16} />
+                      </Button>
+                      <div className="bg-black/70 text-white px-2 py-1 rounded text-xs text-center">
+                        {Math.round(zoomLevel * 100)}%
+                      </div>
+                    </div>
                   </>
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center">
@@ -427,13 +524,29 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
                   className="hidden"
                 />
               </div>
+              
+              {/* Enhanced Positioning Tips */}
+              <div className="bg-gradient-to-r from-blue-900/30 to-indigo-900/30 rounded-xl p-4 border border-blue-400/30">
+                <h4 className="font-semibold text-blue-200 mb-2 flex items-center gap-2">
+                  <Move size={16} />
+                  📋 Optimal Palm Positioning
+                </h4>
+                <ul className="text-blue-100 text-sm space-y-1">
+                  <li>• Hold palm 6-8 inches from camera</li>
+                  <li>• Keep fingers together and straight</li>
+                  <li>• Ensure good lighting (avoid shadows)</li>
+                  <li>• Position palm flat and stable</li>
+                  <li>• Use zoom controls for better focus</li>
+                </ul>
+              </div>
             </div>
             
             {/* Results Section */}
             <div className="space-y-6">
               {palmImage && (
                 <div className="text-center mb-4">
-                  <img src={palmImage} alt="Palm" className="max-w-full max-h-48 rounded-lg mx-auto shadow-lg" />
+                  <img src={palmImage} alt="Cropped Palm" className="max-w-full max-h-48 rounded-lg mx-auto shadow-lg border-2 border-purple-300" />
+                  <p className="text-purple-300 text-sm mt-2">✂️ Auto-cropped for palm focus</p>
                 </div>
               )}
               
@@ -497,7 +610,7 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
                     Ready for Advanced Palm Scan
                   </h3>
                   <p className="text-purple-300 text-lg leading-relaxed">
-                    Use your camera or upload an image to receive an enhanced spiritual palm reading with advanced AI analysis.
+                    Position your palm in the guide above and capture for enhanced spiritual analysis with automatic cropping for optimal focus.
                   </p>
                 </div>
               )}
@@ -506,9 +619,13 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
         </CardContent>
       </Card>
       
+      {/* Hidden canvas for image processing */}
+      <canvas ref={canvasRef} className="hidden" />
+      
       <div className="mt-8 text-center text-sm text-purple-400 space-y-2">
-        <p>📱 Advanced camera technology for enhanced palm reading accuracy</p>
-        <p>🔮 AI-powered spiritual analysis with divine guidance interpretation</p>
+        <p>📱 Enhanced camera with auto-cropping for palm-focused analysis</p>
+        <p>🔍 Zoom controls and positioning guides for optimal capture</p>
+        <p>✂️ Automatic image cropping ensures privacy and accuracy</p>
         <p>🙏 Position your palm clearly with good lighting for best results</p>
       </div>
     </div>
