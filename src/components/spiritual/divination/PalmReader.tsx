@@ -74,113 +74,59 @@ export const PalmReader: React.FC = () => {
   const [scanQuality, setScanQuality] = useState<number>(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
-  const [permissionStatus, setPermissionStatus] = useState<'prompt' | 'granted' | 'denied' | 'unknown'>('unknown');
+  const [cameraStatus, setCameraStatus] = useState<'inactive' | 'starting' | 'active' | 'error'>('inactive');
   const [isRetrying, setIsRetrying] = useState(false);
   const [voiceAvailable, setVoiceAvailable] = useState(false);
   const [isPlayingVoice, setIsPlayingVoice] = useState(false);
+  const [showPermissionsHelp, setShowPermissionsHelp] = useState(false);
 
-  // Check camera permissions
-  const checkCameraPermission = async () => {
+  // Enhanced camera initialization with better error handling
+  const startCamera = async () => {
     try {
-      console.log('🔍 Checking camera permissions...');
-      if (navigator.permissions) {
-        const permission = await navigator.permissions.query({ name: 'camera' as PermissionName });
-        console.log('📹 Camera permission status:', permission.state);
-        setPermissionStatus(permission.state as any);
-        return permission.state === 'granted';
-      }
-      return false;
-    } catch (err) {
-      console.warn('⚠️ Permission check failed:', err);
-      setPermissionStatus('unknown');
-      return false;
-    }
-  };
-
-  // Get available camera devices with improved error handling
-  const getCameraDevices = async () => {
-    try {
-      console.log('📱 Getting camera devices...');
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const cameras = devices.filter(device => device.kind === 'videoinput');
-      console.log('📹 Found cameras:', cameras.length, cameras.map(c => c.label || 'Unknown Camera'));
-      
-      setCameraDevices(cameras);
-      if (cameras.length > 0 && !selectedCamera) {
-        // Prefer back camera if available
-        const backCamera = cameras.find(camera => 
-          camera.label.toLowerCase().includes('back') || 
-          camera.label.toLowerCase().includes('rear') ||
-          camera.label.toLowerCase().includes('environment')
-        );
-        setSelectedCamera(backCamera?.deviceId || cameras[0].deviceId);
-      }
-      return cameras;
-    } catch (err) {
-      console.error('❌ Camera enumeration error:', err);
-      setCameraError('Unable to detect camera devices. Please check your camera permissions.');
-      toast({
-        title: 'Camera Detection Failed',
-        description: 'Could not detect available cameras. Please check permissions.',
-        variant: 'destructive',
-      });
-      return [];
-    }
-  };
-
-  // Enhanced camera startup with multiple fallback strategies
-  const startCamera = async (retryAttempt = 0) => {
-    if (!selectedCamera || !videoRef.current) {
-      console.warn('⚠️ No camera selected or video ref missing');
-      return false;
-    }
-    
-    try {
-      console.log(`🎥 Starting camera attempt ${retryAttempt + 1}...`);
+      setCameraStatus('starting');
       setCameraError(null);
+      setShowPermissionsHelp(false);
       
-      // Stop existing stream
+      // Check if getUserMedia is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Camera access is not supported in this browser');
+      }
+
+      // Stop existing stream if any
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
         setStream(null);
       }
-      
-      // Progressive constraint fallback strategy
+
+      console.log('🎥 Starting enhanced camera initialization...');
+
+      // Enhanced constraints with multiple fallback options
       const constraintOptions = [
-        // High quality with specific device
+        // High quality with environment camera preference
         {
           video: {
-            deviceId: { exact: selectedCamera },
-            facingMode: 'environment',
-            width: { ideal: 1280, min: 640 },
-            height: { ideal: 720, min: 480 }
+            width: { ideal: 1280, max: 1920 },
+            height: { ideal: 720, max: 1080 },
+            facingMode: 'environment'
           }
         },
-        // Medium quality with device preference
+        // Medium quality fallback
         {
           video: {
-            deviceId: selectedCamera,
-            width: { ideal: 1024, min: 480 },
-            height: { ideal: 576, min: 360 }
+            width: { ideal: 1024, max: 1280 },
+            height: { ideal: 576, max: 720 },
+            facingMode: { ideal: 'environment' }
           }
         },
-        // Basic quality with device preference
+        // Basic quality fallback
         {
           video: {
-            deviceId: selectedCamera,
             width: 640,
-            height: 480
+            height: 480,
+            facingMode: { ideal: 'environment' }
           }
         },
-        // Fallback to any camera
-        {
-          video: {
-            facingMode: 'environment',
-            width: 640,
-            height: 480
-          }
-        },
-        // Ultimate fallback
+        // Ultimate fallback - any available camera
         {
           video: true
         }
@@ -189,6 +135,7 @@ export const PalmReader: React.FC = () => {
       let mediaStream: MediaStream | null = null;
       let lastError: Error | null = null;
 
+      // Try each constraint option
       for (let i = 0; i < constraintOptions.length; i++) {
         try {
           console.log(`📹 Trying constraint option ${i + 1}:`, constraintOptions[i]);
@@ -206,86 +153,80 @@ export const PalmReader: React.FC = () => {
         throw lastError || new Error('All camera constraint options failed');
       }
 
-      // Setup video stream
-      videoRef.current.srcObject = mediaStream;
-      setStream(mediaStream);
-      
-      // Wait for video to be ready
-      await new Promise<void>((resolve, reject) => {
-        if (!videoRef.current) {
-          reject(new Error('Video element not available'));
-          return;
-        }
+      // Set up video stream
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+        setStream(mediaStream);
         
-        const video = videoRef.current;
-        const timeoutId = setTimeout(() => {
-          reject(new Error('Video loading timeout'));
-        }, 10000);
-        
-        video.onloadedmetadata = () => {
-          clearTimeout(timeoutId);
-          console.log('📹 Video metadata loaded, dimensions:', video.videoWidth, 'x', video.videoHeight);
-          resolve();
-        };
-        
-        video.onerror = () => {
-          clearTimeout(timeoutId);
-          reject(new Error('Video loading error'));
-        };
-      });
+        // Wait for video to be ready
+        await new Promise<void>((resolve, reject) => {
+          if (!videoRef.current) {
+            reject(new Error('Video element not available'));
+            return;
+          }
+          
+          const video = videoRef.current;
+          const timeoutId = setTimeout(() => {
+            reject(new Error('Video loading timeout'));
+          }, 10000);
+          
+          video.onloadedmetadata = () => {
+            clearTimeout(timeoutId);
+            console.log('📹 Video metadata loaded, dimensions:', video.videoWidth, 'x', video.videoHeight);
+            resolve();
+          };
+          
+          video.onerror = () => {
+            clearTimeout(timeoutId);
+            reject(new Error('Video loading error'));
+          };
+        });
 
-      await videoRef.current.play();
+        await videoRef.current.play();
+      }
+
       setIsCameraActive(true);
-      setPermissionStatus('granted');
+      setCameraStatus('active');
       
       toast({
         title: "Camera Ready",
         description: "Divine vision activated - ready to scan your palm",
       });
       
-      return true;
-    } catch (err) {
-      console.error(`❌ Camera start error (attempt ${retryAttempt + 1}):`, err);
+    } catch (error) {
+      console.error('❌ Enhanced camera start error:', error);
       
-      const error = err as Error;
+      const err = error as Error;
       let errorMessage = 'Camera access failed';
       
-      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
         errorMessage = 'Camera permission denied. Please allow camera access and try again.';
-        setPermissionStatus('denied');
-      } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-        errorMessage = 'No camera found. Please connect a camera device.';
-      } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
-        errorMessage = 'Camera is already in use by another application.';
-      } else if (error.name === 'OverconstrainedError' || error.name === 'ConstraintNotSatisfiedError') {
-        errorMessage = 'Camera does not support the required settings.';
-      } else if (error.message.includes('timeout')) {
-        errorMessage = 'Camera startup timeout. Please try again.';
+        setShowPermissionsHelp(true);
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        errorMessage = 'No camera found on this device.';
+      } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+        errorMessage = 'Camera is being used by another application.';
+      } else if (err.name === 'OverconstrainedError' || err.name === 'ConstraintNotSatisfiedError') {
+        errorMessage = 'Camera does not meet the required specifications.';
+      } else {
+        errorMessage = err.message || 'Unknown camera error occurred.';
       }
       
       setCameraError(errorMessage);
+      setCameraStatus('error');
       setIsCameraActive(false);
-      
-      // Retry logic for certain errors
-      if (retryAttempt < 2 && !error.name.includes('NotAllowed') && !error.name.includes('PermissionDenied')) {
-        console.log(`🔄 Retrying camera start in 1 second... (attempt ${retryAttempt + 2})`);
-        setTimeout(() => startCamera(retryAttempt + 1), 1000);
-        return false;
-      }
       
       toast({
         title: 'Camera Error',
         description: errorMessage,
         variant: 'destructive',
       });
-      
-      return false;
     }
   };
 
-  // Stop camera with cleanup
+  // Enhanced stop camera function
   const stopCamera = () => {
-    console.log('🛑 Stopping camera...');
+    console.log('🛑 Stopping enhanced camera...');
     if (stream) {
       stream.getTracks().forEach(track => {
         console.log('🔒 Stopping track:', track.kind, track.label);
@@ -297,69 +238,9 @@ export const PalmReader: React.FC = () => {
       videoRef.current.srcObject = null;
     }
     setIsCameraActive(false);
+    setCameraStatus('inactive');
     setCameraError(null);
-  };
-
-  // Initialize camera devices on component mount
-  useEffect(() => {
-    const initializeCameras = async () => {
-      console.log('🚀 Initializing camera system...');
-      await checkCameraPermission();
-      await getCameraDevices();
-    };
-    
-    initializeCameras();
-    
-    return () => {
-      stopCamera();
-    };
-  }, []);
-
-  // Handle camera toggle
-  const toggleCamera = async () => {
-    if (isCameraActive) {
-      stopCamera();
-    } else {
-      setIsRetrying(true);
-      const hasPermission = await checkCameraPermission();
-      if (!hasPermission && permissionStatus === 'denied') {
-        toast({
-          title: 'Camera Permission Required',
-          description: 'Please enable camera permissions in your browser settings and refresh the page.',
-          variant: 'destructive',
-        });
-        setIsRetrying(false);
-        return;
-      }
-      
-      const devices = await getCameraDevices();
-      if (devices.length === 0) {
-        setIsRetrying(false);
-        return;
-      }
-      
-      await startCamera();
-      setIsRetrying(false);
-    }
-  };
-
-  // Switch to next camera
-  const switchCamera = async () => {
-    if (cameraDevices.length < 2) return;
-    
-    console.log('🔄 Switching camera...');
-    const currentIndex = cameraDevices.findIndex(device => device.deviceId === selectedCamera);
-    const nextIndex = (currentIndex + 1) % cameraDevices.length;
-    const newCameraId = cameraDevices[nextIndex].deviceId;
-    
-    console.log('📹 Switching from camera', currentIndex, 'to camera', nextIndex);
-    setSelectedCamera(newCameraId);
-    
-    // Restart camera with new selection
-    if (isCameraActive) {
-      stopCamera();
-      setTimeout(() => startCamera(), 500);
-    }
+    setShowPermissionsHelp(false);
   };
 
   // Enhanced image upload handler
@@ -376,7 +257,6 @@ export const PalmReader: React.FC = () => {
       return;
     }
 
-    // Check file size (limit to 10MB)
     if (file.size > 10 * 1024 * 1024) {
       toast({
         title: "File Too Large",
@@ -403,11 +283,8 @@ export const PalmReader: React.FC = () => {
 
       console.log('✅ Image upload successful, data URL length:', result.length);
       
-      // Set both captured and uploaded image to the same value
       setCapturedImage(result);
       setUploadedImage(result);
-      
-      // Reset any previous readings
       setPalmReading(null);
       setScanProgress(0);
       setIsScanning(false);
@@ -428,34 +305,65 @@ export const PalmReader: React.FC = () => {
       });
     };
 
-    // Read the file as data URL
     reader.readAsDataURL(file);
   };
 
-  // Capture image from video stream
+  // Enhanced capture image function
   const captureImage = () => {
-    if (!videoRef.current || !canvasRef.current) return;
+    if (!videoRef.current || !canvasRef.current) {
+      toast({
+        title: 'Camera Not Ready',
+        description: 'Please wait for camera to initialize',
+        variant: 'destructive',
+      });
+      return;
+    }
     
     const video = videoRef.current;
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
     
-    if (!context) return;
+    if (!context) {
+      toast({
+        title: 'Capture Error',
+        description: 'Failed to initialize image capture',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!video.videoWidth || !video.videoHeight) {
+      toast({
+        title: 'Camera Not Ready',
+        description: 'Please wait a moment and try again',
+        variant: 'destructive',
+      });
+      return;
+    }
     
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
-    const imageData = canvas.toDataURL('image/jpeg', 0.8);
-    setCapturedImage(imageData);
-    setUploadedImage(imageData);
-    
-    toast({
-      title: "Image Captured",
-      description: "Palm image captured successfully",
-    });
-    
-    return imageData;
+    try {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      
+      const imageData = canvas.toDataURL('image/jpeg', 0.8);
+      setCapturedImage(imageData);
+      setUploadedImage(imageData);
+      
+      toast({
+        title: "Image Captured",
+        description: "Palm image captured successfully",
+      });
+      
+      return imageData;
+    } catch (error) {
+      console.error('Capture error:', error);
+      toast({
+        title: 'Capture Failed',
+        description: 'Failed to capture photo. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   // Enhanced scan function with better image validation
@@ -471,7 +379,6 @@ export const PalmReader: React.FC = () => {
       return;
     }
 
-    // Validate image format
     if (!imageToAnalyze.startsWith('data:image/')) {
       console.error('❌ Invalid image format:', imageToAnalyze.substring(0, 50));
       toast({
@@ -490,7 +397,6 @@ export const PalmReader: React.FC = () => {
     setPalmReading(null);
     setVoiceAvailable(false);
     
-    // Simulate progress
     const progressInterval = setInterval(() => {
       setScanProgress(prev => {
         if (prev >= 90) {
@@ -499,7 +405,6 @@ export const PalmReader: React.FC = () => {
         }
         const newProgress = Math.min(prev + Math.floor(Math.random() * 10) + 1, 90);
         
-        // Update quality based on progress
         if (newProgress >= 30 && newProgress < 50) {
           setScanQuality(Math.floor(Math.random() * 40) + 30);
         } else if (newProgress >= 50 && newProgress < 80) {
@@ -539,7 +444,6 @@ export const PalmReader: React.FC = () => {
           description: `Analysis completed with ${data.analysis.confidenceScore}% confidence`,
         });
 
-        // Try to prepare voice reading
         await prepareVoiceReading(data.analysis);
       } else {
         throw new Error(data?.error || 'Analysis failed');
@@ -579,15 +483,15 @@ export const PalmReader: React.FC = () => {
           setVoiceAvailable(true);
         } else {
           console.warn('⚠️ Voice generation failed, enabling fallback');
-          setVoiceAvailable(true); // Still show button for fallback
+          setVoiceAvailable(true);
         }
       } else {
         console.warn('⚠️ Voice service not available, enabling fallback');
-        setVoiceAvailable(true); // Show button for browser speech
+        setVoiceAvailable(true);
       }
     } catch (error) {
       console.error('❌ Voice preparation error:', error);
-      setVoiceAvailable(true); // Still show button for fallback
+      setVoiceAvailable(true);
     }
   };
 
@@ -638,7 +542,6 @@ export const PalmReader: React.FC = () => {
         await playReadyAudio();
       } catch (error) {
         console.error('❌ Generated audio playback failed:', error);
-        // Fallback to browser speech
         playWithBrowserSpeech(palmReading.overallReading);
       }
     } else {
@@ -660,6 +563,15 @@ export const PalmReader: React.FC = () => {
     setIsPlayingVoice(false);
   };
 
+  // Initialize on component mount
+  useEffect(() => {
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [stream]);
+
   return (
     <div className="max-w-4xl mx-auto p-4">
       <div className="text-center mb-8">
@@ -677,31 +589,22 @@ export const PalmReader: React.FC = () => {
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center">
               <Scan className="mr-2" />
-              <span>Advanced Palm Scanner</span>
+              <span>Enhanced Palm Scanner</span>
             </div>
             <div className="flex space-x-2">
               <Button 
                 variant={isCameraActive ? "destructive" : "secondary"} 
                 size="icon"
-                onClick={toggleCamera}
-                disabled={isRetrying}
+                onClick={isCameraActive ? stopCamera : startCamera}
+                disabled={cameraStatus === 'starting'}
               >
-                {isRetrying ? (
+                {cameraStatus === 'starting' ? (
                   <RotateCw className="animate-spin" size={20} />
                 ) : isCameraActive ? (
                   <VideoOff size={20} />
                 ) : (
                   <Video size={20} />
                 )}
-              </Button>
-              <Button 
-                variant="secondary" 
-                size="icon"
-                onClick={switchCamera}
-                disabled={cameraDevices.length < 2 || !isCameraActive}
-                title={`Switch camera (${cameraDevices.length} available)`}
-              >
-                <RotateCcw size={20} />
               </Button>
             </div>
           </CardTitle>
@@ -729,21 +632,20 @@ export const PalmReader: React.FC = () => {
               {!isCameraActive && (
                 <div className="w-full h-64 flex flex-col items-center justify-center bg-gray-900">
                   <Camera className="text-gray-600 w-16 h-16 mb-4" />
-                  {permissionStatus === 'denied' ? (
-                    <div className="text-center">
-                      <p className="text-gray-500 mb-2">Camera permission denied</p>
-                      <p className="text-sm text-gray-600 mb-4">Please allow camera access in your browser</p>
-                    </div>
-                  ) : cameraError ? (
+                  {cameraStatus === 'error' ? (
                     <div className="text-center">
                       <p className="text-red-400 mb-2">Camera Error</p>
-                      <p className="text-sm text-gray-600 mb-4">Please check camera availability</p>
+                      <p className="text-sm text-gray-600 mb-4">{cameraError}</p>
+                    </div>
+                  ) : cameraStatus === 'starting' ? (
+                    <div className="text-center">
+                      <p className="text-yellow-400 mb-2">Initializing Camera...</p>
+                      <p className="text-sm text-gray-600 mb-4">Please wait</p>
                     </div>
                   ) : (
                     <p className="text-gray-500 mb-4">Camera is disabled</p>
                   )}
                   
-                  {/* Upload option when camera is off */}
                   <div className="text-center">
                     <input
                       type="file"
@@ -759,6 +661,18 @@ export const PalmReader: React.FC = () => {
                       <Upload className="mr-2" size={16} />
                       Upload Image
                     </label>
+                  </div>
+                </div>
+              )}
+              
+              {isCameraActive && !isScanning && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="border-4 border-white/80 border-dashed rounded-full w-72 h-72 animate-pulse flex items-center justify-center">
+                    <div className="text-white font-bold text-center text-lg">
+                      Position your palm here
+                      <br />
+                      <span className="text-sm opacity-80">Keep steady and well-lit</span>
+                    </div>
                   </div>
                 </div>
               )}
@@ -832,7 +746,6 @@ export const PalmReader: React.FC = () => {
                           Divine Palm Reading
                         </h3>
                         
-                        {/* Always show voice button after reading */}
                         {voiceAvailable && (
                           <Button
                             onClick={handleVoicePlay}
@@ -924,6 +837,26 @@ export const PalmReader: React.FC = () => {
             </div>
           </div>
           
+          {/* Enhanced Permissions Help */}
+          {showPermissionsHelp && (
+            <div className="mt-6 bg-yellow-900/40 rounded-xl p-4 border border-yellow-700">
+              <h3 className="text-lg font-semibold mb-3 text-yellow-200 flex items-center">
+                <AlertCircle className="mr-2" size={20} />
+                Camera Permissions Help
+              </h3>
+              <div className="text-yellow-100 space-y-2">
+                <p>If the camera isn't working, please try these steps:</p>
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  <li>Click the camera icon in your browser's address bar and allow camera access</li>
+                  <li>Refresh the page and try again</li>
+                  <li>Make sure no other applications are using your camera</li>
+                  <li>Try using a different browser (Chrome, Firefox, Safari)</li>
+                  <li>As an alternative, you can upload a photo of your palm using the "Upload" button</li>
+                </ul>
+              </div>
+            </div>
+          )}
+          
           {/* Palm Lines Reference */}
           <div className="mt-6 bg-indigo-900/40 rounded-xl p-4 border border-indigo-700">
             <h3 className="text-lg font-semibold mb-3 text-indigo-200">Palm Lines Guide</h3>
@@ -948,9 +881,7 @@ export const PalmReader: React.FC = () => {
       <div className="mt-8 text-center text-sm text-gray-500">
         <p>For best results: Use a clear, well-lit photo of your palm with fingers together.</p>
         <p>Divine palmistry reveals spiritual insights - your faith and choices shape your destiny.</p>
-        {cameraDevices.length > 0 && (
-          <p className="mt-2">📹 {cameraDevices.length} camera{cameraDevices.length > 1 ? 's' : ''} detected</p>
-        )}
+        <p className="mt-2">📱 Enhanced camera technology for improved palm reading accuracy</p>
       </div>
     </div>
   );
