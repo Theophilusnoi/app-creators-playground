@@ -5,7 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useVoiceService } from '@/hooks/useVoiceService';
 import { supabase } from '@/integrations/supabase/client';
-import { Scan, RotateCw, Camera, Video, VideoOff, RotateCcw, Upload, AlertCircle } from 'lucide-react';
+import { Scan, RotateCw, Camera, Video, VideoOff, RotateCcw, Upload, AlertCircle, Play, Volume2 } from 'lucide-react';
 
 interface PalmLine {
   id: string;
@@ -59,7 +59,7 @@ const palmLines: PalmLine[] = [
 
 export const PalmReader: React.FC = () => {
   const { toast } = useToast();
-  const { generateAndPlay, playReadyAudio, audioReady } = useVoiceService();
+  const { generateAndPlay, playReadyAudio, audioReady, isGenerating } = useVoiceService();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
@@ -76,6 +76,8 @@ export const PalmReader: React.FC = () => {
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [permissionStatus, setPermissionStatus] = useState<'prompt' | 'granted' | 'denied' | 'unknown'>('unknown');
   const [isRetrying, setIsRetrying] = useState(false);
+  const [voiceAvailable, setVoiceAvailable] = useState(false);
+  const [isPlayingVoice, setIsPlayingVoice] = useState(false);
 
   // Check camera permissions
   const checkCameraPermission = async () => {
@@ -486,6 +488,7 @@ export const PalmReader: React.FC = () => {
     setIsAnalyzing(true);
     setScanProgress(0);
     setPalmReading(null);
+    setVoiceAvailable(false);
     
     // Simulate progress
     const progressInterval = setInterval(() => {
@@ -536,13 +539,8 @@ export const PalmReader: React.FC = () => {
           description: `Analysis completed with ${data.analysis.confidenceScore}% confidence`,
         });
 
-        // Generate voice reading
-        if (generateAndPlay) {
-          await generateAndPlay({
-            text: `Your divine palm reading is complete. ${data.analysis.overallReading}`,
-            emotion: 'compassionate'
-          });
-        }
+        // Try to prepare voice reading
+        await prepareVoiceReading(data.analysis);
       } else {
         throw new Error(data?.error || 'Analysis failed');
       }
@@ -562,6 +560,93 @@ export const PalmReader: React.FC = () => {
     }
   };
 
+  // New function to prepare voice reading with fallbacks
+  const prepareVoiceReading = async (analysis: any) => {
+    console.log('🎵 Preparing voice reading...');
+    
+    try {
+      if (generateAndPlay) {
+        const voiceText = `Your divine palm reading is complete. ${analysis.overallReading}`;
+        console.log('🎵 Generating voice with text:', voiceText.substring(0, 50) + '...');
+        
+        const success = await generateAndPlay({
+          text: voiceText,
+          emotion: 'compassionate'
+        });
+        
+        if (success) {
+          console.log('✅ Voice generation successful');
+          setVoiceAvailable(true);
+        } else {
+          console.warn('⚠️ Voice generation failed, enabling fallback');
+          setVoiceAvailable(true); // Still show button for fallback
+        }
+      } else {
+        console.warn('⚠️ Voice service not available, enabling fallback');
+        setVoiceAvailable(true); // Show button for browser speech
+      }
+    } catch (error) {
+      console.error('❌ Voice preparation error:', error);
+      setVoiceAvailable(true); // Still show button for fallback
+    }
+  };
+
+  // Browser speech synthesis fallback
+  const playWithBrowserSpeech = (text: string) => {
+    if ('speechSynthesis' in window) {
+      console.log('🔊 Using browser speech synthesis');
+      setIsPlayingVoice(true);
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.8;
+      utterance.pitch = 1;
+      utterance.volume = 0.8;
+      
+      utterance.onend = () => {
+        setIsPlayingVoice(false);
+        console.log('🔊 Browser speech ended');
+      };
+      
+      utterance.onerror = () => {
+        setIsPlayingVoice(false);
+        toast({
+          title: "Speech Error",
+          description: "Unable to play voice reading",
+          variant: "destructive"
+        });
+      };
+      
+      window.speechSynthesis.speak(utterance);
+    } else {
+      toast({
+        title: "Voice Not Supported",
+        description: "Your browser doesn't support voice playback",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Enhanced voice play handler
+  const handleVoicePlay = async () => {
+    if (!palmReading) return;
+    
+    console.log('🎵 Voice play requested, audioReady:', audioReady);
+    
+    if (audioReady && playReadyAudio) {
+      try {
+        console.log('🎵 Playing generated audio');
+        await playReadyAudio();
+      } catch (error) {
+        console.error('❌ Generated audio playback failed:', error);
+        // Fallback to browser speech
+        playWithBrowserSpeech(palmReading.overallReading);
+      }
+    } else {
+      console.log('🎵 Using browser speech fallback');
+      playWithBrowserSpeech(palmReading.overallReading);
+    }
+  };
+
   // Reset scanner
   const resetScanner = () => {
     setCapturedImage(null);
@@ -571,6 +656,8 @@ export const PalmReader: React.FC = () => {
     setPalmReading(null);
     setScanQuality(0);
     setIsAnalyzing(false);
+    setVoiceAvailable(false);
+    setIsPlayingVoice(false);
   };
 
   return (
@@ -745,12 +832,29 @@ export const PalmReader: React.FC = () => {
                           Divine Palm Reading
                         </h3>
                         
-                        {audioReady && (
+                        {/* Always show voice button after reading */}
+                        {voiceAvailable && (
                           <Button
-                            onClick={playReadyAudio}
+                            onClick={handleVoicePlay}
+                            disabled={isPlayingVoice || isGenerating}
                             className="flex items-center gap-2 px-3 py-1 text-sm bg-green-600 hover:bg-green-700 text-white rounded-lg"
                           >
-                            Play Voice
+                            {isPlayingVoice ? (
+                              <>
+                                <Volume2 className="animate-pulse" size={16} />
+                                Playing...
+                              </>
+                            ) : isGenerating ? (
+                              <>
+                                <RotateCw className="animate-spin" size={16} />
+                                Preparing...
+                              </>
+                            ) : (
+                              <>
+                                <Play size={16} />
+                                Play Voice
+                              </>
+                            )}
                           </Button>
                         )}
                       </div>
