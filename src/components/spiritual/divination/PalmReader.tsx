@@ -360,27 +360,74 @@ export const PalmReader: React.FC = () => {
     }
   };
 
-  // Handle image upload
+  // Enhanced image upload handler
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setUploadedImage(e.target?.result as string);
-        setCapturedImage(e.target?.result as string);
-        toast({
-          title: "Image Uploaded",
-          description: "Your palm image is ready for divine analysis",
-        });
-      };
-      reader.readAsDataURL(file);
-    } else {
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
       toast({
         title: "Invalid File",
-        description: "Please upload a valid image file",
+        description: "Please upload a valid image file (JPG, PNG, etc.)",
         variant: "destructive"
       });
+      return;
     }
+
+    // Check file size (limit to 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "File Too Large",
+        description: "Please upload an image smaller than 10MB",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    console.log('📁 Processing uploaded image:', file.name, 'Size:', file.size, 'Type:', file.type);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      
+      if (!result || !result.startsWith('data:image/')) {
+        toast({
+          title: "Upload Error",
+          description: "Failed to process the uploaded image",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      console.log('✅ Image upload successful, data URL length:', result.length);
+      
+      // Set both captured and uploaded image to the same value
+      setCapturedImage(result);
+      setUploadedImage(result);
+      
+      // Reset any previous readings
+      setPalmReading(null);
+      setScanProgress(0);
+      setIsScanning(false);
+      setIsAnalyzing(false);
+      
+      toast({
+        title: "Image Uploaded Successfully",
+        description: "Your palm image is ready for divine analysis",
+      });
+    };
+
+    reader.onerror = () => {
+      console.error('❌ File reader error');
+      toast({
+        title: "Upload Error",
+        description: "Failed to read the uploaded image file",
+        variant: "destructive"
+      });
+    };
+
+    // Read the file as data URL
+    reader.readAsDataURL(file);
   };
 
   // Capture image from video stream
@@ -409,9 +456,11 @@ export const PalmReader: React.FC = () => {
     return imageData;
   };
 
-  // Analyze palm using the edge function
+  // Enhanced scan function with better image validation
   const startScan = async () => {
-    if (!capturedImage) {
+    const imageToAnalyze = capturedImage || uploadedImage;
+    
+    if (!imageToAnalyze) {
       toast({
         title: 'No Image',
         description: 'Please capture or upload an image first',
@@ -419,6 +468,19 @@ export const PalmReader: React.FC = () => {
       });
       return;
     }
+
+    // Validate image format
+    if (!imageToAnalyze.startsWith('data:image/')) {
+      console.error('❌ Invalid image format:', imageToAnalyze.substring(0, 50));
+      toast({
+        title: 'Invalid Image Format',
+        description: 'Please ensure the image is in a valid format',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    console.log('🔮 Starting palm analysis with image length:', imageToAnalyze.length);
     
     setIsScanning(true);
     setIsAnalyzing(true);
@@ -452,7 +514,7 @@ export const PalmReader: React.FC = () => {
       
       const { data, error } = await supabase.functions.invoke('palm-scanner', {
         body: {
-          image: capturedImage,
+          image: imageToAnalyze,
           analysisType: 'spiritual'
         }
       });
@@ -474,11 +536,13 @@ export const PalmReader: React.FC = () => {
           description: `Analysis completed with ${data.analysis.confidenceScore}% confidence`,
         });
 
-        // Generate voice reading but don't auto-play
-        await generateAndPlay({
-          text: `Your divine palm reading is complete. ${data.analysis.overallReading}`,
-          emotion: 'compassionate'
-        });
+        // Generate voice reading
+        if (generateAndPlay) {
+          await generateAndPlay({
+            text: `Your divine palm reading is complete. ${data.analysis.overallReading}`,
+            emotion: 'compassionate'
+          });
+        }
       } else {
         throw new Error(data?.error || 'Analysis failed');
       }
@@ -613,15 +677,31 @@ export const PalmReader: React.FC = () => {
               )}
               
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
-                <Button 
-                  variant="secondary" 
-                  className="w-full"
-                  onClick={captureImage}
-                  disabled={!isCameraActive || isScanning}
-                >
-                  <Camera className="mr-2" size={18} />
-                  Capture Palm Image
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="secondary" 
+                    className="flex-1"
+                    onClick={captureImage}
+                    disabled={!isCameraActive || isScanning}
+                  >
+                    <Camera className="mr-2" size={18} />
+                    Capture Palm Image
+                  </Button>
+                  
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    id="palm-upload-bottom"
+                  />
+                  <label
+                    htmlFor="palm-upload-bottom"
+                    className="bg-secondary hover:bg-secondary/80 text-secondary-foreground px-4 py-2 rounded-md cursor-pointer transition-colors inline-flex items-center"
+                  >
+                    <Upload size={18} />
+                  </label>
+                </div>
               </div>
             </div>
             
