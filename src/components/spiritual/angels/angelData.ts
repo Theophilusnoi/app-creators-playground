@@ -14,6 +14,10 @@ export interface AngelEntity {
   meditationGuide: string;
   offerings: string[];
   timing: string;
+  tradition?: string;
+  category?: string;
+  hebrewName?: string;
+  planetaryCorrespondence?: string;
 }
 
 export const angelicEntities: AngelEntity[] = [
@@ -31,7 +35,11 @@ export const angelicEntities: AngelEntity[] = [
     practicalUses: ["Starting new projects", "Overcoming creative blocks", "Finding inspiration", "Career changes", "Artistic endeavors"],
     meditationGuide: "Close your eyes and imagine standing at the edge of a cliff at dawn. Feel the cool morning air. Watch as the sun rises, painting the sky in brilliant gold and orange. As the first rays touch your face, feel Vehuiah's inspiring energy flowing into you, filling you with divine creativity and the courage to begin anew.",
     offerings: ["White flowers", "Golden honey", "Sunrise water", "Creative works"],
-    timing: "Dawn, Sunday, Spring months"
+    timing: "Dawn, Sunday, Spring months",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "והויה",
+    planetaryCorrespondence: "Sun"
   },
   {
     id: 2,
@@ -47,7 +55,11 @@ export const angelicEntities: AngelEntity[] = [
     practicalUses: ["Healing relationships", "Resolving conflicts", "Finding true love", "Legal matters", "Forgiveness work"],
     meditationGuide: "Imagine yourself in a courtroom filled with soft pink light. Jeliel sits as the divine judge, but instead of punishment, only love and understanding emanate from this presence. Feel any anger or resentment in your heart being transformed into compassion. See all parties in your conflict surrounded by healing pink light.",
     offerings: ["Pink roses", "Rose water", "Love letters", "Acts of forgiveness"],
-    timing: "Friday, Venus hours, Full moon"
+    timing: "Friday, Venus hours, Full moon",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "יליאל",
+    planetaryCorrespondence: "Venus"
   },
   {
     id: 3,
@@ -63,7 +75,11 @@ export const angelicEntities: AngelEntity[] = [
     practicalUses: ["Physical protection", "Spiritual defense", "Home security", "Travel safety", "Protection from negativity"],
     meditationGuide: "Envision yourself standing in the center of a fortress made of brilliant blue light. Sitael stands guard at the gates, a majestic figure in blue armor. Feel the absolute safety and security this fortress provides. Know that no harm can reach you here, and this protection extends wherever you go.",
     offerings: ["Blue stones", "Salt", "Protective herbs (sage, rosemary)", "Shield imagery"],
-    timing: "Tuesday, Mars hours, Dark moon"
+    timing: "Tuesday, Mars hours, Dark moon",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "סיטאל",
+    planetaryCorrespondence: "Mars"
   },
   {
     id: 4,
@@ -79,7 +95,11 @@ export const angelicEntities: AngelEntity[] = [
     practicalUses: ["Spiritual protection", "Psychic defense", "Enhanced intuition", "Spiritual guidance", "Third eye opening"],
     meditationGuide: "Picture yourself in a temple made of amethyst crystal. In the center sits Elemiah, radiating purple light from a large eye in the center of their forehead. As you gaze into this divine eye, feel your own spiritual vision expanding. See the spiritual forces at work in your life and receive clear guidance.",
     offerings: ["Amethyst crystals", "Purple flowers", "Incense", "Written prayers"],
-    timing: "Thursday, Jupiter hours, New moon"
+    timing: "Thursday, Jupiter hours, New moon",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "אלמיה",
+    planetaryCorrespondence: "Jupiter"
   },
   {
     id: 5,
@@ -95,7 +115,11 @@ export const angelicEntities: AngelEntity[] = [
     practicalUses: ["Conflict resolution", "Inner peace", "Family harmony", "Workplace peace", "Calming anxiety"],
     meditationGuide: "Imagine yourself sitting by a still lake at sunset. The water perfectly reflects the peaceful sky. Mahasiah appears walking on the water towards you, leaving ripples of pure peace. As the angel approaches, feel all tension and conflict dissolving. Your heart becomes as still and peaceful as the lake.",
     offerings: ["White feathers", "Peace lilies", "Olive branches", "Calming music"],
-    timing: "Sunday, Solar hours, Evening"
+    timing: "Sunday, Solar hours, Evening",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "מחסיה",
+    planetaryCorrespondence: "Sun"
   },
   {
     id: 6,
@@ -111,7 +135,11 @@ export const angelicEntities: AngelEntity[] = [
     practicalUses: ["Physical healing", "Mental clarity", "Spiritual illumination", "Learning enhancement", "Depression relief"],
     meditationGuide: "Envision yourself in a cathedral made entirely of golden light. Lelahel stands at the altar, a figure so bright you can barely look directly at them. Golden rays of healing light stream from the angel towards you, penetrating every part of your being. Feel old wounds healing and new understanding dawning in your mind.",
     offerings: ["Yellow flowers", "Citrine crystals", "Candles", "Written questions seeking clarity"],
-    timing: "Wednesday, Mercury hours, Midday"
+    timing: "Wednesday, Mercury hours, Midday",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "ללהאל",
+    planetaryCorrespondence: "Mercury"
   },
   {
     id: 7,
@@ -127,7 +155,11 @@ export const angelicEntities: AngelEntity[] = [
     practicalUses: ["Developing patience", "Trusting divine timing", "Reducing anxiety about future", "Finding peace in waiting", "Understanding life cycles"],
     meditationGuide: "Picture yourself in a vast library where Achaiah sits reading a book titled 'The Divine Timeline of Your Life.' As you approach, the angel smiles and shows you pages revealing how everything in your life has unfolded in perfect timing. Feel the deep trust that everything will happen when it's meant to.",
     offerings: ["Seeds", "Green plants", "Hourglasses", "Journals about patience"],
-    timing: "Saturday, Saturn hours, Season changes"
+    timing: "Saturday, Saturn hours, Season changes",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "אכאיה",
+    planetaryCorrespondence: "Saturn"
   },
   {
     id: 8,
@@ -143,7 +175,11 @@ export const angelicEntities: AngelEntity[] = [
     practicalUses: ["Attracting abundance", "Career success", "Financial prosperity", "Manifesting goals", "Increasing gratitude"],
     meditationGuide: "Imagine standing in a golden wheat field under a sky full of stars. Each star represents a blessing in your life. Cahetel appears and waves their hand, causing the stars to rain down golden light upon the field. Watch as the wheat multiplies and grows, representing the abundance flowing into your life.",
     offerings: ["Gold items", "Fruits", "Flowers", "Gratitude lists"],
-    timing: "Thursday, Jupiter hours, Waxing moon"
+    timing: "Thursday, Jupiter hours, Waxing moon",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "כהתאל",
+    planetaryCorrespondence: "Jupiter"
   },
   {
     id: 9,
@@ -159,7 +195,11 @@ export const angelicEntities: AngelEntity[] = [
     practicalUses: ["Forgiveness work", "Healing emotional wounds", "Developing compassion", "Mercy for others", "Self-forgiveness"],
     meditationGuide: "Envision yourself in a garden of red roses where Haziel sits on a throne of rose petals. The angel's heart glows with ruby light that expands to encompass you. Feel all pain and resentment melting away as you're filled with pure, unconditional love. Understand that mercy is strength, not weakness.",
     offerings: ["Red roses", "Ruby or garnet stones", "Acts of mercy", "Forgiveness letters"],
-    timing: "Friday, Venus hours, When moon is in Cancer"
+    timing: "Friday, Venus hours, When moon is in Cancer",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "הזיאל",
+    planetaryCorrespondence: "Venus"
   },
   {
     id: 10,
@@ -175,7 +215,11 @@ export const angelicEntities: AngelEntity[] = [
     practicalUses: ["Receiving hidden knowledge", "Understanding mysteries", "Developing intuition", "Spiritual revelations", "Uncovering truth"],
     meditationGuide: "Picture yourself in an ancient library filled with books containing the secrets of the universe. Aladiah appears as the librarian, leading you to a specific book meant just for you. As you open it, the pages reveal the hidden wisdom you've been seeking. Trust what you see and feel.",
     offerings: ["Purple candles", "Amethyst crystals", "Books", "Written questions"],
-    timing: "Monday, Moon hours, Midnight"
+    timing: "Monday, Moon hours, Midnight",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "אלדיה",
+    planetaryCorrespondence: "Moon"
   },
   {
     id: 11,
@@ -191,7 +235,11 @@ export const angelicEntities: AngelEntity[] = [
     practicalUses: ["Overcoming obstacles", "Winning competitions", "Achieving goals", "Building confidence", "Defeating negativity"],
     meditationGuide: "Imagine yourself on a mountaintop, having just climbed a difficult path. Lauviah stands beside you, placing a crown of light on your head. Look down at all the obstacles you've overcome and feel the satisfaction of victory. Know that with divine help, you can overcome anything.",
     offerings: ["Gold items", "Victory symbols", "Athletic equipment", "Success stories"],
-    timing: "Tuesday, Mars hours, When facing challenges"
+    timing: "Tuesday, Mars hours, When facing challenges",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "לוויה",
+    planetaryCorrespondence: "Mars"
   },
   {
     id: 12,
@@ -207,7 +255,11 @@ export const angelicEntities: AngelEntity[] = [
     practicalUses: ["Finding emotional safety", "Recovering from trauma", "Creating sacred space", "Family protection", "Inner peace"],
     meditationGuide: "Picture yourself as a small child running home through a storm. You reach a beautiful house where Hahaiah waits with open arms at the door. Once inside, you're wrapped in a warm blanket by a glowing fireplace. Feel completely safe and loved, knowing this refuge is always available in your heart.",
     offerings: ["Comfort items", "Turquoise stones", "Home-baked goods", "Blankets for charity"],
-    timing: "Monday, Moon hours, During difficult times"
+    timing: "Monday, Moon hours, During difficult times",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "החיה",
+    planetaryCorrespondence: "Moon"
   },
   {
     id: 13,
@@ -223,7 +275,11 @@ export const angelicEntities: AngelEntity[] = [
     practicalUses: ["Strengthening friendships", "Building loyalty", "Finding true friends", "Healing relationship rifts", "Creating community"],
     meditationGuide: "Envision yourself in a beautiful garden where all your friends and loved ones are gathered. Iezalel moves among you, sprinkling golden dust that makes the bonds between you glow with warm light. Feel the depth of connection and loyalty growing stronger with each person you see.",
     offerings: ["Friendship tokens", "Green plants", "Shared meals", "Letters to friends"],
-    timing: "Wednesday, Mercury hours, Social gatherings"
+    timing: "Wednesday, Mercury hours, Social gatherings",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "יזלאל",
+    planetaryCorrespondence: "Mercury"
   },
   {
     id: 14,
@@ -239,7 +295,11 @@ export const angelicEntities: AngelEntity[] = [
     practicalUses: ["Breaking free from addictions", "Escaping toxic situations", "Fighting injustice", "Finding truth", "Personal liberation"],
     meditationGuide: "See yourself in a prison cell that represents whatever limits you. Mebahel appears with a key of pure light and opens the door. Step out into brilliant sunlight, feeling completely free. Watch as the prison dissolves, knowing you can never be truly imprisoned when you have divine support.",
     offerings: ["Broken chains", "Blue stones", "Justice symbols", "Freedom writings"],
-    timing: "Saturday, Saturn hours, When seeking justice"
+    timing: "Saturday, Saturn hours, When seeking justice",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "מבהאל",
+    planetaryCorrespondence: "Saturn"
   },
   {
     id: 15,
@@ -255,7 +315,11 @@ export const angelicEntities: AngelEntity[] = [
     practicalUses: ["Spiritual cleansing", "Releasing old patterns", "Purifying space", "Emotional renewal", "Fresh starts"],
     meditationGuide: "Imagine standing under a waterfall of pure white light. As Hariel appears in the mist, feel the water washing away everything that no longer serves you. Emerge from the waterfall completely cleansed and renewed, like a newborn soul ready for fresh experiences.",
     offerings: ["Pure water", "White flowers", "Salt", "Cleansing herbs"],
-    timing: "Monday, Moon hours, New moon"
+    timing: "Monday, Moon hours, New moon",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "הריאל",
+    planetaryCorrespondence: "Moon"
   },
   {
     id: 16,
@@ -271,7 +335,11 @@ export const angelicEntities: AngelEntity[] = [
     practicalUses: ["Strengthening commitments", "Deepening devotion", "Building discipline", "Loyal relationships", "Faith development"],
     meditationGuide: "Picture yourself making a sacred vow before Hekamiah in a temple of silver light. Feel the power of your commitment resonating through your entire being. See the angel blessing your devotion and surrounding you with the strength to maintain your promises through all challenges.",
     offerings: ["Silver items", "Written commitments", "Loyalty tokens", "Devotional practices"],
-    timing: "Saturday, Saturn hours, When making commitments"
+    timing: "Saturday, Saturn hours, When making commitments",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "הקמיה",
+    planetaryCorrespondence: "Saturn"
   },
   {
     id: 17,
@@ -287,7 +355,11 @@ export const angelicEntities: AngelEntity[] = [
     practicalUses: ["Receiving divine revelations", "Understanding cosmic truths", "Prophetic dreams", "Spiritual insights", "Universal wisdom"],
     meditationGuide: "Float in space among the stars with Lauviah, an angel whose body is made of galaxies and nebulae. Feel your consciousness expanding to cosmic proportions as divine revelations flow into your awareness. Understand your place in the vast cosmic plan and receive the wisdom you've been seeking.",
     offerings: ["Star charts", "Meteorites", "Violet candles", "Dream journals"],
-    timing: "Night hours, During meteor showers, Aquarius moon"
+    timing: "Night hours, During meteor showers, Aquarius moon",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "לוויה",
+    planetaryCorrespondence: "Uranus"
   },
   {
     id: 18,
@@ -303,7 +375,11 @@ export const angelicEntities: AngelEntity[] = [
     practicalUses: ["Emergency situations", "Urgent needs", "Crisis intervention", "Immediate solutions", "Divine timing"],
     meditationGuide: "See yourself in a moment of great need, calling out to the heavens. Instantly, Caliel appears as a flash of lightning, bringing exactly what you require. Feel the relief and gratitude as divine assistance arrives at the perfect moment. Know this help is always available instantly.",
     offerings: ["Red candles", "Lightning imagery", "Urgent prayers", "Gratitude offerings"],
-    timing: "Any time of urgent need, Storm hours, Emergency situations"
+    timing: "Any time of urgent need, Storm hours, Emergency situations",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "כליאל",
+    planetaryCorrespondence: "Mars"
   },
   {
     id: 19,
@@ -319,7 +395,11 @@ export const angelicEntities: AngelEntity[] = [
     practicalUses: ["Studying for exams", "Improving memory", "Mental clarity", "Learning new skills", "Problem solving"],
     meditationGuide: "Imagine your brain as a vast library where Leuviah serves as the divine librarian. Watch as the angel organizes your memories, enhances your understanding, and creates new neural pathways for learning. Feel your intelligence expanding and your memory becoming crystal clear.",
     offerings: ["Books", "Study materials", "Brain-healthy foods", "Learning tools"],
-    timing: "Wednesday, Mercury hours, Before studying"
+    timing: "Wednesday, Mercury hours, Before studying",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "לוויה",
+    planetaryCorrespondence: "Mercury"
   },
   {
     id: 20,
@@ -335,6 +415,315 @@ export const angelicEntities: AngelEntity[] = [
     practicalUses: ["Breaking addictions", "Spiritual redemption", "Freedom from guilt", "Pattern breaking", "Soul liberation"],
     meditationGuide: "See yourself in a prison of your own making, surrounded by the chains of old patterns and mistakes. Pahaliah appears with a golden key, unlocking every chain and opening the prison door. Step out into brilliant light, completely redeemed and free to begin anew.",
     offerings: ["Keys", "Freedom symbols", "Redemption writings", "Acts of service"],
-    timing: "Sunday, Solar hours, During repentance"
+    timing: "Sunday, Solar hours, During repentance",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "פהליה",
+    planetaryCorrespondence: "Sun"
+  },
+  {
+    id: 21,
+    name: "Nelchael",
+    title: "The Unique God",
+    description: "Angel of learning and instruction. Helps with teaching and understanding.",
+    domain: "Learning, Teaching",
+    psalm: "Psalm 31:14",
+    color: "#8b4513",
+    symbol: "📚",
+    invocationGuide: "1. Light a brown candle in your study space\n2. Hold your favorite book or learning material\n3. Say: 'Nelchael, Angel of Divine Learning, illuminate my mind'\n4. State what you wish to learn or teach\n5. Ask: 'Open my understanding and make me a vessel of wisdom'\n6. Visualize golden knowledge flowing into your mind\n7. Thank Nelchael and begin your studies",
+    evocationGuide: "Sit surrounded by books and learning materials. Visualize Nelchael as a teacher angel with scrolls of wisdom. Feel the angel downloading knowledge directly into your consciousness, making complex subjects easy to understand.",
+    practicalUses: ["Academic success", "Teaching abilities", "Understanding complex subjects", "Scholarly pursuits", "Wisdom acquisition"],
+    meditationGuide: "Picture yourself in a cosmic classroom where Nelchael teaches the mysteries of the universe. Feel your mind expanding as divine knowledge fills every corner of your consciousness. Understanding flows easily and naturally.",
+    offerings: ["Books", "Teaching materials", "Written knowledge", "Study notes"],
+    timing: "Wednesday, Mercury hours, During study periods",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "נלכאל",
+    planetaryCorrespondence: "Mercury"
+  },
+  {
+    id: 22,
+    name: "Yeiayel",
+    title: "The Right Hand of God",
+    description: "Angel of fame and fortune. Brings recognition and prosperity.",
+    domain: "Fame, Fortune",
+    psalm: "Psalm 121:5",
+    color: "#ffd700",
+    symbol: "👑",
+    invocationGuide: "1. Light a golden candle at sunrise\n2. Hold something representing your talents\n3. Say: 'Yeiayel, Angel of Divine Recognition, I call upon your golden light'\n4. Describe your talents and aspirations\n5. Ask: 'Bring recognition to my gifts and prosperity to my endeavors'\n6. Visualize golden light surrounding your achievements\n7. Thank Yeiayel and take action toward your goals",
+    evocationGuide: "Stand in sunlight or visualize golden light surrounding you. See Yeiayel as a regal angel placing a crown of light on your head, recognizing your divine talents and purposes. Feel your confidence growing as divine recognition flows to you.",
+    practicalUses: ["Career advancement", "Public recognition", "Financial success", "Building reputation", "Achievement of goals"],
+    meditationGuide: "Imagine yourself receiving an award for your achievements while Yeiayel stands beside you, blessing your success. Feel the joy of recognition and the responsibility that comes with your gifts. See your talents serving the highest good.",
+    offerings: ["Gold items", "Achievement symbols", "Success stories", "Talent displays"],
+    timing: "Sunday, Solar hours, During career pursuits",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "ייאיל",
+    planetaryCorrespondence: "Sun"
+  },
+  {
+    id: 23,
+    name: "Melahel",
+    title: "The Healing God",
+    description: "Angel of healing waters and natural medicine. Brings physical healing.",
+    domain: "Healing, Natural Medicine",
+    psalm: "Psalm 121:8",
+    color: "#00ced1",
+    symbol: "🌊",
+    invocationGuide: "1. Light a turquoise candle near water\n2. Hold healing herbs or crystals\n3. Say: 'Melahel, Angel of Divine Healing, I call upon your restorative power'\n4. Describe the healing needed\n5. Ask: 'Channel your healing energy through these sacred elements'\n6. Visualize healing blue-green light flowing through your body\n7. Thank Melahel and use the blessed items",
+    evocationGuide: "Sit by natural water or hold a bowl of blessed water. Visualize Melahel as an angel of healing light, pouring divine medicine into the water. Feel the healing energy entering your body through every cell, restoring perfect health.",
+    practicalUses: ["Physical healing", "Herbal medicine", "Water healing", "Health restoration", "Pain relief"],
+    meditationGuide: "Imagine yourself in a healing temple by a sacred spring where Melahel ministers to the sick. Feel the angel's healing touch removing all illness and pain, restoring your body to perfect health and vitality.",
+    offerings: ["Healing herbs", "Spring water", "Turquoise stones", "Health prayers"],
+    timing: "Monday, Moon hours, Near water",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "מלהאל",
+    planetaryCorrespondence: "Moon"
+  },
+  {
+    id: 24,
+    name: "Haheuiah",
+    title: "The Good God",
+    description: "Angel of protection from enemies and negative influences.",
+    domain: "Protection, Defense",
+    psalm: "Psalm 33:18",
+    color: "#4b0082",
+    symbol: "⚔️",
+    invocationGuide: "1. Light an indigo candle in your protective space\n2. Hold a protective amulet or iron object\n3. Say: 'Haheuiah, Angel of Divine Protection, shield me from all harm'\n4. Name the threats or negative influences\n5. Ask: 'Surround me with your impenetrable defense'\n6. Visualize indigo armor protecting your entire being\n7. Thank Haheuiah and maintain your protective practices",
+    evocationGuide: "Stand in a defensive posture and visualize Haheuiah as a warrior angel with a flaming sword, standing guard around you. Feel completely protected from all negative influences, knowing divine protection surrounds you always.",
+    practicalUses: ["Protection from enemies", "Spiritual warfare", "Negative energy shielding", "Psychic defense", "Safety assurance"],
+    meditationGuide: "See yourself surrounded by a fortress of indigo light where Haheuiah stands as your eternal guardian. No negative force can penetrate this divine protection. Feel safe and secure in all situations.",
+    offerings: ["Protective stones", "Iron objects", "Defensive prayers", "Guardian imagery"],
+    timing: "Tuesday, Mars hours, When feeling threatened",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "הההויה",
+    planetaryCorrespondence: "Mars"
+  },
+  {
+    id: 25,
+    name: "Nith-Haiah",
+    title: "The Giver of Wisdom",
+    description: "Angel of divine wisdom and spiritual knowledge. Grants understanding.",
+    domain: "Wisdom, Spiritual Knowledge",
+    psalm: "Psalm 9:1",
+    color: "#9370db",
+    symbol: "🔯",
+    invocationGuide: "1. Light a purple candle in meditation space\n2. Hold sacred texts or wisdom symbols\n3. Say: 'Nith-Haiah, Angel of Divine Wisdom, I seek your enlightenment'\n4. Ask for the wisdom or knowledge you need\n5. Say: 'Open my mind to divine understanding'\n6. Visualize purple light filling your third eye\n7. Thank Nith-Haiah and contemplate in silence",
+    evocationGuide: "Meditate with sacred geometry or wisdom symbols. Visualize Nith-Haiah as an ancient angel holding the keys to all knowledge, unlocking the mysteries of existence within your consciousness.",
+    practicalUses: ["Spiritual wisdom", "Divine knowledge", "Understanding mysteries", "Philosophical insight", "Sacred studies"],
+    meditationGuide: "Enter a cosmic library where Nith-Haiah reveals the akashic records to you. Feel ancient wisdom flowing into your consciousness, answering questions you've carried for lifetimes.",
+    offerings: ["Sacred texts", "Wisdom symbols", "Purple crystals", "Philosophical writings"],
+    timing: "Thursday, Jupiter hours, During deep study",
+    tradition: "Kabbalah",
+    category: "Shem HaMephorash",
+    hebrewName: "נתהיה",
+    planetaryCorrespondence: "Jupiter"
+  },
+  {
+    id: 73,
+    name: "Michael",
+    title: "Who is like God",
+    description: "Archangel of protection, courage, and divine justice. Leader of God's army.",
+    domain: "Protection, Justice, Courage",
+    psalm: "Psalm 91",
+    color: "#0000ff",
+    symbol: "🗡️",
+    invocationGuide: "1. Light a blue candle on Sunday\n2. Hold a sword or protective symbol\n3. Say: 'Archangel Michael, Defender of Light, I call upon your mighty protection'\n4. State what you need protection from\n5. Ask: 'Cut through all negativity with your sword of truth'\n6. Visualize blue flames surrounding you\n7. Thank Michael and feel his presence",
+    evocationGuide: "Stand facing South, visualizing Michael as a towering warrior angel with blue flames and a sword of light. Feel his protective energy forming an impenetrable shield around you.",
+    practicalUses: ["Ultimate protection", "Cutting negative cords", "Courage in conflict", "Justice issues", "Spiritual warfare"],
+    meditationGuide: "See yourself standing with Michael on a battlefield of light, where all darkness is being vanquished. Feel his courage flowing through you, knowing you fight on the side of divine truth.",
+    offerings: ["Blue candles", "Swords or knives", "Lapis lazuli", "Protection prayers"],
+    timing: "Sunday, Solar hours, Times of danger",
+    tradition: "Universal",
+    category: "Archangel",
+    hebrewName: "מיכאל",
+    planetaryCorrespondence: "Sun"
+  },
+  {
+    id: 74,
+    name: "Gabriel",
+    title: "God is my Strength",
+    description: "Archangel of divine messages, creativity, and new beginnings. The divine messenger.",
+    domain: "Messages, Creativity, Birth",
+    psalm: "Psalm 23",
+    color: "#ffffff",
+    symbol: "📯",
+    invocationGuide: "1. Light a white candle on Monday\n2. Hold a trumpet or message symbol\n3. Say: 'Archangel Gabriel, Divine Messenger, I open myself to your guidance'\n4. Ask for the message or guidance you need\n5. Say: 'Speak through me and to me with divine clarity'\n6. Visualize white light opening your throat chakra\n7. Thank Gabriel and listen for guidance",
+    evocationGuide: "Face West during meditation, visualizing Gabriel as a radiant angel with white robes and a golden trumpet. Feel your intuitive and creative channels opening to divine inspiration.",
+    practicalUses: ["Divine messages", "Creative inspiration", "Communication skills", "New beginnings", "Pregnancy and birth"],
+    meditationGuide: "Stand in a field of white lilies where Gabriel appears with announcements of new life and possibilities. Feel your creative potential awakening as divine messages flow through you.",
+    offerings: ["White lilies", "Trumpet music", "Creative works", "Written messages"],
+    timing: "Monday, Moon hours, New moon",
+    tradition: "Universal",
+    category: "Archangel",
+    hebrewName: "גבריאל",
+    planetaryCorrespondence: "Moon"
+  },
+  {
+    id: 75,
+    name: "Raphael",
+    title: "God has Healed",
+    description: "Archangel of healing, travel, and divine love. The divine physician.",
+    domain: "Healing, Travel, Medicine",
+    psalm: "Psalm 103",
+    color: "#00ff00",
+    symbol: "🕊️",
+    invocationGuide: "1. Light a green candle on Wednesday\n2. Hold healing herbs or medical symbols\n3. Say: 'Archangel Raphael, Divine Healer, I call upon your healing grace'\n4. Describe the healing needed (physical, emotional, or spiritual)\n5. Ask: 'Channel your healing light through me'\n6. Visualize green healing light filling your entire being\n7. Thank Raphael and trust in the healing process",
+    evocationGuide: "Face East in meditation, visualizing Raphael as a luminous healer with green robes and a staff topped with a caduceus. Feel divine healing energy flowing through every cell of your body.",
+    practicalUses: ["All forms of healing", "Safe travel", "Medical procedures", "Addiction recovery", "Emotional healing"],
+    meditationGuide: "Enter a divine hospital where Raphael tends to all who suffer. Feel the angel's healing touch removing all pain and restoring perfect health to your body, mind, and spirit.",
+    offerings: ["Green stones", "Healing herbs", "Medical supplies", "Travel prayers"],
+    timing: "Wednesday, Mercury hours, During illness",
+    tradition: "Universal",
+    category: "Archangel",
+    hebrewName: "רפאל",
+    planetaryCorrespondence: "Mercury"
+  },
+  {
+    id: 76,
+    name: "Uriel",
+    title: "Fire of God",
+    description: "Archangel of divine wisdom, prophecy, and spiritual fire. Brings enlightenment.",
+    domain: "Wisdom, Prophecy, Enlightenment",
+    psalm: "Psalm 139",
+    color: "#ff4500",
+    symbol: "🔥",
+    invocationGuide: "1. Light a red or orange candle on Tuesday\n2. Hold a flame symbol or ruby crystal\n3. Say: 'Archangel Uriel, Divine Fire, I call upon your enlightening wisdom'\n4. Ask for the wisdom or prophecy you seek\n5. Say: 'Kindle the flame of divine knowledge within me'\n6. Visualize flames of wisdom burning in your mind\n7. Thank Uriel and contemplate the revelations",
+    evocationGuide: "Face North in meditation, visualizing Uriel as a majestic angel wielding divine fire that burns away ignorance and illuminates truth. Feel your consciousness expanding with divine wisdom.",
+    practicalUses: ["Divine wisdom", "Prophecy", "Spiritual insight", "Truth revelation", "Enlightenment"],
+    meditationGuide: "Stand before Uriel's throne of fire where the angel reveals the deepest mysteries of existence. Feel your soul being purified and enlightened by divine flames of wisdom.",
+    offerings: ["Red candles", "Fire opals", "Ruby crystals", "Wisdom texts"],
+    timing: "Tuesday, Mars hours, During seeking wisdom",
+    tradition: "Universal",
+    category: "Archangel",
+    hebrewName: "אוריאל",
+    planetaryCorrespondence: "Mars"
+  },
+  {
+    id: 77,
+    name: "Ariel",
+    title: "Lion of God",
+    description: "Angel of nature, animals, and environmental healing. Guardian of Earth.",
+    domain: "Nature, Animals, Environment",
+    psalm: "Psalm 104",
+    color: "#228b22",
+    symbol: "🦁",
+    invocationGuide: "1. Light a green candle outdoors or near plants\n2. Hold a natural object (stone, leaf, crystal)\n3. Say: 'Ariel, Lion of God, I call upon your natural power'\n4. Express your connection to nature or animals\n5. Ask: 'Help me heal and protect the natural world'\n6. Visualize golden-green light connecting you to all life\n7. Thank Ariel and take environmental action",
+    evocationGuide: "Meditate in nature or visualize yourself in a pristine wilderness where Ariel appears as a majestic lion-angel surrounded by all creatures in harmony. Feel your connection to all living things.",
+    practicalUses: ["Animal healing", "Environmental protection", "Nature connection", "Earth magic", "Ecological balance"],
+    meditationGuide: "Walk through a magical forest where Ariel leads you to understand your role as guardian of Earth. Feel the responsibility and joy of protecting all natural life.",
+    offerings: ["Natural objects", "Plant seeds", "Animal care", "Environmental actions"],
+    timing: "Earth seasons, During nature connection",
+    tradition: "Universal",
+    category: "Nature Angel",
+    hebrewName: "אריאל",
+    planetaryCorrespondence: "Earth"
+  },
+  {
+    id: 78,
+    name: "Chamuel",
+    title: "He who sees God",
+    description: "Angel of pure love, soulmates, and heart healing. Helps find lost things.",
+    domain: "Love, Relationships, Finding",
+    psalm: "Psalm 27",
+    color: "#ff69b4",
+    symbol: "💖",
+    invocationGuide: "1. Light a pink candle on Friday\n2. Hold rose quartz or love symbol\n3. Say: 'Archangel Chamuel, Angel of Divine Love, I open my heart to you'\n4. Express your desires for love or what you've lost\n5. Ask: 'Help me find what I seek and heal my heart'\n6. Visualize pink light filling your heart chakra\n7. Thank Chamuel and trust in divine love",
+    evocationGuide: "Meditate with your hand on your heart, visualizing Chamuel as a gentle angel surrounded by pink roses. Feel unconditional love flowing through your entire being, healing all wounds.",
+    practicalUses: ["Finding soulmates", "Healing heartbreak", "Self-love", "Finding lost objects", "Relationship harmony"],
+    meditationGuide: "Enter a garden of roses where Chamuel tends to hearts like flowers, nurturing each one to bloom in perfect love. Feel your heart opening to receive and give pure divine love.",
+    offerings: ["Pink roses", "Rose quartz", "Love letters", "Heart symbols"],
+    timing: "Friday, Venus hours, Matters of the heart",
+    tradition: "Universal",
+    category: "Love Angel",
+    hebrewName: "כמואל",
+    planetaryCorrespondence: "Venus"
+  },
+  {
+    id: 79,
+    name: "Zadkiel",
+    title: "Righteousness of God",
+    description: "Angel of mercy, forgiveness, and transformation. Helps with spiritual growth.",
+    domain: "Mercy, Forgiveness, Transformation",
+    psalm: "Psalm 51",
+    color: "#9966cc",
+    symbol: "🔮",
+    invocationGuide: "1. Light a violet candle on Thursday\n2. Hold amethyst or purple crystal\n3. Say: 'Archangel Zadkiel, Angel of Divine Mercy, I seek your transforming grace'\n4. Confess what needs forgiveness or transformation\n5. Ask: 'Transform my pain into wisdom and my mistakes into growth'\n6. Visualize violet flame transmuting all negativity\n7. Thank Zadkiel and embrace the transformation",
+    evocationGuide: "Visualize yourself surrounded by violet flames while Zadkiel appears with a golden chalice, transforming all your pain and mistakes into wisdom and spiritual growth.",
+    practicalUses: ["Forgiveness work", "Spiritual transformation", "Alchemy of emotions", "Mercy and compassion", "Personal growth"],
+    meditationGuide: "Step into Zadkiel's violet flame temple where all pain is transformed into wisdom, all mistakes into growth, and all suffering into compassion for others.",
+    offerings: ["Amethyst crystals", "Violet candles", "Forgiveness rituals", "Transformation prayers"],
+    timing: "Thursday, Jupiter hours, Times of growth",
+    tradition: "Universal",
+    category: "Transformation Angel",
+    hebrewName: "צדקיאל",
+    planetaryCorrespondence: "Jupiter"
+  },
+  {
+    id: 80,
+    name: "Raguel",
+    title: "Friend of God",
+    description: "Angel of divine justice and harmony. Brings balance and fairness.",
+    domain: "Justice, Harmony, Balance",
+    psalm: "Psalm 82",
+    color: "#4169e1",
+    symbol: "⚖️",
+    invocationGuide: "1. Light a royal blue candle on Saturday\n2. Hold scales or justice symbol\n3. Say: 'Archangel Raguel, Friend of God, I call upon your divine justice'\n4. Describe the injustice or imbalance\n5. Ask: 'Restore divine order and bring fair resolution'\n6. Visualize blue light balancing all situations\n7. Thank Raguel and trust in divine justice",
+    evocationGuide: "Visualize Raguel as a dignified angel holding golden scales, weighing all matters with perfect divine justice. Feel the peace that comes from knowing all will be made right.",
+    practicalUses: ["Legal matters", "Workplace justice", "Relationship balance", "Fair treatment", "Divine order"],
+    meditationGuide: "Stand in a cosmic courtroom where Raguel presides with perfect wisdom, ensuring that divine justice and harmony prevail in all situations.",
+    offerings: ["Justice symbols", "Blue stones", "Balance items", "Fair treatment actions"],
+    timing: "Saturday, Saturn hours, Legal matters",
+    tradition: "Universal",
+    category: "Justice Angel",
+    hebrewName: "רגואל",
+    planetaryCorrespondence: "Saturn"
   }
+];
+
+// Enhanced search and filtering utilities
+export const getAngelsByCategory = (category: string): AngelEntity[] => {
+  return angelicEntities.filter(angel => angel.category === category);
+};
+
+export const getAngelsByDomain = (domain: string): AngelEntity[] => {
+  return angelicEntities.filter(angel => 
+    angel.domain.toLowerCase().includes(domain.toLowerCase())
+  );
+};
+
+export const getAngelsByTradition = (tradition: string): AngelEntity[] => {
+  return angelicEntities.filter(angel => angel.tradition === tradition);
+};
+
+export const searchAngelsByNeed = (need: string): AngelEntity[] => {
+  const searchTerm = need.toLowerCase();
+  return angelicEntities.filter(angel =>
+    angel.practicalUses.some(use => use.toLowerCase().includes(searchTerm)) ||
+    angel.domain.toLowerCase().includes(searchTerm) ||
+    angel.description.toLowerCase().includes(searchTerm)
+  );
+};
+
+// Categories for filtering
+export const angelCategories = [
+  'Shem HaMephorash',
+  'Archangel',
+  'Healing Angel',
+  'Protection Angel',
+  'Love Angel',
+  'Wisdom Angel',
+  'Nature Angel',
+  'Justice Angel',
+  'Transformation Angel'
+];
+
+export const angelTraditions = [
+  'Kabbalah',
+  'Christian',
+  'Islamic',
+  'Universal',
+  'New Age'
 ];
