@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { TopNavigation } from '@/components/spiritual/TopNavigation';
@@ -21,6 +20,7 @@ import { EmergencyAnalyticsDashboard } from '@/components/spiritual/EmergencyAna
 import { RecommendationsSystem } from '@/components/spiritual/RecommendationsSystem';
 import AngelicAssistance from '@/components/spiritual/AngelicAssistance';
 import DivinationHub from '@/components/spiritual/DivinationHub';
+import { ThirdEyeActivation } from '@/components/spiritual/ThirdEyeActivation';
 import { ReferralSystem } from '@/components/spiritual/ReferralSystem';
 
 const SpiritualDashboard = () => {
@@ -108,6 +108,10 @@ const SpiritualDashboard = () => {
 
           <TabsContent value="divination">
             <DivinationHub />
+          </TabsContent>
+
+          <TabsContent value="third-eye">
+            <ThirdEyeActivation />
           </TabsContent>
 
           <TabsContent value="referrals">

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { 
@@ -44,6 +43,7 @@ const navigationItems = [
   { id: 'angelic', label: 'Angels', icon: Crown, color: 'from-gold-500 to-yellow-500' },
   { id: 'divination', label: 'Divination', icon: Zap, color: 'from-violet-600 to-purple-600' },
   { id: 'referrals', label: 'Invite', icon: Gift, color: 'from-red-600 to-orange-600' },
+  { id: 'third-eye', label: 'Third Eye', icon: Eye },
 ];
 
 export const TopNavigation: React.FC<TopNavigationProps> = ({ activeTab, onTabChange }) => {
