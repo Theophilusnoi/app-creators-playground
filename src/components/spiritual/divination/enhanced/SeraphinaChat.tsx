@@ -12,6 +12,7 @@ import { EmergencyProtectionGuide } from './EmergencyProtectionGuide';
 import { ProgressTracker } from './ProgressTracker';
 import { EnhancedAssessment } from './EnhancedAssessment';
 import { VisualIngredientGuide } from './VisualIngredientGuide';
+import { IncantationGuide } from './IncantationGuide';
 
 interface ChatMessage {
   id: string;
@@ -23,7 +24,7 @@ interface ChatMessage {
   assessmentData?: any;
 }
 
-type ViewMode = 'chat' | 'emergency' | 'bathing' | 'instructions' | 'progress' | 'assessment' | 'ingredients';
+type ViewMode = 'chat' | 'emergency' | 'bathing' | 'instructions' | 'progress' | 'assessment' | 'ingredients' | 'incantations';
 
 export const SeraphinaChat: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -232,6 +233,17 @@ export const SeraphinaChat: React.FC = () => {
         </div>
       ) : null;
 
+    case 'incantations':
+      return currentGuidance?.ritual_incantations ? (
+        <div className="w-full max-w-4xl mx-auto p-4">
+          <IncantationGuide
+            onBack={() => setViewMode('bathing')}
+            incantations={currentGuidance.ritual_incantations}
+            ritualName={currentGuidance.ritual_details.name}
+          />
+        </div>
+      ) : null;
+
     case 'instructions':
       return currentGuidance ? (
         <div className="w-full max-w-4xl mx-auto p-4">
@@ -260,6 +272,12 @@ export const SeraphinaChat: React.FC = () => {
             onShowInstructions={() => setViewMode('instructions')}
           />
           <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Button
+              onClick={() => setViewMode('incantations')}
+              className="bg-gradient-to-r from-purple-600 to-violet-600"
+            >
+              ✨ Sacred Incantations
+            </Button>
             <Button
               onClick={() => setViewMode('ingredients')}
               className="bg-gradient-to-r from-blue-600 to-indigo-600"
@@ -359,6 +377,13 @@ export const SeraphinaChat: React.FC = () => {
                             >
                               <Bath className="w-4 h-4 mr-2" />
                               Complete Sacred Guide
+                            </Button>
+                            <Button
+                              onClick={() => showView('incantations', message.bathingGuidance)}
+                              className="bg-gradient-to-r from-violet-600 to-purple-600 hover:opacity-90 text-sm"
+                              size="sm"
+                            >
+                              ✨ Sacred Incantations
                             </Button>
                             <Button
                               onClick={() => showView('ingredients', message.bathingGuidance)}

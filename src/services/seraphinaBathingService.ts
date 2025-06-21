@@ -54,11 +54,21 @@ export interface ProgressEntry {
   completed: boolean;
 }
 
+export interface RitualIncantations {
+  space_cleansing: string;
+  candle_anointing: string;
+  water_preparation: string;
+  immersion_affirmation: string;
+  closing_ritual: string;
+  personalized_mantra?: string;
+}
+
 export interface SacredBathingGuidance {
   seraphina_message: string;
   ritual_details: RitualDetails;
   ingredient_guide: IngredientGuide;
   step_by_step_instructions: RitualInstructions;
+  ritual_incantations: RitualIncantations;
   assessment_questions?: AssessmentQuestion[];
 }
 
@@ -217,6 +227,65 @@ export const EXPANDED_INGREDIENT_DATABASE: Record<string, Record<string, Ingredi
       substitutions: ["Chamomile oil", "Ylang ylang", "Bergamot oil"],
       safety_notes: ["Generally safe", "Use pure oil, not synthetic"]
     }
+  }
+};
+
+const RITUAL_INCANTATIONS: Record<string, RitualIncantations> = {
+  salt_sage_purification: {
+    space_cleansing: "Smoke rise, pure and bright,\nCleanse this space with sacred light.\nAll stagnant shadows, now depart –\nOnly peace remains in my heart.",
+    candle_anointing: "Flame of grace, burn strong and clear,\nGuard my spirit, hold me dear.\nNo harm may touch this holy light –\nSeal this prayer with power bright.",
+    water_preparation: "Salt of earth, sage so wise,\nWash what wounds me, help me rise.\nPurify my spirit's core –\nMake me whole as before.",
+    immersion_affirmation: "Water sacred, deep and pure,\nLift this darkness I endure.\nFrom my spirit, to the sea –\nI am cleansed, I am free.",
+    closing_ritual: "To the wind, the earth, the stars above –\nI release this bath with gratitude and love.\nAs water returns, so peace remains –\nOnly blessings flow through my veins.",
+    personalized_mantra: "I am protected by divine light. Negative energy cannot touch me."
+  },
+  moon_water_cleansing: {
+    space_cleansing: "Moonbeams dance, silver bright,\nBless this space with lunar light.\nFeminine wisdom, ancient and true –\nGuide my spirit, make me new.",
+    candle_anointing: "Lunar flame, goddess bright,\nIlluminate my inner sight.\nBy moon's power, I am blessed –\nIn your light, my soul finds rest.",
+    water_preparation: "Moon-charged water, silver blessed,\nBring my intuition rest.\nLunar cycles, ebb and flow –\nHelp my inner wisdom grow.",
+    immersion_affirmation: "Goddess moon, your light I feel,\nEmotional wounds, help me heal.\nIn your glow, I find my way –\nGuided by your sacred ray.",
+    closing_ritual: "Luna's blessing, deep and true,\nI carry now your light in me.\nAs tides return to sacred shore –\nI am whole, I am restored.",
+    personalized_mantra: "I trust my intuition. The divine feminine guides my path."
+  },
+  crystal_vibrational_healing: {
+    space_cleansing: "Crystal light, vibration pure,\nRaise this space, of this I'm sure.\nEnergy flows, bright and clear –\nOnly healing shall be here.",
+    candle_anointing: "Sacred flame and crystal bright,\nAmplify my healing light.\nVibrations high, intentions true –\nMake my spirit bright and new.",
+    water_preparation: "Crystals blessed with healing power,\nCharge this water, sacred hour.\nRaise my vibration, lift my soul –\nMake my broken spirit whole.",
+    immersion_affirmation: "Crystal energy, pure and bright,\nFill my being with your light.\nEvery cell now vibrates high –\nI am healed, I touch the sky.",
+    closing_ritual: "Crystal blessings, energy flow,\nIn my heart, this light I'll grow.\nAs I go forth from this place –\nI carry healing, love, and grace.",
+    personalized_mantra: "My vibration is pure and high. I attract healing and growth."
+  },
+  essential_oil_chakra: {
+    space_cleansing: "Sacred oils, aromas rise,\nBalance chakras, harmonize.\nFrom root to crown, energy flows –\nIn perfect balance, my spirit grows.",
+    candle_anointing: "Flame anointed, oils divine,\nAlign my chakras, make them shine.\nSeven centers, bright and clear –\nSpiritual balance, draw it near.",
+    water_preparation: "Essential oils, nature's gift,\nMy energy centers, help them lift.\nFrankincense and sacred rose –\nBalance flows where healing goes.",
+    immersion_affirmation: "Chakras spinning, bright and free,\nPerfect balance flows through me.\nFrom root to crown, I am aligned –\nBody, spirit, heart, and mind.",
+    closing_ritual: "Seven centers, now in tune,\nBlessed beneath the sacred moon.\nAs these oils their work complete –\nI am whole, I am complete.",
+    personalized_mantra: "My chakras are balanced and aligned. Energy flows freely through me."
+  },
+  heartbreak_healing: {
+    space_cleansing: "Rose petals soft, honey sweet,\nMake this sacred space complete.\nLove's pure energy, gentle and true –\nHeal my heart and make me new.",
+    candle_anointing: "Gentle flame of healing love,\nBless me from the stars above.\nMend this heart that feels so broken –\nLet love's truth be newly spoken.",
+    water_preparation: "Rose and honey, sweetness pure,\nHeal the pain I can't endure.\nLove flows in and grief flows out –\nOf this healing, I have no doubt.",
+    immersion_affirmation: "Sacred waters, heal my heart,\nGive my broken soul fresh start.\nLove returns to fill this space –\nI am worthy of love's embrace.",
+    closing_ritual: "Heart now healed and spirit bright,\nI step forward in love's light.\nAs this sacred water flows away –\nNew love enters every day.",
+    personalized_mantra: "My heart is healed and open to love. I am worthy of beautiful relationships."
+  },
+  financial_blockages: {
+    space_cleansing: "Cinnamon spice and basil green,\nProsperity flows, abundance seen.\nMoney blocks, now break away –\nWealth and success come here to stay.",
+    candle_anointing: "Golden flame of wealth so bright,\nFill my future with abundant light.\nMoney flows to me with ease –\nFinancial freedom, if you please.",
+    water_preparation: "Herbs of plenty, spices gold,\nLet prosperity's story be told.\nAbundance flows like river's stream –\nManifesting wealth, living the dream.",
+    immersion_affirmation: "Water blessed with golden power,\nWealth increases every hour.\nI deserve abundance true –\nMoney flows in all I do.",
+    closing_ritual: "Abundance blessed, now I go forth,\nKnowing truly what I'm worth.\nAs this golden water flows free –\nProsperity belongs to me.",
+    personalized_mantra: "I am a magnet for abundance. Money flows to me easily and joyfully."
+  },
+  spiritual_attack: {
+    space_cleansing: "Protective light, surround this space,\nEvil cannot show its face.\nAngels guard me, demons flee –\nOnly light remains with me.",
+    candle_anointing: "Warrior flame, burn strong and true,\nBreak all curses, make me new.\nNo hex or harm can touch me here –\nDivine protection draws me near.",
+    water_preparation: "Salt and herbs of power true,\nBreak all bonds, make spirit new.\nWhat was sent returns threefold –\nProtective magic, strong and bold.",
+    immersion_affirmation: "Sacred waters, wash away,\nAll attacks that came my way.\nI am shielded, I am free –\nOnly blessings come to me.",
+    closing_ritual: "Protected now by light divine,\nVictory and freedom are mine.\nAs dark waters flow away –\nI am blessed in every way.",
+    personalized_mantra: "I am surrounded by divine protection. No harm can reach me."
   }
 };
 
@@ -439,17 +508,18 @@ export const enhancedSeraphinaBathingService = {
     return ENHANCED_RITUAL_TEMPLATES[ritualType] || null;
   },
 
-  // Enhanced guidance with safety and substitutions
+  // Enhanced guidance with incantations
   generateEnhancedSacredBathingGuidance: (userProblem: string, assessmentData?: any): SacredBathingGuidance => {
     const problemType = enhancedSeraphinaBathingService.analyzeSpiritualProblem(userProblem);
     const ritual = ENHANCED_RITUAL_TEMPLATES[problemType] || ENHANCED_RITUAL_TEMPLATES.salt_sage_purification;
+    const incantations = RITUAL_INCANTATIONS[problemType] || RITUAL_INCANTATIONS.salt_sage_purification;
     
     return {
       seraphina_message: enhancedSeraphinaBathingService.generateCompassionateResponse(userProblem, ritual),
       ritual_details: ritual,
       ingredient_guide: enhancedSeraphinaBathingService.generateEnhancedIngredientGuide(ritual),
       step_by_step_instructions: enhancedSeraphinaBathingService.generateEnhancedRitualInstructions(ritual),
-      assessment_questions: enhancedSeraphinaBathingService.generateAssessmentQuestions(problemType)
+      ritual_incantations: incantations
     };
   },
 
@@ -580,6 +650,26 @@ export const enhancedSeraphinaBathingService = {
     const opening = compassionateOpenings[Math.floor(Math.random() * compassionateOpenings.length)];
     
     return `${opening}\n\nI recommend the ${ritual.name} from the ${ritual.tradition}. This sacred practice will help you ${ritual.purpose.toLowerCase()}. The ritual involves ${ritual.duration} and has been used for centuries to bring about profound spiritual transformation. \n\nTrust in this sacred process, for you have the power to heal and transform through these ancient practices.`;
+  },
+
+  // Enhanced guidance with incantations
+  generateCustomIncantation: (intention: string, userName?: string): string => {
+    const personalizedEnding = userName ? `Blessed be, ${userName}.` : 'Blessed be.';
+    
+    const incantationTemplates = {
+      love: `Divine love, surround me now,\nOpen my heart, show me how.\nTo give and receive with grace so true –\nLove flows through me, pure and new. ${personalizedEnding}`,
+      protection: `Light of God, surround me bright,\nKeep me safe both day and night.\nNo harm can touch my sacred space –\nI am shielded by divine grace. ${personalizedEnding}`,
+      healing: `Healing light, flow through my being,\nRestore my health, my spirit freeing.\nEvery cell renewed with love –\nBlessed by powers from above. ${personalizedEnding}`,
+      abundance: `Universe of endless plenty,\nBless me now with gifts so many.\nAbundance flows in every way –\nProsperity increases every day. ${personalizedEnding}`,
+      peace: `Sacred peace, fill my soul,\nMake my fractured spirit whole.\nCalm my mind and soothe my heart –\nSerenity, never to depart. ${personalizedEnding}`
+    };
+
+    const intentionKey = Object.keys(incantationTemplates).find(key => 
+      intention.toLowerCase().includes(key)
+    ) as keyof typeof incantationTemplates;
+
+    return incantationTemplates[intentionKey] || 
+           `Divine Spirit, hear my prayer,\nBless me with your loving care.\nGrant me what I need today –\nGuide me on my sacred way. ${personalizedEnding}`;
   }
 };
 
