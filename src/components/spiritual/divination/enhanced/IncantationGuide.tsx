@@ -12,7 +12,7 @@ import {
   Sparkles,
   Moon,
   Shield,
-  Candle
+  Flame
 } from 'lucide-react';
 import { RitualIncantations } from '@/services/seraphinaBathingService';
 import { useVoiceService } from '@/hooks/useVoiceService';
@@ -29,7 +29,7 @@ export const IncantationGuide: React.FC<IncantationGuideProps> = ({
   ritualName 
 }) => {
   const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
-  const { generateAndPlay, isLoading } = useVoiceService();
+  const { generateAndPlay, isGenerating } = useVoiceService();
 
   const playIncantation = async (text: string, id: string) => {
     if (currentlyPlaying === id) {
@@ -50,7 +50,7 @@ export const IncantationGuide: React.FC<IncantationGuideProps> = ({
 
   const getStepIcon = (step: string) => {
     if (step.includes('space')) return <Sparkles className="w-5 h-5" />;
-    if (step.includes('candle')) return <Candle className="w-5 h-5" />;
+    if (step.includes('candle')) return <Flame className="w-5 h-5" />;
     if (step.includes('water')) return <Moon className="w-5 h-5" />;
     if (step.includes('immersion')) return <Heart className="w-5 h-5" />;
     if (step.includes('closing')) return <Shield className="w-5 h-5" />;
@@ -134,7 +134,7 @@ export const IncantationGuide: React.FC<IncantationGuideProps> = ({
                 variant="ghost"
                 size="sm"
                 className="ml-4 text-yellow-300 hover:text-yellow-100"
-                disabled={isLoading}
+                disabled={isGenerating}
               >
                 {currentlyPlaying === 'mantra' ? 
                   <VolumeOff className="w-5 h-5" /> : 
@@ -167,7 +167,7 @@ export const IncantationGuide: React.FC<IncantationGuideProps> = ({
                   variant="ghost"
                   size="sm"
                   className="ml-auto text-white/80 hover:text-white"
-                  disabled={isLoading}
+                  disabled={isGenerating}
                 >
                   {currentlyPlaying === step.id ? 
                     <VolumeOff className="w-5 h-5" /> : 
