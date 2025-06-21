@@ -92,7 +92,7 @@ export const ActivationStage: React.FC<ActivationStageProps> = ({
     // Play the incantation
     generateAndPlay({
       text: currentStage.incantation,
-      emotion: 'mystical'
+      emotion: 'compassionate'
     });
   };
 
@@ -218,7 +218,7 @@ export const ActivationStage: React.FC<ActivationStageProps> = ({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => generateAndPlay({ text: currentStage.incantation, emotion: 'mystical' })}
+              onClick={() => generateAndPlay({ text: currentStage.incantation, emotion: 'compassionate' })}
               className="text-purple-300 hover:text-purple-100"
             >
               <Volume2 className="w-4 h-4" />
