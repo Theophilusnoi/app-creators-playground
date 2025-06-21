@@ -13,7 +13,7 @@ interface ThirdEyeProgress {
   overallProgress: number;
   totalTime: number;
   milestones: string[];
-  activationLevel: 'Beginner' |[object Object]'Intermediate' | 'Advanced';
+  activationLevel: 'Beginner' | 'Intermediate' | 'Advanced';
 }
 
 export const useThirdEyeProgress = () => {
