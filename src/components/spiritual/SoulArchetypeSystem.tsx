@@ -22,6 +22,8 @@ export const SoulArchetypeSystem: React.FC = () => {
   const [spiritualMaturity, setSpiritualMaturity] = useState(25);
   const [userLevel, setUserLevel] = useState<'beginner' | 'initiated' | 'advanced'>('beginner');
   const [activeTab, setActiveTab] = useState('assessment');
+  const [practiceHours, setPracticeHours] = useState(0);
+  const [wisdomPoints, setWisdomPoints] = useState(0);
 
   useEffect(() => {
     loadUserArchetypeData();
@@ -38,18 +40,46 @@ export const SoulArchetypeSystem: React.FC = () => {
         setSecondaryArchetype(data.secondaryArchetype);
         setSpiritualMaturity(data.spiritualMaturity || 25);
         setUserLevel(data.userLevel || 'beginner');
+        setPracticeHours(data.practiceHours || 0);
+        setWisdomPoints(data.wisdomPoints || 0);
         setCurrentPhase('profile');
         setActiveTab('profile');
+        
+        // Auto-advance user level based on practice and wisdom
+        updateUserLevel(data.practiceHours || 0, data.wisdomPoints || 0);
       }
     } catch (error) {
       console.error('Error loading archetype data:', error);
     }
   };
 
+  const updateUserLevel = (hours: number, points: number) => {
+    let newLevel: 'beginner' | 'initiated' | 'advanced' = 'beginner';
+    
+    if (hours >= 100 && points >= 500) {
+      newLevel = 'advanced';
+    } else if (hours >= 25 && points >= 100) {
+      newLevel = 'initiated';
+    }
+    
+    if (newLevel !== userLevel) {
+      setUserLevel(newLevel);
+      toast({
+        title: "Spiritual Level Advanced!",
+        description: `You have reached ${newLevel} level. New wisdom traditions are now available.`,
+      });
+    }
+  };
+
   const handleAssessmentComplete = (primary: SoulArchetype, secondary?: SoulArchetype) => {
+    const initialPoints = 50; // Starting wisdom points for completing assessment
+    const initialHours = 5; // Starting practice hours
+    
     setPrimaryArchetype(primary);
     setSecondaryArchetype(secondary);
-    setSpiritualMaturity(30); // Initial maturity after assessment
+    setSpiritualMaturity(30);
+    setPracticeHours(initialHours);
+    setWisdomPoints(initialPoints);
     
     // Save to localStorage
     if (user) {
@@ -58,6 +88,8 @@ export const SoulArchetypeSystem: React.FC = () => {
         secondaryArchetype: secondary,
         spiritualMaturity: 30,
         userLevel: 'beginner',
+        practiceHours: initialHours,
+        wisdomPoints: initialPoints,
         completedAt: new Date().toISOString()
       };
       localStorage.setItem(`archetype_${user.id}`, JSON.stringify(data));
@@ -65,6 +97,11 @@ export const SoulArchetypeSystem: React.FC = () => {
     
     setCurrentPhase('profile');
     setActiveTab('profile');
+    
+    toast({
+      title: "Soul Archetype Revealed!",
+      description: `You have been granted ${initialPoints} wisdom points and ${initialHours} practice hours to begin your journey.`,
+    });
   };
 
   const handleStartGrowthPath = () => {
@@ -79,9 +116,29 @@ export const SoulArchetypeSystem: React.FC = () => {
   const handleWisdomAccess = (traditionId: string) => {
     const tradition = CULTURAL_TRADITIONS.find(t => t.id === traditionId);
     if (tradition) {
+      // Award wisdom points for accessing new traditions
+      const newPoints = wisdomPoints + 25;
+      const newHours = practiceHours + 2;
+      
+      setWisdomPoints(newPoints);
+      setPracticeHours(newHours);
+      
+      // Update saved data
+      if (user && primaryArchetype) {
+        const savedData = localStorage.getItem(`archetype_${user.id}`);
+        if (savedData) {
+          const data = JSON.parse(savedData);
+          data.wisdomPoints = newPoints;
+          data.practiceHours = newHours;
+          localStorage.setItem(`archetype_${user.id}`, JSON.stringify(data));
+        }
+      }
+      
+      updateUserLevel(newHours, newPoints);
+      
       toast({
         title: "Sacred Wisdom Unlocked",
-        description: `Access granted to ${tradition.name} teachings`,
+        description: `Access granted to ${tradition.name} teachings. +25 wisdom points earned!`,
       });
     }
   };
@@ -93,11 +150,58 @@ export const SoulArchetypeSystem: React.FC = () => {
     });
   };
 
+  const handlePracticeSession = () => {
+    const newHours = practiceHours + 1;
+    const newPoints = wisdomPoints + 10;
+    
+    setPracticeHours(newHours);
+    setWisdomPoints(newPoints);
+    
+    // Update saved data
+    if (user && primaryArchetype) {
+      const savedData = localStorage.getItem(`archetype_${user.id}`);
+      if (savedData) {
+        const data = JSON.parse(savedData);
+        data.practiceHours = newHours;
+        data.wisdomPoints = newPoints;
+        localStorage.setItem(`archetype_${user.id}`, JSON.stringify(data));
+      }
+    }
+    
+    updateUserLevel(newHours, newPoints);
+    
+    toast({
+      title: "Practice Session Complete",
+      description: "+1 practice hour and +10 wisdom points earned!",
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-white mb-2">Soul Archetype System</h1>
         <p className="text-purple-200">Discover your spiritual blueprint and unlock your sacred potential</p>
+        
+        {/* Progress Indicators */}
+        {primaryArchetype && (
+          <div className="flex justify-center gap-6 mt-4">
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="border-purple-400 text-purple-200">
+                Level: {userLevel}
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="border-green-400 text-green-200">
+                Practice: {practiceHours}h
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="border-yellow-400 text-yellow-200">
+                Wisdom: {wisdomPoints}pts
+              </Badge>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Custom Tab Navigation */}
@@ -177,12 +281,30 @@ export const SoulArchetypeSystem: React.FC = () => {
         {activeTab === 'profile' && (
           <div className="space-y-6">
             {primaryArchetype ? (
-              <ArchetypeProfile
-                primaryArchetype={primaryArchetype}
-                secondaryArchetype={secondaryArchetype}
-                spiritualMaturity={spiritualMaturity}
-                onStartGrowthPath={handleStartGrowthPath}
-              />
+              <>
+                <ArchetypeProfile
+                  primaryArchetype={primaryArchetype}
+                  secondaryArchetype={secondaryArchetype}
+                  spiritualMaturity={spiritualMaturity}
+                  onStartGrowthPath={handleStartGrowthPath}
+                />
+                
+                {/* Practice Session Button */}
+                <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
+                  <CardContent className="p-6 text-center">
+                    <h3 className="text-xl font-semibold text-white mb-4">Daily Practice</h3>
+                    <p className="text-purple-200 mb-4">
+                      Complete practice sessions to earn wisdom points and advance your spiritual level.
+                    </p>
+                    <Button 
+                      onClick={handlePracticeSession}
+                      className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                    >
+                      Complete Practice Session (+1h, +10pts)
+                    </Button>
+                  </CardContent>
+                </Card>
+              </>
             ) : (
               <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
                 <CardContent className="p-6 text-center">
@@ -207,6 +329,11 @@ export const SoulArchetypeSystem: React.FC = () => {
               <p className="text-purple-200">
                 Connect with sacred traditions from around the world
               </p>
+              <div className="mt-4">
+                <p className="text-sm text-purple-200">
+                  Progress Requirements: Initiated (25h + 100pts) • Advanced (100h + 500pts)
+                </p>
+              </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
