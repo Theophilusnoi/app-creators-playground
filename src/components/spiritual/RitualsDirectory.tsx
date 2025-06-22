@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -441,6 +442,9 @@ export const RitualsDirectory: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredRituals.map((ritual) => {
               const isCompleted = completedRituals.has(ritual.id);
+              const stepsToShow = ritual.steps.slice(0, 3);
+              const remainingSteps = ritual.steps.length - 3;
+              
               return (
                 <Card key={ritual.id} className="bg-black/30 border-purple-500/30 backdrop-blur-sm h-full flex flex-col">
                   <CardHeader className="pb-3">
@@ -481,17 +485,19 @@ export const RitualsDirectory: React.FC = () => {
 
                     <div className="mb-4">
                       <h4 className="font-semibold text-purple-300 mb-2 crisp-text">Steps:</h4>
-                      <ul className="space-y-1">
-                        {ritual.steps.slice(0, 3).map((step, index) => (
+                      <ol className="space-y-1">
+                        {stepsToShow.map((step, index) => (
                           <li key={index} className="text-purple-100 text-sm flex items-start gap-2 crisp-text">
-                            <span className="text-purple-400 font-bold flex-shrink-0">{index + 1}.</span>
+                            <span className="text-purple-400 font-bold flex-shrink-0 min-w-[16px]">{index + 1}.</span>
                             <span>{step}</span>
                           </li>
                         ))}
-                        {ritual.steps.length > 3 && (
-                          <li className="text-purple-300 text-xs crisp-text">...and {ritual.steps.length - 3} more steps</li>
+                        {remainingSteps > 0 && (
+                          <li className="text-purple-300 text-sm crisp-text font-medium">
+                            ...and {remainingSteps} more step{remainingSteps !== 1 ? 's' : ''}
+                          </li>
                         )}
-                      </ul>
+                      </ol>
                     </div>
 
                     <div className="mt-auto">
