@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { VoiceInput } from "@/components/ui/voice-input";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Wind, Save } from "lucide-react";
@@ -19,6 +20,13 @@ export const MeditationForm = () => {
     mood_after: 7
   });
   const [loading, setLoading] = useState(false);
+
+  const handleVoiceTranscript = (transcript: string) => {
+    setFormData(prev => ({
+      ...prev,
+      notes: prev.notes + ' ' + transcript
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,7 +129,13 @@ export const MeditationForm = () => {
           </div>
           
           <div>
-            <Label className="text-purple-200">Notes</Label>
+            <div className="flex justify-between items-center mb-2">
+              <Label className="text-purple-200">Notes</Label>
+              <VoiceInput 
+                onTranscript={handleVoiceTranscript}
+                className="border-purple-500/30 text-purple-200 hover:bg-purple-700/30"
+              />
+            </div>
             <Textarea
               value={formData.notes}
               onChange={(e) => setFormData({...formData, notes: e.target.value})}

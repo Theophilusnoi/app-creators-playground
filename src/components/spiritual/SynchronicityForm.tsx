@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { VoiceInput } from "@/components/ui/voice-input";
 import { Sparkles, Save, X, AlertCircle } from "lucide-react";
 import { useSynchronicities } from '@/hooks/useSynchronicities';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -38,6 +38,13 @@ export const SynchronicityForm: React.FC<SynchronicityFormProps> = ({ onClose })
   });
   const [loading, setLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
+  const handleVoiceTranscript = (field: string) => (transcript: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: prev[field as keyof typeof prev] + ' ' + transcript
+    }));
+  };
 
   const validateForm = () => {
     console.log('🔍 Validating form data:', formData);
@@ -210,7 +217,13 @@ export const SynchronicityForm: React.FC<SynchronicityFormProps> = ({ onClose })
           </div>
           
           <div>
-            <Label className="text-purple-200">Description *</Label>
+            <div className="flex justify-between items-center mb-2">
+              <Label className="text-purple-200">Description *</Label>
+              <VoiceInput 
+                onTranscript={handleVoiceTranscript('description')}
+                className="border-purple-500/30 text-purple-200 hover:bg-purple-700/30"
+              />
+            </div>
             <Textarea
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
@@ -232,7 +245,13 @@ export const SynchronicityForm: React.FC<SynchronicityFormProps> = ({ onClose })
           </div>
 
           <div>
-            <Label className="text-purple-200">Meaning (Optional)</Label>
+            <div className="flex justify-between items-center mb-2">
+              <Label className="text-purple-200">Meaning (Optional)</Label>
+              <VoiceInput 
+                onTranscript={handleVoiceTranscript('meaning')}
+                className="border-purple-500/30 text-purple-200 hover:bg-purple-700/30"
+              />
+            </div>
             <Input
               value={formData.meaning}
               onChange={(e) => setFormData({...formData, meaning: e.target.value})}

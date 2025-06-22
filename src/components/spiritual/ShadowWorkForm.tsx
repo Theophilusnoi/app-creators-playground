@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { VoiceInput } from "@/components/ui/voice-input";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Eye, Save } from "lucide-react";
@@ -22,6 +22,13 @@ export const ShadowWorkForm = () => {
   const [loading, setLoading] = useState(false);
 
   const emotionOptions = ['shame', 'anger', 'fear', 'vulnerability', 'acceptance', 'sadness', 'rage', 'guilt'];
+
+  const handleVoiceTranscript = (field: string) => (transcript: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: prev[field as keyof typeof prev] + ' ' + transcript
+    }));
+  };
 
   const handleEmotionChange = (emotion: string, checked: boolean) => {
     if (checked) {
@@ -92,7 +99,13 @@ export const ShadowWorkForm = () => {
           </div>
           
           <div>
-            <Label className="text-purple-200">Reflection</Label>
+            <div className="flex justify-between items-center mb-2">
+              <Label className="text-purple-200">Reflection</Label>
+              <VoiceInput 
+                onTranscript={handleVoiceTranscript('reflection')}
+                className="border-purple-500/30 text-purple-200 hover:bg-purple-700/30"
+              />
+            </div>
             <Textarea
               value={formData.reflection}
               onChange={(e) => setFormData({...formData, reflection: e.target.value})}
@@ -120,7 +133,13 @@ export const ShadowWorkForm = () => {
           </div>
           
           <div>
-            <Label className="text-purple-200">Key Insights</Label>
+            <div className="flex justify-between items-center mb-2">
+              <Label className="text-purple-200">Key Insights</Label>
+              <VoiceInput 
+                onTranscript={handleVoiceTranscript('insights')}
+                className="border-purple-500/30 text-purple-200 hover:bg-purple-700/30"
+              />
+            </div>
             <Textarea
               value={formData.insights}
               onChange={(e) => setFormData({...formData, insights: e.target.value})}
@@ -131,7 +150,13 @@ export const ShadowWorkForm = () => {
           </div>
           
           <div>
-            <Label className="text-purple-200">Integration Notes</Label>
+            <div className="flex justify-between items-center mb-2">
+              <Label className="text-purple-200">Integration Notes</Label>
+              <VoiceInput 
+                onTranscript={handleVoiceTranscript('integration_notes')}
+                className="border-purple-500/30 text-purple-200 hover:bg-purple-700/30"
+              />
+            </div>
             <Textarea
               value={formData.integration_notes}
               onChange={(e) => setFormData({...formData, integration_notes: e.target.value})}
