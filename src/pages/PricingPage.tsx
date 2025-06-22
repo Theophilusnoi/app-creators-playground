@@ -1,14 +1,30 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, Crown, Zap, Sparkles } from 'lucide-react';
+import { Check, Crown, Zap, Sparkles, Gift } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const PricingPage = () => {
   const { createCheckout, subscriptionTier, subscribed, loading } = useSubscription();
   const { user } = useAuth();
+  const { toast } = useToast();
+  const [referralCode, setReferralCode] = useState<string>('');
+
+  // Check for referral code in URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const refCode = params.get('ref');
+    if (refCode) {
+      setReferralCode(refCode);
+      toast({
+        title: "Referral Code Applied!",
+        description: "You'll get special benefits when you subscribe.",
+      });
+    }
+  }, [toast]);
 
   const plans = [
     {
@@ -61,7 +77,11 @@ const PricingPage = () => {
     },
   ];
 
-  const handleSubscribe = (planId: string) => {
+  const handleSubscribe = async (planId: string) => {
+    if (referralCode) {
+      // Store referral code in localStorage for checkout process
+      localStorage.setItem('referralCode', referralCode);
+    }
     createCheckout(planId);
   };
 
@@ -75,6 +95,12 @@ const PricingPage = () => {
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
             Unlock your spiritual potential with our comprehensive guidance platform
           </p>
+          {referralCode && (
+            <div className="mt-4 inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full text-white">
+              <Gift className="w-4 h-4 mr-2" />
+              Referral code active: {referralCode}
+            </div>
+          )}
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">

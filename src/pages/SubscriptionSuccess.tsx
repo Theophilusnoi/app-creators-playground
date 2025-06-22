@@ -1,19 +1,39 @@
-
 import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Check, Sparkles } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const SubscriptionSuccess = () => {
   const navigate = useNavigate();
   const { checkSubscription } = useSubscription();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    // Check subscription status when user lands on success page
-    checkSubscription();
-  }, [checkSubscription]);
+    const completeReferralProcess = async () => {
+      // Check subscription status when user lands on success page
+      await checkSubscription();
+      
+      // Handle referral completion if session_id is present
+      const sessionId = searchParams.get('session_id');
+      if (sessionId) {
+        try {
+          await supabase.functions.invoke('complete-referral', {
+            body: { sessionId }
+          });
+        } catch (error)  {
+          console.error('Error completing referral:', error);
+        }
+      }
+      
+      // Clear referral code from localStorage
+      localStorage.removeItem('referralCode');
+    };
+    
+    completeReferralProcess();
+  }, [checkSubscription, searchParams]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 flex items-center justify-center p-4">

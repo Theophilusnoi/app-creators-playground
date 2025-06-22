@@ -20,15 +20,16 @@ serve(async (req) => {
 
   const supabaseClient = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    { auth: { persistSession: false } }
   );
 
   try {
     logStep("Function started");
 
-    const { tier } = await req.json();
+    const { tier, referralCode } = await req.json();
     if (!tier) throw new Error("Subscription tier is required");
-    logStep("Tier received", { tier });
+    logStep("Tier and referral code received", { tier, referralCode });
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header provided");
@@ -38,6 +39,22 @@ serve(async (req) => {
     const user = data.user;
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
+
+    // Check if user was referred
+    let referralRecord = null;
+    if (referralCode) {
+      const { data: referralData } = await supabaseClient
+        .from('referrals')
+        .select('*')
+        .eq('referral_code', referralCode)
+        .eq('status', 'pending')
+        .single();
+      
+      if (referralData) {
+        referralRecord = referralData;
+        logStep("Valid referral found", { referralId: referralRecord.id });
+      }
+    }
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
@@ -66,6 +83,19 @@ serve(async (req) => {
     logStep("Tier pricing", selectedTier);
 
     const origin = req.headers.get("origin") || "http://localhost:3000";
+    
+    // Create checkout session with metadata for referral tracking
+    const sessionMetadata: any = {
+      tier,
+      user_id: user.id,
+      user_email: user.email
+    };
+    
+    if (referralRecord) {
+      sessionMetadata.referral_id = referralRecord.id;
+      sessionMetadata.referrer_user_id = referralRecord.referrer_user_id;
+    }
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
@@ -81,8 +111,9 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${origin}/subscription-success`,
+      success_url: `${origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/pricing`,
+      metadata: sessionMetadata,
     });
 
     logStep("Checkout session created", { sessionId: session.id, url: session.url });

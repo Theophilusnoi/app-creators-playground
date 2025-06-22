@@ -72,8 +72,11 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     setLoading(true);
     try {
+      // Get referral code from localStorage if present
+      const referralCode = localStorage.getItem('referralCode');
+      
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { tier },
+        body: { tier, referralCode },
         headers: {
           Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
         },
