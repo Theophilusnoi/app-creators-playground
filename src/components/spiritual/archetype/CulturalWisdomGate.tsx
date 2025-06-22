@@ -4,10 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Shield, Heart, Crown, AlertTriangle, Check, BookOpen, Star, Scroll, X } from "lucide-react";
-import { CULTURAL_TRADITIONS } from '@/data/archetypes';
+import { Shield, Heart, Crown, AlertTriangle, Check } from "lucide-react";
 import { CulturalTradition } from '@/types/archetype';
+import { CulturalWisdomPage } from './CulturalWisdomPage';
 
 interface CulturalWisdomGateProps {
   tradition: CulturalTradition;
@@ -24,7 +23,7 @@ export const CulturalWisdomGate: React.FC<CulturalWisdomGateProps> = ({
 }) => {
   const [hasAcknowledged, setHasAcknowledged] = useState(false);
   const [understandsResponsibility, setUnderstandsResponsibility] = useState(false);
-  const [isWisdomModalOpen, setIsWisdomModalOpen] = useState(false);
+  const [showWisdomPage, setShowWisdomPage] = useState(false);
 
   const canAccess = () => {
     switch (tradition.accessLevel) {
@@ -50,7 +49,7 @@ export const CulturalWisdomGate: React.FC<CulturalWisdomGateProps> = ({
       return;
     }
 
-    setIsWisdomModalOpen(true);
+    setShowWisdomPage(true);
     onAccessGranted();
   };
 
@@ -63,292 +62,135 @@ export const CulturalWisdomGate: React.FC<CulturalWisdomGateProps> = ({
     }
   };
 
-  const getWisdomContent = () => {
-    const wisdomContent = {
-      'celtic': {
-        teachings: [
-          'The Triple Goddess: Maiden, Mother, Crone - understanding life\'s sacred cycles',
-          'Celtic Tree Calendar: Each moon cycle connected to sacred trees and their wisdom',
-          'Ogham Script: Ancient alphabet connecting letters to trees and natural forces',
-          'Samhain Wisdom: Honoring ancestors and the thinning of veils between worlds'
-        ],
-        practices: [
-          'Daily tree meditation - connecting with the spirit of different trees',
-          'Seasonal celebration rituals honoring the Celtic wheel of the year',
-          'Ancestor communication through guided meditation',
-          'Celtic knot meditation for understanding interconnectedness'
-        ],
-        symbols: ['Triskele', 'Celtic Knots', 'Tree of Life', 'Spiral'],
-        deities: ['Brigid', 'Cernunnos', 'The Morrígan', 'Lugh']
-      },
-      'norse': {
-        teachings: [
-          'The Nine Realms: Understanding the cosmic tree Yggdrasil and interconnected worlds',
-          'Rune Wisdom: Each rune as a gateway to universal forces and divination',
-          'Wyrd and Fate: Understanding personal destiny and the web of fate',
-          'Berserker Consciousness: Channeling primal power for transformation'
-        ],
-        practices: [
-          'Daily rune meditation and casting for guidance',
-          'Seidr practices for spiritual journeying and prophecy',
-          'Blót rituals for honoring the gods and nature spirits',
-          'Galdr - runic chanting for manifestation and protection'
-        ],
-        symbols: ['Mjölnir', 'Valknut', 'Vegvísir', 'Yggdrasil'],
-        deities: ['Odin', 'Freya', 'Thor', 'Frigg']
-      },
-      'egyptian': {
-        teachings: [
-          'Ma\'at Principle: Living in harmony with cosmic order and truth',
-          'Ka and Ba: Understanding the multiple aspects of the soul',
-          'Duat Journey: The soul\'s journey through the underworld after death',
-          'Neteru Wisdom: Working with Egyptian deities as cosmic principles'
-        ],
-        practices: [
-          'Daily Ma\'at meditation for ethical living and balance',
-          'Hieroglyphic meditation for connecting with ancient wisdom',
-          'Pyramid energy work for consciousness expansion',
-          'Egyptian deity invocation for specific life aspects'
-        ],
-        symbols: ['Ankh', 'Eye of Horus', 'Djed Pillar', 'Was Scepter'],
-        deities: ['Isis', 'Osiris', 'Thoth', 'Hathor']
-      }
-    };
-
-    return wisdomContent[tradition.id as keyof typeof wisdomContent] || {
-      teachings: ['Ancient wisdom teachings from this tradition'],
-      practices: ['Sacred practices for spiritual development'],
-      symbols: ['Sacred symbols'],
-      deities: ['Divine beings and archetypes']
-    };
-  };
-
-  const content = getWisdomContent();
+  // Show the dedicated wisdom page if access has been granted
+  if (showWisdomPage) {
+    return (
+      <CulturalWisdomPage
+        tradition={tradition}
+        onBack={() => setShowWisdomPage(false)}
+      />
+    );
+  }
 
   return (
-    <>
-      {/* Main Gate Card */}
-      <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-white">
-            <div className="flex items-start gap-3 mb-3">
-              {getAccessIcon()}
-              <div className="min-w-0 flex-1">
-                <h2 className="text-lg md:text-xl font-bold break-words">{tradition.name}</h2>
-                <p className="text-purple-200 text-sm mt-1">{tradition.region}</p>
-              </div>
-              <Badge 
-                variant={tradition.verified ? "default" : "secondary"}
-                className={`${tradition.verified ? "bg-green-600" : "bg-gray-600"} flex-shrink-0`}
-              >
-                {tradition.verified ? "Elder Verified" : "Historical"}
-              </Badge>
+    <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-white">
+          <div className="flex items-start gap-3 mb-3">
+            {getAccessIcon()}
+            <div className="min-w-0 flex-1">
+              <h2 className="text-lg md:text-xl font-bold break-words">{tradition.name}</h2>
+              <p className="text-purple-200 text-sm mt-1">{tradition.region}</p>
             </div>
-          </CardTitle>
-        </CardHeader>
-        
-        <CardContent className="space-y-6">
-          {/* Territory Acknowledgment */}
-          <Alert className="border-purple-500/50 bg-purple-900/20">
-            <Heart className="w-4 h-4 flex-shrink-0" />
-            <AlertDescription className="text-purple-100 leading-relaxed">
-              <strong className="block mb-2">Territory Acknowledgment:</strong>
-              {tradition.territoryAcknowledgment}
+            <Badge 
+              variant={tradition.verified ? "default" : "secondary"}
+              className={`${tradition.verified ? "bg-green-600" : "bg-gray-600"} flex-shrink-0`}
+            >
+              {tradition.verified ? "Elder Verified" : "Historical"}
+            </Badge>
+          </div>
+        </CardTitle>
+      </CardHeader>
+      
+      <CardContent className="space-y-6">
+        {/* Territory Acknowledgment */}
+        <Alert className="border-purple-500/50 bg-purple-900/20">
+          <Heart className="w-4 h-4 flex-shrink-0" />
+          <AlertDescription className="text-purple-100 leading-relaxed">
+            <strong className="block mb-2">Territory Acknowledgment:</strong>
+            {tradition.territoryAcknowledgment}
+          </AlertDescription>
+        </Alert>
+
+        {/* Elder Council */}
+        {tradition.verified && (
+          <div className="space-y-3">
+            <h4 className="text-white font-semibold">Wisdom Keepers</h4>
+            <div className="space-y-2">
+              {tradition.elderCouncil.map((elder, index) => (
+                <div key={index} className="flex items-start gap-2 text-purple-200">
+                  <Check className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm leading-relaxed">{elder}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Access Requirements */}
+        <div className="space-y-4">
+          <h4 className="text-white font-semibold">Sacred Responsibility</h4>
+          
+          <div className="space-y-4">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={hasAcknowledged}
+                onChange={(e) => setHasAcknowledged(e.target.checked)}
+                className="mt-1 flex-shrink-0"
+              />
+              <span className="text-purple-100 text-sm leading-relaxed">
+                I acknowledge the sacred nature of this wisdom and commit to approaching it with reverence, 
+                respect, and understanding that I am receiving teachings from living traditions.
+              </span>
+            </label>
+
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={understandsResponsibility}
+                onChange={(e) => setUnderstandsResponsibility(e.target.checked)}
+                className="mt-1 flex-shrink-0"
+              />
+              <span className="text-purple-100 text-sm leading-relaxed">
+                I understand that these teachings carry responsibility and I will not appropriate, 
+                commercialize, or misrepresent this sacred knowledge. I will practice with humility 
+                and seek proper guidance when needed.
+              </span>
+            </label>
+          </div>
+        </div>
+
+        {/* Access Status */}
+        <div className="bg-gray-800/50 rounded-lg p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-purple-200 text-sm">Required Access Level:</span>
+            <Badge className={`
+              ${tradition.accessLevel === 'open' ? 'bg-green-600' : 
+                tradition.accessLevel === 'initiated' ? 'bg-yellow-600' : 'bg-purple-600'}
+            `}>
+              {tradition.accessLevel}
+            </Badge>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-purple-200 text-sm">Your Level:</span>
+            <Badge variant="secondary">{userLevel}</Badge>
+          </div>
+        </div>
+
+        {/* Action Button */}
+        <Button
+          onClick={handleAccessRequest}
+          disabled={!hasAcknowledged || !understandsResponsibility}
+          className={`w-full ${
+            canAccess() 
+              ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
+              : 'bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800'
+          }`}
+        >
+          {canAccess() ? 'Enter Sacred Space' : `Requires ${tradition.accessLevel} Level`}
+        </Button>
+
+        {!canAccess() && (
+          <Alert className="border-yellow-500/50 bg-yellow-900/20">
+            <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+            <AlertDescription className="text-yellow-100 leading-relaxed">
+              Continue your spiritual journey through practice, study, and service to unlock higher levels of wisdom. 
+              Some teachings require proper preparation and initiation to be received safely and respectfully.
             </AlertDescription>
           </Alert>
-
-          {/* Elder Council */}
-          {tradition.verified && (
-            <div className="space-y-3">
-              <h4 className="text-white font-semibold">Wisdom Keepers</h4>
-              <div className="space-y-2">
-                {tradition.elderCouncil.map((elder, index) => (
-                  <div key={index} className="flex items-start gap-2 text-purple-200">
-                    <Check className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm leading-relaxed">{elder}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Access Requirements */}
-          <div className="space-y-4">
-            <h4 className="text-white font-semibold">Sacred Responsibility</h4>
-            
-            <div className="space-y-4">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={hasAcknowledged}
-                  onChange={(e) => setHasAcknowledged(e.target.checked)}
-                  className="mt-1 flex-shrink-0"
-                />
-                <span className="text-purple-100 text-sm leading-relaxed">
-                  I acknowledge the sacred nature of this wisdom and commit to approaching it with reverence, 
-                  respect, and understanding that I am receiving teachings from living traditions.
-                </span>
-              </label>
-
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={understandsResponsibility}
-                  onChange={(e) => setUnderstandsResponsibility(e.target.checked)}
-                  className="mt-1 flex-shrink-0"
-                />
-                <span className="text-purple-100 text-sm leading-relaxed">
-                  I understand that these teachings carry responsibility and I will not appropriate, 
-                  commercialize, or misrepresent this sacred knowledge. I will practice with humility 
-                  and seek proper guidance when needed.
-                </span>
-              </label>
-            </div>
-          </div>
-
-          {/* Access Status */}
-          <div className="bg-gray-800/50 rounded-lg p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-purple-200 text-sm">Required Access Level:</span>
-              <Badge className={`
-                ${tradition.accessLevel === 'open' ? 'bg-green-600' : 
-                  tradition.accessLevel === 'initiated' ? 'bg-yellow-600' : 'bg-purple-600'}
-              `}>
-                {tradition.accessLevel}
-              </Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-purple-200 text-sm">Your Level:</span>
-              <Badge variant="secondary">{userLevel}</Badge>
-            </div>
-          </div>
-
-          {/* Action Button */}
-          <Button
-            onClick={handleAccessRequest}
-            disabled={!hasAcknowledged || !understandsResponsibility}
-            className={`w-full ${
-              canAccess() 
-                ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
-                : 'bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800'
-            }`}
-          >
-            {canAccess() ? 'Enter Sacred Space' : `Requires ${tradition.accessLevel} Level`}
-          </Button>
-
-          {!canAccess() && (
-            <Alert className="border-yellow-500/50 bg-yellow-900/20">
-              <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-              <AlertDescription className="text-yellow-100 leading-relaxed">
-                Continue your spiritual journey through practice, study, and service to unlock higher levels of wisdom. 
-                Some teachings require proper preparation and initiation to be received safely and respectfully.
-              </AlertDescription>
-            </Alert>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Wisdom Content Modal */}
-      <Dialog open={isWisdomModalOpen} onOpenChange={setIsWisdomModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-green-900/95 to-emerald-900/95 border-green-500/30 backdrop-blur-sm">
-          <DialogHeader>
-            <DialogTitle className="text-white flex items-center gap-3 mb-4">
-              <BookOpen className="w-6 h-6 text-green-400 flex-shrink-0" />
-              <div className="min-w-0">
-                <h2 className="text-xl md:text-2xl font-bold break-words">{tradition.name} Sacred Teachings</h2>
-                <p className="text-green-200 text-sm mt-1">Wisdom Unlocked</p>
-              </div>
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-8 py-4">
-            {/* Core Teachings */}
-            <div className="space-y-4">
-              <h3 className="text-lg md:text-xl font-bold text-white flex items-center gap-2 mb-4">
-                <Scroll className="w-5 h-5 text-yellow-400 flex-shrink-0" />
-                <span>Core Teachings</span>
-              </h3>
-              <div className="grid grid-cols-1 gap-4">
-                {content.teachings.map((teaching, index) => (
-                  <Card key={index} className="bg-black/30 border-purple-500/30">
-                    <CardContent className="p-4">
-                      <div className="flex items-start gap-3">
-                        <Star className="w-4 h-4 text-yellow-400 mt-1 flex-shrink-0" />
-                        <p className="text-purple-100 text-sm leading-relaxed">{teaching}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-
-            {/* Sacred Practices */}
-            <div className="space-y-4">
-              <h3 className="text-lg md:text-xl font-bold text-white flex items-center gap-2 mb-4">
-                <Heart className="w-5 h-5 text-pink-400 flex-shrink-0" />
-                <span>Sacred Practices</span>
-              </h3>
-              <div className="grid grid-cols-1 gap-4">
-                {content.practices.map((practice, index) => (
-                  <Card key={index} className="bg-black/30 border-pink-500/30">
-                    <CardContent className="p-4">
-                      <div className="flex items-start gap-3">
-                        <Heart className="w-4 h-4 text-pink-400 mt-1 flex-shrink-0" />
-                        <p className="text-pink-100 text-sm leading-relaxed">{practice}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-
-            {/* Sacred Symbols & Divine Archetypes */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="space-y-3">
-                <h4 className="text-lg font-bold text-white">Sacred Symbols</h4>
-                <div className="flex flex-wrap gap-2">
-                  {content.symbols.map((symbol, index) => (
-                    <Badge key={index} className="bg-blue-600/80 text-white text-xs px-3 py-1">
-                      {symbol}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="space-y-3">
-                <h4 className="text-lg font-bold text-white">Divine Archetypes</h4>
-                <div className="flex flex-wrap gap-2">
-                  {content.deities.map((deity, index) => (
-                    <Badge key={index} className="bg-purple-600/80 text-white text-xs px-3 py-1">
-                      {deity}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-purple-500/30">
-              <Button
-                onClick={() => setIsWisdomModalOpen(false)}
-                variant="outline"
-                className="border-gray-500 text-gray-300 hover:bg-gray-700"
-              >
-                Close Teachings
-              </Button>
-              <Button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700">
-                Begin Practice Session
-              </Button>
-              <Button 
-                variant="outline"
-                className="border-purple-500 text-purple-300 hover:bg-purple-700"
-              >
-                Download Study Guide
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
+        )}
+      </CardContent>
+    </Card>
   );
 };
