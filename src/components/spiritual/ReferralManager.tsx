@@ -44,7 +44,7 @@ export const ReferralManager: React.FC = () => {
       // Generate a unique referral code
       const code = `SPIRIT-${user.id.slice(0, 8).toUpperCase()}-${Date.now().toString(36).toUpperCase()}`;
       
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('referrals')
         .insert({
           referrer_user_id: user.id,
@@ -80,7 +80,7 @@ export const ReferralManager: React.FC = () => {
     if (!user) return;
     
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('referrals')
         .select('*')
         .eq('referrer_user_id', user.id)
@@ -91,7 +91,7 @@ export const ReferralManager: React.FC = () => {
       setReferrals(data || []);
       
       // Find the user's active referral code
-      const activeReferral = data?.find(r => r.status === 'pending');
+      const activeReferral = data?.find((r: any) => r.status === 'pending');
       if (activeReferral) {
         setUserReferralCode(activeReferral.referral_code);
       }
