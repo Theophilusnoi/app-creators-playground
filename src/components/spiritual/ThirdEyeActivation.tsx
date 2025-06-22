@@ -117,28 +117,28 @@ export const ThirdEyeActivation: React.FC<ThirdEyeActivationProps> = ({ onComple
       </Card>
 
       <Tabs defaultValue="activation" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-gray-900/90 border-2 border-gray-600 p-1 gap-1">
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 bg-gray-900/90 border-2 border-gray-600 p-1 gap-1">
           <TabsTrigger 
             value="activation" 
-            className="text-white font-bold text-xs sm:text-sm bg-gray-800 border border-gray-600 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-shadow-sm px-2 py-3 whitespace-nowrap overflow-hidden text-ellipsis min-h-[48px] flex items-center justify-center"
+            className="text-white font-bold text-xs lg:text-sm bg-gray-800 border border-gray-600 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-shadow-sm px-2 py-3 whitespace-nowrap overflow-hidden text-ellipsis min-h-[48px] flex items-center justify-center"
           >
             <span className="truncate">Activation</span>
           </TabsTrigger>
           <TabsTrigger 
             value="profile"
-            className="text-white font-bold text-xs sm:text-sm bg-gray-800 border border-gray-600 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-shadow-sm px-2 py-3 whitespace-nowrap overflow-hidden text-ellipsis min-h-[48px] flex items-center justify-center"
+            className="text-white font-bold text-xs lg:text-sm bg-gray-800 border border-gray-600 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-shadow-sm px-2 py-3 whitespace-nowrap overflow-hidden text-ellipsis min-h-[48px] flex items-center justify-center"
           >
             <span className="truncate">Zodiac</span>
           </TabsTrigger>
           <TabsTrigger 
             value="progress"
-            className="text-white font-bold text-xs sm:text-sm bg-gray-800 border border-gray-600 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-shadow-sm px-2 py-3 whitespace-nowrap overflow-hidden text-ellipsis min-h-[48px] flex items-center justify-center"
+            className="text-white font-bold text-xs lg:text-sm bg-gray-800 border border-gray-600 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-shadow-sm px-2 py-3 whitespace-nowrap overflow-hidden text-ellipsis min-h-[48px] flex items-center justify-center"
           >
             <span className="truncate">Progress</span>
           </TabsTrigger>
           <TabsTrigger 
             value="safety"
-            className="text-white font-bold text-xs sm:text-sm bg-gray-800 border border-gray-600 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-shadow-sm px-2 py-3 whitespace-nowrap overflow-hidden text-ellipsis min-h-[48px] flex items-center justify-center"
+            className="text-white font-bold text-xs lg:text-sm bg-gray-800 border border-gray-600 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-shadow-sm px-2 py-3 whitespace-nowrap overflow-hidden text-ellipsis min-h-[48px] flex items-center justify-center"
           >
             <span className="truncate">Safety</span>
           </TabsTrigger>
@@ -217,62 +217,3 @@ export const ThirdEyeActivation: React.FC<ThirdEyeActivationProps> = ({ onComple
     </div>
   );
 };
-```
-
-I also need to update the tabs component to better handle the mobile layout:
-
-<lov-write file_path="src/components/ui/tabs.tsx">
-import * as React from "react"
-import * as TabsPrimitive from "@radix-ui/react-tabs"
-
-import { cn } from "@/lib/utils"
-
-const Tabs = TabsPrimitive.Root
-
-const TabsList = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.List>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.List
-    ref={ref}
-    className={cn(
-      "inline-flex h-auto items-center justify-center rounded-md bg-muted p-1 text-muted-foreground mobile-optimized",
-      className
-    )}
-    {...props}
-  />
-))
-TabsList.displayName = TabsPrimitive.List.displayName
-
-const TabsTrigger = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.Trigger
-    ref={ref}
-    className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm mobile-tab crisp-text",
-      className
-    )}
-    {...props}
-  />
-))
-TabsTrigger.displayName = TabsPrimitive.Trigger.displayName
-
-const TabsContent = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.Content
-    ref={ref}
-    className={cn(
-      "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 mobile-optimized",
-      className
-    )}
-    {...props}
-  />
-))
-TabsContent.displayName = TabsPrimitive.Content.displayName
-
-export { Tabs, TabsList, TabsTrigger, TabsContent }
-```
