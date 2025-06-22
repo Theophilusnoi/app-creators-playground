@@ -96,15 +96,41 @@ export const RitualSequencer: React.FC<RitualSequencerProps> = ({
   };
 
   const generateStepAudioScript = (step: RitualStep) => {
-    let script = `${step.name}. ${step.description}`;
+    let script = `Welcome to the ${step.name} phase of your sacred ritual. `;
     
+    // Add breathing introduction
+    script += `Take a moment to settle into this present moment. Feel your body supported by the earth beneath you, and let your breath flow naturally. `;
+    
+    // Elaborate on the main description
+    script += `${step.description} Allow yourself to fully embrace this sacred time and space. `;
+    
+    // Add detailed guidance based on step type
+    if (step.name.toLowerCase().includes('preparation') || step.name.toLowerCase().includes('container')) {
+      script += `This is your time to create a sacred container for transformation. Notice the quality of light around you, the temperature of the air on your skin. Let your nervous system begin to settle and open to receive the gifts of this practice. Take three deep breaths with me now - breathing in peace, breathing out any tension or worry. `;
+    } else if (step.name.toLowerCase().includes('grounding') || step.name.toLowerCase().includes('earth')) {
+      script += `Feel the solid earth supporting you from below. Imagine roots growing from the base of your spine, reaching deep into the earth's core. With each breath, feel yourself becoming more stable, more centered, more connected to the ancient wisdom of the earth. Let this grounding energy rise up through your body, filling you with strength and stability. `;
+    } else if (step.name.toLowerCase().includes('gratitude') || step.name.toLowerCase().includes('blessing')) {
+      script += `Open your heart to the abundance already present in your life. Feel gratitude not just as a thought, but as a warm, expanding sensation in your chest. Let this appreciation fill every cell of your being. Notice how gratitude transforms your entire energetic state, connecting you to the flow of universal abundance. `;
+    } else if (step.name.toLowerCase().includes('intention') || step.name.toLowerCase().includes('daily')) {
+      script += `This is a powerful moment of creation. Feel into the quality of being you wish to embody today. See yourself moving through your day with grace, wisdom, and purpose. Feel this intention taking root in your heart, knowing that you are co-creating your reality with the divine forces of the universe. `;
+    } else if (step.name.toLowerCase().includes('release') || step.name.toLowerCase().includes('writing')) {
+      script += `Allow yourself to be completely honest and vulnerable in this sacred space. Write with the full knowing that anything you release today is being transformed by powerful spiritual forces. Feel the liberation that comes with letting go of what no longer serves your highest good. Trust that as you release, you create space for miracles to enter your life. `;
+    } else if (step.name.toLowerCase().includes('moon') || step.name.toLowerCase().includes('lunar')) {
+      script += `Connect with the ancient feminine wisdom of the moon. Feel her silver light penetrating every cell of your being, awakening your intuitive powers and emotional intelligence. The moon is your ally in transformation, helping you release old patterns and embrace your authentic power. `;
+    }
+    
+    // Add the affirmation with more context
     if (step.affirmation) {
-      script += ` Now, let's affirm together: ${step.affirmation}`;
+      script += `Now, let us speak these words of power together. Feel them resonating not just in your mind, but in every fiber of your being. Speak with conviction and love: "${step.affirmation}". Repeat this affirmation silently to yourself, feeling its truth awakening within you. `;
     }
     
+    // Add detailed visualization guidance
     if (step.visualization) {
-      script += ` Take a moment to visualize: ${step.visualization}`;
+      script += `Close your eyes gently and allow your inner vision to awaken. ${step.visualization} Take your time with this visualization, allowing all your senses to engage. See the colors, feel the textures, hear the sounds, smell the fragrances. Let this vision become so real that it begins to anchor itself into your physical reality. `;
     }
+    
+    // Add closing guidance
+    script += `As you continue with this step, remember that you are engaging in a sacred act of self-transformation. Trust the process, trust your inner wisdom, and know that you are being held and supported by forces greater than yourself. Breathe deeply and allow yourself to fully receive the gifts of this practice. `;
     
     return script;
   };
