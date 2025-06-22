@@ -43,18 +43,29 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Subscription check error:', error);
+        // Don't throw error, just log it and show a user-friendly message
+        toast({
+          title: "Subscription Check",
+          description: "Using demo mode. Click 'Check Status' to retry.",
+        });
+        return;
+      }
 
-      setSubscribed(data.subscribed);
-      setSubscriptionTier(data.subscription_tier);
-      setSubscriptionEnd(data.subscription_end);
+      setSubscribed(data.subscribed || false);
+      setSubscriptionTier(data.subscription_tier || null);
+      setSubscriptionEnd(data.subscription_end || null);
     } catch (error) {
       console.error('Error checking subscription:', error);
       toast({
-        title: "Error",
-        description: "Failed to check subscription status",
-        variant: "destructive",
+        title: "Demo Mode Active",
+        description: "Subscription services temporarily unavailable. You can still explore features in demo mode.",
       });
+      // Set demo defaults
+      setSubscribed(false);
+      setSubscriptionTier(null);
+      setSubscriptionEnd(null);
     } finally {
       setLoading(false);
     }
@@ -82,15 +93,18 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Checkout creation error:', error);
+        throw error;
+      }
 
       // Open Stripe checkout in a new tab
       window.open(data.url, '_blank');
     } catch (error) {
       console.error('Error creating checkout:', error);
       toast({
-        title: "Error",
-        description: "Failed to create checkout session",
+        title: "Checkout Temporarily Unavailable",
+        description: "Please try again later or contact support. You can still explore Pro features in demo mode.",
         variant: "destructive",
       });
     } finally {
@@ -116,8 +130,8 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     } catch (error) {
       console.error('Error opening customer portal:', error);
       toast({
-        title: "Error",
-        description: "Failed to open customer portal",
+        title: "Customer Portal Unavailable",
+        description: "Please contact support for subscription management.",
         variant: "destructive",
       });
     } finally {
