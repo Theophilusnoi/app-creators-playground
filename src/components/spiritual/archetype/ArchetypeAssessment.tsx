@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Star, Sparkles, Heart, Mountain } from "lucide-react";
-import { SOUL_ARCHETYPES } from '@/data/archetypes';
+import { ARCHETYPES } from '@/data/archetypes';
 import { SoulArchetype } from '@/types/archetype';
 import { useToast } from '@/hooks/use-toast';
 
@@ -124,8 +124,8 @@ export const ArchetypeAssessment: React.FC<ArchetypeAssessmentProps> = ({ onComp
     const primaryArchetypeId = sortedArchetypes[0]?.[0];
     const secondaryArchetypeId = sortedArchetypes[1]?.[0];
     
-    const primaryArchetype = SOUL_ARCHETYPES.find(a => a.id === primaryArchetypeId);
-    const secondaryArchetype = SOUL_ARCHETYPES.find(a => a.id === secondaryArchetypeId);
+    const primaryArchetype = ARCHETYPES.find(a => a.id === primaryArchetypeId);
+    const secondaryArchetype = ARCHETYPES.find(a => a.id === secondaryArchetypeId);
     
     if (primaryArchetype) {
       toast({
