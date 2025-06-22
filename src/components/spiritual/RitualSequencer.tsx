@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Clock, Play, Pause, RotateCcw, CheckCircle } from "lucide-react";
+import { Clock, Play, Pause, RotateCcw, CheckCircle, Volume2 } from "lucide-react";
+import { VoicePlayer } from './VoicePlayer';
 
 interface RitualStep {
   id: string;
@@ -95,6 +95,20 @@ export const RitualSequencer: React.FC<RitualSequencerProps> = ({
     return activeSequence.steps[currentStepIndex];
   };
 
+  const generateStepAudioScript = (step: RitualStep) => {
+    let script = `${step.name}. ${step.description}`;
+    
+    if (step.affirmation) {
+      script += ` Now, let's affirm together: ${step.affirmation}`;
+    }
+    
+    if (step.visualization) {
+      script += ` Take a moment to visualize: ${step.visualization}`;
+    }
+    
+    return script;
+  };
+
   if (activeSequence) {
     const currentStep = getCurrentStep();
     const totalProgress = ((currentStepIndex + stepProgress / 100) / activeSequence.steps.length) * 100;
@@ -121,18 +135,33 @@ export const RitualSequencer: React.FC<RitualSequencerProps> = ({
         <CardContent className="space-y-4">
           {currentStep && (
             <div className="bg-purple-900/20 p-4 rounded-lg">
-              <h4 className="text-purple-200 font-semibold mb-2">
-                Current Step: {currentStep.name}
-              </h4>
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-purple-200 font-semibold">
+                  Current Step: {currentStep.name}
+                </h4>
+                <div className="flex items-center gap-2">
+                  <Volume2 className="w-4 h-4 text-purple-300" />
+                  <span className="text-purple-300 text-sm">Audio Guided</span>
+                </div>
+              </div>
+              
               <p className="text-purple-100 text-sm mb-3">{currentStep.description}</p>
               
-              <div className="w-full bg-purple-800/50 rounded-full h-2 mb-2">
+              <div className="w-full bg-purple-800/50 rounded-full h-2 mb-3">
                 <div 
                   className="bg-gradient-to-r from-purple-300 to-pink-300 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${stepProgress}%` }}
                 />
               </div>
-              <p className="text-purple-300 text-xs">{Math.round(stepProgress)}% Complete</p>
+              <p className="text-purple-300 text-xs mb-4">{Math.round(stepProgress)}% Complete</p>
+
+              {/* Audio Player for Current Step */}
+              <div className="mb-4">
+                <VoicePlayer 
+                  script={generateStepAudioScript(currentStep)}
+                  tone="nurturing_gentle"
+                />
+              </div>
 
               {currentStep.affirmation && (
                 <div className="mt-3 p-3 bg-pink-900/20 rounded-lg">
@@ -190,6 +219,9 @@ export const RitualSequencer: React.FC<RitualSequencerProps> = ({
                     <div className="w-4 h-4 rounded-full border border-current" />
                   )}
                   <span>{step.name}</span>
+                  <span className="text-xs opacity-60">
+                    ({Math.round(step.duration / 1000)}s)
+                  </span>
                 </div>
               ))}
             </div>
@@ -206,7 +238,7 @@ export const RitualSequencer: React.FC<RitualSequencerProps> = ({
           🕯️ Ritual Sequencer
         </CardTitle>
         <p className="text-purple-200">
-          Guided spiritual ritual sequences with precise timing and instruction
+          Guided spiritual ritual sequences with precise timing and audio guidance
         </p>
       </CardHeader>
       
@@ -215,7 +247,7 @@ export const RitualSequencer: React.FC<RitualSequencerProps> = ({
           <h3 className="text-purple-200 font-semibold mb-2">How It Works</h3>
           <p className="text-purple-100 text-sm">
             The Ritual Sequencer guides you through complex spiritual practices step-by-step, 
-            ensuring proper timing, visualization, and affirmations for maximum effectiveness.
+            with audio guidance, proper timing, visualization, and affirmations for maximum effectiveness.
           </p>
         </div>
 
@@ -232,12 +264,15 @@ export const RitualSequencer: React.FC<RitualSequencerProps> = ({
               } hover:opacity-90 text-white`}
             >
               <div className="text-left w-full">
-                <div className="font-semibold text-lg">{sequence.name}</div>
+                <div className="font-semibold text-lg flex items-center gap-2">
+                  {sequence.name}
+                  <Volume2 className="w-4 h-4" />
+                </div>
                 <div className="text-sm opacity-90">{sequence.description}</div>
                 <div className="text-xs mt-1 opacity-75">
                   Duration: {Math.round(sequence.totalDuration / 1000)}s • 
                   Steps: {sequence.steps.length} • 
-                  Power: {sequence.powerLevel}/10
+                  Power: {sequence.powerLevel}/10 • Audio Guided
                 </div>
               </div>
             </Button>
