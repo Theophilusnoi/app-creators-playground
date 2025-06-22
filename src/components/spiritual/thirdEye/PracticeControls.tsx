@@ -27,28 +27,42 @@ export const PracticeControls: React.FC<PracticeControlsProps> = ({
   const totalSeconds = duration * 60;
 
   return (
-    <div className="flex justify-center gap-3">
+    <div className="flex justify-center gap-4 p-4">
       {!isActive && timeRemaining === totalSeconds && (
-        <Button onClick={onStart} className="bg-green-600 hover:bg-green-700">
-          <Play className="w-4 h-4 mr-2" />
+        <Button 
+          onClick={onStart} 
+          className="bg-green-600 hover:bg-green-700 text-white font-bold text-lg px-8 py-4 h-auto min-h-[60px] shadow-xl border-2 border-green-400/50"
+        >
+          <Play className="w-6 h-6 mr-3" />
           Begin Practice
         </Button>
       )}
       
       {timeRemaining < totalSeconds && (
         <>
-          <Button onClick={onPause} variant="outline">
-            {isActive ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+          <Button 
+            onClick={onPause} 
+            variant="outline" 
+            className="bg-white/20 backdrop-blur-sm border-2 border-white/40 text-white hover:bg-white/30 font-bold text-lg px-6 py-4 h-auto min-h-[60px] shadow-xl"
+          >
+            {isActive ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
           </Button>
-          <Button onClick={onReset} variant="outline">
-            <RotateCcw className="w-4 h-4" />
+          <Button 
+            onClick={onReset} 
+            variant="outline"
+            className="bg-white/20 backdrop-blur-sm border-2 border-white/40 text-white hover:bg-white/30 font-bold text-lg px-6 py-4 h-auto min-h-[60px] shadow-xl"
+          >
+            <RotateCcw className="w-6 h-6" />
           </Button>
         </>
       )}
       
       {isCompleted && (
-        <Button onClick={onComplete} className="bg-purple-600 hover:bg-purple-700">
-          <CheckCircle2 className="w-4 h-4 mr-2" />
+        <Button 
+          onClick={onComplete} 
+          className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-lg px-8 py-4 h-auto min-h-[60px] shadow-xl border-2 border-purple-400/50"
+        >
+          <CheckCircle2 className="w-6 h-6 mr-3" />
           Complete Stage
         </Button>
       )}
