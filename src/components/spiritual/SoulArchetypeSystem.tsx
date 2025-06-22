@@ -116,12 +116,9 @@ export const SoulArchetypeSystem: React.FC = () => {
         
         <button
           onClick={() => setActiveTab('profile')}
-          disabled={!primaryArchetype}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
             activeTab === 'profile'
               ? 'bg-purple-600 text-white'
-              : !primaryArchetype
-              ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
               : 'bg-gray-800 text-purple-300 hover:bg-purple-700 hover:text-white'
           }`}
         >
@@ -131,12 +128,9 @@ export const SoulArchetypeSystem: React.FC = () => {
         
         <button
           onClick={() => setActiveTab('wisdom')}
-          disabled={!primaryArchetype}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
             activeTab === 'wisdom'
               ? 'bg-purple-600 text-white'
-              : !primaryArchetype
-              ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
               : 'bg-gray-800 text-purple-300 hover:bg-purple-700 hover:text-white'
           }`}
         >
@@ -161,11 +155,9 @@ export const SoulArchetypeSystem: React.FC = () => {
       <div className="space-y-6">
         {activeTab === 'assessment' && (
           <div className="space-y-6">
-            {currentPhase === 'assessment' && !primaryArchetype && (
+            {!primaryArchetype ? (
               <ArchetypeAssessment onComplete={handleAssessmentComplete} />
-            )}
-            
-            {primaryArchetype && (
+            ) : (
               <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
                 <CardContent className="p-6 text-center">
                   <Sparkles className="w-12 h-12 text-purple-400 mx-auto mb-4" />
@@ -182,40 +174,75 @@ export const SoulArchetypeSystem: React.FC = () => {
           </div>
         )}
 
-        {activeTab === 'profile' && primaryArchetype && (
-          <ArchetypeProfile
-            primaryArchetype={primaryArchetype}
-            secondaryArchetype={secondaryArchetype}
-            spiritualMaturity={spiritualMaturity}
-            onStartGrowthPath={handleStartGrowthPath}
-          />
+        {activeTab === 'profile' && (
+          <div className="space-y-6">
+            {primaryArchetype ? (
+              <ArchetypeProfile
+                primaryArchetype={primaryArchetype}
+                secondaryArchetype={secondaryArchetype}
+                spiritualMaturity={spiritualMaturity}
+                onStartGrowthPath={handleStartGrowthPath}
+              />
+            ) : (
+              <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
+                <CardContent className="p-6 text-center">
+                  <Crown className="w-12 h-12 text-purple-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-white mb-2">Complete Assessment First</h3>
+                  <p className="text-purple-200 mb-4">
+                    You need to complete the Soul Archetype Assessment to access your profile.
+                  </p>
+                  <Button onClick={() => setActiveTab('assessment')} className="bg-purple-600 hover:bg-purple-700">
+                    Take Assessment
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         )}
 
         {activeTab === 'wisdom' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {CULTURAL_TRADITIONS.map((tradition) => (
-              <CulturalWisdomGate
-                key={tradition.id}
-                tradition={tradition}
-                userLevel={userLevel}
-                onAccessGranted={() => handleWisdomAccess(tradition.id)}
-                onAccessDenied={(reason) => {
-                  toast({
-                    title: "Access Restricted",
-                    description: reason,
-                    variant: "destructive"
-                  });
-                }}
-              />
-            ))}
+          <div className="space-y-6">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-white mb-2">Cultural Wisdom Access</h2>
+              <p className="text-purple-200">
+                Connect with sacred traditions from around the world
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {CULTURAL_TRADITIONS.map((tradition) => (
+                <CulturalWisdomGate
+                  key={tradition.id}
+                  tradition={tradition}
+                  userLevel={userLevel}
+                  onAccessGranted={() => handleWisdomAccess(tradition.id)}
+                  onAccessDenied={(reason) => {
+                    toast({
+                      title: "Access Restricted",
+                      description: reason,
+                      variant: "destructive"
+                    });
+                  }}
+                />
+              ))}
+            </div>
           </div>
         )}
 
         {activeTab === 'tiers' && (
-          <WisdomTierSelector
-            currentTier="earth"
-            onSelectTier={handleTierSelection}
-          />
+          <div className="space-y-6">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-white mb-2">Wisdom Tier Selection</h2>
+              <p className="text-purple-200">
+                Choose your spiritual development path
+              </p>
+            </div>
+            
+            <WisdomTierSelector
+              currentTier="earth"
+              onSelectTier={handleTierSelection}
+            />
+          </div>
         )}
       </div>
     </div>
