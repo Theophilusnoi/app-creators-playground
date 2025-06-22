@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Shield, Heart, Crown, AlertTriangle, Check, BookOpen, Star, Scroll } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Shield, Heart, Crown, AlertTriangle, Check, BookOpen, Star, Scroll, X } from "lucide-react";
 import { CULTURAL_TRADITIONS } from '@/data/archetypes';
 import { CulturalTradition } from '@/types/archetype';
 
@@ -23,7 +24,7 @@ export const CulturalWisdomGate: React.FC<CulturalWisdomGateProps> = ({
 }) => {
   const [hasAcknowledged, setHasAcknowledged] = useState(false);
   const [understandsResponsibility, setUnderstandsResponsibility] = useState(false);
-  const [accessGranted, setAccessGranted] = useState(false);
+  const [isWisdomModalOpen, setIsWisdomModalOpen] = useState(false);
 
   const canAccess = () => {
     switch (tradition.accessLevel) {
@@ -49,7 +50,7 @@ export const CulturalWisdomGate: React.FC<CulturalWisdomGateProps> = ({
       return;
     }
 
-    setAccessGranted(true);
+    setIsWisdomModalOpen(true);
     onAccessGranted();
   };
 
@@ -122,115 +123,11 @@ export const CulturalWisdomGate: React.FC<CulturalWisdomGateProps> = ({
     };
   };
 
-  if (accessGranted) {
-    const content = getWisdomContent();
-    
-    return (
-      <div className="max-w-4xl mx-auto space-y-6 p-4">
-        <Card className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 border-green-500/30 backdrop-blur-sm">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-white flex items-center gap-3">
-              <BookOpen className="w-6 h-6 text-green-400 flex-shrink-0" />
-              <div className="min-w-0">
-                <h2 className="text-xl md:text-2xl font-bold break-words">{tradition.name} Sacred Teachings</h2>
-                <p className="text-green-200 text-sm mt-1">Access Granted - Wisdom Unlocked</p>
-              </div>
-            </CardTitle>
-          </CardHeader>
-          
-          <CardContent className="space-y-8">
-            {/* Core Teachings */}
-            <div className="space-y-4">
-              <h3 className="text-lg md:text-xl font-bold text-white flex items-center gap-2 mb-4">
-                <Scroll className="w-5 h-5 text-yellow-400 flex-shrink-0" />
-                <span>Core Teachings</span>
-              </h3>
-              <div className="grid grid-cols-1 gap-4">
-                {content.teachings.map((teaching, index) => (
-                  <Card key={index} className="bg-black/30 border-purple-500/30">
-                    <CardContent className="p-4">
-                      <div className="flex items-start gap-3">
-                        <Star className="w-4 h-4 text-yellow-400 mt-1 flex-shrink-0" />
-                        <p className="text-purple-100 text-sm leading-relaxed">{teaching}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-
-            {/* Sacred Practices */}
-            <div className="space-y-4">
-              <h3 className="text-lg md:text-xl font-bold text-white flex items-center gap-2 mb-4">
-                <Heart className="w-5 h-5 text-pink-400 flex-shrink-0" />
-                <span>Sacred Practices</span>
-              </h3>
-              <div className="grid grid-cols-1 gap-4">
-                {content.practices.map((practice, index) => (
-                  <Card key={index} className="bg-black/30 border-pink-500/30">
-                    <CardContent className="p-4">
-                      <div className="flex items-start gap-3">
-                        <Heart className="w-4 h-4 text-pink-400 mt-1 flex-shrink-0" />
-                        <p className="text-pink-100 text-sm leading-relaxed">{practice}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-
-            {/* Sacred Symbols & Divine Archetypes */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="space-y-3">
-                <h4 className="text-lg font-bold text-white">Sacred Symbols</h4>
-                <div className="flex flex-wrap gap-2">
-                  {content.symbols.map((symbol, index) => (
-                    <Badge key={index} className="bg-blue-600/80 text-white text-xs px-3 py-1">
-                      {symbol}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="space-y-3">
-                <h4 className="text-lg font-bold text-white">Divine Archetypes</h4>
-                <div className="flex flex-wrap gap-2">
-                  {content.deities.map((deity, index) => (
-                    <Badge key={index} className="bg-purple-600/80 text-white text-xs px-3 py-1">
-                      {deity}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-purple-500/30">
-              <Button
-                onClick={() => setAccessGranted(false)}
-                variant="outline"
-                className="border-gray-500 text-gray-300 hover:bg-gray-700"
-              >
-                ← Back to Gate
-              </Button>
-              <Button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700">
-                Begin Practice Session
-              </Button>
-              <Button 
-                variant="outline"
-                className="border-purple-500 text-purple-300 hover:bg-purple-700"
-              >
-                Download Study Guide
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  const content = getWisdomContent();
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 p-4">
+    <>
+      {/* Main Gate Card */}
       <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
         <CardHeader className="pb-4">
           <CardTitle className="text-white">
@@ -350,6 +247,108 @@ export const CulturalWisdomGate: React.FC<CulturalWisdomGateProps> = ({
           )}
         </CardContent>
       </Card>
-    </div>
+
+      {/* Wisdom Content Modal */}
+      <Dialog open={isWisdomModalOpen} onOpenChange={setIsWisdomModalOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-green-900/95 to-emerald-900/95 border-green-500/30 backdrop-blur-sm">
+          <DialogHeader>
+            <DialogTitle className="text-white flex items-center gap-3 mb-4">
+              <BookOpen className="w-6 h-6 text-green-400 flex-shrink-0" />
+              <div className="min-w-0">
+                <h2 className="text-xl md:text-2xl font-bold break-words">{tradition.name} Sacred Teachings</h2>
+                <p className="text-green-200 text-sm mt-1">Wisdom Unlocked</p>
+              </div>
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-8 py-4">
+            {/* Core Teachings */}
+            <div className="space-y-4">
+              <h3 className="text-lg md:text-xl font-bold text-white flex items-center gap-2 mb-4">
+                <Scroll className="w-5 h-5 text-yellow-400 flex-shrink-0" />
+                <span>Core Teachings</span>
+              </h3>
+              <div className="grid grid-cols-1 gap-4">
+                {content.teachings.map((teaching, index) => (
+                  <Card key={index} className="bg-black/30 border-purple-500/30">
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        <Star className="w-4 h-4 text-yellow-400 mt-1 flex-shrink-0" />
+                        <p className="text-purple-100 text-sm leading-relaxed">{teaching}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+
+            {/* Sacred Practices */}
+            <div className="space-y-4">
+              <h3 className="text-lg md:text-xl font-bold text-white flex items-center gap-2 mb-4">
+                <Heart className="w-5 h-5 text-pink-400 flex-shrink-0" />
+                <span>Sacred Practices</span>
+              </h3>
+              <div className="grid grid-cols-1 gap-4">
+                {content.practices.map((practice, index) => (
+                  <Card key={index} className="bg-black/30 border-pink-500/30">
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        <Heart className="w-4 h-4 text-pink-400 mt-1 flex-shrink-0" />
+                        <p className="text-pink-100 text-sm leading-relaxed">{practice}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+
+            {/* Sacred Symbols & Divine Archetypes */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <h4 className="text-lg font-bold text-white">Sacred Symbols</h4>
+                <div className="flex flex-wrap gap-2">
+                  {content.symbols.map((symbol, index) => (
+                    <Badge key={index} className="bg-blue-600/80 text-white text-xs px-3 py-1">
+                      {symbol}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <h4 className="text-lg font-bold text-white">Divine Archetypes</h4>
+                <div className="flex flex-wrap gap-2">
+                  {content.deities.map((deity, index) => (
+                    <Badge key={index} className="bg-purple-600/80 text-white text-xs px-3 py-1">
+                      {deity}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-purple-500/30">
+              <Button
+                onClick={() => setIsWisdomModalOpen(false)}
+                variant="outline"
+                className="border-gray-500 text-gray-300 hover:bg-gray-700"
+              >
+                Close Teachings
+              </Button>
+              <Button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700">
+                Begin Practice Session
+              </Button>
+              <Button 
+                variant="outline"
+                className="border-purple-500 text-purple-300 hover:bg-purple-700"
+              >
+                Download Study Guide
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
