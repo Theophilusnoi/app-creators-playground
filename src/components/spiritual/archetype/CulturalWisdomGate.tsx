@@ -126,32 +126,32 @@ export const CulturalWisdomGate: React.FC<CulturalWisdomGateProps> = ({
     const content = getWisdomContent();
     
     return (
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-4xl mx-auto space-y-6 p-4">
         <Card className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 border-green-500/30 backdrop-blur-sm">
-          <CardHeader>
+          <CardHeader className="pb-4">
             <CardTitle className="text-white flex items-center gap-3">
-              <BookOpen className="w-6 h-6 text-green-400" />
-              <div>
-                <h2 className="text-2xl">{tradition.name} Sacred Teachings</h2>
-                <p className="text-green-200 text-sm">Access Granted - Wisdom Unlocked</p>
+              <BookOpen className="w-6 h-6 text-green-400 flex-shrink-0" />
+              <div className="min-w-0">
+                <h2 className="text-xl md:text-2xl font-bold break-words">{tradition.name} Sacred Teachings</h2>
+                <p className="text-green-200 text-sm mt-1">Access Granted - Wisdom Unlocked</p>
               </div>
             </CardTitle>
           </CardHeader>
           
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-8">
             {/* Core Teachings */}
-            <div>
-              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <Scroll className="w-5 h-5 text-yellow-400" />
-                Core Teachings
+            <div className="space-y-4">
+              <h3 className="text-lg md:text-xl font-bold text-white flex items-center gap-2 mb-4">
+                <Scroll className="w-5 h-5 text-yellow-400 flex-shrink-0" />
+                <span>Core Teachings</span>
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 {content.teachings.map((teaching, index) => (
                   <Card key={index} className="bg-black/30 border-purple-500/30">
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
                         <Star className="w-4 h-4 text-yellow-400 mt-1 flex-shrink-0" />
-                        <p className="text-purple-100 text-sm">{teaching}</p>
+                        <p className="text-purple-100 text-sm leading-relaxed">{teaching}</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -160,18 +160,18 @@ export const CulturalWisdomGate: React.FC<CulturalWisdomGateProps> = ({
             </div>
 
             {/* Sacred Practices */}
-            <div>
-              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <Heart className="w-5 h-5 text-pink-400" />
-                Sacred Practices
+            <div className="space-y-4">
+              <h3 className="text-lg md:text-xl font-bold text-white flex items-center gap-2 mb-4">
+                <Heart className="w-5 h-5 text-pink-400 flex-shrink-0" />
+                <span>Sacred Practices</span>
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 {content.practices.map((practice, index) => (
                   <Card key={index} className="bg-black/30 border-pink-500/30">
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
                         <Heart className="w-4 h-4 text-pink-400 mt-1 flex-shrink-0" />
-                        <p className="text-pink-100 text-sm">{practice}</p>
+                        <p className="text-pink-100 text-sm leading-relaxed">{practice}</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -179,24 +179,24 @@ export const CulturalWisdomGate: React.FC<CulturalWisdomGateProps> = ({
               </div>
             </div>
 
-            {/* Sacred Symbols */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="text-lg font-bold text-white mb-3">Sacred Symbols</h4>
+            {/* Sacred Symbols & Divine Archetypes */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <h4 className="text-lg font-bold text-white">Sacred Symbols</h4>
                 <div className="flex flex-wrap gap-2">
                   {content.symbols.map((symbol, index) => (
-                    <Badge key={index} className="bg-blue-600/80 text-white">
+                    <Badge key={index} className="bg-blue-600/80 text-white text-xs px-3 py-1">
                       {symbol}
                     </Badge>
                   ))}
                 </div>
               </div>
               
-              <div>
-                <h4 className="text-lg font-bold text-white mb-3">Divine Archetypes</h4>
+              <div className="space-y-3">
+                <h4 className="text-lg font-bold text-white">Divine Archetypes</h4>
                 <div className="flex flex-wrap gap-2">
                   {content.deities.map((deity, index) => (
-                    <Badge key={index} className="bg-purple-600/80 text-white">
+                    <Badge key={index} className="bg-purple-600/80 text-white text-xs px-3 py-1">
                       {deity}
                     </Badge>
                   ))}
@@ -205,7 +205,7 @@ export const CulturalWisdomGate: React.FC<CulturalWisdomGateProps> = ({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-purple-500/30">
               <Button
                 onClick={() => setAccessGranted(false)}
                 variant="outline"
@@ -230,43 +230,45 @@ export const CulturalWisdomGate: React.FC<CulturalWisdomGateProps> = ({
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto space-y-6 p-4">
       <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center gap-3">
-            {getAccessIcon()}
-            <div>
-              <h2 className="text-xl">{tradition.name}</h2>
-              <p className="text-purple-200 text-sm">{tradition.region}</p>
+        <CardHeader className="pb-4">
+          <CardTitle className="text-white">
+            <div className="flex items-start gap-3 mb-3">
+              {getAccessIcon()}
+              <div className="min-w-0 flex-1">
+                <h2 className="text-lg md:text-xl font-bold break-words">{tradition.name}</h2>
+                <p className="text-purple-200 text-sm mt-1">{tradition.region}</p>
+              </div>
+              <Badge 
+                variant={tradition.verified ? "default" : "secondary"}
+                className={`${tradition.verified ? "bg-green-600" : "bg-gray-600"} flex-shrink-0`}
+              >
+                {tradition.verified ? "Elder Verified" : "Historical"}
+              </Badge>
             </div>
-            <Badge 
-              variant={tradition.verified ? "default" : "secondary"}
-              className={tradition.verified ? "bg-green-600" : "bg-gray-600"}
-            >
-              {tradition.verified ? "Elder Verified" : "Historical"}
-            </Badge>
           </CardTitle>
         </CardHeader>
         
         <CardContent className="space-y-6">
           {/* Territory Acknowledgment */}
           <Alert className="border-purple-500/50 bg-purple-900/20">
-            <Heart className="w-4 h-4" />
-            <AlertDescription className="text-purple-100">
-              <strong>Territory Acknowledgment:</strong><br />
+            <Heart className="w-4 h-4 flex-shrink-0" />
+            <AlertDescription className="text-purple-100 leading-relaxed">
+              <strong className="block mb-2">Territory Acknowledgment:</strong>
               {tradition.territoryAcknowledgment}
             </AlertDescription>
           </Alert>
 
           {/* Elder Council */}
           {tradition.verified && (
-            <div>
-              <h4 className="text-white font-semibold mb-2">Wisdom Keepers</h4>
-              <div className="space-y-1">
+            <div className="space-y-3">
+              <h4 className="text-white font-semibold">Wisdom Keepers</h4>
+              <div className="space-y-2">
                 {tradition.elderCouncil.map((elder, index) => (
-                  <div key={index} className="flex items-center gap-2 text-purple-200">
-                    <Check className="w-4 h-4 text-green-400" />
-                    <span>{elder}</span>
+                  <div key={index} className="flex items-start gap-2 text-purple-200">
+                    <Check className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm leading-relaxed">{elder}</span>
                   </div>
                 ))}
               </div>
@@ -277,15 +279,15 @@ export const CulturalWisdomGate: React.FC<CulturalWisdomGateProps> = ({
           <div className="space-y-4">
             <h4 className="text-white font-semibold">Sacred Responsibility</h4>
             
-            <div className="space-y-3">
+            <div className="space-y-4">
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={hasAcknowledged}
                   onChange={(e) => setHasAcknowledged(e.target.checked)}
-                  className="mt-1"
+                  className="mt-1 flex-shrink-0"
                 />
-                <span className="text-purple-100 text-sm">
+                <span className="text-purple-100 text-sm leading-relaxed">
                   I acknowledge the sacred nature of this wisdom and commit to approaching it with reverence, 
                   respect, and understanding that I am receiving teachings from living traditions.
                 </span>
@@ -296,9 +298,9 @@ export const CulturalWisdomGate: React.FC<CulturalWisdomGateProps> = ({
                   type="checkbox"
                   checked={understandsResponsibility}
                   onChange={(e) => setUnderstandsResponsibility(e.target.checked)}
-                  className="mt-1"
+                  className="mt-1 flex-shrink-0"
                 />
-                <span className="text-purple-100 text-sm">
+                <span className="text-purple-100 text-sm leading-relaxed">
                   I understand that these teachings carry responsibility and I will not appropriate, 
                   commercialize, or misrepresent this sacred knowledge. I will practice with humility 
                   and seek proper guidance when needed.
@@ -308,9 +310,9 @@ export const CulturalWisdomGate: React.FC<CulturalWisdomGateProps> = ({
           </div>
 
           {/* Access Status */}
-          <div className="bg-gray-800/50 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-purple-200">Required Access Level:</span>
+          <div className="bg-gray-800/50 rounded-lg p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-purple-200 text-sm">Required Access Level:</span>
               <Badge className={`
                 ${tradition.accessLevel === 'open' ? 'bg-green-600' : 
                   tradition.accessLevel === 'initiated' ? 'bg-yellow-600' : 'bg-purple-600'}
@@ -319,7 +321,7 @@ export const CulturalWisdomGate: React.FC<CulturalWisdomGateProps> = ({
               </Badge>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-purple-200">Your Level:</span>
+              <span className="text-purple-200 text-sm">Your Level:</span>
               <Badge variant="secondary">{userLevel}</Badge>
             </div>
           </div>
@@ -339,8 +341,8 @@ export const CulturalWisdomGate: React.FC<CulturalWisdomGateProps> = ({
 
           {!canAccess() && (
             <Alert className="border-yellow-500/50 bg-yellow-900/20">
-              <AlertTriangle className="w-4 h-4" />
-              <AlertDescription className="text-yellow-100">
+              <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+              <AlertDescription className="text-yellow-100 leading-relaxed">
                 Continue your spiritual journey through practice, study, and service to unlock higher levels of wisdom. 
                 Some teachings require proper preparation and initiation to be received safely and respectfully.
               </AlertDescription>
