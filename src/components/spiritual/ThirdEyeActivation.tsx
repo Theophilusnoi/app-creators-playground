@@ -80,7 +80,7 @@ export const ThirdEyeActivation: React.FC<ThirdEyeActivationProps> = ({ onComple
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-6">
       {/* Welcome Modal */}
       <WelcomeModal
         open={showWelcome}
@@ -89,26 +89,26 @@ export const ThirdEyeActivation: React.FC<ThirdEyeActivationProps> = ({ onComple
       />
 
       {/* Header */}
-      <Card className="bg-gradient-to-r from-purple-900/50 to-indigo-900/50 border-purple-400/30">
-        <CardHeader className="text-center">
-          <CardTitle className="text-4xl font-bold bg-gradient-to-r from-purple-300 to-indigo-300 bg-clip-text text-transparent mb-4">
+      <Card className="bg-gradient-to-r from-purple-900/80 to-indigo-900/80 border-purple-400/50 shadow-xl">
+        <CardHeader className="text-center p-4 md:p-6">
+          <CardTitle className="text-3xl md:text-4xl font-bold text-white mb-4 text-shadow-lg">
             🌌 Third Eye Activation Suite
           </CardTitle>
-          <p className="text-purple-200 text-lg">
+          <p className="text-purple-100 text-base md:text-lg font-semibold text-shadow-md">
             Awaken Your Inner Vision through Ancient Wisdom & Neuroscience
           </p>
-          <div className="flex items-center justify-center gap-4 mt-4">
-            <Badge className="bg-purple-600/20 text-purple-200">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 mt-4">
+            <Badge className="bg-purple-700/90 text-white border-purple-400 font-bold text-sm px-4 py-2">
               Stage {activeStage + 1} of {stages.length}
             </Badge>
-            <Badge className="bg-indigo-600/20 text-indigo-200">
+            <Badge className="bg-indigo-700/90 text-white border-indigo-400 font-bold text-sm px-4 py-2">
               {Math.round(progress.overallProgress)}% Activated
             </Badge>
             <Button
               onClick={() => setShowWelcome(true)}
               variant="outline"
               size="sm"
-              className="border-purple-400/50 text-purple-200 hover:bg-purple-400/20"
+              className="border-2 border-purple-300 text-white bg-purple-600/50 hover:bg-purple-500/70 font-bold text-shadow-sm"
             >
               View Guide
             </Button>
@@ -117,26 +117,46 @@ export const ThirdEyeActivation: React.FC<ThirdEyeActivationProps> = ({ onComple
       </Card>
 
       <Tabs defaultValue="activation" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 bg-black/20">
-          <TabsTrigger value="activation">Activation</TabsTrigger>
-          <TabsTrigger value="profile">Zodiac Profile</TabsTrigger>
-          <TabsTrigger value="progress">Progress</TabsTrigger>
-          <TabsTrigger value="safety">Safety</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4 bg-gray-900/90 border-2 border-gray-600 p-1">
+          <TabsTrigger 
+            value="activation" 
+            className="text-white font-bold text-sm md:text-base bg-gray-800 border border-gray-600 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-shadow-sm"
+          >
+            Activation
+          </TabsTrigger>
+          <TabsTrigger 
+            value="profile"
+            className="text-white font-bold text-sm md:text-base bg-gray-800 border border-gray-600 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-shadow-sm"
+          >
+            Zodiac Profile
+          </TabsTrigger>
+          <TabsTrigger 
+            value="progress"
+            className="text-white font-bold text-sm md:text-base bg-gray-800 border border-gray-600 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-shadow-sm"
+          >
+            Progress
+          </TabsTrigger>
+          <TabsTrigger 
+            value="safety"
+            className="text-white font-bold text-sm md:text-base bg-gray-800 border border-gray-600 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-shadow-sm"
+          >
+            Safety
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="activation" className="space-y-6">
           {/* Stage Progress */}
-          <Card className="bg-black/20 border-purple-400/30">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold text-white">Activation Progress</h3>
-                <div className="text-purple-300">
+          <Card className="bg-gray-900/90 border-gray-600 shadow-xl">
+            <CardContent className="p-4 md:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
+                <h3 className="text-xl font-bold text-white text-shadow-sm">Activation Progress</h3>
+                <div className="text-purple-200 font-semibold text-shadow-sm">
                   <Clock className="w-5 h-5 inline mr-2" />
                   {progress.totalTime} minutes practiced
                 </div>
               </div>
-              <Progress value={progress.overallProgress} className="mb-4" />
-              <div className="grid grid-cols-5 gap-2">
+              <Progress value={progress.overallProgress} className="mb-6 h-3 bg-gray-800 border border-gray-600" />
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                 {stages.map((stage, index) => {
                   const Icon = stage.icon;
                   const isCompleted = progress.stageProgress[index]?.completed;
@@ -145,20 +165,20 @@ export const ThirdEyeActivation: React.FC<ThirdEyeActivationProps> = ({ onComple
                   return (
                     <div
                       key={stage.id}
-                      className={`p-3 rounded-lg border text-center transition-all cursor-pointer ${
+                      className={`p-3 md:p-4 rounded-lg border-2 text-center transition-all cursor-pointer min-h-[100px] flex flex-col justify-center ${
                         isCompleted
-                          ? 'bg-green-600/30 border-green-400/60 text-white shadow-lg'
+                          ? 'bg-green-700/90 border-green-400 text-white shadow-xl'
                           : isCurrent
-                          ? 'bg-purple-600/30 border-purple-400/60 text-white shadow-lg'
-                          : 'bg-gray-800/40 border-gray-600/40 text-gray-300'
+                          ? 'bg-purple-700/90 border-purple-400 text-white shadow-xl'
+                          : 'bg-gray-800/90 border-gray-500 text-gray-200'
                       }`}
                       onClick={() => setActiveStage(index)}
                     >
-                      <Icon className="w-6 h-6 mx-auto mb-2" />
-                      <div className="text-xs font-bold text-shadow-sm crisp-text">
-                        {stage.title.split(' ')[0]}
+                      <Icon className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2" />
+                      <div className="text-xs md:text-sm font-bold text-shadow-sm leading-tight">
+                        {stage.title.split(' ').slice(0, 2).join(' ')}
                       </div>
-                      {isCompleted && <CheckCircle2 className="w-4 h-4 mx-auto mt-1 text-green-300" />}
+                      {isCompleted && <CheckCircle2 className="w-4 h-4 mx-auto mt-2 text-green-200" />}
                     </div>
                   );
                 })}
