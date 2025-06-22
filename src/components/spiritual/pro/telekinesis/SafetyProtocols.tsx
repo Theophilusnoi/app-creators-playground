@@ -105,37 +105,12 @@ export const SafetyProtocols: React.FC<SafetyProtocolsProps> = ({ onSafetyCheckC
     }
   };
 
-  const getCategoryButtonClass = (categoryKey: string, category: any) => {
-    if (activeSection === categoryKey) {
+  const getCategoryButtonClass = (categoryKey: string, isActive: boolean) => {
+    const category = safetyCategories[categoryKey as keyof typeof safetyCategories];
+    if (isActive) {
       return `bg-${category.color}-600 hover:bg-${category.color}-700`;
     }
     return `border-${category.color}-400/30 text-${category.color}-200 hover:bg-${category.color}-600/20`;
-  };
-
-  const getCategoryCardClass = (category: any) => {
-    return `bg-${category.color}-900/20 border-${category.color}-500/30`;
-  };
-
-  const getCategoryTitleClass = (category: any) => {
-    return `text-${category.color}-200 flex items-center gap-2`;
-  };
-
-  const getItemClass = (category: any, isChecked: boolean) => {
-    if (isChecked) {
-      return `bg-${category.color}-800/30 border-${category.color}-600/50`;
-    }
-    return `bg-${category.color}-800/10 border-${category.color}-600/20 hover:bg-${category.color}-800/20`;
-  };
-
-  const getCheckboxClass = (category: any, isChecked: boolean) => {
-    if (isChecked) {
-      return `bg-${category.color}-600 border-${category.color}-600`;
-    }
-    return `border-${category.color}-400`;
-  };
-
-  const getItemTextClass = (category: any) => {
-    return `text-${category.color}-200 text-sm`;
   };
 
   return (
@@ -168,12 +143,13 @@ export const SafetyProtocols: React.FC<SafetyProtocolsProps> = ({ onSafetyCheckC
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {Object.entries(safetyCategories).map(([key, category]) => {
                 const IconComponent = category.icon;
+                const isActive = activeSection === key;
                 return (
                   <Button
                     key={key}
                     onClick={() => setActiveSection(key)}
-                    variant={activeSection === key ? "default" : "outline"}
-                    className={getCategoryButtonClass(key, category)}
+                    variant={isActive ? "default" : "outline"}
+                    className={getCategoryButtonClass(key, isActive)}
                   >
                     <IconComponent className="w-4 h-4 mr-2" />
                     {category.title}
@@ -186,10 +162,10 @@ export const SafetyProtocols: React.FC<SafetyProtocolsProps> = ({ onSafetyCheckC
       </Card>
 
       {activeSection && (
-        <Card className={getCategoryCardClass(safetyCategories[activeSection as keyof typeof safetyCategories])}>
+        <Card className={`bg-${safetyCategories[activeSection as keyof typeof safetyCategories].color}-900/20 border-${safetyCategories[activeSection as keyof typeof safetyCategories].color}-500/30`}>
           <CardHeader>
-            <CardTitle className={getCategoryTitleClass(safetyCategories[activeSection as keyof typeof safetyCategories])}>
-              <safetyCategories[activeSection as keyof typeof safetyCategories].icon className="w-5 h-5" />
+            <CardTitle className={`text-${safetyCategories[activeSection as keyof typeof safetyCategories].color}-200 flex items-center gap-2`}>
+              {React.createElement(safetyCategories[activeSection as keyof typeof safetyCategories].icon, { className: "w-5 h-5" })}
               {safetyCategories[activeSection as keyof typeof safetyCategories].title}
             </CardTitle>
           </CardHeader>
@@ -203,13 +179,21 @@ export const SafetyProtocols: React.FC<SafetyProtocolsProps> = ({ onSafetyCheckC
                 return (
                   <div 
                     key={index}
-                    className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${getItemClass(currentCategory, isChecked)}`}
+                    className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                      isChecked 
+                        ? `bg-${currentCategory.color}-800/30 border-${currentCategory.color}-600/50`
+                        : `bg-${currentCategory.color}-800/10 border-${currentCategory.color}-600/20 hover:bg-${currentCategory.color}-800/20`
+                    }`}
                     onClick={() => handleItemCheck(activeSection, index)}
                   >
-                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${getCheckboxClass(currentCategory, isChecked)}`}>
+                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                      isChecked 
+                        ? `bg-${currentCategory.color}-600 border-${currentCategory.color}-600`
+                        : `border-${currentCategory.color}-400`
+                    }`}>
                       {isChecked && <span className="text-white text-xs">✓</span>}
                     </div>
-                    <span className={getItemTextClass(currentCategory)}>
+                    <span className={`text-${currentCategory.color}-200 text-sm`}>
                       {item}
                     </span>
                   </div>
