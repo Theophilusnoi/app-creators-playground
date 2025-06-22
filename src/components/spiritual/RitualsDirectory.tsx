@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
+import { RitualSequencer } from './RitualSequencer';
 import { 
   Sunrise, 
   ArrowRightLeft, 
@@ -82,7 +82,7 @@ const sampleRituals: Ritual[] = [
     duration: '10-15 minutes',
     frequency: 'Daily',
     category: 'morning',
-    difficulty: 'Beginner',
+    difficulty: 'Beginner' as const,
     steps: [
       'Find a comfortable position facing east',
       'Take 5 deep breaths to center yourself',
@@ -212,10 +212,97 @@ const sampleRituals: Ritual[] = [
   }
 ];
 
+// Sample ritual sequences for the sequencer
+const ritualSequences = [
+  {
+    id: 'sunrise-gratitude',
+    name: 'Sunrise Gratitude Meditation',
+    description: 'Meet the day with open hands - A 7-minute morning anchor',
+    totalDuration: 420000, // 7 minutes in milliseconds
+    powerLevel: 8,
+    steps: [
+      {
+        id: 'preparation',
+        name: 'Sacred Container',
+        description: 'Sit facing a window, palms up on knees. Dim artificial lights and silence devices.',
+        duration: 60000, // 1 minute
+        affirmation: 'I release expectations and welcome what arises',
+        visualization: 'Feel the earth supporting you from below'
+      },
+      {
+        id: 'grounding',
+        name: 'Earth Connection',
+        description: 'Feel your body supported by the earth. Let your breath flow naturally.',
+        duration: 120000, // 2 minutes
+        affirmation: 'Breathing in - I receive, breathing out - I give thanks',
+        visualization: 'Imagine roots extending from your body deep into the earth'
+      },
+      {
+        id: 'gratitude-reflection',
+        name: 'Gratitude Blessing',
+        description: 'Bring to mind three specific things you\'re grateful for today.',
+        duration: 180000, // 3 minutes
+        affirmation: 'My heart overflows with appreciation',
+        visualization: 'See each blessing as a golden light filling your heart'
+      },
+      {
+        id: 'intention-setting',
+        name: 'Daily Intention',
+        description: 'Set one quality you wish to embody throughout this day.',
+        duration: 60000, // 1 minute
+        affirmation: 'I carry this intention with love and courage',
+        visualization: 'See yourself moving through the day with this quality'
+      }
+    ]
+  },
+  {
+    id: 'full-moon-release',
+    name: 'Full Moon Release Writing',
+    description: 'Release what no longer serves under the moon\'s transformative energy',
+    totalDuration: 1800000, // 30 minutes
+    powerLevel: 9,
+    steps: [
+      {
+        id: 'moon-connection',
+        name: 'Lunar Attunement',
+        description: 'Sit under moonlight or by a window. Feel the moon\'s presence.',
+        duration: 300000, // 5 minutes
+        affirmation: 'I align with the moon\'s wisdom and power',
+        visualization: 'Silver moonlight flowing through your entire being'
+      },
+      {
+        id: 'release-writing',
+        name: 'Sacred Writing',
+        description: 'Write down everything you\'re ready to release. Be honest and specific.',
+        duration: 900000, // 15 minutes
+        affirmation: 'I release with love and gratitude',
+        visualization: 'Each word you write dissolves old patterns'
+      },
+      {
+        id: 'ritual-burning',
+        name: 'Transformative Release',
+        description: 'Read each item aloud with intention, then safely burn or bury the paper.',
+        duration: 300000, // 5 minutes
+        affirmation: 'I transform limitation into liberation',
+        visualization: 'Watch the smoke carry your releases to the cosmos'
+      },
+      {
+        id: 'gratitude-seal',
+        name: 'Moon Gratitude',
+        description: 'Thank the moon for its support in your transformation.',
+        duration: 300000, // 5 minutes
+        affirmation: 'I am grateful for this sacred release',
+        visualization: 'Feel the moon\'s blessing sealing your transformation'
+      }
+    ]
+  }
+];
+
 export const RitualsDirectory: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [completedRituals, setCompletedRituals] = useState<Set<string>>(new Set());
+  const [showSequencer, setShowSequencer] = useState(false);
 
   const filteredRituals = sampleRituals.filter(ritual => {
     const matchesCategory = selectedCategory === 'all' || ritual.category === selectedCategory;
@@ -242,6 +329,26 @@ export const RitualsDirectory: React.FC = () => {
       default: return 'bg-gray-600';
     }
   };
+
+  const handleStartRitual = (ritualId: string) => {
+    setShowSequencer(true);
+  };
+
+  const handleSequenceComplete = (sequenceId: string) => {
+    console.log(`Completed ritual sequence: ${sequenceId}`);
+    setCompletedRituals(prev => new Set([...prev, sequenceId]));
+    setShowSequencer(false);
+  };
+
+  if (showSequencer) {
+    return (
+      <RitualSequencer 
+        sequences={ritualSequences}
+        onSequenceComplete={handleSequenceComplete}
+        onClose={() => setShowSequencer(false)}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -391,6 +498,7 @@ export const RitualsDirectory: React.FC = () => {
                       <Button 
                         className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white crisp-text"
                         size="sm"
+                        onClick={() => handleStartRitual(ritual.id)}
                       >
                         <Play className="w-4 h-4 mr-2" />
                         Start Ritual
