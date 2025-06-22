@@ -17,18 +17,42 @@ export const CulturalWisdomPage: React.FC<CulturalWisdomPageProps> = ({
 }) => {
   const getWisdomContent = () => {
     const wisdomContent = {
+      'buddhist': {
+        teachings: [
+          'The Four Noble Truths: Understanding suffering, its cause, its cessation, and the path to freedom',
+          'The Eightfold Path: Right understanding, intention, speech, action, livelihood, effort, mindfulness, and concentration',
+          'The Three Jewels: Buddha (the teacher), Dharma (the teaching), Sangha (the community)',
+          'Impermanence (Anicca): All conditioned existence is transient and ever-changing',
+          'Interdependence: All phenomena arise in dependence upon multiple causes and conditions',
+          'Karma: The law of cause and effect governing moral actions and their consequences'
+        ],
+        practices: [
+          'Mindfulness meditation (Vipassana) - developing clear awareness of present moment experience',
+          'Loving-kindness meditation (Metta) - cultivating universal compassion and goodwill',
+          'Walking meditation - bringing mindful awareness to each step and movement',
+          'Dharma study and contemplation - reflecting deeply on Buddhist teachings',
+          'Taking refuge in the Three Jewels - daily commitment to Buddhist path',
+          'Five Precepts practice - ethical conduct as foundation for spiritual development'
+        ],
+        symbols: ['Dharma Wheel', 'Lotus Flower', 'Bodhi Tree', 'Om Mani Padme Hum'],
+        deities: ['Buddha Shakyamuni', 'Avalokiteshvara', 'Manjushri', 'Tara']
+      },
       'celtic': {
         teachings: [
           'The Triple Goddess: Maiden, Mother, Crone - understanding life\'s sacred cycles',
           'Celtic Tree Calendar: Each moon cycle connected to sacred trees and their wisdom',
           'Ogham Script: Ancient alphabet connecting letters to trees and natural forces',
-          'Samhain Wisdom: Honoring ancestors and the thinning of veils between worlds'
+          'Samhain Wisdom: Honoring ancestors and the thinning of veils between worlds',
+          'The Otherworld: Understanding the Celtic realm beyond ordinary perception',
+          'Sacred Wells and Springs: Places of healing and divine connection'
         ],
         practices: [
           'Daily tree meditation - connecting with the spirit of different trees',
           'Seasonal celebration rituals honoring the Celtic wheel of the year',
-          'Ancestor communication through guided meditation',
-          'Celtic knot meditation for understanding interconnectedness'
+          'Ancestor communication through guided meditation and offerings',
+          'Celtic knot meditation for understanding interconnectedness',
+          'Ogham divination - using tree symbols for guidance and insight',
+          'Sacred fire ceremonies for purification and renewal'
         ],
         symbols: ['Triskele', 'Celtic Knots', 'Tree of Life', 'Spiral'],
         deities: ['Brigid', 'Cernunnos', 'The Morrígan', 'Lugh']
@@ -38,13 +62,17 @@ export const CulturalWisdomPage: React.FC<CulturalWisdomPageProps> = ({
           'The Nine Realms: Understanding the cosmic tree Yggdrasil and interconnected worlds',
           'Rune Wisdom: Each rune as a gateway to universal forces and divination',
           'Wyrd and Fate: Understanding personal destiny and the web of fate',
-          'Berserker Consciousness: Channeling primal power for transformation'
+          'Berserker Consciousness: Channeling primal power for transformation',
+          'Ragnarok Cycle: Death and rebirth as cosmic and personal transformation',
+          'Honor and Oath-keeping: Sacred bonds that bind communities and individuals'
         ],
         practices: [
-          'Daily rune meditation and casting for guidance',
+          'Daily rune meditation and casting for guidance and self-understanding',
           'Seidr practices for spiritual journeying and prophecy',
           'Blót rituals for honoring the gods and nature spirits',
-          'Galdr - runic chanting for manifestation and protection'
+          'Galdr - runic chanting for manifestation and protection',
+          'Warrior meditation - channeling inner strength for life challenges',
+          'Ancestor veneration through storytelling and ritual offerings'
         ],
         symbols: ['Mjölnir', 'Valknut', 'Vegvísir', 'Yggdrasil'],
         deities: ['Odin', 'Freya', 'Thor', 'Frigg']
@@ -54,24 +82,68 @@ export const CulturalWisdomPage: React.FC<CulturalWisdomPageProps> = ({
           'Ma\'at Principle: Living in harmony with cosmic order and truth',
           'Ka and Ba: Understanding the multiple aspects of the soul',
           'Duat Journey: The soul\'s journey through the underworld after death',
-          'Neteru Wisdom: Working with Egyptian deities as cosmic principles'
+          'Neteru Wisdom: Working with Egyptian deities as cosmic principles',
+          'Sacred Geometry: Understanding divine proportions in temple architecture',
+          'Hermetic Principles: As above, so below - cosmic and personal correspondence'
         ],
         practices: [
           'Daily Ma\'at meditation for ethical living and balance',
           'Hieroglyphic meditation for connecting with ancient wisdom',
           'Pyramid energy work for consciousness expansion',
-          'Egyptian deity invocation for specific life aspects'
+          'Egyptian deity invocation for specific life aspects',
+          'Shadow work through Osiris death-rebirth mythology',
+          'Sacred mathematics and geometry in daily contemplation'
         ],
         symbols: ['Ankh', 'Eye of Horus', 'Djed Pillar', 'Was Scepter'],
         deities: ['Isis', 'Osiris', 'Thoth', 'Hathor']
+      },
+      'indigenous': {
+        teachings: [
+          'Seven Generations Principle: Consider the impact of decisions on seven generations',
+          'Medicine Wheel Teachings: Four directions and their associated wisdom',
+          'Animal Spirit Guides: Learning from the natural world\'s teachers',
+          'Sacred Reciprocity: Giving back to the earth and community',
+          'Vision Quest Wisdom: Seeking guidance through solitude and fasting',
+          'Elder Teachings: Honoring the wisdom of those who came before'
+        ],
+        practices: [
+          'Smudging ceremonies with sage, cedar, and sweetgrass for purification',
+          'Drumming and chanting for spiritual connection and healing',
+          'Earth-based ceremonies honoring the seasons and natural cycles',
+          'Plant spirit medicine work with sacred herbs and botanicals',
+          'Talking circles for community healing and shared wisdom',
+          'Sacred pipe ceremonies for prayer and communion with the divine'
+        ],
+        symbols: ['Medicine Wheel', 'Eagle Feather', 'Sacred Pipe', 'Turtle'],
+        deities: ['Great Spirit', 'White Buffalo Woman', 'Kokopelli', 'Grandmother Moon']
+      },
+      'hindu': {
+        teachings: [
+          'Dharma: Righteous living according to one\'s life purpose and cosmic order',
+          'Karma Yoga: The path of selfless action and service to others',
+          'Bhakti: Devotional practices cultivating love for the divine',
+          'Raja Yoga: The royal path of meditation and mental discipline',
+          'Vedantic Wisdom: Understanding the unity of Atman (individual soul) and Brahman (universal consciousness)',
+          'Sacred Geometry: Mandalas and yantras as maps of consciousness'
+        ],
+        practices: [
+          'Daily pranayama (breathing practices) for energy cultivation',
+          'Mantra meditation using sacred sounds for spiritual transformation',
+          'Yoga asanas (postures) for physical and spiritual purification',
+          'Puja rituals honoring deities and sacred forces',
+          'Pilgrimage to holy sites for spiritual merit and transformation',
+          'Guru-disciple relationship for authentic spiritual transmission'
+        ],
+        symbols: ['Om', 'Lotus', 'Shri Yantra', 'Trishul'],
+        deities: ['Krishna', 'Shiva', 'Devi', 'Ganesha']
       }
     };
 
     return wisdomContent[tradition.id as keyof typeof wisdomContent] || {
-      teachings: ['Ancient wisdom teachings from this tradition'],
+      teachings: ['Ancient wisdom teachings from this sacred tradition'],
       practices: ['Sacred practices for spiritual development'],
-      symbols: ['Sacred symbols'],
-      deities: ['Divine beings and archetypes']
+      symbols: ['Sacred symbols of this tradition'],
+      deities: ['Divine beings and archetypal forces']
     };
   };
 
@@ -108,7 +180,7 @@ export const CulturalWisdomPage: React.FC<CulturalWisdomPageProps> = ({
             <Scroll className="w-6 h-6 text-yellow-400" />
             Core Teachings
           </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6">
             {content.teachings.map((teaching, index) => (
               <Card key={index} className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
                 <CardContent className="p-6">
@@ -128,7 +200,7 @@ export const CulturalWisdomPage: React.FC<CulturalWisdomPageProps> = ({
             <Heart className="w-6 h-6 text-pink-400" />
             Sacred Practices
           </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6">
             {content.practices.map((practice, index) => (
               <Card key={index} className="bg-black/30 border-pink-500/30 backdrop-blur-sm">
                 <CardContent className="p-6">
@@ -177,20 +249,42 @@ export const CulturalWisdomPage: React.FC<CulturalWisdomPageProps> = ({
           </Card>
         </div>
 
-        {/* Action Buttons */}
+        {/* Interactive Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700">
+          <Button 
+            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+            onClick={() => {
+              // Simulate starting a practice session
+              alert(`Beginning ${tradition.name} practice session. Find a quiet space and prepare for sacred work.`);
+            }}
+          >
             <Play className="w-4 h-4 mr-2" />
             Begin Practice Session
           </Button>
           <Button 
             variant="outline"
             className="border-purple-500 text-purple-300 hover:bg-purple-700"
+            onClick={() => {
+              // Simulate downloading study materials
+              alert(`Study guide for ${tradition.name} would be downloaded. This feature connects you with authentic resources and community teachers.`);
+            }}
           >
             <Download className="w-4 h-4 mr-2" />
             Download Study Guide
           </Button>
         </div>
+
+        {/* Wisdom Integration Notice */}
+        <Card className="bg-black/30 border-yellow-500/30 backdrop-blur-sm mt-8">
+          <CardContent className="p-6 text-center">
+            <h3 className="text-xl font-semibold text-white mb-3">Integration Reminder</h3>
+            <p className="text-yellow-100 leading-relaxed">
+              These teachings are meant to be lived, not just studied. Take time to integrate each practice 
+              into your daily life before moving to advanced concepts. True wisdom comes through consistent, 
+              respectful practice over time.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

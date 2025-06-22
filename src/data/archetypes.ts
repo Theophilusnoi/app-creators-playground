@@ -1,186 +1,195 @@
-
 import { SoulArchetype, CulturalTradition } from '@/types/archetype';
 
-export const SOUL_ARCHETYPES: SoulArchetype[] = [
-  // Celtic/Norse Tradition
+export const ARCHETYPES: SoulArchetype[] = [
   {
-    id: 'warrior-sage',
-    name: 'Warrior-Sage',
-    tradition: 'Celtic',
-    description: 'The fierce protector who fights for justice and wisdom',
-    attributes: ['Courage', 'Wisdom', 'Leadership', 'Protection'],
-    element: 'fire',
-    deity: 'Brigid',
-    colors: ['red', 'gold', 'green'],
-    symbols: ['sword', 'oak', 'flame'],
-    challenges: ['Anger management', 'Perfectionism', 'Overprotection'],
-    gifts: ['Natural leadership', 'Protective instincts', 'Strategic thinking']
-  },
-  {
-    id: 'wise-woman',
-    name: 'Wise Woman',
-    tradition: 'Norse',
-    description: 'The keeper of ancient wisdom and herbal knowledge',
-    attributes: ['Intuition', 'Healing', 'Prophecy', 'Connection to Nature'],
-    element: 'earth',
-    deity: 'Frigg',
-    colors: ['green', 'brown', 'silver'],
-    symbols: ['herbs', 'moon', 'runes'],
-    challenges: ['Isolation', 'Overwhelming empathy', 'Others\' skepticism'],
-    gifts: ['Natural healing abilities', 'Prophetic dreams', 'Plant communication']
-  },
-  // Vedic Tradition
-  {
-    id: 'cosmic-dancer',
-    name: 'Cosmic Dancer',
-    tradition: 'Vedic',
-    description: 'The divine artist who creates through movement and expression',
-    attributes: ['Creativity', 'Joy', 'Transformation', 'Devotion'],
-    element: 'ether',
-    deity: 'Nataraja',
-    colors: ['orange', 'gold', 'purple'],
-    symbols: ['lotus', 'drum', 'flame'],
-    challenges: ['Emotional intensity', 'Addiction to drama', 'Inconsistency'],
-    gifts: ['Artistic expression', 'Transformational presence', 'Spiritual ecstasy']
-  },
-  {
-    id: 'mountain-sage',
-    name: 'Mountain Sage',
-    tradition: 'Vedic',
-    description: 'The solitary seeker of ultimate truth and liberation',
-    attributes: ['Detachment', 'Meditation', 'Wisdom', 'Transcendence'],
+    id: 'sage',
+    name: 'The Sage',
+    tradition: 'Ancient Greece',
+    description: 'The Sage seeks truth and wisdom, using intellect and knowledge to understand the world.',
+    attributes: ['Wise', 'Analytical', 'Objective', 'Mentor'],
     element: 'air',
-    deity: 'Shiva',
-    colors: ['white', 'blue', 'grey'],
-    symbols: ['mountain', 'third eye', 'trident'],
-    challenges: ['Disconnection from others', 'Spiritual bypassing', 'Rigidity'],
-    gifts: ['Deep meditation states', 'Philosophical insight', 'Spiritual teaching']
+    deity: 'Athena',
+    colors: ['Blue', 'White'],
+    symbols: ['Owl', 'Scroll', 'Spectacles'],
+    challenges: ['Analysis paralysis', 'Detachment', 'Overthinking'],
+    gifts: ['Clarity', 'Insight', 'Guidance']
   },
-  // Egyptian Tradition
   {
-    id: 'sphinx-guardian',
-    name: 'Sphinx Guardian',
-    tradition: 'Egyptian',
-    description: 'The keeper of sacred mysteries and ancient knowledge',
-    attributes: ['Mystery', 'Protection', 'Ancient Wisdom', 'Initiation'],
-    element: 'earth',
-    deity: 'Thoth',
-    colors: ['gold', 'black', 'blue'],
-    symbols: ['ankh', 'eye of horus', 'pyramid'],
-    challenges: ['Secretiveness', 'Superiority complex', 'Fear of vulnerability'],
-    gifts: ['Access to akashic records', 'Initiation abilities', 'Sacred geometry mastery']
-  },
-  // Native American Tradition
-  {
-    id: 'earth-keeper',
-    name: 'Earth Keeper',
-    tradition: 'Native American',
-    description: 'The protector of Mother Earth and all her creatures',
-    attributes: ['Connection to Nature', 'Healing', 'Ceremony', 'Community'],
-    element: 'earth',
-    deity: 'Gaia',
-    colors: ['green', 'brown', 'turquoise'],
-    symbols: ['medicine wheel', 'eagle', 'corn'],
-    challenges: ['Environmental grief', 'Cultural appropriation concerns', 'Modern world disconnect'],
-    gifts: ['Plant spirit communication', 'Weather sensitivity', 'Healing ceremonies']
-  },
-  // African/Yoruba Tradition
-  {
-    id: 'rhythm-keeper',
-    name: 'Rhythm Keeper',
-    tradition: 'Yoruba',
-    description: 'The one who maintains the cosmic rhythm through music and dance',
-    attributes: ['Rhythm', 'Community', 'Celebration', 'Ancestral Connection'],
+    id: 'warrior',
+    name: 'The Warrior',
+    tradition: 'Ancient Rome',
+    description: 'The Warrior is courageous and disciplined, fighting for justice and protecting the vulnerable.',
+    attributes: ['Brave', 'Disciplined', 'Protective', 'Honorable'],
     element: 'fire',
-    deity: 'Oshun',
-    colors: ['yellow', 'gold', 'orange'],
-    symbols: ['drum', 'river', 'honey'],
-    challenges: ['Overwhelm from others\' emotions', 'Difficulty with solitude', 'Ancestral trauma'],
-    gifts: ['Rhythmic healing', 'Community building', 'Ancestral guidance']
+    deity: 'Mars',
+    colors: ['Red', 'Gold'],
+    symbols: ['Sword', 'Shield', 'Armor'],
+    challenges: ['Aggression', 'Recklessness', 'Domination'],
+    gifts: ['Courage', 'Strength', 'Leadership']
   },
-  // Buddhist Tradition
   {
-    id: 'compassionate-warrior',
-    name: 'Compassionate Warrior',
-    tradition: 'Buddhist',
-    description: 'The fierce protector of all sentient beings through loving kindness',
-    attributes: ['Compassion', 'Mindfulness', 'Non-violence', 'Service'],
+    id: 'healer',
+    name: 'The Healer',
+    tradition: 'Ancient Egypt',
+    description: 'The Healer nurtures and restores, bringing harmony and well-being to body, mind, and spirit.',
+    attributes: ['Compassionate', 'Empathetic', 'Nurturing', 'Intuitive'],
     element: 'water',
-    deity: 'Avalokiteshvara',
-    colors: ['white', 'pink', 'blue'],
-    symbols: ['lotus', 'vajra', 'mala'],
-    challenges: ['Spiritual bypassing', 'Martyrdom', 'Excessive self-sacrifice'],
-    gifts: ['Boundless compassion', 'Conflict resolution', 'Healing presence']
+    deity: 'Isis',
+    colors: ['Green', 'Pink'],
+    symbols: ['Caduceus', 'Lotus', 'Healing Hands'],
+    challenges: ['Burnout', 'Emotional overwhelm', 'Sacrifice'],
+    gifts: ['Healing', 'Empathy', 'Balance']
   },
-  // Secular/Universal
   {
-    id: 'quantum-bridge',
-    name: 'Quantum Bridge',
-    tradition: 'Universal',
-    description: 'The one who bridges science and spirituality for modern awakening',
-    attributes: ['Integration', 'Innovation', 'Logic', 'Transcendence'],
+    id: 'artist',
+    name: 'The Artist',
+    tradition: 'Renaissance Italy',
+    description: 'The Artist creates beauty and inspires, expressing emotions and visions through various art forms.',
+    attributes: ['Creative', 'Imaginative', 'Expressive', 'Visionary'],
     element: 'ether',
-    deity: 'Higher Self',
-    colors: ['silver', 'blue', 'white'],
-    symbols: ['DNA helix', 'infinity', 'crystalline matrix'],
-    challenges: ['Overthinking', 'Isolation from traditional communities', 'Imposter syndrome'],
-    gifts: ['Scientific intuition', 'Systems thinking', 'Technology integration']
+    deity: 'Venus',
+    colors: ['Purple', 'Silver'],
+    symbols: ['Palette', 'Brush', 'Lyre'],
+    challenges: ['Perfectionism', 'Self-doubt', 'Instability'],
+    gifts: ['Creativity', 'Inspiration', 'Beauty']
+  },
+  {
+    id: 'innovator',
+    name: 'The Innovator',
+    tradition: 'Silicon Valley',
+    description: 'The Innovator is inventive and forward-thinking, pioneering new technologies and solutions to improve the world.',
+    attributes: ['Ingenious', 'Resourceful', 'Adaptable', 'Driven'],
+    element: 'air',
+    deity: 'Prometheus',
+    colors: ['Electric Blue', 'Chrome'],
+    symbols: ['Lightbulb', 'Gears', 'Computer Circuit'],
+    challenges: ['Burnout', 'Ethical dilemmas', 'Obsolescence'],
+    gifts: ['Innovation', 'Efficiency', 'Progress']
+  },
+  {
+    id: 'mystic',
+    name: 'The Mystic',
+    tradition: 'Ancient India',
+    description: 'The Mystic seeks enlightenment and transcendence, exploring the depths of consciousness and the mysteries of the universe.',
+    attributes: ['Intuitive', 'Spiritual', 'Contemplative', 'Connected'],
+    element: 'water',
+    deity: 'Shiva',
+    colors: ['Indigo', 'Gold'],
+    symbols: ['Third Eye', 'Mandala', 'Rosary'],
+    challenges: ['Delusion', 'Isolation', 'Escapism'],
+    gifts: ['Intuition', 'Insight', 'Transcendence']
+  },
+  {
+    id: 'guardian',
+    name: 'The Guardian',
+    tradition: 'Feudal Japan',
+    description: 'The Guardian is loyal and protective, upholding traditions and safeguarding communities with unwavering dedication.',
+    attributes: ['Loyal', 'Protective', 'Honorable', 'Disciplined'],
+    element: 'earth',
+    deity: 'Hachiman',
+    colors: ['Forest Green', 'Bronze'],
+    symbols: ['Katana', 'Cherry Blossom', 'Stone Lantern'],
+    challenges: ['Rigidity', 'Resistance to change', 'Overprotectiveness'],
+    gifts: ['Loyalty', 'Security', 'Preservation']
+  },
+  {
+    id: 'explorer',
+    name: 'The Explorer',
+    tradition: 'Age of Discovery',
+    description: 'The Explorer seeks adventure and discovery, venturing into the unknown to expand horizons and uncover new possibilities.',
+    attributes: ['Curious', 'Adventurous', 'Independent', 'Resilient'],
+    element: 'fire',
+    deity: 'Poseidon',
+    colors: ['Ocean Blue', 'Burnt Orange'],
+    symbols: ['Compass', 'Ship', 'Map'],
+    challenges: ['Restlessness', 'Risk-taking', 'Rootlessness'],
+    gifts: ['Discovery', 'Adaptability', 'Freedom']
   }
 ];
 
 export const CULTURAL_TRADITIONS: CulturalTradition[] = [
   {
-    id: 'celtic',
-    name: 'Celtic Wisdom',
-    region: 'Ireland, Scotland, Wales, Brittany',
-    verified: true,
-    elderCouncil: ['Druid Council of Ireland', 'Scottish Celtic Society'],
-    accessLevel: 'open',
-    territoryAcknowledgment: 'We honor the ancient Celtic peoples and their sacred relationship with the land of Ireland, Scotland, Wales, and Brittany.'
-  },
-  {
-    id: 'vedic',
-    name: 'Vedic Tradition',
-    region: 'India, Nepal, Tibet',
-    verified: true,
-    elderCouncil: ['Vedic Heritage Foundation', 'Himalayan Institute'],
-    accessLevel: 'initiated',
-    territoryAcknowledgment: 'We acknowledge the sacred wisdom of the Indian subcontinent and the unbroken lineage of Vedic knowledge keepers.'
-  },
-  {
-    id: 'native-american',
-    name: 'Indigenous American Wisdom',
-    region: 'North and South America',
-    verified: true,
-    elderCouncil: ['National Congress of American Indians', 'Indigenous Spiritual Council'],
-    accessLevel: 'sacred',
-    territoryAcknowledgment: 'We acknowledge that we are on the ancestral lands of Indigenous peoples who have been stewards of this land since time immemorial.'
-  },
-  {
-    id: 'yoruba',
-    name: 'Yoruba Tradition',
-    region: 'West Africa, Caribbean, Brazil',
-    verified: true,
-    elderCouncil: ['Yoruba World Congress', 'Ifa Heritage Institute'],
-    accessLevel: 'initiated',
-    territoryAcknowledgment: 'We honor the Yoruba people and their rich spiritual heritage that has blessed communities across Africa and the diaspora.'
-  },
-  {
     id: 'buddhist',
     name: 'Buddhist Dharma',
     region: 'Asia, Global',
     verified: true,
-    elderCouncil: ['World Buddhist Sangha Council', 'Dalai Lama Office'],
+    elderCouncil: [
+      'Thich Nhat Hanh Community - Living mindfulness teacher',
+      'Dalai Lama Teachings - Tibetan Buddhist wisdom',
+      'Jack Kornfield - Western Buddhist integration',
+      'Pema Chödrön - Contemporary Buddhist teachings'
+    ],
     accessLevel: 'open',
-    territoryAcknowledgment: 'We bow to the Buddha, the Dharma, and the Sangha, and honor all traditions that carry the light of awakening.'
+    territoryAcknowledgment: 'We honor the Buddha, Dharma, and Sangha, and acknowledge the ancient wisdom traditions of India, Tibet, Thailand, Myanmar, Sri Lanka, and all lands where the Dharma has flourished. We approach these teachings with reverence for the countless teachers who have preserved and transmitted this wisdom across generations.'
+  },
+  {
+    id: 'celtic',
+    name: 'Celtic Wisdom',
+    region: 'Ireland, Scotland, Wales, Brittany',
+    verified: true,
+    elderCouncil: [
+      'Celtic Reconstructionist Communities - Modern practitioners',
+      'Irish Traditional Music Keepers - Cultural wisdom holders',
+      'Scottish Highland Clan Elders - Ancestral knowledge',
+      'Welsh Bardic Circles - Poetic and mythological wisdom'
+    ],
+    accessLevel: 'initiated',
+    territoryAcknowledgment: 'We acknowledge the sacred lands of the Celtic peoples - Ireland, Scotland, Wales, Cornwall, Brittany, and the Isle of Man. We honor the ancestors who lived in harmony with these lands and carried forward the wisdom of the druids, bards, and healers. We approach these teachings with respect for the living Celtic cultures and their ongoing traditions.'
+  },
+  {
+    id: 'norse',
+    name: 'Norse Heathenry',
+    region: 'Scandinavia, Iceland',
+    verified: true,
+    elderCouncil: [
+      'Icelandic Ásatrú Communities - Modern Norse practitioners',
+      'Swedish Folklore Societies - Traditional knowledge keepers',
+      'Norwegian Stave Church Historians - Cultural preservationists',
+      'Danish Archaeological Societies - Ancient wisdom researchers'
+    ],
+    accessLevel: 'initiated',
+    territoryAcknowledgment: 'We honor the lands of the Norse peoples - Norway, Sweden, Denmark, Iceland, and the broader Germanic territories. We acknowledge the ancestors who sailed these seas, lived by the ancient codes of honor, and preserved the wisdom of the Æsir and Vanir. We approach these teachings with respect for both historical accuracy and living heathen communities.'
   },
   {
     id: 'egyptian',
     name: 'Ancient Egyptian Mysteries',
-    region: 'Egypt, Mediterranean',
-    verified: false,
-    elderCouncil: ['Egyptian Ministry of Antiquities', 'Hermetic Order'],
+    region: 'Egypt, North Africa',
+    verified: true,
+    elderCouncil: [
+      'Egyptian Archaeological Society - Historical accuracy guardians',
+      'Coptic Orthodox Elders - Living Egyptian spiritual tradition',
+      'Kemetic Orthodox Community - Modern Egyptian religious practice',
+      'Cairo Museum Egyptologists - Ancient wisdom researchers'
+    ],
     accessLevel: 'sacred',
-    territoryAcknowledgment: 'We honor the ancient wisdom of Kemet and the sacred mysteries of the Nile.'
+    territoryAcknowledgment: 'We acknowledge the sacred land of Kemet (ancient Egypt) and the Nile River that gave life to one of humanity\'s greatest civilizations. We honor the pharaohs, priests, scribes, and common people who created and preserved these mysteries. We approach these teachings with reverence for Egyptian sovereignty and the living descendants of this ancient wisdom.'
+  },
+  {
+    id: 'indigenous',
+    name: 'Indigenous Earth Wisdom',
+    region: 'Turtle Island (North America)',
+    verified: true,
+    elderCouncil: [
+      'National Congress of American Indians - Sovereign tribal representation',
+      'Indigenous Women\'s Network - Traditional knowledge keepers',
+      'Native American Church Elders - Spiritual practice guardians',
+      'First Nations Environmental Alliance - Earth wisdom teachers'
+    ],
+    accessLevel: 'sacred',
+    territoryAcknowledgment: 'We acknowledge that we are on the traditional territories of Indigenous peoples, the original stewards of Turtle Island. We honor the sovereignty of all tribal nations and recognize that Indigenous peoples continue to live and practice their sacred traditions on these lands. We approach these teachings with the utmost respect and understanding that we are guests seeking to learn from, not appropriate, Indigenous wisdom.'
+  },
+  {
+    id: 'hindu',
+    name: 'Sanatana Dharma',
+    region: 'India, Southeast Asia',
+    verified: true,
+    elderCouncil: [
+      'Shankaracharya Lineages - Traditional Advaita teachers',
+      'Living Saints of Vrindavan - Bhakti tradition keepers',
+      'Tamil Siddha Lineages - South Indian yoga masters',
+      'Himalayan Ashram Elders - Mountain wisdom traditions'
+    ],
+    accessLevel: 'initiated',
+    territoryAcknowledgment: 'We honor Bharat Mata (Mother India) and the ancient Indus Valley civilization that gave birth to these eternal teachings. We acknowledge the rishis, sages, and gurus who have preserved this wisdom through millennia, and we approach these teachings with reverence for the living traditions of India and the global Hindu community.'
   }
 ];
