@@ -1,8 +1,8 @@
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './components/auth/AuthProvider';
-import HomePage from './pages/HomePage';
-import AccountPage from './pages/AccountPage';
+import Index from './pages/Index';
 import PricingPage from './pages/PricingPage';
 import SpiritualMindPro from './pages/SpiritualMindPro';
 import QuantumSpiritualDashboardPage from './pages/QuantumSpiritualDashboard';
@@ -17,8 +17,7 @@ function App() {
         <SubscriptionProvider>
           <div className="min-h-screen">
             <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/account" element={<AccountPage />} />
+              <Route path="/" element={<Index />} />
               <Route path="/pricing" element={<PricingPage />} />
               <Route path="/spiritual-mind-pro" element={<SpiritualMindPro />} />
               <Route path="/quantum-dashboard" element={<QuantumSpiritualDashboardPage />} />
