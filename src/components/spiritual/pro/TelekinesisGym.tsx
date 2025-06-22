@@ -1,8 +1,6 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -12,10 +10,18 @@ import {
   Shield,
   AlertTriangle,
   CheckCircle,
-  Clock,
   Brain,
-  Wind
+  Wind,
+  BookOpen,
+  BarChart3,
+  Users
 } from 'lucide-react';
+
+// Import new components
+import { TroubleshootingGuide } from './telekinesis/TroubleshootingGuide';
+import { SafetyProtocols } from './telekinesis/SafetyProtocols';
+import { ProgressTracker } from './telekinesis/ProgressTracker';
+import { EthicalGuidelines } from './telekinesis/EthicalGuidelines';
 
 interface TelekinesisGymProps {
   userProfile: any;
@@ -27,17 +33,18 @@ export const TelekinesisGym: React.FC<TelekinesisGymProps> = ({
   setUserProfile 
 }) => {
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState('training');
   const [currentStage, setCurrentStage] = useState('foundation');
   const [practiceActive, setPracticeActive] = useState(false);
-  const [ethicsAffirmed, setEthicsAffirmed] = useState(false);
-  const [sessionTimer, setSessionTimer] = useState(0);
+  const [ethicsCompleted, setEthicsCompleted] = useState(userProfile?.telekinesisEthics || false);
+  const [safetyCompleted, setSafetyCompleted] = useState(userProfile?.telekinesisSafety || false);
 
   const trainingStages = {
     'foundation': {
       name: 'Foundation Building',
       description: 'Concentration meditation & energy awareness development',
       duration: '4 weeks',
-      progress: 78,
+      progress: userProfile?.telekinesisProgress?.foundation || 78,
       validation: 'Daily meditation tracking (20-30 min)',
       safetyLevel: 'Safe',
       techniques: [
@@ -52,7 +59,7 @@ export const TelekinesisGym: React.FC<TelekinesisGymProps> = ({
       name: 'Object Connection',
       description: 'Establishing energetic links with target materials',
       duration: '4 weeks',
-      progress: 45,
+      progress: userProfile?.telekinesisProgress?.objectConnection || 45,
       validation: 'Psi wheel construction & observation',
       safetyLevel: 'Monitored',
       techniques: [
@@ -67,7 +74,7 @@ export const TelekinesisGym: React.FC<TelekinesisGymProps> = ({
       name: 'Micromovement Mastery',
       description: 'First detectable object influence under controlled conditions',
       duration: '8 weeks',
-      progress: 23,
+      progress: userProfile?.telekinesisProgress?.micromovement || 23,
       validation: 'Laser grid tracker (0.01mm precision)',
       safetyLevel: 'Restricted',
       techniques: [
@@ -82,7 +89,7 @@ export const TelekinesisGym: React.FC<TelekinesisGymProps> = ({
       name: 'Macro Object Control',
       description: 'Multi-object coordination & precision manipulation',
       duration: '12+ weeks',
-      progress: 8,
+      progress: userProfile?.telekinesisProgress?.macroControl || 8,
       validation: 'AR force vector visualization',
       safetyLevel: 'Expert Only',
       techniques: [
@@ -95,29 +102,47 @@ export const TelekinesisGym: React.FC<TelekinesisGymProps> = ({
     }
   };
 
-  const safetyProtocols = [
-    'No living organisms (cellular interference risk)',
-    'Objects under 500g only (energy conservation)',
-    'Electronics prohibited (EM field disruption)',
-    'Daily ethical affirmation required',
-    'Maximum 45 minutes per session',
-    'Mercury retrograde practice suspension',
-    'Chakra alignment verification before advanced work'
+  const navigationTabs = [
+    { id: 'ethics', label: 'Ethical Guidelines', icon: Shield, required: true },
+    { id: 'safety', label: 'Safety Protocols', icon: AlertTriangle, required: true },
+    { id: 'training', label: 'Training System', icon: Target, enabled: ethicsCompleted && safetyCompleted },
+    { id: 'progress', label: 'Progress Tracking', icon: BarChart3, enabled: ethicsCompleted && safetyCompleted },
+    { id: 'troubleshooting', label: 'Troubleshooting', icon: Brain, enabled: true }
   ];
 
-  const energyPrinciples = [
-    'Matter as vibrating energy patterns (quantum perspective)',
-    'Chakra system coordination: Root-Brow-Crown-Hands',
-    'Bioelectromagnetic field extension and focusing',
-    'Consciousness-matter interface through Ka/ethereal double',
-    'Energy field resonance rather than force application'
-  ];
+  const handleEthicsComplete = (completed: boolean) => {
+    setEthicsCompleted(completed);
+    const updatedProfile = { ...userProfile, telekinesisEthics: completed };
+    setUserProfile(updatedProfile);
+    localStorage.setItem('spiritualMindProfile', JSON.stringify(updatedProfile));
+    
+    if (completed) {
+      toast({
+        title: "Ethical Commitment Complete",
+        description: "You have made your sacred commitment to ethical practice",
+      });
+    }
+  };
+
+  const handleSafetyComplete = (completed: boolean) => {
+    setSafetyCompleted(completed);
+    const updatedProfile = { ...userProfile, telekinesisSafety: completed };
+    setUserProfile(updatedProfile);
+    localStorage.setItem('spiritualMindProfile', JSON.stringify(updatedProfile));
+    
+    if (completed) {
+      toast({
+        title: "Safety Protocols Acknowledged",
+        description: "You may now proceed with telekinetic training",
+      });
+    }
+  };
 
   const startPractice = () => {
-    if (!ethicsAffirmed) {
+    if (!ethicsCompleted || !safetyCompleted) {
       toast({
-        title: "Ethics Affirmation Required",
-        description: "Please confirm your commitment to responsible practice",
+        title: "Requirements Not Met",
+        description: "Please complete ethics and safety requirements first",
         variant: "destructive",
       });
       return;
@@ -139,237 +164,236 @@ export const TelekinesisGym: React.FC<TelekinesisGymProps> = ({
     });
   };
 
-  const affirmEthics = () => {
-    setEthicsAffirmed(true);
-    toast({
-      title: "Ethical Commitment Confirmed",
-      description: "\"I wield consciousness energy only for collective wisdom and growth\"",
-    });
+  const canAccessTab = (tab: any) => {
+    if (tab.required) return true;
+    return tab.enabled;
   };
-
-  const currentTraining = trainingStages[currentStage as keyof typeof trainingStages];
 
   return (
     <div className="space-y-6">
-      {/* Ancient Wisdom Context */}
-      <Card className="bg-amber-900/20 border-amber-500/30">
-        <CardHeader>
-          <CardTitle className="text-amber-200 flex items-center gap-2">
-            <Eye className="w-6 h-6" />
-            Ancient Telekinetic Traditions
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div className="bg-amber-800/20 p-3 rounded-lg border border-amber-600/30">
-              <h4 className="text-amber-200 font-semibold mb-2">Egyptian Ka Energy</h4>
-              <p className="text-amber-300">Hieroglyphic symbols as consciousness conduits, ethereal double development</p>
-            </div>
-            <div className="bg-amber-800/20 p-3 rounded-lg border border-amber-600/30">
-              <h4 className="text-amber-200 font-semibold mb-2">Buddhist Siddhis</h4>
-              <p className="text-amber-300">Systematic mind-matter interface through ethical meditation practice</p>
-            </div>
-            <div className="bg-amber-800/20 p-3 rounded-lg border border-amber-600/30">
-              <h4 className="text-amber-200 font-semibold mb-2">Yoruba Ase Power</h4>
-              <p className="text-amber-300">Rhythm-synchronized intention through sacred drum patterns</p>
-            </div>
+      {/* Navigation Tabs */}
+      <Card className="bg-gray-900/20 border-gray-500/30">
+        <CardContent className="pt-6">
+          <div className="flex flex-wrap gap-2">
+            {navigationTabs.map((tab) => {
+              const IconComponent = tab.icon;
+              const isActive = activeTab === tab.id;
+              const isAccessible = canAccessTab(tab);
+              
+              return (
+                <Button
+                  key={tab.id}
+                  onClick={() => isAccessible && setActiveTab(tab.id)}
+                  disabled={!isAccessible}
+                  variant={isActive ? "default" : "outline"}
+                  className={`flex items-center gap-2 ${
+                    isActive 
+                      ? 'bg-blue-600 hover:bg-blue-700' 
+                      : isAccessible
+                        ? 'border-gray-400/30 text-gray-200 hover:bg-gray-600/20'
+                        : 'opacity-50 cursor-not-allowed'
+                  }`}
+                >
+                  <IconComponent className="w-4 h-4" />
+                  {tab.label}
+                  {tab.required && <Badge className="bg-red-600/20 text-red-200 ml-1">Required</Badge>}
+                </Button>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
 
-      {/* Ethics Affirmation */}
-      <Card className="bg-yellow-900/20 border-yellow-500/30">
-        <CardHeader>
-          <CardTitle className="text-yellow-200 flex items-center gap-2">
-            <Shield className="w-6 h-6" />
-            Ethical Commitment Protocol
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="bg-yellow-800/20 p-4 rounded-lg border border-yellow-600/30">
-            <p className="text-yellow-100 italic text-center text-lg font-medium">
-              "I commit to developing consciousness abilities within ethical boundaries, using telekinetic practice only for wisdom, growth, and the collective good of all beings."
-            </p>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-yellow-200">Daily Affirmation Status:</span>
-            {ethicsAffirmed ? (
-              <Badge className="bg-green-600/20 text-green-200">
-                <CheckCircle className="w-4 h-4 mr-1" />
-                Confirmed Today
-              </Badge>
-            ) : (
-              <Button onClick={affirmEthics} className="bg-yellow-600 hover:bg-yellow-700">
-                Affirm Ethical Practice
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Conditional Content Based on Active Tab */}
+      {activeTab === 'ethics' && !ethicsCompleted && (
+        <EthicalGuidelines onEthicsComplete={handleEthicsComplete} />
+      )}
 
-      {/* Progressive Training Stages */}
-      <Card className="bg-purple-900/20 border-purple-500/30">
-        <CardHeader>
-          <CardTitle className="text-purple-200 flex items-center gap-2">
-            <Target className="w-6 h-6" />
-            Progressive Training System
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {Object.entries(trainingStages).map(([key, stage]) => (
-            <div 
-              key={key}
-              className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                currentStage === key 
-                  ? 'bg-purple-800/30 border-purple-400/50' 
-                  : 'bg-gray-800/20 border-gray-600/30 hover:bg-gray-800/30'
-              }`}
-              onClick={() => setCurrentStage(key)}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <h3 className="text-purple-100 font-semibold text-lg">{stage.name}</h3>
-                  <p className="text-purple-300 text-sm">{stage.description}</p>
+      {activeTab === 'ethics' && ethicsCompleted && (
+        <Card className="bg-green-900/20 border-green-500/30">
+          <CardContent className="pt-6 text-center">
+            <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-4" />
+            <h3 className="text-green-200 text-xl font-semibold mb-2">Ethical Commitment Complete</h3>
+            <p className="text-green-300">You have made your sacred commitment to ethical telekinetic practice.</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {activeTab === 'safety' && !safetyCompleted && (
+        <SafetyProtocols onSafetyCheckComplete={handleSafetyComplete} />
+      )}
+
+      {activeTab === 'safety' && safetyCompleted && (
+        <Card className="bg-green-900/20 border-green-500/30">
+          <CardContent className="pt-6 text-center">
+            <Shield className="w-12 h-12 text-green-400 mx-auto mb-4" />
+            <h3 className="text-green-200 text-xl font-semibold mb-2">Safety Protocols Acknowledged</h3>
+            <p className="text-green-300">You have acknowledged all safety guidelines and may proceed with training.</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {activeTab === 'training' && (
+        <div className="space-y-6">
+          {/* Ancient Wisdom Context */}
+          <Card className="bg-amber-900/20 border-amber-500/30">
+            <CardHeader>
+              <CardTitle className="text-amber-200 flex items-center gap-2">
+                <Eye className="w-6 h-6" />
+                Ancient Telekinetic Traditions
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div className="bg-amber-800/20 p-3 rounded-lg border border-amber-600/30">
+                  <h4 className="text-amber-200 font-semibold mb-2">Egyptian Ka Energy</h4>
+                  <p className="text-amber-300">Hieroglyphic symbols as consciousness conduits, ethereal double development</p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge className="bg-blue-600/20 text-blue-200">
-                    <Clock className="w-3 h-3 mr-1" />
-                    {stage.duration}
-                  </Badge>
-                  <Badge className={`${
-                    stage.safetyLevel === 'Safe' ? 'bg-green-600/20 text-green-200' :
-                    stage.safetyLevel === 'Monitored' ? 'bg-yellow-600/20 text-yellow-200' :
-                    stage.safetyLevel === 'Restricted' ? 'bg-orange-600/20 text-orange-200' :
-                    'bg-red-600/20 text-red-200'
-                  }`}>
-                    {stage.safetyLevel}
-                  </Badge>
+                <div className="bg-amber-800/20 p-3 rounded-lg border border-amber-600/30">
+                  <h4 className="text-amber-200 font-semibold mb-2">Buddhist Siddhis</h4>
+                  <p className="text-amber-300">Systematic mind-matter interface through ethical meditation practice</p>
+                </div>
+                <div className="bg-amber-800/20 p-3 rounded-lg border border-amber-600/30">
+                  <h4 className="text-amber-200 font-semibold mb-2">Yoruba Ase Power</h4>
+                  <p className="text-amber-300">Rhythm-synchronized intention through sacred drum patterns</p>
                 </div>
               </div>
-              
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-purple-200">Mastery Progress</span>
-                  <span className="text-purple-200">{stage.progress}%</span>
-                </div>
-                <Progress value={stage.progress} className="h-2" />
-                
-                <div className="text-xs text-purple-400 bg-purple-900/30 p-2 rounded">
-                  <strong>Ancient Wisdom:</strong> {stage.ancientWisdom}
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                  <div>
-                    <strong className="text-purple-200">Validation:</strong>
-                    <span className="text-purple-300 ml-1">{stage.validation}</span>
+            </CardContent>
+          </Card>
+
+          {/* Progressive Training Stages */}
+          <Card className="bg-purple-900/20 border-purple-500/30">
+            <CardHeader>
+              <CardTitle className="text-purple-200 flex items-center gap-2">
+                <Target className="w-6 h-6" />
+                Progressive Training System
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {Object.entries(trainingStages).map(([key, stage]) => (
+                <div 
+                  key={key}
+                  className={`p-4 rounded-lg border cursor-pointer transition-colors ${
+                    currentStage === key 
+                      ? 'bg-purple-800/30 border-purple-400/50' 
+                      : 'bg-gray-800/20 border-gray-600/30 hover:bg-gray-800/30'
+                  }`}
+                  onClick={() => setCurrentStage(key)}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h3 className="text-purple-100 font-semibold text-lg">{stage.name}</h3>
+                      <p className="text-purple-300 text-sm">{stage.description}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-blue-600/20 text-blue-200">
+                        <Clock className="w-3 h-3 mr-1" />
+                        {stage.duration}
+                      </Badge>
+                      <Badge className={`${
+                        stage.safetyLevel === 'Safe' ? 'bg-green-600/20 text-green-200' :
+                        stage.safetyLevel === 'Monitored' ? 'bg-yellow-600/20 text-yellow-200' :
+                        stage.safetyLevel === 'Restricted' ? 'bg-orange-600/20 text-orange-200' :
+                        'bg-red-600/20 text-red-200'
+                      }`}>
+                        {stage.safetyLevel}
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-purple-200">Mastery Progress</span>
+                      <span className="text-purple-200">{stage.progress}%</span>
+                    </div>
+                    
+                    
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                      <div>
+                        <strong className="text-purple-200">Validation:</strong>
+                        <span className="text-purple-300 ml-1">{stage.validation}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="text-xs text-purple-400 bg-purple-900/30 p-2 rounded">
+                      <strong>Ancient Wisdom:</strong> {stage.ancientWisdom}
+                    </div>
+                    
+                    <div className="bg-indigo-800/20 p-3 rounded-lg border border-indigo-600/30">
+                      <h4 className="text-indigo-200 font-semibold mb-2">Core Techniques:</h4>
+                      <ul className="space-y-1">
+                        {stage.techniques.map((technique, index) => (
+                          <li key={index} className="text-indigo-300 text-sm flex items-start">
+                            <Wind className="w-3 h-3 mr-2 mt-1 text-indigo-400 flex-shrink-0" />
+                            {technique}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-
-      {/* Active Training Session */}
-      <Card className="bg-indigo-900/20 border-indigo-500/30">
-        <CardHeader>
-          <CardTitle className="text-indigo-200 flex items-center gap-2">
-            <Brain className="w-6 h-6" />
-            Active Training: {currentTraining.name}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="bg-indigo-800/20 p-4 rounded-lg border border-indigo-600/30">
-            <h4 className="text-indigo-200 font-semibold mb-3">Core Techniques:</h4>
-            <ul className="space-y-2">
-              {currentTraining.techniques.map((technique, index) => (
-                <li key={index} className="text-indigo-300 text-sm flex items-start">
-                  <Wind className="w-3 h-3 mr-2 mt-1 text-indigo-400 flex-shrink-0" />
-                  {technique}
-                </li>
               ))}
-            </ul>
-          </div>
+            </CardContent>
+          </Card>
 
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-indigo-300 text-sm mb-2">{currentTraining.description}</p>
-              <p className="text-indigo-400 text-xs">Duration: {currentTraining.duration}</p>
-            </div>
-            <Button
-              onClick={practiceActive ? stopPractice : startPractice}
-              disabled={!ethicsAffirmed}
-              className={`${
-                practiceActive 
-                  ? 'bg-red-600 hover:bg-red-700' 
-                  : 'bg-green-600 hover:bg-green-700'
-              } disabled:opacity-50`}
-            >
-              {practiceActive ? 'End Session' : 'Begin Training'}
-            </Button>
-          </div>
-          
-          {practiceActive && (
-            <div className="bg-indigo-800/20 p-4 rounded-lg border border-indigo-600/30">
-              <div className="flex items-center gap-2 mb-3">
-                <Eye className="w-5 h-5 text-indigo-400" />
-                <span className="text-indigo-200 font-semibold">Consciousness Monitoring Active</span>
+          {/* Active Training Session */}
+          <Card className="bg-indigo-900/20 border-indigo-500/30">
+            <CardHeader>
+              <CardTitle className="text-indigo-200 flex items-center gap-2">
+                <Brain className="w-6 h-6" />
+                Active Training: {trainingStages[currentStage as keyof typeof trainingStages].name}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-indigo-300 text-sm mb-2">
+                    {trainingStages[currentStage as keyof typeof trainingStages].description}
+                  </p>
+                  <p className="text-indigo-400 text-xs">
+                    Duration: {trainingStages[currentStage as keyof typeof trainingStages].duration}
+                  </p>
+                </div>
+                <Button
+                  onClick={practiceActive ? stopPractice : startPractice}
+                  className={`${
+                    practiceActive 
+                      ? 'bg-red-600 hover:bg-red-700' 
+                      : 'bg-green-600 hover:bg-green-700'
+                  }`}
+                >
+                  {practiceActive ? 'End Session' : 'Begin Training'}
+                </Button>
               </div>
-              <div className="grid grid-cols-2 gap-4 text-sm text-indigo-300">
-                <div>Neural coherence: Tracking</div>
-                <div>Energy field: Stabilizing</div>
-                <div>Chakra alignment: Monitoring</div>
-                <div>Intention clarity: Measuring</div>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              
+              {practiceActive && (
+                <div className="bg-indigo-800/20 p-4 rounded-lg border border-indigo-600/30">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Eye className="w-5 h-5 text-indigo-400" />
+                    <span className="text-indigo-200 font-semibold">Consciousness Monitoring Active</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 text-sm text-indigo-300">
+                    <div>Neural coherence: Tracking</div>
+                    <div>Energy field: Stabilizing</div>
+                    <div>Chakra alignment: Monitoring</div>
+                    <div>Intention clarity: Measuring</div>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
-      {/* Energy Principles */}
-      <Card className="bg-cyan-900/20 border-cyan-500/30">
-        <CardHeader>
-          <CardTitle className="text-cyan-200 flex items-center gap-2">
-            <Zap className="w-6 h-6" />
-            Scientific Energy Principles
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {energyPrinciples.map((principle, index) => (
-              <div key={index} className="flex items-start gap-2 text-cyan-200 text-sm">
-                <Zap className="w-4 h-4 text-cyan-400 mt-0.5 flex-shrink-0" />
-                <span>{principle}</span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {activeTab === 'progress' && (
+        <ProgressTracker userProfile={userProfile} setUserProfile={setUserProfile} />
+      )}
 
-      {/* Enhanced Safety Protocols */}
-      <Card className="bg-red-900/20 border-red-500/30">
-        <CardHeader>
-          <CardTitle className="text-red-200 flex items-center gap-2">
-            <AlertTriangle className="w-6 h-6" />
-            Enhanced Safety Protocols
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {safetyProtocols.map((protocol, index) => (
-              <div key={index} className="flex items-start gap-2 text-red-200 text-sm">
-                <Shield className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
-                <span>{protocol}</span>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 bg-red-800/20 p-3 rounded-lg border border-red-600/30">
-            <p className="text-red-200 text-sm font-medium">
-              <strong>Important:</strong> All telekinetic training focuses on neuroplasticity development and consciousness expansion. Physical effects, when achieved, result from refined energy awareness rather than supernatural force.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      {activeTab === 'troubleshooting' && (
+        <TroubleshootingGuide userProfile={userProfile} />
+      )}
     </div>
   );
 };
