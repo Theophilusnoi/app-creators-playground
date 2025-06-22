@@ -151,117 +151,8 @@ export const StageNarrative: React.FC<StageNarrativeProps> = ({ stageIndex, stag
   };
 
   return (
-    <Card className="bg-gray-800 border-gray-700 shadow-2xl mb-6 mobile-backdrop">
-      <CardHeader>
-        <CardTitle className="flex flex-col sm:flex-row sm:items-center gap-4 text-white">
-          <div className="bg-gray-700 rounded-full p-3 border-2 border-gray-600 self-start">
-            <Icon className="w-5 h-5 md:w-6 md:h-6" />
-          </div>
-          <div className="flex-1">
-            <div className="text-xl md:text-2xl font-bold crisp-text">Stage {stageIndex + 1}: Understanding Your Journey</div>
-            <div className="flex items-center gap-2 mt-2">
-              <Badge className="bg-gray-700 text-white border-gray-600">
-                <Clock className="w-3 h-3 mr-1" />
-                {duration} minutes
-              </Badge>
-            </div>
-          </div>
-        </CardTitle>
-      </CardHeader>
-      
-      <CardContent className="space-y-4">
-        <div className="grid gap-4">
-          <div className="bg-gray-700 rounded-lg p-4 border border-gray-600">
-            <div className="flex items-center gap-2 mb-2">
-              <Target className="w-4 h-4 md:w-5 md:h-5 text-blue-400" />
-              <h4 className="font-semibold text-white text-sm md:text-base crisp-text">Purpose of This Stage</h4>
-            </div>
-            <div 
-              className="text-gray-300 leading-relaxed text-sm md:text-base"
-              dangerouslySetInnerHTML={{ __html: renderTextWithLinks(currentNarrative.purpose) }}
-              onClick={(e) => {
-                const target = e.target as HTMLElement;
-                if (target.classList.contains('clickable-term')) {
-                  const term = target.getAttribute('data-term');
-                  if (term) handleTermClick(term);
-                }
-              }}
-              style={{
-                cursor: 'pointer'
-              }}
-            />
-          </div>
-
-          <div className="bg-gray-700 rounded-lg p-4 border border-gray-600">
-            <div className="flex items-center gap-2 mb-2">
-              <Heart className="w-4 h-4 md:w-5 md:h-5 text-pink-400" />
-              <h4 className="font-semibold text-white text-sm md:text-base crisp-text">What You Might Experience</h4>
-            </div>
-            <p className="text-gray-300 leading-relaxed text-sm md:text-base">{currentNarrative.expectation}</p>
-          </div>
-
-          <div className="bg-gray-700 rounded-lg p-4 border border-gray-600">
-            <div className="flex items-center gap-2 mb-2">
-              <Clock className="w-4 h-4 md:w-5 md:h-5 text-green-400" />
-              <h4 className="font-semibold text-white text-sm md:text-base crisp-text">Why This Duration</h4>
-            </div>
-            <p className="text-gray-300 leading-relaxed text-sm md:text-base">{currentNarrative.whyDuration}</p>
-          </div>
-
-          <div className="bg-gray-700 rounded-lg p-4 border border-gray-600">
-            <div className="flex items-center gap-2 mb-2">
-              <Lightbulb className="w-4 h-4 md:w-5 md:h-5 text-yellow-400" />
-              <h4 className="font-semibold text-white text-sm md:text-base crisp-text">Building Your Journey</h4>
-            </div>
-            <div 
-              className="text-gray-300 leading-relaxed text-sm md:text-base"
-              dangerouslySetInnerHTML={{ __html: renderTextWithLinks(currentNarrative.buildUp) }}
-              onClick={(e) => {
-                const target = e.target as HTMLElement;
-                if (target.classList.contains('clickable-term')) {
-                  const term = target.getAttribute('data-term');
-                  if (term) handleTermClick(term);
-                }
-              }}
-              style={{
-                cursor: 'pointer'
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Term Definition Dialog */}
-        {selectedTerm && termDefinitions[selectedTerm] && (
-          <Dialog open={!!selectedTerm} onOpenChange={() => setSelectedTerm(null)}>
-            <DialogContent className="bg-gray-800 border-gray-600 text-white max-w-md">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2 text-purple-300">
-                  <Info className="w-5 h-5" />
-                  {termDefinitions[selectedTerm].title}
-                </DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <p className="text-gray-300 leading-relaxed">
-                  {termDefinitions[selectedTerm].explanation}
-                </p>
-                <div>
-                  <h4 className="font-semibold text-cyan-300 mb-2">Benefits:</h4>
-                  <ul className="space-y-1 text-sm">
-                    {termDefinitions[selectedTerm].benefits.map((benefit, index) => (
-                      <li key={index} className="flex items-start gap-2 text-cyan-100">
-                        <div className="w-2 h-2 bg-cyan-400 rounded-full flex-shrink-0 mt-2"></div>
-                        <span>{benefit}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-        )}
-      </CardContent>
-
-      <style jsx>{`
+    <>
+      <style>{`
         .clickable-term {
           color: #a78bfa;
           text-decoration: underline;
@@ -274,6 +165,117 @@ export const StageNarrative: React.FC<StageNarrativeProps> = ({ stageIndex, stag
           text-shadow: 0 0 4px rgba(167, 139, 250, 0.5);
         }
       `}</style>
-    </Card>
+
+      <Card className="bg-gray-800 border-gray-700 shadow-2xl mb-6 mobile-backdrop">
+        <CardHeader>
+          <CardTitle className="flex flex-col sm:flex-row sm:items-center gap-4 text-white">
+            <div className="bg-gray-700 rounded-full p-3 border-2 border-gray-600 self-start">
+              <Icon className="w-5 h-5 md:w-6 md:h-6" />
+            </div>
+            <div className="flex-1">
+              <div className="text-xl md:text-2xl font-bold crisp-text">Stage {stageIndex + 1}: Understanding Your Journey</div>
+              <div className="flex items-center gap-2 mt-2">
+                <Badge className="bg-gray-700 text-white border-gray-600">
+                  <Clock className="w-3 h-3 mr-1" />
+                  {duration} minutes
+                </Badge>
+              </div>
+            </div>
+          </CardTitle>
+        </CardHeader>
+        
+        <CardContent className="space-y-4">
+          <div className="grid gap-4">
+            <div className="bg-gray-700 rounded-lg p-4 border border-gray-600">
+              <div className="flex items-center gap-2 mb-2">
+                <Target className="w-4 h-4 md:w-5 md:h-5 text-blue-400" />
+                <h4 className="font-semibold text-white text-sm md:text-base crisp-text">Purpose of This Stage</h4>
+              </div>
+              <div 
+                className="text-gray-300 leading-relaxed text-sm md:text-base"
+                dangerouslySetInnerHTML={{ __html: renderTextWithLinks(currentNarrative.purpose) }}
+                onClick={(e) => {
+                  const target = e.target as HTMLElement;
+                  if (target.classList.contains('clickable-term')) {
+                    const term = target.getAttribute('data-term');
+                    if (term) handleTermClick(term);
+                  }
+                }}
+                style={{
+                  cursor: 'pointer'
+                }}
+              />
+            </div>
+
+            <div className="bg-gray-700 rounded-lg p-4 border border-gray-600">
+              <div className="flex items-center gap-2 mb-2">
+                <Heart className="w-4 h-4 md:w-5 md:h-5 text-pink-400" />
+                <h4 className="font-semibold text-white text-sm md:text-base crisp-text">What You Might Experience</h4>
+              </div>
+              <p className="text-gray-300 leading-relaxed text-sm md:text-base">{currentNarrative.expectation}</p>
+            </div>
+
+            <div className="bg-gray-700 rounded-lg p-4 border border-gray-600">
+              <div className="flex items-center gap-2 mb-2">
+                <Clock className="w-4 h-4 md:w-5 md:h-5 text-green-400" />
+                <h4 className="font-semibold text-white text-sm md:text-base crisp-text">Why This Duration</h4>
+              </div>
+              <p className="text-gray-300 leading-relaxed text-sm md:text-base">{currentNarrative.whyDuration}</p>
+            </div>
+
+            <div className="bg-gray-700 rounded-lg p-4 border border-gray-600">
+              <div className="flex items-center gap-2 mb-2">
+                <Lightbulb className="w-4 h-4 md:w-5 md:h-5 text-yellow-400" />
+                <h4 className="font-semibold text-white text-sm md:text-base crisp-text">Building Your Journey</h4>
+              </div>
+              <div 
+                className="text-gray-300 leading-relaxed text-sm md:text-base"
+                dangerouslySetInnerHTML={{ __html: renderTextWithLinks(currentNarrative.buildUp) }}
+                onClick={(e) => {
+                  const target = e.target as HTMLElement;
+                  if (target.classList.contains('clickable-term')) {
+                    const term = target.getAttribute('data-term');
+                    if (term) handleTermClick(term);
+                  }
+                }}
+                style={{
+                  cursor: 'pointer'
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Term Definition Dialog */}
+          {selectedTerm && termDefinitions[selectedTerm] && (
+            <Dialog open={!!selectedTerm} onOpenChange={() => setSelectedTerm(null)}>
+              <DialogContent className="bg-gray-800 border-gray-600 text-white max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2 text-purple-300">
+                    <Info className="w-5 h-5" />
+                    {termDefinitions[selectedTerm].title}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <p className="text-gray-300 leading-relaxed">
+                    {termDefinitions[selectedTerm].explanation}
+                  </p>
+                  <div>
+                    <h4 className="font-semibold text-cyan-300 mb-2">Benefits:</h4>
+                    <ul className="space-y-1 text-sm">
+                      {termDefinitions[selectedTerm].benefits.map((benefit, index) => (
+                        <li key={index} className="flex items-start gap-2 text-cyan-100">
+                          <div className="w-2 h-2 bg-cyan-400 rounded-full flex-shrink-0 mt-2"></div>
+                          <span>{benefit}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+        </CardContent>
+      </Card>
+    </>
   );
 };
