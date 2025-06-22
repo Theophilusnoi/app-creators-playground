@@ -140,46 +140,48 @@ export const RitualSequencer: React.FC<RitualSequencerProps> = ({
     const totalProgress = ((currentStepIndex + stepProgress / 100) / activeSequence.steps.length) * 100;
 
     return (
-      <Card className="bg-gradient-to-br from-purple-900/30 to-indigo-900/30 border-2 border-purple-500/50">
-        <CardHeader className="text-center">
-          <CardTitle className="text-white text-xl">
+      <Card className="bg-gray-900/95 border-2 border-purple-500/50 backdrop-blur-sm shadow-2xl">
+        <CardHeader className="text-center bg-gray-800/90 border-b border-purple-500/30">
+          <CardTitle className="text-white text-xl font-bold crisp-text">
             🕯️ {activeSequence.name}
           </CardTitle>
           <div className="space-y-2">
-            <div className="w-full bg-purple-900/50 rounded-full h-3">
+            <div className="w-full bg-gray-700/80 rounded-full h-3 border border-gray-600">
               <div 
-                className="bg-gradient-to-r from-purple-400 to-pink-400 h-3 rounded-full transition-all duration-300"
+                className="bg-gradient-to-r from-purple-400 to-pink-400 h-3 rounded-full transition-all duration-300 shadow-lg"
                 style={{ width: `${totalProgress}%` }}
               />
             </div>
-            <p className="text-purple-200 text-sm">
+            <p className="text-purple-100 text-sm font-semibold crisp-text">
               Overall Progress: {Math.round(totalProgress)}% • Step {currentStepIndex + 1} of {activeSequence.steps.length}
             </p>
           </div>
         </CardHeader>
         
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 p-6">
           {currentStep && (
-            <div className="bg-purple-900/20 p-4 rounded-lg">
+            <div className="bg-gray-800/60 p-4 rounded-lg border border-purple-500/30 shadow-lg">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="text-purple-200 font-semibold">
+                <h4 className="text-white font-bold text-lg crisp-text">
                   Current Step: {currentStep.name}
                 </h4>
                 <div className="flex items-center gap-2">
                   <Volume2 className="w-4 h-4 text-purple-300" />
-                  <span className="text-purple-300 text-sm">Audio Guided</span>
+                  <span className="text-purple-100 text-sm font-medium crisp-text">Audio Guided</span>
                 </div>
               </div>
               
-              <p className="text-purple-100 text-sm mb-3">{currentStep.description}</p>
+              <p className="text-gray-100 text-base mb-3 font-medium crisp-text leading-relaxed">{currentStep.description}</p>
               
-              <div className="w-full bg-purple-800/50 rounded-full h-2 mb-3">
+              <div className="w-full bg-gray-700/70 rounded-full h-3 mb-3 border border-gray-600">
                 <div 
-                  className="bg-gradient-to-r from-purple-300 to-pink-300 h-2 rounded-full transition-all duration-300"
+                  className="bg-gradient-to-r from-green-400 to-blue-400 h-3 rounded-full transition-all duration-300 shadow-md"
                   style={{ width: `${stepProgress}%` }}
                 />
               </div>
-              <p className="text-purple-300 text-xs mb-4">{Math.round(stepProgress)}% Complete</p>
+              <p className="text-green-200 text-sm font-semibold crisp-text mb-4">
+                {Math.round(stepProgress)}% Complete • {Math.round((currentStep.duration * (100 - stepProgress)) / 100000)} minutes remaining
+              </p>
 
               {/* Audio Player for Current Step */}
               <div className="mb-4">
@@ -190,16 +192,16 @@ export const RitualSequencer: React.FC<RitualSequencerProps> = ({
               </div>
 
               {currentStep.affirmation && (
-                <div className="mt-3 p-3 bg-pink-900/20 rounded-lg">
-                  <h5 className="text-pink-200 font-medium text-sm mb-1">🗣️ Affirm:</h5>
-                  <p className="text-pink-100 text-sm italic">"{currentStep.affirmation}"</p>
+                <div className="mt-3 p-4 bg-pink-900/30 rounded-lg border border-pink-500/30 shadow-md">
+                  <h5 className="text-pink-100 font-bold text-base mb-2 crisp-text">🗣️ Affirm:</h5>
+                  <p className="text-pink-50 text-base font-medium italic crisp-text">"{currentStep.affirmation}"</p>
                 </div>
               )}
 
               {currentStep.visualization && (
-                <div className="mt-3 p-3 bg-indigo-900/20 rounded-lg">
-                  <h5 className="text-indigo-200 font-medium text-sm mb-1">👁️ Visualize:</h5>
-                  <p className="text-indigo-100 text-sm">{currentStep.visualization}</p>
+                <div className="mt-3 p-4 bg-indigo-900/30 rounded-lg border border-indigo-500/30 shadow-md">
+                  <h5 className="text-indigo-100 font-bold text-base mb-2 crisp-text">👁️ Visualize:</h5>
+                  <p className="text-indigo-50 text-base font-medium crisp-text leading-relaxed">{currentStep.visualization}</p>
                 </div>
               )}
             </div>
@@ -208,44 +210,46 @@ export const RitualSequencer: React.FC<RitualSequencerProps> = ({
           <div className="flex justify-center gap-3">
             <Button
               onClick={pauseResume}
-              className="bg-purple-600 hover:bg-purple-700 text-white"
+              className="bg-purple-600 hover:bg-purple-700 text-white font-bold border-2 border-purple-400/50 shadow-lg"
+              size="lg"
             >
-              {isRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+              {isRunning ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
               {isRunning ? 'Pause' : 'Resume'}
             </Button>
             <Button
               onClick={resetSequence}
               variant="outline"
-              className="border-purple-500/50 text-purple-200"
+              className="border-2 border-purple-500/50 text-purple-100 hover:bg-purple-500/20 font-bold shadow-lg"
+              size="lg"
             >
-              <RotateCcw className="w-4 h-4 mr-2" />
+              <RotateCcw className="w-5 h-5 mr-2" />
               Reset
             </Button>
           </div>
 
           <div className="mt-4">
-            <h5 className="text-purple-200 font-medium text-sm mb-2">📝 Sequence Steps:</h5>
+            <h5 className="text-white font-bold text-base mb-3 crisp-text">📝 Sequence Steps:</h5>
             <div className="space-y-2">
               {activeSequence.steps.map((step, index) => (
                 <div
                   key={step.id}
-                  className={`flex items-center gap-2 p-2 rounded text-sm ${
+                  className={`flex items-center gap-3 p-3 rounded-lg text-sm font-medium border shadow-sm ${
                     completedSteps.includes(step.id)
-                      ? 'bg-green-900/30 text-green-200'
+                      ? 'bg-green-900/40 text-green-100 border-green-500/30'
                       : index === currentStepIndex
-                      ? 'bg-purple-900/30 text-purple-200'
-                      : 'bg-gray-900/30 text-gray-400'
+                      ? 'bg-purple-900/40 text-purple-100 border-purple-500/30'
+                      : 'bg-gray-800/40 text-gray-300 border-gray-600/30'
                   }`}
                 >
                   {completedSteps.includes(step.id) ? (
-                    <CheckCircle className="w-4 h-4" />
+                    <CheckCircle className="w-5 h-5" />
                   ) : index === currentStepIndex ? (
-                    <Clock className="w-4 h-4" />
+                    <Clock className="w-5 h-5" />
                   ) : (
-                    <div className="w-4 h-4 rounded-full border border-current" />
+                    <div className="w-5 h-5 rounded-full border-2 border-current" />
                   )}
-                  <span>{step.name}</span>
-                  <span className="text-xs opacity-60">
+                  <span className="font-semibold crisp-text">{step.name}</span>
+                  <span className="text-xs opacity-75 font-medium crisp-text">
                     ({Math.round(step.duration / 1000)}s)
                   </span>
                 </div>

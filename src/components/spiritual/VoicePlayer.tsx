@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useVoiceService } from '@/hooks/useVoiceService';
 import { useToast } from '@/hooks/use-toast';
-import { Volume2, VolumeX, Play, Loader2 } from "lucide-react";
+import { Volume2, VolumeX, Play, Loader2, AlertTriangle } from "lucide-react";
 
 interface VoicePlayerProps {
   script: string;
@@ -36,8 +36,8 @@ export const VoicePlayer: React.FC<VoicePlayerProps> = ({ script, tone }) => {
     
     if (!success) {
       toast({
-        title: "Voice generation failed",
-        description: "Could not generate voice. Please try again.",
+        title: "Voice service temporarily unavailable",
+        description: "The voice generation service has reached its daily limit. Please continue with the text-based guidance for now.",
         variant: "destructive"
       });
     }
@@ -57,7 +57,7 @@ export const VoicePlayer: React.FC<VoicePlayerProps> = ({ script, tone }) => {
         <Button
           onClick={handleGenerate}
           disabled={isGenerating}
-          className="flex items-center gap-3 px-6 py-3 h-auto min-h-[50px] rounded-full text-white bg-purple-600 hover:bg-purple-700 font-bold text-lg shadow-xl border-2 border-purple-400/50 backdrop-blur-sm"
+          className="flex items-center gap-3 px-6 py-3 h-auto min-h-[50px] rounded-full text-white bg-purple-600 hover:bg-purple-700 font-bold text-lg shadow-xl border-2 border-purple-400/50 backdrop-blur-sm crisp-text"
         >
           {isGenerating ? (
             <>
@@ -76,7 +76,7 @@ export const VoicePlayer: React.FC<VoicePlayerProps> = ({ script, tone }) => {
       {audioReady && !isPlaying && (
         <Button
           onClick={playReadyAudio}
-          className="flex items-center gap-3 px-6 py-3 h-auto min-h-[50px] rounded-full text-white bg-green-600 hover:bg-green-700 font-bold text-lg shadow-xl border-2 border-green-400/50 backdrop-blur-sm"
+          className="flex items-center gap-3 px-6 py-3 h-auto min-h-[50px] rounded-full text-white bg-green-600 hover:bg-green-700 font-bold text-lg shadow-xl border-2 border-green-400/50 backdrop-blur-sm crisp-text"
         >
           <Play className="w-5 h-5" />
           Play Sacred Voice
@@ -86,12 +86,18 @@ export const VoicePlayer: React.FC<VoicePlayerProps> = ({ script, tone }) => {
       {isPlaying && (
         <Button
           onClick={stopAudio}
-          className="flex items-center gap-3 px-6 py-3 h-auto min-h-[50px] rounded-full text-white bg-red-500 hover:bg-red-600 font-bold text-lg shadow-xl border-2 border-red-400/50 backdrop-blur-sm"
+          className="flex items-center gap-3 px-6 py-3 h-auto min-h-[50px] rounded-full text-white bg-red-500 hover:bg-red-600 font-bold text-lg shadow-xl border-2 border-red-400/50 backdrop-blur-sm crisp-text"
         >
           <VolumeX className="w-5 h-5" />
           Stop Voice
         </Button>
       )}
+
+      {/* Fallback message when voice is unavailable */}
+      <div className="flex items-center text-amber-200 text-sm bg-amber-900/20 px-3 py-2 rounded-lg border border-amber-500/30">
+        <AlertTriangle className="w-4 h-4 mr-2" />
+        <span className="font-medium crisp-text">Voice service temporarily unavailable - continue with text guidance</span>
+      </div>
     </div>
   );
 };
