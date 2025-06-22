@@ -24,10 +24,11 @@ import { ThirdEyeActivation } from '@/components/spiritual/ThirdEyeActivation';
 import { ReferralSystem } from '@/components/spiritual/ReferralSystem';
 import { WisdomPhilosophy } from '@/components/spiritual/WisdomPhilosophy';
 import { PersonalGuidanceSystem } from '@/components/spiritual/PersonalGuidanceSystem';
+import { SoulArchetypeSystem } from '@/components/spiritual/SoulArchetypeSystem';
 
 const SpiritualDashboard = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('sync');
+  const [activeTab, setActiveTab] = useState('archetype'); // Changed default to showcase new feature
 
   const handleAssessmentComplete = () => {
     // Navigate to Seraphina chat after assessment completion
@@ -48,6 +49,10 @@ const SpiritualDashboard = () => {
         <TopNavigation activeTab={activeTab} onTabChange={setActiveTab} />
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsContent value="archetype">
+            <SoulArchetypeSystem />
+          </TabsContent>
+
           <TabsContent value="seraphina">
             <SoulGuideChat />
           </TabsContent>
