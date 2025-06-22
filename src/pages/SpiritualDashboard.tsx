@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { TopNavigation } from '@/components/spiritual/TopNavigation';
@@ -23,6 +22,8 @@ import AngelicAssistance from '@/components/spiritual/AngelicAssistance';
 import DivinationHub from '@/components/spiritual/DivinationHub';
 import { ThirdEyeActivation } from '@/components/spiritual/ThirdEyeActivation';
 import { ReferralSystem } from '@/components/spiritual/ReferralSystem';
+import { WisdomPhilosophy } from '@/components/spiritual/WisdomPhilosophy';
+import { PersonalGuidanceSystem } from '@/components/spiritual/PersonalGuidanceSystem';
 
 const SpiritualDashboard = () => {
   const { user } = useAuth();
@@ -117,6 +118,14 @@ const SpiritualDashboard = () => {
 
           <TabsContent value="referrals">
             <ReferralSystem />
+          </TabsContent>
+
+          <TabsContent value="wisdom">
+            <WisdomPhilosophy />
+          </TabsContent>
+
+          <TabsContent value="guidance">
+            <PersonalGuidanceSystem />
           </TabsContent>
         </Tabs>
       </div>
