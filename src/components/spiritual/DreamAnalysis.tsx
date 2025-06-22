@@ -25,17 +25,32 @@ export const DreamAnalysis = () => {
   }, [dreams]);
 
   const handleAnalyzeDream = async (dreamId: string, content: string) => {
+    console.log('handleAnalyzeDream called with:', { dreamId, content });
+    
+    if (!content || content.trim().length === 0) {
+      toast({
+        title: "Cannot Analyze",
+        description: "Dream content is empty",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       setAnalyzingDream(dreamId);
+      console.log('Starting analysis for dream:', dreamId);
+      
       await analyzeDream(dreamId, content);
+      
       toast({
         title: "Dream Analyzed",
         description: "Your dream has been analyzed with AI insights",
       });
     } catch (error: any) {
+      console.error('Analysis failed:', error);
       toast({
         title: "Analysis Failed",
-        description: error.message,
+        description: error.message || "Could not analyze your dream. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -186,14 +201,14 @@ export const DreamAnalysis = () => {
                     
                     <div className="flex flex-wrap gap-2 mb-2">
                       {dream.emotions?.slice(0, 3).map((emotion, index) => (
-                        <Button key={index} variant="outline" className="border-blue-400 text-blue-200">
+                        <Badge key={index} variant="outline" className="border-blue-400 text-blue-200">
                           {emotion}
-                        </Button>
+                        </Badge>
                       ))}
                       {dream.emotions && dream.emotions.length > 3 && (
-                        <Button variant="outline" className="border-blue-400 text-blue-200">
+                        <Badge variant="outline" className="border-blue-400 text-blue-200">
                           +{dream.emotions.length - 3} more
-                        </Button>
+                        </Badge>
                       )}
                     </div>
                     

@@ -59,6 +59,18 @@ export const useDreams = () => {
   };
 
   const analyzeDream = async (dreamId: string, content: string) => {
+    console.log('Starting dream analysis for:', dreamId);
+    
+    if (!user) {
+      console.error('No user found for dream analysis');
+      throw new Error('Must be logged in to analyze dreams');
+    }
+
+    if (!content || content.trim().length === 0) {
+      console.error('Empty dream content provided');
+      throw new Error('Dream content cannot be empty');
+    }
+
     try {
       const systemPrompt = `You are a Jungian dream analyst with deep knowledge of symbolism, archetypes, and the collective unconscious. Analyze this dream and provide:
 
@@ -67,8 +79,10 @@ export const useDreams = () => {
 3. Emotional/psychological insights
 4. Guidance for the dreamer
 
-Keep the analysis compassionate, insightful, and practical. Focus on personal growth and self-understanding.`;
+Keep the analysis compassionate, insightful, and practical. Focus on personal growth and self-understanding. Provide a meaningful interpretation that helps the dreamer understand their subconscious mind.`;
 
+      console.log('Calling Gemini API for dream analysis...');
+      
       const response = await generateGeminiResponse({
         message: `Please analyze this dream: "${content}"`,
         systemPrompt,
@@ -81,45 +95,55 @@ Keep the analysis compassionate, insightful, and practical. Focus on personal gr
         }
       });
 
+      console.log('Gemini response received:', response);
+
+      if (!response || !response.response || response.response.trim().length === 0) {
+        throw new Error('Empty response from AI analysis service');
+      }
+
       // Enhanced symbol detection
       const symbolWords = [
-        'water', 'ocean', 'sea', 'river', 'lake', 'swimming', 'drowning',
-        'flying', 'falling', 'floating', 'soaring',
-        'animal', 'animals', 'dog', 'cat', 'snake', 'bird', 'wolf', 'lion',
-        'death', 'dying', 'dead', 'funeral', 'grave', 'cemetery',
-        'house', 'home', 'building', 'room', 'door', 'window',
-        'tree', 'forest', 'woods', 'garden', 'flower', 'plant',
-        'fire', 'flame', 'burning', 'smoke',
-        'darkness', 'dark', 'shadow', 'night',
-        'light', 'bright', 'sun', 'moon', 'star',
-        'mirror', 'reflection', 'glass',
-        'stairs', 'ladder', 'climbing', 'steps',
-        'car', 'driving', 'vehicle', 'journey', 'travel',
-        'baby', 'child', 'children', 'birth',
-        'wedding', 'marriage', 'bride', 'groom',
-        'school', 'teacher', 'student', 'exam', 'test'
+        'water', 'ocean', 'sea', 'river', 'lake', 'swimming', 'drowning', 'rain', 'flood',
+        'flying', 'falling', 'floating', 'soaring', 'wings',
+        'animal', 'animals', 'dog', 'cat', 'snake', 'bird', 'wolf', 'lion', 'bear', 'spider',
+        'death', 'dying', 'dead', 'funeral', 'grave', 'cemetery', 'ghost',
+        'house', 'home', 'building', 'room', 'door', 'window', 'stairs', 'basement', 'attic',
+        'tree', 'forest', 'woods', 'garden', 'flower', 'plant', 'grass',
+        'fire', 'flame', 'burning', 'smoke', 'explosion',
+        'darkness', 'dark', 'shadow', 'night', 'black',
+        'light', 'bright', 'sun', 'moon', 'star', 'white', 'gold',
+        'mirror', 'reflection', 'glass', 'window',
+        'car', 'driving', 'vehicle', 'journey', 'travel', 'road', 'path',
+        'baby', 'child', 'children', 'birth', 'pregnancy',
+        'wedding', 'marriage', 'bride', 'groom', 'kiss',
+        'school', 'teacher', 'student', 'exam', 'test', 'classroom',
+        'blood', 'wound', 'injury', 'healing', 'medicine',
+        'money', 'gold', 'treasure', 'jewelry', 'wealth'
       ];
       
-      const symbolMatches = content.toLowerCase().match(
-        new RegExp(`\\b(${symbolWords.join('|')})(s|es|ing|ed)?\\b`, 'g')
+      const contentLower = content.toLowerCase();
+      const detectedSymbols = symbolWords.filter(symbol => 
+        contentLower.includes(symbol)
       );
-      
-      const detectedSymbols = symbolMatches ? [...new Set(symbolMatches)] : [];
+
+      console.log('Detected symbols:', detectedSymbols);
 
       // Update the dream with analysis and detected symbols
-      const { error } = await supabase
+      const { error: updateError } = await supabase
         .from('dreams')
         .update({ 
           analysis: response.response,
           symbols: detectedSymbols
         })
         .eq('id', dreamId)
-        .eq('user_id', user!.id);
+        .eq('user_id', user.id);
 
-      if (error) {
-        console.error('Error updating dream analysis:', error);
-        throw error;
+      if (updateError) {
+        console.error('Error updating dream analysis:', updateError);
+        throw updateError;
       }
+
+      console.log('Dream analysis updated successfully');
 
       // Refresh dreams to get updated data
       await fetchDreams();
@@ -134,10 +158,10 @@ Keep the analysis compassionate, insightful, and practical. Focus on personal gr
       console.error('Dream analysis error:', error);
       toast({
         title: "Analysis Failed",
-        description: "Could not analyze your dream. Please try again.",
+        description: error.message || "Could not analyze your dream. Please try again.",
         variant: "destructive"
       });
-      throw new Error('Failed to analyze dream');
+      throw error;
     }
   };
 
@@ -154,25 +178,23 @@ Keep the analysis compassionate, insightful, and practical. Focus on personal gr
     try {
       // Basic symbol detection for new dreams
       const symbolWords = [
-        'water', 'ocean', 'sea', 'river', 'lake',
-        'flying', 'falling', 'floating',
+        'water', 'ocean', 'sea', 'river', 'lake', 'rain',
+        'flying', 'falling', 'floating', 'wings',
         'animal', 'animals', 'dog', 'cat', 'snake', 'bird',
-        'death', 'dying', 'dead',
+        'death', 'dying', 'dead', 'ghost',
         'house', 'home', 'building', 'room', 'door',
         'tree', 'forest', 'woods', 'garden',
         'fire', 'flame', 'burning',
         'darkness', 'dark', 'shadow',
         'light', 'bright', 'sun', 'moon',
         'mirror', 'reflection',
-        'stairs', 'ladder', 'climbing',
         'car', 'driving', 'vehicle'
       ];
       
-      const symbolMatches = dreamData.content.toLowerCase().match(
-        new RegExp(`\\b(${symbolWords.join('|')})(s|es|ing|ed)?\\b`, 'g')
+      const contentLower = dreamData.content.toLowerCase();
+      const detectedSymbols = symbolWords.filter(symbol => 
+        contentLower.includes(symbol)
       );
-      
-      const detectedSymbols = symbolMatches ? [...new Set(symbolMatches)] : [];
 
       const { error } = await supabase
         .from('dreams')
