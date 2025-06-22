@@ -117,7 +117,7 @@ export const AmbientController: React.FC<AmbientControllerProps> = ({
     return (
       <Card className="bg-gray-800/50 border-gray-600">
         <CardContent className="p-4">
-          <div className="text-center text-gray-400">
+          <div className="text-center text-white font-bold text-lg crisp-text">
             Initializing ambient soundscapes...
           </div>
         </CardContent>
@@ -131,11 +131,11 @@ export const AmbientController: React.FC<AmbientControllerProps> = ({
         <CardTitle className="flex items-center justify-between text-white">
           <div className="flex items-center gap-3">
             <Headphones className="w-5 h-5 text-purple-400" />
-            <span className="crisp-text">Ambient Soundscape</span>
+            <span className="crisp-text text-xl font-bold">Ambient Soundscape</span>
           </div>
           <div className="flex items-center gap-2">
             {getWeatherIcon()}
-            <Badge className={`bg-gradient-to-r ${getTimeOfDayColor()} text-white`}>
+            <Badge className={`bg-gradient-to-r ${getTimeOfDayColor()} text-white font-bold text-sm`}>
               {ambientSoundService.getCurrentContext().timeOfDay}
             </Badge>
           </div>
@@ -147,7 +147,7 @@ export const AmbientController: React.FC<AmbientControllerProps> = ({
         <div className="flex items-center justify-between">
           <Button
             onClick={togglePlayback}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold crisp-text ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-lg crisp-text ${
               isPlaying 
                 ? 'bg-purple-600 hover:bg-purple-700' 
                 : 'bg-green-600 hover:bg-green-700'
@@ -161,7 +161,7 @@ export const AmbientController: React.FC<AmbientControllerProps> = ({
             onClick={() => setShowSettings(!showSettings)}
             variant="outline"
             size="sm"
-            className="border-gray-600 text-gray-300 hover:bg-gray-700"
+            className="border-gray-600 text-white hover:bg-gray-700 font-bold crisp-text"
           >
             <Settings className="w-4 h-4" />
           </Button>
@@ -169,25 +169,25 @@ export const AmbientController: React.FC<AmbientControllerProps> = ({
 
         {/* Current Profile */}
         {currentProfile && (
-          <div className="bg-gray-700/50 rounded-lg p-3">
+          <div className="bg-gray-700/50 rounded-lg p-3 border border-gray-600">
             <div className="flex items-center justify-between mb-2">
-              <h4 className="text-white font-semibold crisp-text">{currentProfile.name}</h4>
-              <Badge variant="secondary" className="bg-purple-600/20 text-purple-200">
+              <h4 className="text-white font-bold text-lg crisp-text">{currentProfile.name}</h4>
+              <Badge variant="secondary" className="bg-purple-600/20 text-purple-100 font-bold border border-purple-400">
                 Active
               </Badge>
             </div>
-            <p className="text-gray-300 text-sm crisp-text">{currentProfile.description}</p>
+            <p className="text-gray-100 text-base font-semibold crisp-text">{currentProfile.description}</p>
           </div>
         )}
 
         {/* Master Volume */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-white font-medium text-sm crisp-text">Master Volume</label>
-            <span className="text-gray-300 text-sm crisp-text">{masterVolume}%</span>
+            <label className="text-white font-bold text-lg crisp-text">Master Volume</label>
+            <span className="text-white font-bold text-lg crisp-text">{masterVolume}%</span>
           </div>
           <div className="flex items-center gap-3">
-            <VolumeX className="w-4 h-4 text-gray-400" />
+            <VolumeX className="w-4 h-4 text-gray-200" />
             <Slider
               value={[masterVolume]}
               onValueChange={handleMasterVolumeChange}
@@ -195,30 +195,30 @@ export const AmbientController: React.FC<AmbientControllerProps> = ({
               step={1}
               className="flex-1"
             />
-            <Volume2 className="w-4 h-4 text-gray-400" />
+            <Volume2 className="w-4 h-4 text-gray-200" />
           </div>
         </div>
 
         {/* Layer Controls */}
         {showSettings && activeLayers.length > 0 && (
-          <div className="space-y-3 pt-2 border-t border-gray-700">
-            <h5 className="text-white font-semibold text-sm crisp-text">Layer Controls</h5>
+          <div className="space-y-3 pt-2 border-t border-gray-600">
+            <h5 className="text-white font-bold text-lg crisp-text">Layer Controls</h5>
             {activeLayers.map((layer) => (
-              <div key={layer.id} className="bg-gray-700/30 rounded-lg p-3">
+              <div key={layer.id} className="bg-gray-700/30 rounded-lg p-3 border border-gray-600">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <Badge 
-                      className={`text-xs ${
-                        layer.type === 'nature' ? 'bg-green-600' :
-                        layer.type === 'instrument' ? 'bg-blue-600' :
-                        'bg-purple-600'
+                      className={`text-sm font-bold ${
+                        layer.type === 'nature' ? 'bg-green-600 text-white' :
+                        layer.type === 'instrument' ? 'bg-blue-600 text-white' :
+                        'bg-purple-600 text-white'
                       }`}
                     >
                       {layer.type}
                     </Badge>
-                    <span className="text-white text-sm font-medium crisp-text">{layer.name}</span>
+                    <span className="text-white text-base font-bold crisp-text">{layer.name}</span>
                   </div>
-                  <Badge variant="outline" className="text-xs">
+                  <Badge variant="outline" className="text-sm font-bold text-white border-white">
                     {layer.density}
                   </Badge>
                 </div>
@@ -236,8 +236,8 @@ export const AmbientController: React.FC<AmbientControllerProps> = ({
 
         {/* Profile Selector */}
         {showSettings && (
-          <div className="space-y-3 pt-2 border-t border-gray-700">
-            <h5 className="text-white font-semibold text-sm crisp-text">Available Profiles</h5>
+          <div className="space-y-3 pt-2 border-t border-gray-600">
+            <h5 className="text-white font-bold text-lg crisp-text">Available Profiles</h5>
             <div className="grid grid-cols-1 gap-2">
               {soundProfiles.map((profile) => (
                 <Button
@@ -251,11 +251,11 @@ export const AmbientController: React.FC<AmbientControllerProps> = ({
                   }}
                   variant={currentProfile?.id === profile.id ? "default" : "outline"}
                   size="sm"
-                  className="justify-start text-left"
+                  className="justify-start text-left p-3 h-auto"
                 >
                   <div>
-                    <div className="font-medium crisp-text">{profile.name}</div>
-                    <div className="text-xs text-gray-400 crisp-text">{profile.description}</div>
+                    <div className="font-bold text-base crisp-text text-white">{profile.name}</div>
+                    <div className="text-sm text-gray-200 font-semibold crisp-text">{profile.description}</div>
                   </div>
                 </Button>
               ))}
