@@ -1,8 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Target, Heart, Lightbulb } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Clock, Target, Heart, Lightbulb, Info } from 'lucide-react';
 
 interface StageNarrativeProps {
   stageIndex: number;
@@ -11,6 +13,91 @@ interface StageNarrativeProps {
 }
 
 export const StageNarrative: React.FC<StageNarrativeProps> = ({ stageIndex, stage, duration }) => {
+  const [selectedTerm, setSelectedTerm] = useState<string | null>(null);
+
+  const termDefinitions: Record<string, { title: string; explanation: string; benefits: string[] }> = {
+    'sacred foundation': {
+      title: 'Sacred Foundation',
+      explanation: 'A sacred foundation refers to the energetic and spiritual preparation needed before engaging in advanced spiritual practices. It involves creating a protected, consecrated space within your energy field that acts as a stable base for higher consciousness work.',
+      benefits: [
+        'Prevents spiritual overwhelm and energy imbalances',
+        'Creates a protective barrier against negative influences',
+        'Establishes clear intention and focus for your practice',
+        'Connects you to divine guidance and protection'
+      ]
+    },
+    'negative energies': {
+      title: 'Negative Energies',
+      explanation: 'Negative energies are dense, low-vibrational forces that can accumulate in your energy field from stress, negative thoughts, toxic environments, or interactions with others. These energies can block spiritual progress and cause physical or emotional discomfort.',
+      benefits: [
+        'Clearing improves mental clarity and emotional stability',
+        'Removes energetic blockages that limit spiritual growth',
+        'Increases your natural psychic sensitivity',
+        'Enhances overall well-being and vitality'
+      ]
+    },
+    'protective boundaries': {
+      title: 'Protective Boundaries',
+      explanation: 'Protective boundaries are energetic shields that you consciously create around your aura and energy field. These boundaries filter out harmful energies while allowing positive, beneficial energies to flow freely.',
+      benefits: [
+        'Prevents energy drain from others',
+        'Maintains your spiritual sovereignty',
+        'Allows safe exploration of higher consciousness',
+        'Protects against psychic attacks or interference'
+      ]
+    },
+    'pineal gland': {
+      title: 'Pineal Gland',
+      explanation: 'The pineal gland is a small, pine cone-shaped endocrine gland located in the center of your brain. Often called the "third eye," it produces melatonin and is believed to be the physical seat of spiritual vision and higher consciousness.',
+      benefits: [
+        'Activates natural psychic abilities and intuition',
+        'Regulates sleep cycles and circadian rhythms',
+        'Enhances spiritual awareness and perception',
+        'Facilitates deeper meditation and altered states'
+      ]
+    },
+    'dormant neural pathways': {
+      title: 'Dormant Neural Pathways',
+      explanation: 'These are unused or underutilized connections in your brain that can be activated through specific practices. When awakened, these pathways can enhance cognitive function, intuitive abilities, and spiritual perception.',
+      benefits: [
+        'Increases mental processing speed and clarity',
+        'Enhances creative and intuitive thinking',
+        'Improves memory and cognitive flexibility',
+        'Unlocks latent psychic and spiritual abilities'
+      ]
+    },
+    'Third Eye center': {
+      title: 'Third Eye Center (Ajna Chakra)',
+      explanation: 'The Third Eye center, or Ajna chakra, is located between your eyebrows and is the energy center associated with intuition, inner wisdom, and spiritual sight. It\'s the gateway to higher consciousness and psychic perception.',
+      benefits: [
+        'Develops clairvoyant and psychic abilities',
+        'Enhances intuitive decision-making',
+        'Provides access to higher wisdom and guidance',
+        'Increases spiritual awareness and insight'
+      ]
+    },
+    'sacred geometric patterns': {
+      title: 'Sacred Geometric Patterns',
+      explanation: 'Sacred geometry consists of universal patterns and mathematical relationships found throughout nature and the cosmos. These patterns, like the Sri Yantra or Flower of Life, carry specific vibrational frequencies that can program consciousness.',
+      benefits: [
+        'Harmonizes and balances your energy field',
+        'Creates lasting changes in consciousness',
+        'Connects you to universal cosmic patterns',
+        'Enhances manifestation and spiritual power'
+      ]
+    },
+    'higher wisdom': {
+      title: 'Higher Wisdom',
+      explanation: 'Higher wisdom refers to knowledge and understanding that comes from your higher self, spirit guides, or divine consciousness. This wisdom transcends ordinary thinking and provides profound insights into life\'s deeper meanings.',
+      benefits: [
+        'Provides clarity on life purpose and direction',
+        'Offers solutions to complex personal challenges',
+        'Connects you to universal truths and principles',
+        'Enhances spiritual maturity and understanding'
+      ]
+    }
+  };
+
   const narratives = [
     {
       purpose: "Create a sacred foundation for your spiritual work by clearing negative energies and establishing protective boundaries.",
@@ -47,6 +134,22 @@ export const StageNarrative: React.FC<StageNarrativeProps> = ({ stageIndex, stag
   const currentNarrative = narratives[stageIndex];
   const Icon = stage.icon;
 
+  const renderTextWithLinks = (text: string) => {
+    const terms = Object.keys(termDefinitions);
+    let result = text;
+    
+    terms.forEach(term => {
+      const regex = new RegExp(`(${term})`, 'gi');
+      result = result.replace(regex, `<span class="clickable-term" data-term="${term}">$1</span>`);
+    });
+    
+    return result;
+  };
+
+  const handleTermClick = (term: string) => {
+    setSelectedTerm(term);
+  };
+
   return (
     <Card className="bg-gray-800 border-gray-700 shadow-2xl mb-6 mobile-backdrop">
       <CardHeader>
@@ -73,7 +176,20 @@ export const StageNarrative: React.FC<StageNarrativeProps> = ({ stageIndex, stag
               <Target className="w-4 h-4 md:w-5 md:h-5 text-blue-400" />
               <h4 className="font-semibold text-white text-sm md:text-base crisp-text">Purpose of This Stage</h4>
             </div>
-            <p className="text-gray-300 leading-relaxed text-sm md:text-base">{currentNarrative.purpose}</p>
+            <div 
+              className="text-gray-300 leading-relaxed text-sm md:text-base"
+              dangerouslySetInnerHTML={{ __html: renderTextWithLinks(currentNarrative.purpose) }}
+              onClick={(e) => {
+                const target = e.target as HTMLElement;
+                if (target.classList.contains('clickable-term')) {
+                  const term = target.getAttribute('data-term');
+                  if (term) handleTermClick(term);
+                }
+              }}
+              style={{
+                cursor: 'pointer'
+              }}
+            />
           </div>
 
           <div className="bg-gray-700 rounded-lg p-4 border border-gray-600">
@@ -97,10 +213,67 @@ export const StageNarrative: React.FC<StageNarrativeProps> = ({ stageIndex, stag
               <Lightbulb className="w-4 h-4 md:w-5 md:h-5 text-yellow-400" />
               <h4 className="font-semibold text-white text-sm md:text-base crisp-text">Building Your Journey</h4>
             </div>
-            <p className="text-gray-300 leading-relaxed text-sm md:text-base">{currentNarrative.buildUp}</p>
+            <div 
+              className="text-gray-300 leading-relaxed text-sm md:text-base"
+              dangerouslySetInnerHTML={{ __html: renderTextWithLinks(currentNarrative.buildUp) }}
+              onClick={(e) => {
+                const target = e.target as HTMLElement;
+                if (target.classList.contains('clickable-term')) {
+                  const term = target.getAttribute('data-term');
+                  if (term) handleTermClick(term);
+                }
+              }}
+              style={{
+                cursor: 'pointer'
+              }}
+            />
           </div>
         </div>
+
+        {/* Term Definition Dialog */}
+        {selectedTerm && termDefinitions[selectedTerm] && (
+          <Dialog open={!!selectedTerm} onOpenChange={() => setSelectedTerm(null)}>
+            <DialogContent className="bg-gray-800 border-gray-600 text-white max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2 text-purple-300">
+                  <Info className="w-5 h-5" />
+                  {termDefinitions[selectedTerm].title}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <p className="text-gray-300 leading-relaxed">
+                  {termDefinitions[selectedTerm].explanation}
+                </p>
+                <div>
+                  <h4 className="font-semibold text-cyan-300 mb-2">Benefits:</h4>
+                  <ul className="space-y-1 text-sm">
+                    {termDefinitions[selectedTerm].benefits.map((benefit, index) => (
+                      <li key={index} className="flex items-start gap-2 text-cyan-100">
+                        <div className="w-2 h-2 bg-cyan-400 rounded-full flex-shrink-0 mt-2"></div>
+                        <span>{benefit}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
       </CardContent>
+
+      <style jsx>{`
+        .clickable-term {
+          color: #a78bfa;
+          text-decoration: underline;
+          cursor: pointer;
+          font-weight: 600;
+          transition: color 0.2s ease;
+        }
+        .clickable-term:hover {
+          color: #c4b5fd;
+          text-shadow: 0 0 4px rgba(167, 139, 250, 0.5);
+        }
+      `}</style>
     </Card>
   );
 };
