@@ -1,5 +1,5 @@
+
 import React from 'react';
-import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Home, MessageCircle, CreditCard, Settings, Users, BarChart3, Sun, Moon, Eye, Search, Plus, Download, Brain, Star, Shield, Heart, Crown } from "lucide-react";
 
 interface TopNavigationProps {
@@ -33,13 +33,12 @@ const navigationItems = [
 
 export const TopNavigation: React.FC<TopNavigationProps> = ({ activeTab, onTabChange }) => {
   return (
-    <TabsList className="grid grid-cols-4 md:grid-cols-8 lg:grid-cols-12 gap-2 mb-4">
+    <div className="grid grid-cols-4 md:grid-cols-8 lg:grid-cols-12 gap-2 mb-4">
       {navigationItems.map((item) => (
-        <TabsTrigger
+        <button
           key={item.id}
-          value={item.id}
           onClick={() => onTabChange(item.id)}
-          className={`flex flex-col items-center justify-center py-2 rounded-md text-sm
+          className={`flex flex-col items-center justify-center py-2 rounded-md text-sm transition-colors
             ${activeTab === item.id
               ? 'bg-purple-700 text-white'
               : 'bg-gray-800 text-purple-300 hover:text-white hover:bg-purple-600'
@@ -47,8 +46,8 @@ export const TopNavigation: React.FC<TopNavigationProps> = ({ activeTab, onTabCh
         >
           <item.icon className="w-4 h-4 mb-1" />
           {item.label}
-        </TabsTrigger>
+        </button>
       ))}
-    </TabsList>
+    </div>
   );
 };
