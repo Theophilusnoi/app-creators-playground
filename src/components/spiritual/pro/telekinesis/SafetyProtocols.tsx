@@ -105,6 +105,39 @@ export const SafetyProtocols: React.FC<SafetyProtocolsProps> = ({ onSafetyCheckC
     }
   };
 
+  const getCategoryButtonClass = (categoryKey: string, category: any) => {
+    if (activeSection === categoryKey) {
+      return `bg-${category.color}-600 hover:bg-${category.color}-700`;
+    }
+    return `border-${category.color}-400/30 text-${category.color}-200 hover:bg-${category.color}-600/20`;
+  };
+
+  const getCategoryCardClass = (category: any) => {
+    return `bg-${category.color}-900/20 border-${category.color}-500/30`;
+  };
+
+  const getCategoryTitleClass = (category: any) => {
+    return `text-${category.color}-200 flex items-center gap-2`;
+  };
+
+  const getItemClass = (category: any, isChecked: boolean) => {
+    if (isChecked) {
+      return `bg-${category.color}-800/30 border-${category.color}-600/50`;
+    }
+    return `bg-${category.color}-800/10 border-${category.color}-600/20 hover:bg-${category.color}-800/20`;
+  };
+
+  const getCheckboxClass = (category: any, isChecked: boolean) => {
+    if (isChecked) {
+      return `bg-${category.color}-600 border-${category.color}-600`;
+    }
+    return `border-${category.color}-400`;
+  };
+
+  const getItemTextClass = (category: any) => {
+    return `text-${category.color}-200 text-sm`;
+  };
+
   return (
     <div className="space-y-6">
       <Card className="bg-red-900/20 border-red-500/30">
@@ -127,9 +160,7 @@ export const SafetyProtocols: React.FC<SafetyProtocolsProps> = ({ onSafetyCheckC
 
             <div className="flex items-center justify-between">
               <span className="text-red-200">Safety Check Progress:</span>
-              <Badge className={`${
-                allItemsChecked ? 'bg-green-600/20 text-green-200' : 'bg-red-600/20 text-red-200'
-              }`}>
+              <Badge className={allItemsChecked ? 'bg-green-600/20 text-green-200' : 'bg-red-600/20 text-red-200'}>
                 {getCheckedCount()} / {getTotalItems()} Acknowledged
               </Badge>
             </div>
@@ -142,11 +173,7 @@ export const SafetyProtocols: React.FC<SafetyProtocolsProps> = ({ onSafetyCheckC
                     key={key}
                     onClick={() => setActiveSection(key)}
                     variant={activeSection === key ? "default" : "outline"}
-                    className={`${
-                      activeSection === key 
-                        ? `bg-${category.color}-600 hover:bg-${category.color}-700` 
-                        : `border-${category.color}-400/30 text-${category.color}-200 hover:bg-${category.color}-600/20`
-                    }`}
+                    className={getCategoryButtonClass(key, category)}
                   >
                     <IconComponent className="w-4 h-4 mr-2" />
                     {category.title}
@@ -159,9 +186,9 @@ export const SafetyProtocols: React.FC<SafetyProtocolsProps> = ({ onSafetyCheckC
       </Card>
 
       {activeSection && (
-        <Card className={`bg-${safetyCategories[activeSection as keyof typeof safetyCategories].color}-900/20 border-${safetyCategories[activeSection as keyof typeof safetyCategories].color}-500/30`}>
+        <Card className={getCategoryCardClass(safetyCategories[activeSection as keyof typeof safetyCategories])}>
           <CardHeader>
-            <CardTitle className={`text-${safetyCategories[activeSection as keyof typeof safetyCategories].color}-200 flex items-center gap-2`}>
+            <CardTitle className={getCategoryTitleClass(safetyCategories[activeSection as keyof typeof safetyCategories])}>
               <safetyCategories[activeSection as keyof typeof safetyCategories].icon className="w-5 h-5" />
               {safetyCategories[activeSection as keyof typeof safetyCategories].title}
             </CardTitle>
@@ -171,25 +198,18 @@ export const SafetyProtocols: React.FC<SafetyProtocolsProps> = ({ onSafetyCheckC
               {safetyCategories[activeSection as keyof typeof safetyCategories].items.map((item, index) => {
                 const key = `${activeSection}-${index}`;
                 const isChecked = checkedItems[key] || false;
+                const currentCategory = safetyCategories[activeSection as keyof typeof safetyCategories];
                 
                 return (
                   <div 
                     key={index}
-                    className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
-                      isChecked 
-                        ? `bg-${safetyCategories[activeSection as keyof typeof safetyCategories].color}-800/30 border-${safetyCategories[activeSection as keyof typeof safetyCategories].color}-600/50`
-                        : `bg-${safetyCategories[activeSection as keyof typeof safetyCategories].color}-800/10 border-${safetyCategories[activeSection as keyof typeof safetyCategories].color}-600/20 hover:bg-${safetyCategories[activeSection as keyof typeof safetyCategories].color}-800/20`
-                    }`}
+                    className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${getItemClass(currentCategory, isChecked)}`}
                     onClick={() => handleItemCheck(activeSection, index)}
                   >
-                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                      isChecked 
-                        ? `bg-${safetyCategories[activeSection as keyof typeof safetyCategories].color}-600 border-${safetyCategories[activeSection as keyof typeof safetyCategories].color}-600`
-                        : `border-${safetyCategories[activeSection as keyof typeof safetyCategories].color}-400`
-                    }`}>
+                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${getCheckboxClass(currentCategory, isChecked)}`}>
                       {isChecked && <span className="text-white text-xs">✓</span>}
                     </div>
-                    <span className={`text-${safetyCategories[activeSection as keyof typeof safetyCategories].color}-200 text-sm`}>
+                    <span className={getItemTextClass(currentCategory)}>
                       {item}
                     </span>
                   </div>
