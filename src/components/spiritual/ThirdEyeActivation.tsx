@@ -10,6 +10,7 @@ import { ActivationStage } from './thirdEye/ActivationStage';
 import { ZodiacProfile } from './thirdEye/ZodiacProfile';
 import { ProgressTracker } from './thirdEye/ProgressTracker';
 import { SafetyProtocols } from './thirdEye/SafetyProtocols';
+import { WelcomeModal } from './thirdEye/WelcomeModal';
 import { useThirdEyeProgress } from '@/hooks/useThirdEyeProgress';
 
 interface ThirdEyeActivationProps {
@@ -19,6 +20,7 @@ interface ThirdEyeActivationProps {
 export const ThirdEyeActivation: React.FC<ThirdEyeActivationProps> = ({ onComplete }) => {
   const [activeStage, setActiveStage] = useState(0);
   const [zodiacProfile, setZodiacProfile] = useState<any>(null);
+  const [showWelcome, setShowWelcome] = useState(true);
   const { progress, updateProgress, milestones } = useThirdEyeProgress();
 
   const stages = [
@@ -68,8 +70,24 @@ export const ThirdEyeActivation: React.FC<ThirdEyeActivationProps> = ({ onComple
     }
   };
 
+  const handleWelcomeClose = () => {
+    setShowWelcome(false);
+  };
+
+  const handleBeginJourney = () => {
+    setShowWelcome(false);
+    setActiveStage(0);
+  };
+
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
+      {/* Welcome Modal */}
+      <WelcomeModal
+        open={showWelcome}
+        onClose={handleWelcomeClose}
+        onBegin={handleBeginJourney}
+      />
+
       {/* Header */}
       <Card className="bg-gradient-to-r from-purple-900/50 to-indigo-900/50 border-purple-400/30">
         <CardHeader className="text-center">
@@ -86,6 +104,14 @@ export const ThirdEyeActivation: React.FC<ThirdEyeActivationProps> = ({ onComple
             <Badge className="bg-indigo-600/20 text-indigo-200">
               {Math.round(progress.overallProgress)}% Activated
             </Badge>
+            <Button
+              onClick={() => setShowWelcome(true)}
+              variant="outline"
+              size="sm"
+              className="border-purple-400/50 text-purple-200 hover:bg-purple-400/20"
+            >
+              View Guide
+            </Button>
           </div>
         </CardHeader>
       </Card>
