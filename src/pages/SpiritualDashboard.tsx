@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { TopNavigation } from '@/components/spiritual/TopNavigation';
@@ -6,7 +7,7 @@ import SubscriptionStatus from '@/components/subscription/SubscriptionStatus';
 
 // Import all spiritual components
 import { SoulGuideChat } from '@/components/spiritual/SoulGuideChat';
-import { RitualActivationSystem } from '@/components/spiritual/RitualActivationSystem';
+import { RitualsDirectory } from '@/components/spiritual/RitualsDirectory';
 import { CulturalAdapter } from '@/components/spiritual/CulturalAdapter';
 import { CommunityHub } from '@/components/spiritual/CommunityHub';
 import { ProgressVisualization } from '@/components/spiritual/ProgressVisualization';
@@ -55,7 +56,7 @@ const SpiritualDashboard = () => {
           </TabsContent>
 
           <TabsContent value="rituals">
-            <RitualActivationSystem />
+            <RitualsDirectory />
           </TabsContent>
 
           <TabsContent value="cultural">

@@ -163,6 +163,12 @@
       border-width: 2px !important;
       min-height: 48px !important;
       color: white !important;
+      /* Fix blurry buttons on mobile */
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      -webkit-font-smoothing: subpixel-antialiased;
     }
     
     /* Enhanced tab styling for mobile */
@@ -173,6 +179,12 @@
       background: rgba(31, 41, 55, 0.95) !important;
       color: white !important;
       min-height: 48px !important;
+      /* Fix blurry tabs on mobile */
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      -webkit-font-smoothing: subpixel-antialiased;
     }
     
     /* Active tab state */
@@ -190,7 +202,7 @@
     }
     
     /* Enhanced visibility for highlighted elements */
-    .bg-purple-600\/20, .bg-purple-600\/30 {
+    .bg-purple-600\/20,. bg-purple-600\/30 {
       background: rgba(147, 51, 234, 0.9) !important;
       border-color: rgba(196, 181, 253, 0.9) !important;
       color: white !important;
@@ -237,6 +249,16 @@
     * {
       text-shadow: 0 0 1px rgba(255, 255, 255, 0.1);
     }
+    
+    /* Fix blurry buttons on high DPI screens */
+    button {
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      -webkit-font-smoothing: subpixel-antialiased;
+      text-rendering: geometricPrecision;
+    }
   }
 }
 
@@ -259,6 +281,12 @@
     letter-spacing: 0.025em;
     position: relative;
     z-index: 2;
+    /* Additional crispness fixes */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    text-rendering: geometricPrecision;
   }
   
   .text-shadow-sm {
@@ -291,6 +319,12 @@
       padding: 12px 20px !important;
       letter-spacing: 0.025em !important;
       color: white !important;
+      /* Fix blurry buttons */
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      -webkit-font-smoothing: subpixel-antialiased;
     }
   }
   
@@ -304,6 +338,12 @@
       color: white !important;
       min-height: 48px !important;
       padding: 12px 16px !important;
+      /* Fix blurry tabs */
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      -webkit-font-smoothing: subpixel-antialiased;
     }
   }
   
@@ -315,5 +355,16 @@
     padding: 2px 6px;
     border-radius: 4px;
     display: inline-block;
+  }
+  
+  /* Crisp button rendering fix */
+  .crisp-button {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: subpixel-antialiased;
+    text-rendering: geometricPrecision;
+    will-change: transform;
   }
 }
