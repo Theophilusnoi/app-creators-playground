@@ -1,4 +1,3 @@
-
 export interface SoundLayer {
   id: string;
   name: string;
@@ -32,7 +31,7 @@ export interface SoundProfile {
 export interface AmbientContext {
   time: Date;
   timeOfDay: 'dawn' | 'morning' | 'afternoon' | 'evening' | 'night';
-  weather?: string;
+  weather?: 'clear' | 'cloudy' | 'rainy' | 'windy' | 'snow';
   location?: string;
   meditationType?: string;
   userSensitivity: number; // 1-5 scale
@@ -41,7 +40,7 @@ export interface AmbientContext {
 class AmbientSoundService {
   private audioContext: AudioContext | null = null;
   private layers: Map<string, {
-    source: AudioBufferSource;
+    source: AudioBufferSourceNode;
     gainNode: GainNode;
     pannerNode: StereoPannerNode;
     buffer: AudioBuffer;
@@ -199,7 +198,7 @@ class AmbientSoundService {
     return {
       time: now,
       timeOfDay,
-      weather: 'clear', // Would integrate with weather API
+      weather: 'clear' as const, // Fixed: properly typed as const
       userSensitivity: 3 // Default medium sensitivity
     };
   }
