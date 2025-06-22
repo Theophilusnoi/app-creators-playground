@@ -27,13 +27,13 @@ export const PracticeControls: React.FC<PracticeControlsProps> = ({
   const totalSeconds = duration * 60;
 
   return (
-    <div className="flex justify-center gap-4 p-4">
+    <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4 p-2 md:p-4 mobile-optimized">
       {!isActive && timeRemaining === totalSeconds && (
         <Button 
           onClick={onStart} 
-          className="bg-green-600 hover:bg-green-700 text-white font-bold text-lg px-8 py-4 h-auto min-h-[60px] shadow-xl border-2 border-green-400/50"
+          className="bg-green-600 hover:bg-green-700 text-white font-bold text-base md:text-lg px-6 md:px-8 py-3 md:py-4 h-auto min-h-[50px] shadow-xl border-2 border-green-400 crisp-text"
         >
-          <Play className="w-6 h-6 mr-3" />
+          <Play className="w-5 h-5 md:w-6 md:h-6 mr-2 md:mr-3" />
           Begin Practice
         </Button>
       )}
@@ -43,16 +43,16 @@ export const PracticeControls: React.FC<PracticeControlsProps> = ({
           <Button 
             onClick={onPause} 
             variant="outline" 
-            className="bg-white/20 backdrop-blur-sm border-2 border-white/40 text-white hover:bg-white/30 font-bold text-lg px-6 py-4 h-auto min-h-[60px] shadow-xl"
+            className="bg-gray-700 border-2 border-gray-600 text-white hover:bg-gray-600 font-bold text-base md:text-lg px-4 md:px-6 py-3 md:py-4 h-auto min-h-[50px] shadow-xl crisp-text"
           >
-            {isActive ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
+            {isActive ? <Pause className="w-5 h-5 md:w-6 md:h-6" /> : <Play className="w-5 h-5 md:w-6 md:h-6" />}
           </Button>
           <Button 
             onClick={onReset} 
             variant="outline"
-            className="bg-white/20 backdrop-blur-sm border-2 border-white/40 text-white hover:bg-white/30 font-bold text-lg px-6 py-4 h-auto min-h-[60px] shadow-xl"
+            className="bg-gray-700 border-2 border-gray-600 text-white hover:bg-gray-600 font-bold text-base md:text-lg px-4 md:px-6 py-3 md:py-4 h-auto min-h-[50px] shadow-xl crisp-text"
           >
-            <RotateCcw className="w-6 h-6" />
+            <RotateCcw className="w-5 h-5 md:w-6 md:h-6" />
           </Button>
         </>
       )}
@@ -60,9 +60,9 @@ export const PracticeControls: React.FC<PracticeControlsProps> = ({
       {isCompleted && (
         <Button 
           onClick={onComplete} 
-          className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-lg px-8 py-4 h-auto min-h-[60px] shadow-xl border-2 border-purple-400/50"
+          className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-base md:text-lg px-6 md:px-8 py-3 md:py-4 h-auto min-h-[50px] shadow-xl border-2 border-purple-400 crisp-text"
         >
-          <CheckCircle2 className="w-6 h-6 mr-3" />
+          <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 mr-2 md:mr-3" />
           Complete Stage
         </Button>
       )}

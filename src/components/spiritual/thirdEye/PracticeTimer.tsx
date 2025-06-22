@@ -21,13 +21,13 @@ export const PracticeTimer: React.FC<PracticeTimerProps> = ({
   const progressValue = ((totalSeconds - timeRemaining) / totalSeconds) * 100;
 
   return (
-    <div className="text-center space-y-6 p-4">
-      <div className="text-6xl md:text-8xl font-mono font-bold text-white drop-shadow-2xl bg-black/40 rounded-lg py-4 px-6 backdrop-blur-sm border border-white/20">
+    <div className="text-center space-y-4 md:space-y-6 p-2 md:p-4 mobile-optimized">
+      <div className="text-4xl md:text-6xl lg:text-8xl font-mono font-bold text-white bg-gray-800 rounded-lg py-3 md:py-4 px-4 md:px-6 border border-gray-600 crisp-text">
         {formatTime(timeRemaining)}
       </div>
       <div className="space-y-2">
-        <Progress value={progressValue} className="h-4 bg-black/50 border border-white/30" />
-        <div className="text-white text-lg font-semibold drop-shadow-lg">
+        <Progress value={progressValue} className="h-3 md:h-4 bg-gray-800 border border-gray-600" />
+        <div className="text-white text-base md:text-lg font-semibold crisp-text">
           {Math.round(progressValue)}% Complete
         </div>
       </div>

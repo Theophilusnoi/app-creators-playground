@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -99,5 +100,95 @@
 
   body {
     @apply bg-background text-foreground;
+    /* Mobile optimization for crisp text rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "kern" 1;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Mobile-specific optimizations */
+  @media (max-width: 768px) {
+    body {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    
+    /* Ensure minimum font sizes for readability */
+    .text-sm {
+      font-size: 14px !important;
+    }
+    
+    .text-xs {
+      font-size: 12px !important;
+    }
+    
+    /* Optimize backdrop blur for mobile */
+    .backdrop-blur-sm {
+      backdrop-filter: none;
+      background-color: rgba(0, 0, 0, 0.8) !important;
+    }
+    
+    .backdrop-blur-md {
+      backdrop-filter: none;
+      background-color: rgba(0, 0, 0, 0.85) !important;
+    }
+    
+    /* Remove gradient text on mobile for clarity */
+    .bg-gradient-to-r {
+      background: none !important;
+      -webkit-background-clip: unset !important;
+      background-clip: unset !important;
+      -webkit-text-fill-color: unset !important;
+      color: white !important;
+    }
+    
+    /* Improve button contrast */
+    button {
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+    
+    /* Ensure proper touch targets */
+    button, a, [role="button"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+  
+  /* High DPI screen optimizations */
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    body {
+      -webkit-font-smoothing: subpixel-antialiased;
+    }
+    
+    /* Sharper borders on high DPI */
+    .border {
+      border-width: 0.5px;
+    }
+  }
+}
+
+/* Custom utility classes for mobile optimization */
+@layer utilities {
+  .mobile-optimized {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  
+  .crisp-text {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.3);
+  }
+  
+  .mobile-backdrop {
+    @media (max-width: 768px) {
+      backdrop-filter: none !important;
+      background: rgba(0, 0, 0, 0.9) !important;
+    }
   }
 }

@@ -77,7 +77,7 @@ export const ActivationStage: React.FC<ActivationStageProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mobile-optimized">
       {/* Stage Narrative */}
       {showNarrative && (
         <div>
@@ -89,7 +89,7 @@ export const ActivationStage: React.FC<ActivationStageProps> = ({
           <div className="text-center mb-4">
             <Button
               onClick={() => setShowNarrative(false)}
-              className="bg-purple-600 hover:bg-purple-700 text-white"
+              className="bg-purple-600 hover:bg-purple-700 text-white min-h-[48px] crisp-text font-semibold"
             >
               Continue to Practice
             </Button>
@@ -98,25 +98,25 @@ export const ActivationStage: React.FC<ActivationStageProps> = ({
       )}
       
       {!showNarrative && (
-        <Card className={`bg-gradient-to-br ${stage.color}/30 backdrop-blur-sm border-2 border-white/30 shadow-2xl`}>
+        <Card className="bg-gray-800 border-gray-700 shadow-2xl mobile-backdrop">
           <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-4 text-white">
-              <div className="bg-white/30 backdrop-blur-sm rounded-full p-4 border-2 border-white/40 shadow-xl">
-                <Icon className="w-8 h-8" />
+            <CardTitle className="flex flex-col sm:flex-row sm:items-center gap-4 text-white">
+              <div className="bg-gray-700 rounded-full p-4 border-2 border-gray-600 shadow-xl self-start">
+                <Icon className="w-6 h-6 md:w-8 md:h-8" />
               </div>
               <div className="flex-1">
-                <div className="text-3xl font-bold drop-shadow-lg">{currentStage.title}</div>
-                <div className="text-lg opacity-90 font-medium mt-2 drop-shadow-lg">{stage.description}</div>
+                <div className="text-2xl md:text-3xl font-bold crisp-text">{currentStage.title}</div>
+                <div className="text-base md:text-lg text-gray-300 font-medium mt-2 crisp-text">{stage.description}</div>
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 self-start">
                 {isCompleted && (
-                  <CheckCircle2 className="w-10 h-10 text-green-400 drop-shadow-lg" />
+                  <CheckCircle2 className="w-8 h-8 md:w-10 md:h-10 text-green-400" />
                 )}
                 <Button
                   onClick={() => setShowNarrative(true)}
                   variant="outline"
                   size="sm"
-                  className="border-white/30 text-white hover:bg-white/20"
+                  className="border-gray-600 text-white hover:bg-gray-700 crisp-text"
                 >
                   View Guide
                 </Button>
@@ -126,7 +126,7 @@ export const ActivationStage: React.FC<ActivationStageProps> = ({
           
           <CardContent className="space-y-8 pb-8">
             {/* Timer and Controls */}
-            <div className="bg-black/40 backdrop-blur-sm rounded-xl p-6 border-2 border-white/20 shadow-2xl">
+            <div className="bg-gray-900 rounded-xl p-4 md:p-6 border-2 border-gray-700 shadow-2xl">
               <PracticeTimer 
                 timeRemaining={timeRemaining}
                 duration={currentStage.duration}
