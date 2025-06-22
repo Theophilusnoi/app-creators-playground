@@ -57,7 +57,7 @@ export const ThirdEyeActivation: React.FC<ThirdEyeActivationProps> = ({ onComple
       title: 'Clairvoyant Integration',
       icon: Zap,
       color: 'from-teal-600 to-green-600',
-      description: 'Translate visions into actionable intuition'
+      description: 'Transform visions into actionable intuition'
     }
   ];
 
@@ -147,16 +147,18 @@ export const ThirdEyeActivation: React.FC<ThirdEyeActivationProps> = ({ onComple
                       key={stage.id}
                       className={`p-3 rounded-lg border text-center transition-all cursor-pointer ${
                         isCompleted
-                          ? 'bg-green-600/20 border-green-400/50 text-green-200'
+                          ? 'bg-green-600/30 border-green-400/60 text-white shadow-lg'
                           : isCurrent
-                          ? 'bg-purple-600/20 border-purple-400/50 text-purple-200'
-                          : 'bg-gray-800/20 border-gray-600/30 text-gray-400'
+                          ? 'bg-purple-600/30 border-purple-400/60 text-white shadow-lg'
+                          : 'bg-gray-800/40 border-gray-600/40 text-gray-300'
                       }`}
                       onClick={() => setActiveStage(index)}
                     >
                       <Icon className="w-6 h-6 mx-auto mb-2" />
-                      <div className="text-xs font-medium">{stage.title.split(' ')[0]}</div>
-                      {isCompleted && <CheckCircle2 className="w-4 h-4 mx-auto mt-1" />}
+                      <div className="text-xs font-bold text-shadow-sm crisp-text">
+                        {stage.title.split(' ')[0]}
+                      </div>
+                      {isCompleted && <CheckCircle2 className="w-4 h-4 mx-auto mt-1 text-green-300" />}
                     </div>
                   );
                 })}
