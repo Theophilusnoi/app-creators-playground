@@ -100,40 +100,49 @@
 
   body {
     @apply bg-background text-foreground;
-    /* Mobile optimization for crisp text rendering */
+    /* Enhanced text rendering for all devices */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     font-feature-settings: "kern" 1;
     text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
+    /* Force hardware acceleration for smoother rendering */
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 
   /* Mobile-specific optimizations */
   @media (max-width: 768px) {
     body {
       font-size: 16px;
-      line-height: 1.5;
+      line-height: 1.6;
+      /* Enhanced contrast for mobile */
+      color: #ffffff;
     }
     
     /* Ensure minimum font sizes for readability */
     .text-sm {
-      font-size: 14px !important;
+      font-size: 15px !important;
+      font-weight: 600 !important;
     }
     
     .text-xs {
-      font-size: 12px !important;
+      font-size: 13px !important;
+      font-weight: 600 !important;
     }
     
-    /* Optimize backdrop blur for mobile */
+    /* Enhanced backdrop blur alternatives for mobile */
     .backdrop-blur-sm {
-      backdrop-filter: none;
-      background-color: rgba(0, 0, 0, 0.8) !important;
+      backdrop-filter: none !important;
+      background: rgba(0, 0, 0, 0.9) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
     }
     
     .backdrop-blur-md {
-      backdrop-filter: none;
-      background-color: rgba(0, 0, 0, 0.85) !important;
+      backdrop-filter: none !important;
+      background: rgba(0, 0, 0, 0.95) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
     }
     
     /* Remove gradient text on mobile for clarity */
@@ -143,18 +152,50 @@
       background-clip: unset !important;
       -webkit-text-fill-color: unset !important;
       color: white !important;
+      font-weight: 700 !important;
     }
     
-    /* Improve button contrast */
+    /* Improve button contrast and readability */
     button {
-      font-weight: 600;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+      font-weight: 700 !important;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8) !important;
+      border-width: 2px !important;
+      min-height: 48px !important;
+    }
+    
+    /* Enhanced tab styling for mobile */
+    [role="tab"], [role="tablist"] button {
+      font-weight: 700 !important;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important;
+      border-width: 2px !important;
+      background: rgba(0, 0, 0, 0.8) !important;
+      color: white !important;
     }
     
     /* Ensure proper touch targets */
-    button, a, [role="button"] {
-      min-height: 44px;
-      min-width: 44px;
+    button, a, [role="button"], [role="tab"] {
+      min-height: 48px !important;
+      min-width: 48px !important;
+      padding: 12px 16px !important;
+    }
+    
+    /* Enhanced visibility for highlighted elements */
+    .bg-purple-600\/20, .bg-purple-600\/30 {
+      background: rgba(147, 51, 234, 0.8) !important;
+      border-color: rgba(196, 181, 253, 0.9) !important;
+      color: white !important;
+    }
+    
+    .bg-green-600\/20, .bg-green-600\/30 {
+      background: rgba(34, 197, 94, 0.8) !important;
+      border-color: rgba(134, 239, 172, 0.9) !important;
+      color: white !important;
+    }
+    
+    .bg-gray-800\/20, .bg-gray-800\/40 {
+      background: rgba(31, 41, 55, 0.9) !important;
+      border-color: rgba(75, 85, 99, 0.8) !important;
+      color: rgba(229, 231, 235, 1) !important;
     }
   }
   
@@ -162,46 +203,82 @@
   @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
     body {
       -webkit-font-smoothing: subpixel-antialiased;
+      text-rendering: geometricPrecision;
     }
     
     /* Sharper borders on high DPI */
     .border {
       border-width: 0.5px;
     }
+    
+    /* Enhanced text clarity on high DPI screens */
+    * {
+      text-shadow: 0 0 1px rgba(255, 255, 255, 0.1);
+    }
   }
 }
 
-/* Custom utility classes for mobile optimization */
+/* Enhanced utility classes for mobile optimization */
 @layer utilities {
   .mobile-optimized {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
   
   .crisp-text {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    text-shadow: 0 0 1px rgba(255, 255, 255, 0.3);
-    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    font-weight: 700;
+    color: white;
+    letter-spacing: 0.025em;
   }
   
   .text-shadow-sm {
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-  }
-  
-  .text-shadow-md {
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
   }
   
-  .text-shadow-lg {
+  .text-shadow-md {
     text-shadow: 0 3px 6px rgba(0, 0, 0, 0.9);
+  }
+  
+  .text-shadow-lg {
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.9);
   }
   
   .mobile-backdrop {
     @media (max-width: 768px) {
       backdrop-filter: none !important;
+      background: rgba(0, 0, 0, 0.95) !important;
+      border: 2px solid rgba(255, 255, 255, 0.1) !important;
+    }
+  }
+  
+  /* Enhanced button styles for mobile */
+  .mobile-button {
+    @media (max-width: 768px) {
+      font-weight: 700 !important;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8) !important;
+      border-width: 2px !important;
+      min-height: 48px !important;
+      padding: 12px 20px !important;
+      letter-spacing: 0.025em !important;
+    }
+  }
+  
+  /* Enhanced tab styles for mobile clarity */
+  .mobile-tab {
+    @media (max-width: 768px) {
+      font-weight: 700 !important;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9) !important;
       background: rgba(0, 0, 0, 0.9) !important;
+      border: 2px solid rgba(255, 255, 255, 0.2) !important;
+      color: white !important;
+      min-height: 48px !important;
+      padding: 12px 16px !important;
     }
   }
 }
