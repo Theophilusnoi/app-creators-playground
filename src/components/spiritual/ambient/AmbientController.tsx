@@ -3,20 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { 
-  Volume2, 
-  VolumeX, 
-  Settings, 
-  Play, 
-  Pause,
-  Cloud,
-  Sun,
-  CloudRain,
-  Headphones
-} from 'lucide-react';
+import { Volume2, VolumeX, Settings, Play, Pause, Headphones } from 'lucide-react';
 import { ambientSoundService, SoundProfile, SoundLayer } from '@/services/ambientSoundService';
+import { WeatherBadge } from './WeatherBadge';
+import { ProfileDisplay } from './ProfileDisplay';
+import { LayerControls } from './LayerControls';
 
 interface AmbientControllerProps {
   meditationType?: string;
@@ -92,27 +83,6 @@ export const AmbientController: React.FC<AmbientControllerProps> = ({
     ambientSoundService.adjustLayer(layerId, volume / 100);
   };
 
-  const getWeatherIcon = () => {
-    const context = ambientSoundService.getCurrentContext();
-    switch (context.weather) {
-      case 'rainy': return <CloudRain className="w-4 h-4" />;
-      case 'cloudy': return <Cloud className="w-4 h-4" />;
-      default: return <Sun className="w-4 h-4" />;
-    }
-  };
-
-  const getTimeOfDayColor = () => {
-    const context = ambientSoundService.getCurrentContext();
-    switch (context.timeOfDay) {
-      case 'dawn': return 'from-orange-500 to-pink-500';
-      case 'morning': return 'from-yellow-400 to-orange-400';
-      case 'afternoon': return 'from-blue-400 to-cyan-400';
-      case 'evening': return 'from-purple-500 to-indigo-500';
-      case 'night': return 'from-indigo-600 to-purple-700';
-      default: return 'from-gray-500 to-gray-600';
-    }
-  };
-
   if (!isInitialized) {
     return (
       <Card className="bg-gray-800/50 border-gray-600">
@@ -125,6 +95,8 @@ export const AmbientController: React.FC<AmbientControllerProps> = ({
     );
   }
 
+  const context = ambientSoundService.getCurrentContext();
+
   return (
     <Card className="bg-gray-800/50 border-gray-600 backdrop-blur-sm">
       <CardHeader className="pb-3">
@@ -133,12 +105,7 @@ export const AmbientController: React.FC<AmbientControllerProps> = ({
             <Headphones className="w-5 h-5 text-purple-400" />
             <span className="crisp-text text-xl font-bold">Ambient Soundscape</span>
           </div>
-          <div className="flex items-center gap-2">
-            {getWeatherIcon()}
-            <Badge className={`bg-gradient-to-r ${getTimeOfDayColor()} text-white font-bold text-sm`}>
-              {ambientSoundService.getCurrentContext().timeOfDay}
-            </Badge>
-          </div>
+          <WeatherBadge context={context} />
         </CardTitle>
       </CardHeader>
 
@@ -168,17 +135,7 @@ export const AmbientController: React.FC<AmbientControllerProps> = ({
         </div>
 
         {/* Current Profile */}
-        {currentProfile && (
-          <div className="bg-gray-700/50 rounded-lg p-3 border border-gray-600">
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="text-white font-bold text-lg crisp-text">{currentProfile.name}</h4>
-              <Badge variant="secondary" className="bg-purple-600/20 text-purple-100 font-bold border border-purple-400">
-                Active
-              </Badge>
-            </div>
-            <p className="text-gray-100 text-base font-semibold crisp-text">{currentProfile.description}</p>
-          </div>
-        )}
+        <ProfileDisplay profile={currentProfile} />
 
         {/* Master Volume */}
         <div className="space-y-2">
@@ -200,38 +157,11 @@ export const AmbientController: React.FC<AmbientControllerProps> = ({
         </div>
 
         {/* Layer Controls */}
-        {showSettings && activeLayers.length > 0 && (
-          <div className="space-y-3 pt-2 border-t border-gray-600">
-            <h5 className="text-white font-bold text-lg crisp-text">Layer Controls</h5>
-            {activeLayers.map((layer) => (
-              <div key={layer.id} className="bg-gray-700/30 rounded-lg p-3 border border-gray-600">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Badge 
-                      className={`text-sm font-bold ${
-                        layer.type === 'nature' ? 'bg-green-600 text-white' :
-                        layer.type === 'instrument' ? 'bg-blue-600 text-white' :
-                        'bg-purple-600 text-white'
-                      }`}
-                    >
-                      {layer.type}
-                    </Badge>
-                    <span className="text-white text-base font-bold crisp-text">{layer.name}</span>
-                  </div>
-                  <Badge variant="outline" className="text-sm font-bold text-white border-white">
-                    {layer.density}
-                  </Badge>
-                </div>
-                <Slider
-                  defaultValue={[layer.volume * 100]}
-                  onValueChange={(value) => handleLayerVolumeChange(layer.id, value[0])}
-                  max={100}
-                  step={1}
-                  className="mt-2"
-                />
-              </div>
-            ))}
-          </div>
+        {showSettings && (
+          <LayerControls 
+            layers={activeLayers}
+            onVolumeChange={handleLayerVolumeChange}
+          />
         )}
 
         {/* Profile Selector */}
