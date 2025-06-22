@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -416,18 +417,18 @@ export const RitualsDirectory: React.FC = () => {
           {/* Category Description */}
           {selectedCategory !== 'all' && (
             <Card className="bg-purple-900/20 border-purple-500/30 backdrop-blur-sm">
-              <CardContent className="p-4">
+              <CardContent className="p-6">
                 {(() => {
                   const category = ritualCategories.find(cat => cat.id === selectedCategory);
                   if (!category) return null;
                   const Icon = category.icon;
                   return (
-                    <div className="flex items-center gap-3">
-                      <div className={`bg-gradient-to-r ${category.color} p-3 rounded-full`}>
+                    <div className="flex items-center gap-4">
+                      <div className={`bg-gradient-to-r ${category.color} p-3 rounded-full flex-shrink-0`}>
                         <Icon className="w-6 h-6 text-white" />
                       </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-white crisp-text">{category.name}</h3>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-xl font-bold text-white crisp-text mb-1">{category.name}</h3>
                         <p className="text-purple-200 crisp-text">{category.description}</p>
                       </div>
                     </div>
