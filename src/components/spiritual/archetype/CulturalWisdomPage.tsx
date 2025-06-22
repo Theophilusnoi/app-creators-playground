@@ -1,10 +1,10 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Star, Heart, ArrowLeft, Download, Play, Scroll } from "lucide-react";
 import { CulturalTradition } from '@/types/archetype';
+import { PracticeSessionView } from './PracticeSessionView';
 
 interface CulturalWisdomPageProps {
   tradition: CulturalTradition;
@@ -15,6 +15,18 @@ export const CulturalWisdomPage: React.FC<CulturalWisdomPageProps> = ({
   tradition,
   onBack
 }) => {
+  const [showPracticeSession, setShowPracticeSession] = useState(false);
+
+  // Show practice session if user clicked to begin practice
+  if (showPracticeSession) {
+    return (
+      <PracticeSessionView
+        tradition={tradition}
+        onBack={() => setShowPracticeSession(false)}
+      />
+    );
+  }
+
   const getWisdomContent = () => {
     const wisdomContent = {
       'buddhist': {
@@ -253,10 +265,7 @@ export const CulturalWisdomPage: React.FC<CulturalWisdomPageProps> = ({
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button 
             className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
-            onClick={() => {
-              // Simulate starting a practice session
-              alert(`Beginning ${tradition.name} practice session. Find a quiet space and prepare for sacred work.`);
-            }}
+            onClick={() => setShowPracticeSession(true)}
           >
             <Play className="w-4 h-4 mr-2" />
             Begin Practice Session
@@ -265,8 +274,33 @@ export const CulturalWisdomPage: React.FC<CulturalWisdomPageProps> = ({
             variant="outline"
             className="border-purple-500 text-purple-300 hover:bg-purple-700"
             onClick={() => {
-              // Simulate downloading study materials
-              alert(`Study guide for ${tradition.name} would be downloaded. This feature connects you with authentic resources and community teachers.`);
+              // Create downloadable study guide
+              const studyGuide = `
+${tradition.name} Study Guide
+${tradition.region}
+
+CORE TEACHINGS:
+${content.teachings.map((teaching, i) => `${i + 1}. ${teaching}`).join('\n')}
+
+SACRED PRACTICES:
+${content.practices.map((practice, i) => `${i + 1}. ${practice}`).join('\n')}
+
+SACRED SYMBOLS: ${content.symbols.join(', ')}
+
+DIVINE ARCHETYPES: ${content.deities.join(', ')}
+
+Remember: These teachings are meant to be lived, not just studied. Practice with respect and reverence.
+              `;
+              
+              const blob = new Blob([studyGuide], { type: 'text/plain' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `${tradition.name.replace(/\s+/g, '_')}_Study_Guide.txt`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
             }}
           >
             <Download className="w-4 h-4 mr-2" />
