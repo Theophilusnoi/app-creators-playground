@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -173,9 +174,9 @@ export const TelekinesisGym: React.FC<TelekinesisGymProps> = ({
   return (
     <div className="space-y-6">
       {/* Navigation Tabs */}
-      <Card className="bg-gray-900/20 border-gray-500/30">
+      <Card className="bg-gray-900/30 border-gray-500/30 backdrop-blur-sm">
         <CardContent className="pt-6">
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
             {navigationTabs.map((tab) => {
               const IconComponent = tab.icon;
               const isActive = activeTab === tab.id;
@@ -187,17 +188,21 @@ export const TelekinesisGym: React.FC<TelekinesisGymProps> = ({
                   onClick={() => isAccessible && setActiveTab(tab.id)}
                   disabled={!isAccessible}
                   variant={isActive ? "default" : "outline"}
-                  className={`flex items-center gap-2 ${
+                  className={`flex flex-col items-center gap-2 h-auto py-4 px-3 text-center ${
                     isActive 
-                      ? 'bg-blue-600 hover:bg-blue-700' 
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white' 
                       : isAccessible
-                        ? 'border-gray-400/30 text-gray-200 hover:bg-gray-600/20'
-                        : 'opacity-50 cursor-not-allowed'
+                        ? 'border-gray-400/50 text-gray-100 hover:bg-gray-700/50 bg-gray-800/30'
+                        : 'opacity-50 cursor-not-allowed border-gray-600/30 text-gray-500'
                   }`}
                 >
-                  <IconComponent className="w-4 h-4" />
-                  {tab.label}
-                  {tab.required && <Badge className="bg-red-600/20 text-red-200 ml-1">Required</Badge>}
+                  <IconComponent className="w-5 h-5 flex-shrink-0" />
+                  <span className="text-xs font-medium leading-tight">{tab.label}</span>
+                  {tab.required && (
+                    <Badge className="bg-red-600/30 text-red-200 text-xs px-1 py-0">
+                      Required
+                    </Badge>
+                  )}
                 </Button>
               );
             })}
