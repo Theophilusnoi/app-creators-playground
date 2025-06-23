@@ -18,7 +18,7 @@ import {
   Flame,
   Wind,
   Globe,
-  Phone,
+  Bot,
   Calendar,
   Lock,
   Check
@@ -63,15 +63,15 @@ export const ProFeaturesDemo: React.FC<ProFeaturesDemoProps> = ({ userProfile })
     },
     {
       id: 'emergency-support',
-      title: '24/7 Emergency Spiritual Support',
+      title: '24/7 AI Emergency Support',
       icon: Shield,
-      description: 'Immediate intervention for spiritual crises',
+      description: 'Immediate AI intervention for spiritual crises',
       details: [
-        'Psychic attack neutralization protocols',
-        'Entity removal emergency services',
-        'Spiritual marriage breaking assistance',
-        'Curse and hex removal systems',
-        'Emergency banishing ritual activation'
+        'AI psychic attack detection and neutralization',
+        'Automated entity removal protocols',
+        'AI-guided spiritual marriage breaking',
+        'Intelligent curse and hex removal',
+        'Emergency AI banishing ritual activation'
       ],
       demoAvailable: true
     },
@@ -178,24 +178,24 @@ export const ProFeaturesDemo: React.FC<ProFeaturesDemoProps> = ({ userProfile })
             <div className="bg-red-900/30 p-6 rounded-lg border border-red-500/30">
               <h3 className="text-red-200 font-semibold mb-4 flex items-center gap-2">
                 <Shield className="w-5 h-5" />
-                Emergency Spiritual Response System
+                AI Emergency Spiritual Response System
               </h3>
               <div className="space-y-3">
                 <div className="p-3 bg-red-800/20 rounded flex items-center justify-between">
                   <div>
-                    <span className="text-red-200 font-semibold">Psychic Attack Detection</span>
-                    <p className="text-red-300 text-sm">AI monitors for negative energy patterns</p>
+                    <span className="text-red-200 font-semibold">AI Psychic Attack Detection</span>
+                    <p className="text-red-300 text-sm">Advanced AI monitors for negative energy patterns 24/7</p>
                   </div>
                   <Badge className="bg-green-600/20 text-green-200">Active</Badge>
                 </div>
                 <div className="p-3 bg-red-800/20 rounded flex items-center justify-between">
                   <div>
-                    <span className="text-red-200 font-semibold">24/7 Hotline</span>
-                    <p className="text-red-300 text-sm">Direct line to spiritual emergency team</p>
+                    <span className="text-red-200 font-semibold">24/7 AI Support</span>
+                    <p className="text-red-300 text-sm">Instant AI assistance for spiritual emergencies</p>
                   </div>
                   <Button size="sm" className="bg-red-600 hover:bg-red-700">
-                    <Phone className="w-3 h-3 mr-2" />
-                    Call Now
+                    <Bot className="w-3 h-3 mr-2" />
+                    Chat with AI
                   </Button>
                 </div>
               </div>

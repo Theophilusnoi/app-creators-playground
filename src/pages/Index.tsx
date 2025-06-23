@@ -5,18 +5,25 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SpiritualAssessment } from "@/components/spiritual/SpiritualAssessment";
 import { ShadowWorkTracker } from "@/components/spiritual/ShadowWorkTracker";
 import { SynchronicityDetector } from "@/components/spiritual/SynchronicityDetector";
 import { DreamAnalysis } from "@/components/spiritual/DreamAnalysis";
 import { MeditationTracker } from "@/components/spiritual/MeditationTracker";
-import { Moon, Star, Heart, Eye, Compass, User, Zap, Crown, Shield, Brain } from "lucide-react";
+import { Moon, Star, Heart, Eye, Compass, User, Zap, Crown, Shield, Brain, ChevronDown, LogIn } from "lucide-react";
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 const Index = () => {
-  const [user, setUser] = useState(null);
+  const { user, signOut } = useAuth();
   const [spiritualProgress, setSpiritualProgress] = useState(45);
   const [hasCompletedAssessment, setHasCompletedAssessment] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  const handleSignIn = () => {
+    setShowAuthModal(true);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
@@ -40,14 +47,102 @@ const Index = () => {
                   Pro Features
                 </Button>
               </Link>
-              <Button variant="outline" className="border-purple-400 text-purple-200 hover:bg-purple-400/20">
-                <User className="w-4 h-4 mr-2" />
-                Profile
-              </Button>
+              
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="border-purple-400 text-purple-200 hover:bg-purple-400/20">
+                      <User className="w-4 h-4 mr-2" />
+                      Profile
+                      <ChevronDown className="w-4 h-4 ml-2" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="bg-gray-900/95 border-purple-500/30 backdrop-blur-sm">
+                    <DropdownMenuItem className="text-purple-200 hover:bg-purple-600/20 focus:bg-purple-600/20">
+                      <User className="w-4 h-4 mr-2" />
+                      My Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-purple-200 hover:bg-purple-600/20 focus:bg-purple-600/20">
+                      <Crown className="w-4 h-4 mr-2" />
+                      Pro Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={signOut}
+                      className="text-red-300 hover:bg-red-600/20 focus:bg-red-600/20"
+                    >
+                      <LogIn className="w-4 h-4 mr-2" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button 
+                  onClick={handleSignIn}
+                  variant="outline" 
+                  className="border-purple-400 text-purple-200 hover:bg-purple-400/20"
+                >
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Sign In
+                </Button>
+              )}
             </div>
           </div>
         </div>
       </header>
+
+      {/* Auth Modal */}
+      {showAuthModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-gray-900/95 border border-purple-500/30 rounded-lg p-6 max-w-md w-full mx-4 backdrop-blur-sm">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-white mb-2">Welcome Back</h2>
+              <p className="text-purple-200">Connect with your spiritual journey</p>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-purple-200 text-sm font-medium mb-2">Email</label>
+                <input 
+                  type="email" 
+                  className="w-full p-3 bg-black/30 border border-purple-500/30 rounded-lg text-white placeholder-purple-300"
+                  placeholder="Enter your email"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-purple-200 text-sm font-medium mb-2">Password</label>
+                <input 
+                  type="password" 
+                  className="w-full p-3 bg-black/30 border border-purple-500/30 rounded-lg text-white placeholder-purple-300"
+                  placeholder="Enter your password"
+                />
+              </div>
+              
+              <div className="flex gap-3">
+                <Button className="flex-1 bg-purple-600 hover:bg-purple-700">
+                  Sign In
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex-1 border-purple-500/30 text-purple-200"
+                  onClick={() => setShowAuthModal(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+              
+              <div className="text-center">
+                <p className="text-purple-300 text-sm">
+                  Don't have an account? 
+                  <button className="text-purple-400 hover:text-purple-300 ml-1">
+                    Sign up here
+                  </button>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="container mx-auto px-4 py-8">
         {!hasCompletedAssessment ? (
@@ -139,7 +234,7 @@ const Index = () => {
                     </div>
                     <div className="flex items-center gap-2 text-sm text-purple-200">
                       <Shield className="w-4 h-4 text-red-400" />
-                      24/7 Emergency Spiritual Support
+                      24/7 AI Emergency Spiritual Support
                     </div>
                     <div className="flex items-center gap-2 text-sm text-purple-200">
                       <Heart className="w-4 h-4 text-pink-400" />
