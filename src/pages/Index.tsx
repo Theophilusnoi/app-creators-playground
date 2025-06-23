@@ -1,14 +1,17 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { SpiritualAssessment } from "@/components/spiritual/SpiritualAssessment";
 import { ShadowWorkTracker } from "@/components/spiritual/ShadowWorkTracker";
 import { SynchronicityDetector } from "@/components/spiritual/SynchronicityDetector";
 import { DreamAnalysis } from "@/components/spiritual/DreamAnalysis";
 import { MeditationTracker } from "@/components/spiritual/MeditationTracker";
-import { Moon, Star, Heart, Eye, Compass, User } from "lucide-react";
+import { Moon, Star, Heart, Eye, Compass, User, Zap, Crown, Shield, Brain } from "lucide-react";
+import { Link } from 'react-router-dom';
 
 const Index = () => {
   const [user, setUser] = useState(null);
@@ -30,10 +33,18 @@ const Index = () => {
                 <p className="text-purple-200 text-sm">Guided by Seraphina</p>
               </div>
             </div>
-            <Button variant="outline" className="border-purple-400 text-purple-200 hover:bg-purple-400/20">
-              <User className="w-4 h-4 mr-2" />
-              Profile
-            </Button>
+            <div className="flex items-center gap-4">
+              <Link to="/pro-features">
+                <Button variant="outline" className="border-purple-400 text-purple-200 hover:bg-purple-400/20">
+                  <Crown className="w-4 h-4 mr-2" />
+                  Pro Features
+                </Button>
+              </Link>
+              <Button variant="outline" className="border-purple-400 text-purple-200 hover:bg-purple-400/20">
+                <User className="w-4 h-4 mr-2" />
+                Profile
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -57,6 +68,94 @@ const Index = () => {
           </div>
         ) : (
           <div className="space-y-8">
+            {/* Featured Pro Features */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <Card className="bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border-indigo-500/30 backdrop-blur-sm hover:scale-105 transition-transform duration-300">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-3">
+                    <div className="bg-indigo-600/20 p-3 rounded-lg">
+                      <Zap className="w-8 h-8 text-indigo-400" />
+                    </div>
+                    <div>
+                      <div className="text-xl">Telekinesis Training</div>
+                      <Badge className="bg-yellow-600/20 text-yellow-200 mt-1">Pro Feature</Badge>
+                    </div>
+                  </CardTitle>
+                  <CardDescription className="text-purple-200">
+                    Master mind-matter interface through ancient wisdom and modern neuroscience
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3 mb-4">
+                    <div className="flex items-center gap-2 text-sm text-purple-200">
+                      <Shield className="w-4 h-4 text-green-400" />
+                      Ethical guidelines & safety protocols
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-purple-200">
+                      <Brain className="w-4 h-4 text-blue-400" />
+                      Progressive 4-stage training system
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-purple-200">
+                      <Eye className="w-4 h-4 text-purple-400" />
+                      Ancient Egyptian, Buddhist & Yoruba wisdom
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Link to="/spiritual-mind-pro" className="flex-1">
+                      <Button className="w-full bg-indigo-600 hover:bg-indigo-700">
+                        <Zap className="w-4 h-4 mr-2" />
+                        Start Training
+                      </Button>
+                    </Link>
+                    <Link to="/pro-features">
+                      <Button variant="outline" className="border-indigo-500/30 text-indigo-200 hover:bg-indigo-600/20">
+                        Demo
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-r from-purple-900/40 to-pink-900/40 border-purple-500/30 backdrop-blur-sm hover:scale-105 transition-transform duration-300">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-3">
+                    <div className="bg-purple-600/20 p-3 rounded-lg">
+                      <Crown className="w-8 h-8 text-purple-400" />
+                    </div>
+                    <div>
+                      <div className="text-xl">All Pro Features</div>
+                      <Badge className="bg-purple-600/20 text-purple-200 mt-1">Complete Access</Badge>
+                    </div>
+                  </CardTitle>
+                  <CardDescription className="text-purple-200">
+                    Unlock the full spiritual mastery platform with advanced consciousness technologies
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3 mb-4">
+                    <div className="flex items-center gap-2 text-sm text-purple-200">
+                      <Star className="w-4 h-4 text-yellow-400" />
+                      Sacred Bathing & Third Eye Activation
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-purple-200">
+                      <Shield className="w-4 h-4 text-red-400" />
+                      24/7 Emergency Spiritual Support
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-purple-200">
+                      <Heart className="w-4 h-4 text-pink-400" />
+                      Personal Guidance Sessions
+                    </div>
+                  </div>
+                  <Link to="/pro-features" className="block">
+                    <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90">
+                      <Crown className="w-4 h-4 mr-2" />
+                      Explore All Features
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </div>
+
             {/* Dashboard Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
