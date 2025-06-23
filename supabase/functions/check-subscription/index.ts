@@ -78,17 +78,30 @@ serve(async (req) => {
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
       logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
       
-      // Determine subscription tier from price
+      // Determine subscription tier from price amount
       const priceId = subscription.items.data[0].price.id;
       const price = await stripe.prices.retrieve(priceId);
       const amount = price.unit_amount || 0;
-      if (amount <= 1099) {
-        subscriptionTier = "basic";
-      } else if (amount <= 2099) {
-        subscriptionTier = "premium";
-      } else {
+      
+      // Map amounts to wisdom tiers
+      if (amount >= 49700) {
+        subscriptionTier = "ether";
+      } else if (amount >= 19700) {
+        subscriptionTier = "fire";
+      } else if (amount >= 7900) {
+        subscriptionTier = "water";
+      } else if (amount >= 2900) {
+        subscriptionTier = "earth";
+      } else if (amount >= 4999) {
         subscriptionTier = "pro";
+      } else if (amount >= 1999) {
+        subscriptionTier = "premium";
+      } else if (amount >= 999) {
+        subscriptionTier = "basic";
+      } else {
+        subscriptionTier = "unknown";
       }
+      
       logStep("Determined subscription tier", { priceId, amount, subscriptionTier });
     } else {
       logStep("No active subscription found");

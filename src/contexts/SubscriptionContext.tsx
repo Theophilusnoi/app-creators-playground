@@ -45,10 +45,10 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       if (error) {
         console.error('Subscription check error:', error);
-        // Don't throw error, just log it and show a user-friendly message
         toast({
           title: "Subscription Check",
-          description: "Using demo mode. Click 'Check Status' to retry.",
+          description: "Unable to verify subscription status. Please try again or contact support if the issue persists.",
+          variant: "destructive",
         });
         return;
       }
@@ -56,11 +56,31 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setSubscribed(data.subscribed || false);
       setSubscriptionTier(data.subscription_tier || null);
       setSubscriptionEnd(data.subscription_end || null);
+
+      // Show success message if user has active subscription
+      if (data.subscribed && data.subscription_tier) {
+        const tierNames = {
+          earth: 'Earth Keeper',
+          water: 'Water Bearer', 
+          fire: 'Fire Keeper',
+          ether: 'Ether Walker',
+          basic: 'Basic',
+          premium: 'Premium',
+          pro: 'Pro'
+        };
+        const tierName = tierNames[data.subscription_tier as keyof typeof tierNames] || data.subscription_tier;
+        
+        toast({
+          title: "Active Subscription",
+          description: `Your ${tierName} subscription is active until ${new Date(data.subscription_end).toLocaleDateString()}`,
+        });
+      }
     } catch (error) {
       console.error('Error checking subscription:', error);
       toast({
-        title: "Demo Mode Active",
-        description: "Subscription services temporarily unavailable. You can still explore features in demo mode.",
+        title: "Connection Error",
+        description: "Unable to connect to subscription service. Please check your internet connection.",
+        variant: "destructive",
       });
       // Set demo defaults
       setSubscribed(false);
@@ -100,11 +120,16 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       // Open Stripe checkout in a new tab
       window.open(data.url, '_blank');
+      
+      toast({
+        title: "Redirecting to Checkout",
+        description: "Opening secure payment page in a new tab...",
+      });
     } catch (error) {
       console.error('Error creating checkout:', error);
       toast({
-        title: "Checkout Temporarily Unavailable",
-        description: "Please try again later or contact support. You can still explore Pro features in demo mode.",
+        title: "Checkout Error",
+        description: "Unable to create checkout session. Please try again or contact support.",
         variant: "destructive",
       });
     } finally {
@@ -127,11 +152,16 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       // Open customer portal in a new tab
       window.open(data.url, '_blank');
+      
+      toast({
+        title: "Opening Customer Portal",
+        description: "Manage your subscription in the new tab that opened.",
+      });
     } catch (error) {
       console.error('Error opening customer portal:', error);
       toast({
-        title: "Customer Portal Unavailable",
-        description: "Please contact support for subscription management.",
+        title: "Portal Error",
+        description: "Unable to open customer portal. Please contact support for subscription management.",
         variant: "destructive",
       });
     } finally {

@@ -71,14 +71,19 @@ serve(async (req) => {
       logStep("No existing customer found");
     }
 
-    // Define pricing tiers
-    const pricingTiers = {
+    // Define wisdom tier pricing
+    const wisdomTiers = {
+      earth: { amount: 2900, name: "Earth Keeper - Monthly" }, // $29.00
+      water: { amount: 7900, name: "Water Bearer - Monthly" }, // $79.00
+      fire: { amount: 19700, name: "Fire Keeper - Monthly" }, // $197.00
+      ether: { amount: 49700, name: "Ether Walker - Monthly" }, // $497.00
+      // Legacy pricing for backwards compatibility
       basic: { amount: 999, name: "Basic Plan" },
       premium: { amount: 1999, name: "Premium Plan" },
       pro: { amount: 4999, name: "Pro Plan" }
     };
 
-    const selectedTier = pricingTiers[tier as keyof typeof pricingTiers];
+    const selectedTier = wisdomTiers[tier as keyof typeof wisdomTiers];
     if (!selectedTier) throw new Error("Invalid subscription tier");
     logStep("Tier pricing", selectedTier);
 
@@ -103,7 +108,10 @@ serve(async (req) => {
         {
           price_data: {
             currency: "usd",
-            product_data: { name: selectedTier.name },
+            product_data: { 
+              name: selectedTier.name,
+              description: `Access to ${tier} tier spiritual guidance and tools`
+            },
             unit_amount: selectedTier.amount,
             recurring: { interval: "month" },
           },
@@ -114,6 +122,7 @@ serve(async (req) => {
       success_url: `${origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/pricing`,
       metadata: sessionMetadata,
+      allow_promotion_codes: true,
     });
 
     logStep("Checkout session created", { sessionId: session.id, url: session.url });
