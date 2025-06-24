@@ -1,24 +1,35 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './AuthProvider';
 import { Star, Sparkles } from "lucide-react";
 
 export const AuthPage = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Redirect if user is already authenticated
+  useEffect(() => {
+    if (user) {
+      navigate('/pro-features');
+    }
+  }, [user, navigate]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = `${window.location.origin}/pro-features`;
 
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({
@@ -26,6 +37,7 @@ export const AuthPage = () => {
           password,
         });
         if (error) throw error;
+        // Navigation will be handled by the useEffect above
       } else {
         const { error } = await supabase.auth.signUp({
           email,
