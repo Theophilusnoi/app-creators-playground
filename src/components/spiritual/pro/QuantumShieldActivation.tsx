@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,11 +20,13 @@ import { useToast } from '@/hooks/use-toast';
 interface QuantumShieldActivationProps {
   quantumShieldActive?: boolean;
   setQuantumShieldActive?: (active: boolean) => void;
+  setUserProfile?: (profile: any) => void;
 }
 
 export const QuantumShieldActivation: React.FC<QuantumShieldActivationProps> = ({
   quantumShieldActive = false,
-  setQuantumShieldActive
+  setQuantumShieldActive,
+  setUserProfile
 }) => {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);

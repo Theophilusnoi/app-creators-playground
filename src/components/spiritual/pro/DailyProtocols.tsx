@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,10 +16,12 @@ import { useToast } from '@/hooks/use-toast';
 
 interface DailyProtocolsProps {
   userProfile?: any;
+  setUserProfile?: (profile: any) => void;
 }
 
 export const DailyProtocols: React.FC<DailyProtocolsProps> = ({
-  userProfile
+  userProfile,
+  setUserProfile
 }) => {
   const { toast } = useToast();
   const [completedProtocols, setCompletedProtocols] = useState<string[]>([]);
