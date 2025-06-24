@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { ProFeaturesDemo } from '@/components/spiritual/pro/ProFeaturesDemo';
@@ -9,10 +10,15 @@ import { Button } from '@/components/ui/button';
 import { LogIn, Crown } from 'lucide-react';
 
 const ProFeaturesPage = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { subscribed, subscriptionTier } = useSubscription();
 
   const isProUser = subscribed && (subscriptionTier === 'pro' || subscriptionTier === 'ether' || subscriptionTier === 'fire');
+
+  const handleSignInClick = () => {
+    navigate('/auth');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 p-4">
@@ -35,7 +41,10 @@ const ProFeaturesPage = () => {
                 <p className="text-yellow-300 text-sm mb-4">
                   Sign in to access your subscription or start a free trial
                 </p>
-                <Button className="bg-yellow-600 hover:bg-yellow-700">
+                <Button 
+                  onClick={handleSignInClick}
+                  className="bg-yellow-600 hover:bg-yellow-700"
+                >
                   Sign In to Continue
                 </Button>
               </CardContent>
