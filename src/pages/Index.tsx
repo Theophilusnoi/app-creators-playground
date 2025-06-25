@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -109,6 +110,15 @@ const Index = () => {
     setIsLogin(!isLogin);
     setEmail('');
     setPassword('');
+  };
+
+  const handleAssessmentComplete = () => {
+    console.log('Assessment completed, transitioning to main dashboard');
+    setHasCompletedAssessment(true);
+    toast({
+      title: "Welcome to Your Spiritual Journey!",
+      description: "Your assessment is complete. Explore the tools below to begin your transformation.",
+    });
   };
 
   return (
@@ -262,12 +272,40 @@ const Index = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <SpiritualAssessment onComplete={() => setHasCompletedAssessment(true)} />
+                <SpiritualAssessment onComplete={handleAssessmentComplete} />
               </CardContent>
             </Card>
           </div>
         ) : (
           <div className="space-y-8">
+            {/* Welcome Message */}
+            <Card className="bg-gradient-to-r from-green-900/40 to-teal-900/40 border-green-500/30 backdrop-blur-sm">
+              <CardContent className="text-center py-8">
+                <div className="text-6xl mb-4">🌟</div>
+                <h2 className="text-3xl font-bold text-white mb-4">
+                  Welcome to Your Spiritual Dashboard!
+                </h2>
+                <p className="text-green-200 text-lg mb-6">
+                  Your spiritual assessment is complete. Below you'll find personalized tools and practices 
+                  to support your journey of awakening and transformation.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link to="/dashboard">
+                    <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+                      <Star className="w-4 h-4 mr-2" />
+                      Enter Full Dashboard
+                    </Button>
+                  </Link>
+                  <Link to="/pro-features">
+                    <Button variant="outline" className="border-purple-400 text-purple-200 hover:bg-purple-400/20">
+                      <Crown className="w-4 h-4 mr-2" />
+                      Explore Pro Features
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Featured Pro Features */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <Card className="bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border-indigo-500/30 backdrop-blur-sm hover:scale-105 transition-transform duration-300">
