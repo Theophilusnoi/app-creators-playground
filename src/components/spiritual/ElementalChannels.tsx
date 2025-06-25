@@ -1,10 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 import { Globe, Sparkles, Flame, Droplets, Wind, Mountain } from 'lucide-react';
@@ -61,14 +61,31 @@ export const ElementalChannels = () => {
 
   const fetchCommunications = async () => {
     try {
-      const { data, error } = await supabase
-        .from('elemental_communications')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setCommunications(data || []);
+      // Use mock data since elemental_communications table doesn't exist
+      const mockCommunications: ElementalCommunication[] = [
+        {
+          id: '1',
+          element: 'fire',
+          message_symbol: 'Seeking guidance for transformation and creative energy',
+          response_received: true,
+          elemental_type: 'Fire Dragon',
+          communication_method: 'meditation',
+          intensity_level: 7,
+          created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          id: '2',
+          element: 'water',
+          message_symbol: 'Help with emotional healing and flow',
+          response_received: false,
+          elemental_type: 'Ocean Guardian',
+          communication_method: 'ritual',
+          intensity_level: 5,
+          created_at: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
+        }
+      ];
+      
+      setCommunications(mockCommunications);
     } catch (error) {
       console.error('Error fetching communications:', error);
     }
@@ -105,19 +122,19 @@ export const ElementalChannels = () => {
         Math.floor(Math.random() * elementalTypes[selectedElement as keyof typeof elementalTypes].length)
       ];
       
-      const { error } = await supabase
-        .from('elemental_communications')
-        .insert([{
-          user_id: user.id,
-          element: selectedElement,
-          message_symbol: messageSymbol,
-          response_received: responseReceived,
-          elemental_type: elementalType,
-          communication_method: communicationMethod,
-          intensity_level: intensityLevel,
-        }]);
+      // Create new communication locally
+      const newCommunication: ElementalCommunication = {
+        id: Date.now().toString(),
+        element: selectedElement,
+        message_symbol: messageSymbol,
+        response_received: responseReceived,
+        elemental_type: elementalType,
+        communication_method: communicationMethod,
+        intensity_level: intensityLevel,
+        created_at: new Date().toISOString()
+      };
 
-      if (error) throw error;
+      setCommunications(prev => [newCommunication, ...prev]);
 
       if (responseReceived) {
         toast({
@@ -132,7 +149,6 @@ export const ElementalChannels = () => {
       }
 
       setMessageSymbol('');
-      await fetchCommunications();
 
     } catch (error) {
       console.error('Error communicating with elementals:', error);
