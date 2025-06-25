@@ -27,7 +27,25 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    const requestBody = await req.json();
+    // Check if request has a body
+    const contentType = req.headers.get("content-type");
+    logStep("Content type", { contentType });
+
+    let requestBody;
+    try {
+      const rawBody = await req.text();
+      logStep("Raw body received", { length: rawBody.length, body: rawBody });
+      
+      if (rawBody) {
+        requestBody = JSON.parse(rawBody);
+      } else {
+        throw new Error("Empty request body");
+      }
+    } catch (parseError) {
+      logStep("JSON parse error", { error: parseError.message });
+      throw new Error(`Invalid JSON in request body: ${parseError.message}`);
+    }
+
     const { tier, referralCode } = requestBody;
     
     if (!tier) {
