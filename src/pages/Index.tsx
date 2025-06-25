@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,17 +11,104 @@ import { SynchronicityDetector } from "@/components/spiritual/SynchronicityDetec
 import { DreamAnalysis } from "@/components/spiritual/DreamAnalysis";
 import { MeditationTracker } from "@/components/spiritual/MeditationTracker";
 import { Moon, Star, Heart, Eye, Compass, User, Zap, Crown, Shield, Brain, ChevronDown, LogIn } from "lucide-react";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { validateEmail } from '@/utils/security';
 
 const Index = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [spiritualProgress, setSpiritualProgress] = useState(45);
   const [hasCompletedAssessment, setHasCompletedAssessment] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSignIn = () => {
     setShowAuthModal(true);
+  };
+
+  const handleAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Input validation
+    if (!validateEmail(email)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!password) {
+      toast({
+        title: "Password Required",
+        description: "Please enter your password",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      if (isLogin) {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
+        if (error) throw error;
+        
+        toast({
+          title: "Welcome back!",
+          description: "You have been successfully signed in.",
+        });
+        setShowAuthModal(false);
+        navigate('/pro-features');
+      } else {
+        const { error } = await supabase.auth.signUp({
+          email: email.trim(),
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/pro-features`
+          }
+        });
+        if (error) throw error;
+        
+        toast({
+          title: "Account Created",
+          description: "Please check your email for the confirmation link!",
+        });
+        setShowAuthModal(false);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Authentication Failed",
+        description: error.message || "An error occurred during authentication",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setShowAuthModal(false);
+    setEmail('');
+    setPassword('');
+    setLoading(false);
+  };
+
+  const switchAuthMode = () => {
+    setIsLogin(!isLogin);
+    setEmail('');
+    setPassword('');
   };
 
   return (
@@ -95,17 +181,24 @@ const Index = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-gray-900/95 border border-purple-500/30 rounded-lg p-6 max-w-md w-full mx-4 backdrop-blur-sm">
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2">Welcome Back</h2>
-              <p className="text-purple-200">Connect with your spiritual journey</p>
+              <h2 className="text-2xl font-bold text-white mb-2">
+                {isLogin ? 'Welcome Back' : 'Create Account'}
+              </h2>
+              <p className="text-purple-200">
+                {isLogin ? 'Connect with your spiritual journey' : 'Begin your spiritual awakening'}
+              </p>
             </div>
             
-            <div className="space-y-4">
+            <form onSubmit={handleAuth} className="space-y-4">
               <div>
                 <label className="block text-purple-200 text-sm font-medium mb-2">Email</label>
                 <input 
                   type="email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full p-3 bg-black/30 border border-purple-500/30 rounded-lg text-white placeholder-purple-300"
                   placeholder="Enter your email"
+                  required
                 />
               </div>
               
@@ -113,19 +206,27 @@ const Index = () => {
                 <label className="block text-purple-200 text-sm font-medium mb-2">Password</label>
                 <input 
                   type="password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full p-3 bg-black/30 border border-purple-500/30 rounded-lg text-white placeholder-purple-300"
                   placeholder="Enter your password"
+                  required
                 />
               </div>
               
               <div className="flex gap-3">
-                <Button className="flex-1 bg-purple-600 hover:bg-purple-700">
-                  Sign In
+                <Button 
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 bg-purple-600 hover:bg-purple-700"
+                >
+                  {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
                 </Button>
                 <Button 
+                  type="button"
                   variant="outline" 
                   className="flex-1 border-purple-500/30 text-purple-200"
-                  onClick={() => setShowAuthModal(false)}
+                  onClick={handleCancel}
                 >
                   Cancel
                 </Button>
@@ -133,13 +234,17 @@ const Index = () => {
               
               <div className="text-center">
                 <p className="text-purple-300 text-sm">
-                  Don't have an account? 
-                  <button className="text-purple-400 hover:text-purple-300 ml-1">
-                    Sign up here
+                  {isLogin ? "Don't have an account?" : "Already have an account?"}
+                  <button 
+                    type="button"
+                    className="text-purple-400 hover:text-purple-300 ml-1"
+                    onClick={switchAuthMode}
+                  >
+                    {isLogin ? 'Sign up here' : 'Sign in here'}
                   </button>
                 </p>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       )}
