@@ -12,7 +12,7 @@ import {
   Zap, 
   Search,
   ChevronRight,
-  Lotus,
+  Flower,
   Sun,
   Moon,
   Star
@@ -33,7 +33,7 @@ export const SpiritualKnowledgeBase = () => {
     {
       id: 'vedantic_wisdom',
       title: 'Vedantic Wisdom',
-      icon: <Lotus className="w-5 h-5" />,
+      icon: <Flower className="w-5 h-5" />,
       content: {
         karma_yoga: {
           definition: "The path of selfless action and service",

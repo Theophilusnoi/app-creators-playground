@@ -9,7 +9,7 @@ import { useGeminiChat } from '@/hooks/useGeminiChat';
 import { enhancedSeraphinaBathingService } from '@/services/seraphinaBathingService';
 import { 
   Droplets, 
-  Candle, 
+  Flame, 
   Heart, 
   Shield, 
   DollarSign, 

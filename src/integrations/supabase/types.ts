@@ -191,6 +191,91 @@ export type Database = {
         }
         Relationships: []
       }
+      schedule_acknowledgments: {
+        Row: {
+          acknowledged_at: string
+          acknowledged_by: string
+          assignment_id: string | null
+          created_at: string
+          id: string
+          notes: string | null
+        }
+        Insert: {
+          acknowledged_at?: string
+          acknowledged_by: string
+          assignment_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+        }
+        Update: {
+          acknowledged_at?: string
+          acknowledged_by?: string
+          assignment_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_acknowledgments_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "schedule_assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedule_assignments: {
+        Row: {
+          assigned_by: string
+          assigned_to: string
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: string | null
+          project_id: string | null
+          status: string | null
+          task_title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_by: string
+          assigned_to: string
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          project_id?: string | null
+          status?: string | null
+          task_title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_by?: string
+          assigned_to?: string
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          project_id?: string | null
+          status?: string | null
+          task_title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_assignments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       spiritual_assessments: {
         Row: {
           awareness: number
