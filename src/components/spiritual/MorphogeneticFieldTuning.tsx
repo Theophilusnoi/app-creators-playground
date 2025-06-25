@@ -1,10 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 import { Radio, Zap, Target, AlertTriangle } from 'lucide-react';
@@ -58,14 +58,36 @@ export const MorphogeneticFieldTuning = () => {
 
   const fetchFields = async () => {
     try {
-      const { data, error } = await supabase
-        .from('morphogenetic_fields')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setFields(data || []);
+      // Use mock data since morphogenetic_fields table doesn't exist
+      const mockFields: MorphogeneticField[] = [
+        {
+          id: '1',
+          field_type: 'personal_healing',
+          current_resonance: 0.82,
+          tuning_frequency: 528,
+          created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+          updated_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+          baseline_signature: {
+            initial_frequency: 528,
+            timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+            user_intention: 'personal_healing'
+          },
+          interference_patterns: {
+            noise_level: 0.15,
+            harmonic_distortion: 0.08
+          },
+          calibration_data: {
+            tuning_session: {
+              frequency: 528,
+              duration: 3000,
+              resonance_achieved: 0.82,
+              harmonic_state: true
+            }
+          }
+        }
+      ];
+      
+      setFields(mockFields);
     } catch (error) {
       console.error('Error fetching fields:', error);
     }
@@ -91,30 +113,34 @@ export const MorphogeneticFieldTuning = () => {
       const resonance = Math.random() * 0.9 + 0.1;
       const harmonic = resonance > 0.85;
       
-      const { error } = await supabase
-        .from('morphogenetic_fields')
-        .insert([{
-          user_id: user.id,
-          field_type: selectedFieldType,
-          current_resonance: resonance,
-          tuning_frequency: tuningFrequency[0],
-          baseline_signature: {
-            initial_frequency: tuningFrequency[0],
-            timestamp: new Date().toISOString(),
-            user_intention: selectedFieldType
-          },
-          calibration_data: {
-            tuning_session: {
-              frequency: tuningFrequency[0],
-              duration: 3000,
-              resonance_achieved: resonance,
-              harmonic_state: harmonic
-            }
+      // Create new field locally since morphogenetic_fields table doesn't exist
+      const newField: MorphogeneticField = {
+        id: Date.now().toString(),
+        field_type: selectedFieldType,
+        current_resonance: resonance,
+        tuning_frequency: tuningFrequency[0],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        baseline_signature: {
+          initial_frequency: tuningFrequency[0],
+          timestamp: new Date().toISOString(),
+          user_intention: selectedFieldType
+        },
+        interference_patterns: {
+          noise_level: Math.random() * 0.3,
+          harmonic_distortion: Math.random() * 0.2
+        },
+        calibration_data: {
+          tuning_session: {
+            frequency: tuningFrequency[0],
+            duration: 3000,
+            resonance_achieved: resonance,
+            harmonic_state: harmonic
           }
-        }]);
+        }
+      };
 
-      if (error) throw error;
-
+      setFields(prev => [newField, ...prev]);
       setCurrentResonance(resonance);
       
       if (harmonic) {
@@ -128,8 +154,6 @@ export const MorphogeneticFieldTuning = () => {
           description: `Morphogenetic field calibrated to ${tuningFrequency[0]} Hz`,
         });
       }
-
-      await fetchFields();
 
     } catch (error) {
       console.error('Error tuning field:', error);

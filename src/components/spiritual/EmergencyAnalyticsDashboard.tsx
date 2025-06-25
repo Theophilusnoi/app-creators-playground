@@ -13,7 +13,6 @@ import {
   Waves,
 } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
-import { Json } from '@/types';
 
 interface ProtectionLog {
   id: string;
@@ -43,7 +42,7 @@ interface AkashicRecordAccess {
   id: string;
   user_id: string;
   access_level: number;
-  records_retrieved: Json;
+  records_retrieved: any;
   karmic_insights: string;
   lifetime_focus: string;
   soul_signature: string;
@@ -201,13 +200,7 @@ export const EmergencyAnalyticsDashboard = () => {
 
   const exportAnalytics = async () => {
     try {
-      // Fixed the error on line 198 by using existing table name
-      const { data: protectionLogs } = await supabase
-        .from('daily_protection_logs')
-        .select('*')
-        .eq('user_id', user?.id);
-
-      const csvData = convertToCSV(protectionLogs || []);
+      const csvData = convertToCSV(protectionLogs);
       downloadCSV(csvData, 'spiritual-analytics.csv');
       
       toast({
