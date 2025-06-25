@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { X, Moon, Star, Heart, Eye } from "lucide-react";
+import { X, Moon, Star, Heart, Eye, BookOpen } from "lucide-react";
 
 interface ProcessNarrativeProps {
   open: boolean;
@@ -16,12 +16,22 @@ interface ProcessNarrativeProps {
   steps: Array<{
     title: string;
     description: string;
-    icon: any;
+    icon: string;
   }>;
   benefits: string[];
   guidelines: string[];
-  headerIcon?: any;
+  headerIcon?: string;
 }
+
+// Icon mapping to convert string names to actual components
+const iconMap: Record<string, React.ComponentType<any>> = {
+  Moon,
+  Star,
+  Heart,
+  Eye,
+  BookOpen,
+  X
+};
 
 export const ProcessNarrative = ({ 
   open, 
@@ -33,8 +43,10 @@ export const ProcessNarrative = ({
   steps, 
   benefits, 
   guidelines,
-  headerIcon: HeaderIcon = Moon
+  headerIcon = "Moon"
 }: ProcessNarrativeProps) => {
+  const HeaderIcon = iconMap[headerIcon] || Moon;
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-none w-screen h-screen max-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 border-none p-0 overflow-hidden">
@@ -84,7 +96,7 @@ export const ProcessNarrative = ({
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {steps.map((step, index) => {
-                    const StepIcon = step.icon;
+                    const StepIcon = iconMap[step.icon] || Star;
                     return (
                       <Card key={index} className="bg-black/30 border-purple-500/30 backdrop-blur-sm hover:bg-purple-900/20 transition-colors">
                         <CardContent className="p-6">
