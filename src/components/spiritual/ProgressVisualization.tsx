@@ -38,7 +38,14 @@ export const ProgressVisualization = () => {
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setAssessments(data || []);
+      
+      // Transform the data to include overall_score
+      const transformedData = (data || []).map(item => ({
+        ...item,
+        overall_score: (item.awareness + item.presence + item.compassion + item.wisdom + item.inner_peace) / 5
+      }));
+      
+      setAssessments(transformedData);
     } catch (error) {
       console.error('Error fetching assessments:', error);
     } finally {

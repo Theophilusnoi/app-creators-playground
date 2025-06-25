@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 import { Sparkles, Users, Zap, Calendar } from 'lucide-react';
@@ -50,7 +48,7 @@ export const QuantumPrayerNetwork = () => {
 
   const fetchCelestialEvents = async () => {
     try {
-      // For now, use mock data since celestial_events table may not be available yet
+      // Use mock data since celestial_events table may not be available yet
       const mockEvents: CelestialEvent[] = [
         {
           id: '1',
@@ -77,15 +75,29 @@ export const QuantumPrayerNetwork = () => {
 
   const fetchActiveSessions = async () => {
     try {
-      const { data, error } = await supabase
-        .from('quantum_prayer_log')
-        .select('*')
-        .gte('started_at', new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString())
-        .order('started_at', { ascending: false })
-        .limit(10);
-
-      if (error) throw error;
-      setActiveSessions(data || []);
+      // Use mock data since quantum_prayer_log table doesn't exist
+      const mockSessions: PrayerSession[] = [
+        {
+          id: '1',
+          focal_point: 'global_peace',
+          intensity: 8,
+          participants: 15,
+          collective_coherence: 0.75,
+          quantum_entanglement_score: 0.82,
+          started_at: new Date(Date.now() - 30 * 60 * 1000).toISOString()
+        },
+        {
+          id: '2',
+          focal_point: 'planetary_healing',
+          intensity: 9,
+          participants: 23,
+          collective_coherence: 0.88,
+          quantum_entanglement_score: 0.91,
+          started_at: new Date(Date.now() - 15 * 60 * 1000).toISOString()
+        }
+      ];
+      
+      setActiveSessions(mockSessions);
     } catch (error) {
       console.error('Error fetching active sessions:', error);
     }
@@ -105,23 +117,18 @@ export const QuantumPrayerNetwork = () => {
     try {
       const entanglementScore = Math.random() * intensity[0] * 0.1;
       
-      const { error } = await supabase
-        .from('quantum_prayer_log')
-        .insert([{
-          user_id: user.id,
-          focal_point: focalPoint,
-          intensity: intensity[0],
-          participants: participants[0],
-          quantum_entanglement_score: entanglementScore,
-          celestial_event_id: selectedEvent,
-          energy_signature: {
-            coherence_pattern: Array.from({length: 12}, () => Math.random()),
-            harmonic_frequency: 528 + (Math.random() * 100),
-            intention_clarity: intensity[0] / 10
-          }
-        }]);
+      // Create new session locally since quantum_prayer_log table doesn't exist
+      const newSession: PrayerSession = {
+        id: Date.now().toString(),
+        focal_point: focalPoint,
+        intensity: intensity[0],
+        participants: participants[0],
+        quantum_entanglement_score: entanglementScore,
+        started_at: new Date().toISOString(),
+        celestial_event_id: selectedEvent || undefined
+      };
 
-      if (error) throw error;
+      setActiveSessions(prev => [newSession, ...prev]);
 
       setIsActive(true);
       toast({
