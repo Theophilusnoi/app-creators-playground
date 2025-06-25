@@ -18,7 +18,8 @@ import {
   Sparkles,
   Play,
   Pause,
-  Volume2
+  Volume2,
+  Flame
 } from 'lucide-react';
 import { SacredBathingCreator } from '@/components/spiritual/pro/SacredBathingCreator';
 import { ThirdEyeTracker } from '@/components/spiritual/pro/ThirdEyeTracker';
@@ -26,6 +27,7 @@ import { TelekinesisGym } from '@/components/spiritual/pro/TelekinesisGym';
 import { ZodiacIntegration } from '@/components/spiritual/pro/ZodiacIntegration';
 import { CulturalFrameworks } from '@/components/spiritual/pro/CulturalFrameworks';
 import { NeuroFeedbackHub } from '@/components/spiritual/pro/NeuroFeedbackHub';
+import { EnhancedRitualSystem } from '@/components/spiritual/pro/EnhancedRitualSystem';
 
 const SpiritualMindPro = () => {
   const { user } = useAuth();
@@ -45,6 +47,13 @@ const SpiritualMindPro = () => {
   }, [user]);
 
   const modules = [
+    {
+      id: 'enhanced-rituals',
+      title: 'Enhanced Ritual System',
+      icon: Flame,
+      description: 'Universal Magic Formula & Ancient Wisdom',
+      component: EnhancedRitualSystem
+    },
     {
       id: 'sacred-bath',
       title: 'Sacred Bathing',
