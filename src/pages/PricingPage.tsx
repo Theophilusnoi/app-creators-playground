@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -59,7 +58,7 @@ const PricingPage = () => {
         'Personalized ritual generator',
         'Sacred pod communities (7 members)',
         'Biometric meditation adaptation',
-        'Shadow work guidance'
+        'AI shadow work guidance'
       ],
       color: 'from-blue-500 to-cyan-500',
       popular: true,
@@ -69,11 +68,11 @@ const PricingPage = () => {
       name: 'Fire Keeper',
       element: 'Fire',
       price: 197,
-      description: 'Ignite your spiritual power with personal mentorship',
+      description: 'Ignite your spiritual power with AI mentorship',
       icon: <Flame className="w-6 h-6" />,
       features: [
         'All Water Bearer features',
-        'Weekly 1:1 mentor sessions',
+        'Weekly 1:1 AI mentor sessions',
         'Sacred tradition access (limited)',
         'Ancient library (curated selections)',
         'Council community access',
@@ -88,11 +87,11 @@ const PricingPage = () => {
       name: 'Ether Walker',
       element: 'Ether',
       price: 497,
-      description: 'Master the ancient mysteries with full spiritual access',
+      description: 'Master the ancient mysteries with unlimited AI guidance',
       icon: <Wind className="w-6 h-6" />,
       features: [
         'All Fire Keeper features',
-        'Unlimited mentor access',
+        'Unlimited AI mentor access',
         'Full ancient mystery library',
         'Mystery school initiation paths',
         'Elder council participation',
@@ -105,11 +104,29 @@ const PricingPage = () => {
   ];
 
   const handleSubscribe = async (planId: string) => {
-    if (referralCode) {
-      // Store referral code in localStorage for checkout process
-      localStorage.setItem('referralCode', referralCode);
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to subscribe to a tier.",
+        variant: "destructive",
+      });
+      return;
     }
-    createCheckout(planId);
+
+    try {
+      if (referralCode) {
+        // Store referral code in localStorage for checkout process
+        localStorage.setItem('referralCode', referralCode);
+      }
+      await createCheckout(planId, referralCode);
+    } catch (error) {
+      console.error('Subscription error:', error);
+      toast({
+        title: "Subscription Error",
+        description: "There was an issue starting your subscription. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -180,7 +197,7 @@ const PricingPage = () => {
 
                   <Button
                     onClick={() => handleSubscribe(tier.id)}
-                    disabled={loading || isCurrentTier || !user}
+                    disabled={loading || isCurrentTier}
                     className={`w-full ${
                       isCurrentTier
                         ? 'bg-green-600 hover:bg-green-700'
@@ -218,7 +235,11 @@ const PricingPage = () => {
           <div className="text-center mt-8">
             <p className="text-gray-300">
               Don't have an account?{' '}
-              <Button variant="link" className="text-blue-400">
+              <Button 
+                variant="link" 
+                className="text-blue-400 p-0 h-auto"
+                onClick={() => window.location.href = '/auth'}
+              >
                 Sign up for free
               </Button>
             </p>

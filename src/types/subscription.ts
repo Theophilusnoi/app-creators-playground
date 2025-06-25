@@ -1,3 +1,4 @@
+
 export interface Subscription {
   id: string;
   userId: string;
@@ -59,7 +60,7 @@ export const WISDOM_TIERS: WisdomTier[] = [
     restrictions: [
       'Limited AI conversations (50/month)',
       'Basic archetype assessment',
-      'No mentor access'
+      'No AI mentor access'
     ],
     monthlyPrice: 29,
     yearlyPrice: 290,
@@ -80,10 +81,10 @@ export const WISDOM_TIERS: WisdomTier[] = [
       'Personalized ritual generator',
       'Sacred pod communities (7 members)',
       'Biometric meditation adaptation',
-      'Shadow work guidance'
+      'AI shadow work guidance'
     ],
     restrictions: [
-      'Limited mentor sessions (2/month)',
+      'Limited AI mentor sessions (2/month)',
       'No ancient mystery access'
     ],
     monthlyPrice: 79,
@@ -97,10 +98,10 @@ export const WISDOM_TIERS: WisdomTier[] = [
     id: 'fire',
     name: 'Fire Keeper',
     element: 'fire',
-    description: 'Ignite your spiritual power with personal mentorship',
+    description: 'Ignite your spiritual power with AI mentorship',
     features: [
       'All Water Bearer features',
-      'Weekly 1:1 mentor sessions',
+      'Weekly 1:1 AI mentor sessions',
       'Sacred tradition access (limited)',
       'Ancient library (curated selections)',
       'Council community access',
@@ -122,10 +123,10 @@ export const WISDOM_TIERS: WisdomTier[] = [
     id: 'ether',
     name: 'Ether Walker',
     element: 'ether',
-    description: 'Master the ancient mysteries with full spiritual access',
+    description: 'Master the ancient mysteries with unlimited AI guidance',
     features: [
       'All Fire Keeper features',
-      'Unlimited mentor access',
+      'Unlimited AI mentor access',
       'Full ancient mystery library',
       'Mystery school initiation paths',
       'Elder council participation',
