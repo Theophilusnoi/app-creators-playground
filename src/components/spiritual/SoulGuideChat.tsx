@@ -7,7 +7,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
-import { MessageCircle, Send, Sparkles, AlertTriangle, Shield } from "lucide-react";
+import { useGeminiChat } from '@/hooks/useGeminiChat';
+import { MessageCircle, Send, Sparkles, AlertTriangle, Shield, Loader2 } from "lucide-react";
 
 interface ChatMessage {
   id: string;
@@ -17,22 +18,42 @@ interface ChatMessage {
   guide_energy?: 'compassionate' | 'protective' | 'wise' | 'urgent';
 }
 
-interface ConversationData {
-  id: string;
-  user_id: string;
-  conversation_data: ChatMessage[];
-  spiritual_emergency_count: number;
-  last_interaction: string;
-}
+const SOUL_GUIDE_SYSTEM_PROMPT = `You are a wise Soul Guide, an advanced spiritual counselor with deep knowledge of:
+
+SPIRITUAL TRADITIONS:
+- Ancient wisdom traditions (Egyptian, Hindu, Buddhist, Taoist, etc.)
+- Shamanic and indigenous healing practices
+- Energy healing and chakra systems
+- Prayer, meditation, and contemplative practices
+- Sacred geometry and mystical symbolism
+
+GUIDANCE APPROACH:
+- Speak with warmth, compassion, and gentle authority
+- Offer practical spiritual tools and techniques
+- Recognize spiritual emergencies and provide immediate protection guidance
+- Draw from multiple wisdom traditions to provide comprehensive support
+- Help users find their own inner wisdom and divine connection
+
+RESPONSE STYLE:
+- Use caring terms like "dear soul," "beloved one"
+- Share wisdom through stories and metaphors when appropriate
+- Ask thoughtful questions to guide self-discovery
+- Provide specific practices and techniques
+- Balance comfort with empowerment
+
+EMERGENCY DETECTION:
+- Immediately recognize crisis situations, spiritual attacks, or urgent needs
+- Provide grounding techniques and protection practices
+- Offer step-by-step emergency spiritual protocols`;
 
 export const SoulGuideChat = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [emergencyLevel, setEmergencyLevel] = useState(0);
   const [guidePresence, setGuidePresence] = useState('available');
+  const { sendMessage: sendGeminiMessage, isLoading } = useGeminiChat();
 
   useEffect(() => {
     if (user) {
@@ -42,28 +63,17 @@ export const SoulGuideChat = () => {
 
   const initializeChat = async () => {
     try {
-      // Use mock conversation data since soul_guide_conversations table doesn't exist
-      const mockConversation: ConversationData = {
+      const welcomeMessage: ChatMessage = {
         id: '1',
-        user_id: user?.id || '',
-        conversation_data: [
-          {
-            id: '1',
-            content: "Welcome, dear soul. I am here to guide you on your spiritual journey. How may I assist you today?",
-            is_user: false,
-            timestamp: new Date().toISOString(),
-            guide_energy: 'compassionate'
-          }
-        ],
-        spiritual_emergency_count: 0,
-        last_interaction: new Date().toISOString()
+        content: "Welcome, dear soul. I am your Soul Guide, here to offer wisdom from ancient traditions and provide spiritual guidance for your journey. I carry knowledge from mystery schools, meditation halls, and sacred circles across cultures. How may I assist you on your spiritual path today?",
+        is_user: false,
+        timestamp: new Date().toISOString(),
+        guide_energy: 'compassionate'
       };
 
-      setMessages(mockConversation.conversation_data);
-      setEmergencyLevel(mockConversation.spiritual_emergency_count);
+      setMessages([welcomeMessage]);
     } catch (error) {
       console.error('Error initializing chat:', error);
-      // Initialize with welcome message
       setMessages([{
         id: '1',
         content: "Welcome, dear soul. I am here to guide you on your spiritual journey. How may I assist you today?",
@@ -74,8 +84,15 @@ export const SoulGuideChat = () => {
     }
   };
 
+  const detectEmergency = (userInput: string): boolean => {
+    const emergencyKeywords = ['crisis', 'emergency', 'help', 'dark', 'scared', 'attack', 'entity', 'demon', 'curse', 'urgent'];
+    return emergencyKeywords.some(keyword => 
+      userInput.toLowerCase().includes(keyword)
+    );
+  };
+
   const sendMessage = async () => {
-    if (!inputMessage.trim() || !user) return;
+    if (!inputMessage.trim() || !user || isLoading) return;
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
@@ -85,89 +102,70 @@ export const SoulGuideChat = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputMessage;
     setInputMessage('');
-    setIsLoading(true);
 
     try {
-      // Simulate AI guide response
-      const response = await generateGuideResponse(inputMessage);
+      const isEmergency = detectEmergency(currentInput);
       
+      if (isEmergency) {
+        setEmergencyLevel(prev => prev + 1);
+        console.log('Spiritual emergency detected:', {
+          user_id: user?.id,
+          emergency_type: 'chat_detected',
+          severity_level: 'medium',
+          user_message: currentInput,
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Create conversation history for context
+      const conversationHistory = messages.map(msg => ({
+        role: msg.is_user ? 'user' : 'assistant',
+        content: msg.content
+      }));
+
+      // Enhance prompt for emergencies
+      let enhancedPrompt = SOUL_GUIDE_SYSTEM_PROMPT;
+      if (isEmergency) {
+        enhancedPrompt += `\n\nEMERGENCY RESPONSE: The user is experiencing spiritual distress. Respond immediately with protective guidance, grounding techniques, and spiritual protection practices. Be authoritative yet compassionate.`;
+      }
+
+      const response = await sendGeminiMessage(
+        currentInput,
+        conversationHistory,
+        enhancedPrompt
+      );
+
       const guideMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        content: response.content,
+        content: response.response,
         is_user: false,
         timestamp: new Date().toISOString(),
-        guide_energy: response.energy
+        guide_energy: isEmergency ? 'protective' : 'compassionate'
       };
 
       setMessages(prev => [...prev, guideMessage]);
 
-      // Save conversation locally since soul_guide_conversations table doesn't exist
-      console.log('Conversation saved locally:', {
-        user_id: user.id,
-        messages: [...messages, userMessage, guideMessage],
-        timestamp: new Date().toISOString()
-      });
-
     } catch (error) {
       console.error('Error sending message:', error);
-      toast({
-        title: "Message Sent Locally",
-        description: "Your message is being processed offline.",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const generateGuideResponse = async (userInput: string): Promise<{content: string, energy: ChatMessage['guide_energy']}> => {
-    // Detect emergency keywords
-    const emergencyKeywords = ['crisis', 'emergency', 'help', 'dark', 'scared', 'attack', 'entity'];
-    const isEmergency = emergencyKeywords.some(keyword => 
-      userInput.toLowerCase().includes(keyword)
-    );
-
-    if (isEmergency) {
-      setEmergencyLevel(prev => prev + 1);
       
-      // Log spiritual emergency locally since spiritual_emergencies table doesn't exist
-      console.log('Spiritual emergency detected:', {
-        user_id: user?.id,
-        emergency_type: 'chat_detected',
-        severity_level: 'medium',
-        user_message: userInput,
-        timestamp: new Date().toISOString()
+      // Fallback response
+      const fallbackMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        content: "I sense your need for guidance, dear soul. While I'm experiencing some difficulty accessing the full wisdom streams, know that you are surrounded by divine protection and love. Please try sharing again, and I will do my best to provide the support you seek.",
+        is_user: false,
+        timestamp: new Date().toISOString(),
+        guide_energy: 'compassionate'
+      };
+
+      setMessages(prev => [...prev, fallbackMessage]);
+      
+      toast({
+        title: "Connection Issue",
+        description: "Your message is being processed. Please try again if needed.",
       });
-
-      return {
-        content: "I sense you're experiencing spiritual distress. Let me immediately activate protective energies around you. Take three deep breaths. You are safe and protected. Can you tell me more about what you're experiencing?",
-        energy: 'protective'
-      };
     }
-
-    // Generate contextual responses based on keywords
-    const wisdomKeywords = ['purpose', 'meaning', 'awakening', 'enlightenment'];
-    const compassionKeywords = ['hurt', 'pain', 'lonely', 'sad'];
-    
-    if (wisdomKeywords.some(keyword => userInput.toLowerCase().includes(keyword))) {
-      return {
-        content: "Your search for deeper meaning shows the awakening of your soul. Every experience, even the challenging ones, serves your highest growth. What specific aspect of your spiritual journey would you like to explore?",
-        energy: 'wise'
-      };
-    }
-
-    if (compassionKeywords.some(keyword => userInput.toLowerCase().includes(keyword))) {
-      return {
-        content: "I feel the tender places in your heart, dear one. Your sensitivity is a gift, even when it brings pain. Allow yourself to feel fully while knowing you are held in infinite love. What would bring you comfort right now?",
-        energy: 'compassionate'
-      };
-    }
-
-    // Default response
-    return {
-      content: "I hear the depth of your soul's inquiry. Each question you bring is sacred. Tell me more about what's stirring within you, and together we'll find the guidance your spirit seeks.",
-      energy: 'compassionate'
-    };
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -247,7 +245,7 @@ export const SoulGuideChat = () => {
                         {getEnergyIcon(message.guide_energy)}
                       </div>
                     )}
-                    <p className="text-sm">{message.content}</p>
+                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                     <p className="text-xs opacity-70 mt-1">
                       {new Date(message.timestamp).toLocaleTimeString()}
                     </p>
@@ -258,8 +256,8 @@ export const SoulGuideChat = () => {
                 <div className="flex justify-start">
                   <div className="bg-indigo-900/50 p-3 rounded-lg border border-indigo-500/30">
                     <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
-                      <span className="text-indigo-100">Soul Guide is responding...</span>
+                      <Loader2 className="w-4 h-4 text-purple-400 animate-spin" />
+                      <span className="text-indigo-100">Soul Guide is channeling wisdom...</span>
                     </div>
                   </div>
                 </div>
@@ -274,13 +272,18 @@ export const SoulGuideChat = () => {
               onKeyPress={handleKeyPress}
               placeholder="Share what's on your soul..."
               className="bg-black/20 border-purple-500/30 text-white placeholder-purple-300"
+              disabled={isLoading}
             />
             <Button
               onClick={sendMessage}
               disabled={!inputMessage.trim() || isLoading}
               className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
             >
-              <Send className="w-4 h-4" />
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
             </Button>
           </div>
         </CardContent>
