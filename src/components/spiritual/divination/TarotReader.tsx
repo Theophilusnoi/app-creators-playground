@@ -1,221 +1,261 @@
+
 import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { useVoiceService } from '@/hooks/useVoiceService';
-import { Zap, Volume2 } from 'lucide-react';
-
-interface TarotCard {
-  id: number;
-  name: string;
-  upright: string;
-  reversed: string;
-  description: string;
-  symbol: string;
-}
-
-const tarotDeck: TarotCard[] = [
-  {
-    id: 1,
-    name: "The Fool",
-    upright: "New beginnings, spontaneity, adventure, innocence",
-    reversed: "Recklessness, risk-taking, naivety, foolishness",
-    description: "Represents unlimited potential and new journeys ahead",
-    symbol: "🃏"
-  },
-  {
-    id: 2,
-    name: "The Magician",
-    upright: "Manifestation, resourcefulness, power, inspired action",
-    reversed: "Manipulation, trickery, untapped talents, illusion",
-    description: "Symbolizes the power to create your reality through will",
-    symbol: "🎩"
-  },
-  {
-    id: 3,
-    name: "The High Priestess",
-    upright: "Intuition, subconscious, divine feminine, mystery",
-    reversed: "Secrets, disconnected intuition, withdrawal, silence",
-    description: "Represents inner wisdom and unconscious knowledge",
-    symbol: "🌙"
-  },
-  {
-    id: 4,
-    name: "The Empress",
-    upright: "Femininity, beauty, nature, abundance, nurturing",
-    reversed: "Creative block, dependence, smothering, barrenness",
-    description: "Symbol of fertility, nurturing and natural abundance",
-    symbol: "👑"
-  },
-  {
-    id: 5,
-    name: "The Emperor",
-    upright: "Authority, structure, control, fatherhood, leadership",
-    reversed: "Domination, rigidity, lack of control, tyranny",
-    description: "Represents structure, stability and masculine power",
-    symbol: "⚔️"
-  },
-  {
-    id: 6,
-    name: "The Lovers",
-    upright: "Love, harmony, relationships, choices, alignment",
-    reversed: "Disharmony, imbalance, misalignment, conflict",
-    description: "Symbolizes relationships and important life choices",
-    symbol: "💕"
-  },
-  {
-    id: 7,
-    name: "The Chariot",
-    upright: "Control, willpower, success, determination, direction",
-    reversed: "Lack of control, aggression, no direction, defeat",
-    description: "Represents triumph through maintaining control",
-    symbol: "🏇"
-  },
-  {
-    id: 8,
-    name: "Strength",
-    upright: "Strength, courage, patience, control, compassion",
-    reversed: "Weakness, self-doubt, lack of confidence, raw emotion",
-    description: "Shows inner strength and the power of gentle persuasion",
-    symbol: "🦁"
-  }
-];
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { tarotDeck, drawCards } from '@/data/tarotDeck';
+import { spreadConfigurations } from '@/data/tarotSpreads';
+import { generateOverallMessage, generateSpiritualGuidance, generateActionSteps, generateMeditation, saveReadingToHistory } from '@/utils/tarotUtils';
+import { TarotReading, TarotReadingCard } from '@/types/tarot';
+import { Star, Sparkles, Heart, Eye, Shuffle } from 'lucide-react';
 
 export const TarotReader: React.FC = () => {
-  const [tarotCards, setTarotCards] = useState<TarotCard[]>([]);
-  const [selectedCard, setSelectedCard] = useState<TarotCard | null>(null);
-  const [isReading, setIsReading] = useState(false);
-  const { generateAndPlay } = useVoiceService();
+  const [selectedSpread, setSelectedSpread] = useState('three-card');
+  const [question, setQuestion] = useState('');
+  const [currentReading, setCurrentReading] = useState<TarotReading | null>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
 
-  const drawTarotCards = (count: number = 3) => {
-    const shuffled = [...tarotDeck].sort(() => 0.5 - Math.random());
-    const selected = shuffled.slice(0, count);
-    setTarotCards(selected);
-    setSelectedCard(null);
-    setIsReading(false);
+  const handleDrawCards = async () => {
+    if (!question.trim()) {
+      alert('Please enter a question for the cards to answer.');
+      return;
+    }
+
+    setIsDrawing(true);
+    
+    // Simulate card drawing animation delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    const spread = spreadConfigurations[selectedSpread];
+    const drawnCards = drawCards(tarotDeck, spread.positions.length);
+    
+    const readingCards: TarotReadingCard[] = drawnCards.map((card, index) => ({
+      ...card,
+      position: spread.positions[index],
+      isReversed: Math.random() < 0.3, // 30% chance of reversed card
+      positionMeaning: generatePositionMeaning(card, spread.positions[index], selectedSpread)
+    }));
+
+    const reading: TarotReading = {
+      id: Date.now(),
+      timestamp: new Date().toISOString(),
+      question: question,
+      spreadType: selectedSpread,
+      spreadName: spread.name,
+      cards: readingCards,
+      overallMessage: generateOverallMessage(readingCards, selectedSpread),
+      spiritualGuidance: generateSpiritualGuidance(readingCards),
+      actionSteps: generateActionSteps(readingCards),
+      meditation: generateMeditation(readingCards)
+    };
+
+    setCurrentReading(reading);
+    saveReadingToHistory(reading);
+    setIsDrawing(false);
   };
 
-  const readTarotCard = (card: TarotCard) => {
-    setSelectedCard(card);
-    setIsReading(true);
-    
-    generateAndPlay({
-      text: `You've drawn ${card.name}. ${card.description}. In the upright position, it means: ${card.upright}. This card suggests a time of transformation and growth in your life.`,
-      emotion: 'calm'
-    });
-    
-    setTimeout(() => setIsReading(false), 3000);
+  const generatePositionMeaning = (card: any, position: string, spreadType: string): string => {
+    return `In the position of ${position}, ${card.name} brings the energy of ${card.meaning.toLowerCase()}.`;
+  };
+
+  const resetReading = () => {
+    setCurrentReading(null);
+    setQuestion('');
   };
 
   return (
-    <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-3 text-white">
-          <Zap className="text-amber-400" />
-          Tarot Wisdom
-        </CardTitle>
-      </CardHeader>
-      
-      <CardContent className="space-y-6">
-        <div className="text-center">
-          <Button 
-            onClick={() => drawTarotCards(3)}
-            className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white"
-          >
-            <Zap className="mr-2" size={16} />
-            Draw 3-Card Spread
-          </Button>
-          <p className="mt-2 text-sm text-purple-300">
-            Past • Present • Future
+    <div className="max-w-6xl mx-auto space-y-6">
+      <Card className="bg-gradient-to-br from-purple-900/50 to-indigo-900/50 border-purple-500/30">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Star className="w-6 h-6 text-purple-400" />
+            Divine Tarot Guidance
+          </CardTitle>
+          <p className="text-purple-200">
+            Receive sacred wisdom and spiritual guidance through the ancient art of tarot
           </p>
-        </div>
-        
-        {tarotCards.length > 0 ? (
-          <div className="space-y-8">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {tarotCards.map((card, index) => (
-                <div 
-                  key={card.id}
-                  className={`cursor-pointer transition-all duration-200 ${
-                    selectedCard?.id === card.id 
-                      ? 'ring-4 ring-amber-400 scale-105' 
-                      : 'hover:scale-105'
-                  }`}
-                  onClick={() => readTarotCard(card)}
-                >
-                  <div className="bg-gradient-to-br from-amber-900/50 to-orange-900/50 border-2 border-amber-500/30 rounded-xl w-full aspect-[2/3] flex items-center justify-center text-6xl">
-                    {card.symbol}
-                  </div>
-                  <div className="mt-2 text-center">
-                    <h4 className="font-medium text-white">{card.name}</h4>
-                    <p className="text-sm text-amber-300">
-                      {['Past', 'Present', 'Future'][index]}
-                    </p>
-                  </div>
-                </div>
-              ))}
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-purple-200 text-sm font-medium">Your Question</label>
+              <Input
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                placeholder="What guidance do you seek from the universe?"
+                className="bg-black/30 border-purple-500/50 text-white placeholder-purple-300"
+              />
             </div>
-            
-            {selectedCard && (
-              <div className="bg-gradient-to-br from-amber-900/30 to-orange-900/30 rounded-lg p-6 border border-amber-500/30">
-                <div className="flex flex-col md:flex-row gap-6">
-                  <div className="md:w-1/3">
-                    <div className="bg-gradient-to-br from-amber-900/50 to-orange-900/50 border-2 border-amber-500/30 rounded-xl w-full aspect-[2/3] flex items-center justify-center text-8xl">
-                      {selectedCard.symbol}
+            <div className="space-y-2">
+              <label className="text-purple-200 text-sm font-medium">Card Spread</label>
+              <Select value={selectedSpread} onValueChange={setSelectedSpread}>
+                <SelectTrigger className="bg-black/30 border-purple-500/50 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(spreadConfigurations).map(([key, spread]) => (
+                    <SelectItem key={key} value={key}>
+                      {spread.name} ({spread.positions.length} cards)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <div className="text-center">
+            <Button
+              onClick={handleDrawCards}
+              disabled={!question.trim() || isDrawing}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              size="lg"
+            >
+              {isDrawing ? (
+                <>
+                  <Sparkles className="w-5 h-5 mr-2 animate-spin" />
+                  Drawing Cards...
+                </>
+              ) : (
+                <>
+                  <Shuffle className="w-5 h-5 mr-2" />
+                  Draw Cards
+                </>
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {currentReading && (
+        <div className="space-y-6">
+          {/* Reading Header */}
+          <Card className="bg-black/30 border-purple-500/30">
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="text-white">{currentReading.spreadName}</CardTitle>
+                  <p className="text-purple-200 mt-1">"{currentReading.question}"</p>
+                </div>
+                <Button onClick={resetReading} variant="outline" size="sm">
+                  New Reading
+                </Button>
+              </div>
+            </CardHeader>
+          </Card>
+
+          {/* Cards Display */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {currentReading.cards.map((card, index) => (
+              <Card key={index} className="bg-gradient-to-br from-purple-900/30 to-blue-900/30 border-purple-500/40">
+                <CardHeader className="pb-3">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-white font-semibold">{card.name}</h3>
+                      <p className="text-purple-300 text-sm">{card.position}</p>
+                    </div>
+                    {card.isReversed && (
+                      <Badge variant="secondary" className="bg-red-600/20 text-red-200">
+                        Reversed
+                      </Badge>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="h-32 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 rounded-lg flex items-center justify-center border border-yellow-500/30">
+                    <div className="text-center">
+                      <Star className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
+                      <p className="text-yellow-200 text-sm font-medium">{card.name}</p>
                     </div>
                   </div>
                   
-                  <div className="md:w-2/3 space-y-4">
-                    <h3 className="text-xl font-bold text-amber-200 mb-2">
-                      {selectedCard.name}
-                    </h3>
-                    
-                    <div>
-                      <h4 className="font-semibold text-amber-300">Upright Meaning:</h4>
-                      <p className="text-purple-100">{selectedCard.upright}</p>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-semibold text-amber-300">Reversed Meaning:</h4>
-                      <p className="text-purple-100">{selectedCard.reversed}</p>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-semibold text-amber-300">Interpretation:</h4>
-                      <p className="text-purple-100">{selectedCard.description}</p>
-                    </div>
-                    
-                    {isReading && (
-                      <div className="mt-4 p-3 bg-amber-900/30 rounded-lg flex items-center border border-amber-500/30">
-                        <div className="animate-pulse mr-3">
-                          <Volume2 className="text-amber-400" />
-                        </div>
-                        <p className="text-amber-200">
-                          Reading your card...
-                        </p>
-                      </div>
-                    )}
+                  <div>
+                    <p className="text-purple-100 text-sm">
+                      {card.isReversed ? card.reversed : card.meaning}
+                    </p>
                   </div>
-                </div>
-              </div>
-            )}
+                  
+                  <div>
+                    <p className="text-purple-200 text-xs italic">
+                      {card.positionMeaning}
+                    </p>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-1">
+                    {card.keywords.slice(0, 3).map((keyword, i) => (
+                      <Badge key={i} variant="outline" className="border-purple-500/50 text-purple-200 text-xs">
+                        {keyword}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
-        ) : (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">🔮</div>
-            <h3 className="text-xl font-semibold mb-2 text-white">Draw Your Cards</h3>
-            <p className="text-purple-200">
-              The tarot reveals insights about your past, present, and future. 
-              Click above to draw a 3-card spread and discover what the universe has to say.
-            </p>
+
+          {/* Reading Interpretation */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card className="bg-black/30 border-purple-500/30">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Heart className="w-5 h-5 text-pink-400" />
+                  Overall Message
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-purple-100 leading-relaxed">
+                  {currentReading.overallMessage}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-black/30 border-purple-500/30">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-blue-400" />
+                  Spiritual Guidance
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-purple-100 leading-relaxed">
+                  {currentReading.spiritualGuidance}
+                </p>
+              </CardContent>
+            </Card>
           </div>
-        )}
-      </CardContent>
-      
-      <CardFooter className="bg-gradient-to-r from-amber-900/20 to-orange-900/20 p-4 border-t border-amber-500/30">
-        <p className="text-sm text-amber-300 mx-auto">
-          ✨ Tarot readings offer guidance, not fixed predictions. Use them for insight and self-reflection.
-        </p>
-      </CardFooter>
-    </Card>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card className="bg-black/30 border-purple-500/30">
+              <CardHeader>
+                <CardTitle className="text-white">Action Steps</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {currentReading.actionSteps.map((step, index) => (
+                    <li key={index} className="text-purple-100 text-sm flex items-start gap-2">
+                      <Star className="w-3 h-3 text-yellow-400 mt-0.5 flex-shrink-0" />
+                      {step}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-black/30 border-purple-500/30">
+              <CardHeader>
+                <CardTitle className="text-white">Meditation Focus</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-purple-100 leading-relaxed text-sm">
+                  {currentReading.meditation}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };

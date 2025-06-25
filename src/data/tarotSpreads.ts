@@ -3,40 +3,44 @@ import { SpreadConfiguration } from '@/types/tarot';
 
 export const spreadConfigurations: Record<string, SpreadConfiguration> = {
   'three-card': {
-    name: 'Past, Present, Future',
+    name: 'Three Card Spread',
     positions: ['Past', 'Present', 'Future'],
-    description: 'A classic spread revealing the timeline of your spiritual journey'
-  },
-  'celtic-cross': {
-    name: 'Celtic Cross',
-    positions: [
-      'Present Situation', 'Challenge/Cross', 'Distant Past/Foundation', 
-      'Recent Past', 'Possible Outcome', 'Immediate Future',
-      'Your Approach', 'External Influences', 'Hopes and Fears', 'Final Outcome'
-    ],
-    description: 'A comprehensive 10-card spread for deep spiritual insight'
+    description: 'A simple yet powerful spread revealing the flow of time and energy in your life.'
   },
   'spiritual-guidance': {
     name: 'Spiritual Guidance',
     positions: ['Current Spiritual State', 'Divine Message', 'Action to Take'],
-    description: 'A focused spread for receiving direct divine guidance'
+    description: 'Receive direct spiritual guidance for your current path and next steps.'
+  },
+  'celtic-cross': {
+    name: 'Celtic Cross',
+    positions: [
+      'Present Situation',
+      'Challenge/Cross',
+      'Distant Past/Foundation',
+      'Recent Past',
+      'Possible Outcome',
+      'Immediate Future',
+      'Your Approach',
+      'External Influences',
+      'Hopes and Fears',
+      'Final Outcome'
+    ],
+    description: 'The most comprehensive tarot spread for deep spiritual insight and life guidance.'
   },
   'chakra-alignment': {
     name: 'Chakra Alignment',
-    positions: [
-      'Root Chakra', 'Sacral Chakra', 'Solar Plexus', 'Heart Chakra',
-      'Throat Chakra', 'Third Eye', 'Crown Chakra'
-    ],
-    description: 'A 7-card spread for spiritual energy alignment and chakra healing'
+    positions: ['Root', 'Sacral', 'Solar Plexus', 'Heart', 'Throat', 'Third Eye', 'Crown'],
+    description: 'Discover the current state of your energy centers and how to achieve balance.'
   },
   'love-guidance': {
     name: 'Love & Relationships',
-    positions: ['Your Heart', 'Their Heart', 'Divine Guidance', 'Potential Outcome'],
-    description: 'Sacred wisdom about love, relationships, and heart connections'
+    positions: ['Your Energy', 'Their Energy', 'Connection', 'Challenges', 'Guidance'],
+    description: 'Divine guidance for matters of the heart and relationships.'
   },
   'purpose-calling': {
-    name: 'Divine Purpose',
-    positions: ['Current Path', 'Divine Calling', 'Hidden Talents', 'Next Steps'],
-    description: 'Discover your sacred life purpose and spiritual mission'
+    name: 'Life Purpose & Calling',
+    positions: ['Soul Purpose', 'Current Path', 'Obstacles', 'Gifts', 'Next Steps'],
+    description: 'Discover your divine purpose and calling in this lifetime.'
   }
 };

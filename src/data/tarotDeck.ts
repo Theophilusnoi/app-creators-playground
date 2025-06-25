@@ -1,408 +1,86 @@
-
 import { TarotCard } from '@/types/tarot';
 
-export const completeTarotDeck: TarotCard[] = [
+export const tarotDeck: TarotCard[] = [
   // Major Arcana
-  { 
-    id: 0, 
-    name: "The Fool", 
-    suit: "Major Arcana",
+  {
+    id: 0,
+    name: "The Fool",
+    suit: "major_arcana",
     number: 0,
-    meaning: "New beginnings, innocence, spontaneity, free spirit, adventure",
+    meaning: "New beginnings, innocence, spontaneity, free spirit",
     reversed: "Recklessness, taken advantage of, inconsideration, foolishness",
-    keywords: ["beginnings", "innocence", "adventure", "potential", "freedom"],
-    element: "Air",
+    keywords: ["new beginnings", "innocence", "journey", "potential", "spontaneity"],
+    element: "air",
     astrology: "Uranus",
-    description: "The Fool represents new beginnings and infinite potential. This card encourages you to take a leap of faith and trust in the journey ahead.",
-    spiritualMessage: "The divine is calling you to step into the unknown with faith and trust. Your spiritual journey is just beginning."
+    description: "The Fool represents the beginning of all journeys, both spiritual and physical. A figure stands at the edge of a cliff, ready to take a leap of faith.",
+    spiritualMessage: "Trust in the universe and take that first step on your spiritual journey. Every master was once a beginner."
   },
-  { 
-    id: 1, 
-    name: "The Magician", 
-    suit: "Major Arcana",
+  {
+    id: 1,
+    name: "The Magician",
+    suit: "major_arcana",
     number: 1,
-    meaning: "Manifestation, resourcefulness, power, inspired action, creativity",
+    meaning: "Manifestation, resourcefulness, power, inspired action",
     reversed: "Manipulation, poor planning, untapped talents, illusion",
     keywords: ["manifestation", "power", "skill", "concentration", "action"],
-    element: "Air",
+    element: "air",
     astrology: "Mercury",
-    description: "The Magician represents the power to manifest your desires through focused will and action.",
-    spiritualMessage: "You have all the spiritual tools needed to create your reality. Channel divine energy through focused intention."
+    description: "The Magician stands with one hand pointing to heaven and one to earth, channeling divine energy into the material world.",
+    spiritualMessage: "You have all the tools you need to manifest your desires. Focus your will and take inspired action."
   },
-  { 
-    id: 2, 
-    name: "The High Priestess", 
-    suit: "Major Arcana",
+  {
+    id: 2,
+    name: "The High Priestess",
+    suit: "major_arcana",
     number: 2,
     meaning: "Intuition, sacred knowledge, divine feminine, subconscious mind",
     reversed: "Secrets, disconnected from intuition, withdrawal, silence",
-    keywords: ["intuition", "mystery", "subconscious", "wisdom", "spirituality"],
-    element: "Water",
+    keywords: ["intuition", "mystery", "subconscious", "inner voice", "wisdom"],
+    element: "water",
     astrology: "Moon",
-    description: "The High Priestess represents intuitive wisdom and connection to the divine feminine.",
-    spiritualMessage: "Trust your inner knowing. The divine speaks through your intuition and dreams."
+    description: "The High Priestess sits between two pillars, guardian of sacred mysteries and intuitive wisdom.",
+    spiritualMessage: "Listen to your inner voice. The answers you seek lie within your intuitive knowing."
   },
-  { 
-    id: 3, 
-    name: "The Empress", 
-    suit: "Major Arcana",
-    number: 3,
-    meaning: "Femininity, beauty, nature, abundance, maternal care, creativity",
-    reversed: "Creative block, dependence on others, smothering, lack of growth",
-    keywords: ["abundance", "nature", "fertility", "creativity", "nurturing"],
-    element: "Earth",
-    astrology: "Venus",
-    description: "The Empress represents abundance, creativity, and the nurturing aspects of the divine feminine.",
-    spiritualMessage: "You are connected to the creative force of the universe. Allow divine abundance to flow through you."
-  },
-  { 
-    id: 4, 
-    name: "The Emperor", 
-    suit: "Major Arcana",
-    number: 4,
-    meaning: "Authority, establishment, structure, father figure, leadership",
-    reversed: "Tyranny, rigidity, coldness, domination, excessive control",
-    keywords: ["authority", "structure", "control", "leadership", "stability"],
-    element: "Fire",
-    astrology: "Aries",
-    description: "The Emperor represents structure, authority, and the divine masculine principle of order.",
-    spiritualMessage: "Divine order and structure support your spiritual growth. Lead with wisdom and compassion."
-  },
-  { 
-    id: 5, 
-    name: "The Hierophant", 
-    suit: "Major Arcana",
-    number: 5,
-    meaning: "Spiritual wisdom, religious beliefs, conformity, tradition, institutions",
-    reversed: "Personal beliefs, freedom, challenging the status quo, rebellion",
-    keywords: ["tradition", "conformity", "morality", "ethics", "knowledge"],
-    element: "Earth",
-    astrology: "Taurus",
-    description: "The Hierophant represents traditional spiritual wisdom and established religious or moral systems.",
-    spiritualMessage: "Seek wisdom from spiritual traditions while honoring your personal connection to the divine."
-  },
-  { 
-    id: 6, 
-    name: "The Lovers", 
-    suit: "Major Arcana",
-    number: 6,
-    meaning: "Love, harmony, relationships, values alignment, choices",
-    reversed: "Self-love, disharmony, imbalance, misalignment of values",
-    keywords: ["love", "relationships", "choices", "harmony", "attraction"],
-    element: "Air",
-    astrology: "Gemini",
-    description: "The Lovers represents deep connections, important choices, and the harmony of opposites.",
-    spiritualMessage: "Divine love flows through all your relationships. Choose love in every decision."
-  },
-  { 
-    id: 7, 
-    name: "The Chariot", 
-    suit: "Major Arcana",
-    number: 7,
-    meaning: "Control, willpower, success, determination, direction",
-    reversed: "Self-discipline, opposition, lack of direction, aggression",
-    keywords: ["control", "willpower", "victory", "determination", "focus"],
-    element: "Water",
-    astrology: "Cancer",
-    description: "The Chariot represents triumph through willpower and determination.",
-    spiritualMessage: "Divine will flows through your focused intention. You have the power to overcome any obstacle."
-  },
-  { 
-    id: 8, 
-    name: "Strength", 
-    suit: "Major Arcana",
-    number: 8,
-    meaning: "Strength, courage, persuasion, influence, compassion",
-    reversed: "Self doubt, low energy, raw emotion, lack of confidence",
-    keywords: ["strength", "courage", "patience", "control", "compassion"],
-    element: "Fire",
-    astrology: "Leo",
-    description: "Strength represents inner fortitude and the power of gentle persuasion over brute force.",
-    spiritualMessage: "Your true strength comes from divine love and compassion. Lead with your heart."
-  },
-  { 
-    id: 9, 
-    name: "The Hermit", 
-    suit: "Major Arcana",
-    number: 9,
-    meaning: "Soul searching, introspection, inner guidance, spiritual quest",
-    reversed: "Isolation, loneliness, withdrawal, lost your way",
-    keywords: ["introspection", "meditation", "guidance", "solitude", "soul-searching"],
-    element: "Earth",
-    astrology: "Virgo",
-    description: "The Hermit represents the wisdom that comes from introspection and spiritual seeking.",
-    spiritualMessage: "Divine wisdom illuminates your path through quiet contemplation and inner reflection."
-  },
-  { 
-    id: 10, 
-    name: "Wheel of Fortune", 
-    suit: "Major Arcana",
-    number: 10,
-    meaning: "Good luck, karma, life cycles, destiny, change",
-    reversed: "Bad luck, lack of control, clinging to control, bad fate",
-    keywords: ["fate", "destiny", "cycles", "karma", "fortune"],
-    element: "Fire",
-    astrology: "Jupiter",
-    description: "The Wheel of Fortune represents the ever-changing cycles of life and the role of fate.",
-    spiritualMessage: "Trust in divine timing and the natural cycles of spiritual growth and evolution."
-  },
-  { 
-    id: 11, 
-    name: "Justice", 
-    suit: "Major Arcana",
-    number: 11,
-    meaning: "Justice, fairness, truth, cause and effect, law",
-    reversed: "Unfairness, lack of accountability, dishonesty, bias",
-    keywords: ["justice", "balance", "truth", "fairness", "karma"],
-    element: "Air",
-    astrology: "Libra",
-    description: "Justice represents balance, fairness, and the universal law of cause and effect.",
-    spiritualMessage: "Divine justice ensures that all actions have consequences. Seek truth and fairness in all things."
-  },
-  { 
-    id: 12, 
-    name: "The Hanged Man", 
-    suit: "Major Arcana",
-    number: 12,
-    meaning: "Suspension, restriction, letting go, sacrifice",
-    reversed: "Martyrdom, indecision, delay, resistance",
-    keywords: ["sacrifice", "letting go", "suspension", "new perspective", "patience"],
-    element: "Water",
-    astrology: "Neptune",
-    description: "The Hanged Man represents voluntary sacrifice and gaining new perspective through suspension.",
-    spiritualMessage: "Sometimes divine wisdom requires you to surrender and see from a new perspective."
-  },
-  { 
-    id: 13, 
-    name: "Death", 
-    suit: "Major Arcana",
-    number: 13,
-    meaning: "Endings, beginnings, change, transformation, transition",
-    reversed: "Resistance to change, personal transformation, inner purging",
-    keywords: ["transformation", "endings", "change", "rebirth", "renewal"],
-    element: "Water",
-    astrology: "Scorpio",
-    description: "Death represents transformation and the natural cycle of endings and new beginnings.",
-    spiritualMessage: "Divine transformation requires the death of old patterns to birth your spiritual evolution."
-  },
-  { 
-    id: 14, 
-    name: "Temperance", 
-    suit: "Major Arcana",
-    number: 14,
-    meaning: "Balance, moderation, patience, purpose, divine guidance",
-    reversed: "Imbalance, excess, self-healing, lack of long-term vision",
-    keywords: ["balance", "moderation", "patience", "harmony", "healing"],
-    element: "Fire",
-    astrology: "Sagittarius",
-    description: "Temperance represents balance, moderation, and the blending of opposing forces.",
-    spiritualMessage: "Divine balance comes through moderation and the patient blending of spiritual energies."
-  },
-  { 
-    id: 15, 
-    name: "The Devil", 
-    suit: "Major Arcana",
-    number: 15,
-    meaning: "Shadow self, attachment, addiction, restriction, materialism",
-    reversed: "Releasing limiting beliefs, exploring dark thoughts, detachment",
-    keywords: ["temptation", "bondage", "materialism", "ignorance", "shadow"],
-    element: "Earth",
-    astrology: "Capricorn",
-    description: "The Devil represents temptation, materialism, and the shadow aspects of human nature.",
-    spiritualMessage: "Recognize the illusions that bind you. Divine light can free you from all limitations."
-  },
-  { 
-    id: 16, 
-    name: "The Tower", 
-    suit: "Major Arcana",
-    number: 16,
-    meaning: "Sudden change, upheaval, chaos, revelation, awakening",
-    reversed: "Personal transformation, fear of change, averting disaster",
-    keywords: ["upheaval", "sudden change", "revelation", "destruction", "awakening"],
-    element: "Fire",
-    astrology: "Mars",
-    description: "The Tower represents sudden upheaval and the destruction of false beliefs.",
-    spiritualMessage: "Divine truth sometimes arrives as lightning, destroying illusions to reveal spiritual reality."
-  },
-  { 
-    id: 17, 
-    name: "The Star", 
-    suit: "Major Arcana",
-    number: 17,
-    meaning: "Hope, faith, purpose, renewal, spirituality, inspiration",
-    reversed: "Lack of faith, despair, self-trust, disconnection",
-    keywords: ["hope", "inspiration", "spirituality", "renewal", "guidance"],
-    element: "Air",
-    astrology: "Aquarius",
-    description: "The Star represents hope, inspiration, and spiritual guidance from above.",
-    spiritualMessage: "Divine light guides you through darkness. Your spiritual destiny shines like a star."
-  },
-  { 
-    id: 18, 
-    name: "The Moon", 
-    suit: "Major Arcana",
-    number: 18,
-    meaning: "Illusion, fear, anxiety, subconscious, intuition, dreams",
-    reversed: "Release of fear, repressed emotion, inner confusion, anxiety",
-    keywords: ["illusion", "intuition", "dreams", "subconscious", "mystery"],
-    element: "Water",
-    astrology: "Pisces",
-    description: "The Moon represents illusion, intuition, and the mysterious realm of the subconscious.",
-    spiritualMessage: "Divine wisdom often comes through dreams and intuition. Trust what lies beneath the surface."
-  },
-  { 
-    id: 19, 
-    name: "The Sun", 
-    suit: "Major Arcana",
-    number: 19,
-    meaning: "Positivity, fun, warmth, success, vitality, joy",
-    reversed: "Inner child, feeling down, overly optimistic, lack of enthusiasm",
-    keywords: ["joy", "success", "positivity", "vitality", "enlightenment"],
-    element: "Fire",
-    astrology: "Sun",
-    description: "The Sun represents joy, success, and the full radiance of spiritual enlightenment.",
-    spiritualMessage: "Divine joy illuminates your path. You are blessed with spiritual radiance and success."
-  },
-  { 
-    id: 20, 
-    name: "Judgement", 
-    suit: "Major Arcana",
-    number: 20,
-    meaning: "Judgement, rebirth, inner calling, absolution, awakening",
-    reversed: "Self-doubt, inner critic, ignoring the call, lack of self-awareness",
-    keywords: ["rebirth", "awakening", "calling", "forgiveness", "redemption"],
-    element: "Fire",
-    astrology: "Pluto",
-    description: "Judgement represents spiritual awakening and answering your higher calling.",
-    spiritualMessage: "The divine calls you to spiritual rebirth and to share your gifts with the world."
-  },
-  { 
-    id: 21, 
-    name: "The World", 
-    suit: "Major Arcana",
+  // Add more major arcana cards...
+  {
+    id: 21,
+    name: "The World",
+    suit: "major_arcana",
     number: 21,
-    meaning: "Completion, integration, accomplishment, travel, fulfillment",
-    reversed: "Seeking personal closure, short-cut to success, lack of achievement",
-    keywords: ["completion", "integration", "accomplishment", "fulfillment", "wholeness"],
-    element: "Earth",
+    meaning: "Completion, accomplishment, travel, harmony, fulfillment",
+    reversed: "Lack of closure, stagnation, obstacles, incomplete",
+    keywords: ["completion", "fulfillment", "harmony", "success", "unity"],
+    element: "earth",
     astrology: "Saturn",
-    description: "The World represents completion, integration, and the achievement of spiritual wholeness.",
-    spiritualMessage: "You have achieved a level of spiritual completion. Celebrate your divine accomplishments."
+    description: "The World represents the completion of the major life cycle and spiritual journey.",
+    spiritualMessage: "You have achieved spiritual completion in this cycle. Celebrate your growth and prepare for the next level."
   },
-
-  // Minor Arcana - Cups (Emotions, Relationships, Spirituality)
-  { 
-    id: 22, 
-    name: "Ace of Cups", 
-    suit: "Cups",
+  // Minor Arcana - Cups
+  {
+    id: 22,
+    name: "Ace of Cups",
+    suit: "cups",
     number: 1,
-    meaning: "Love, new relationships, compassion, creativity, spiritual awakening",
-    reversed: "Self-love, intuition, repressed emotions, spiritual drought",
-    keywords: ["love", "emotion", "intuition", "spirituality", "new beginnings"],
-    element: "Water",
-    description: "The Ace of Cups represents new emotional beginnings and spiritual awakening.",
-    spiritualMessage: "Divine love is pouring into your life. Open your heart to receive spiritual blessings."
+    meaning: "New love, emotional awakening, creativity, spirituality",
+    reversed: "Emotional loss, blocked creativity, emptiness, spiritual disconnection",
+    keywords: ["love", "emotion", "spirituality", "creativity", "intuition"],
+    element: "water",
+    description: "A hand emerges from clouds holding a golden cup overflowing with water.",
+    spiritualMessage: "Open your heart to divine love and let it overflow into all areas of your life."
   },
-  { 
-    id: 23, 
-    name: "Two of Cups", 
-    suit: "Cups",
-    number: 2,
-    meaning: "Unified love, partnership, mutual attraction, relationships",
-    reversed: "Self-love, break-ups, disharmony, imbalance",
-    keywords: ["partnership", "love", "attraction", "relationships", "harmony"],
-    element: "Water",
-    description: "The Two of Cups represents harmonious relationships and mutual attraction.",
-    spiritualMessage: "Divine love manifests through your connections with others. Honor the sacred in all relationships."
-  },
-  { 
-    id: 24, 
-    name: "Three of Cups", 
-    suit: "Cups",
-    number: 3,
-    meaning: "Celebration, friendship, creativity, community, social gatherings",
-    reversed: "Independence, alone time, hardcore partying, three's a crowd",
-    keywords: ["celebration", "friendship", "community", "joy", "creativity"],
-    element: "Water",
-    description: "The Three of Cups represents celebration, friendship, and joyful community.",
-    spiritualMessage: "Divine joy multiplies when shared with others. Celebrate your spiritual community."
-  },
-
-  // Minor Arcana - Wands (Passion, Career, Creativity)
-  { 
-    id: 36, 
-    name: "Ace of Wands", 
-    suit: "Wands",
-    number: 1,
-    meaning: "Inspiration, creative spark, new opportunities, growth potential",
-    reversed: "Lack of energy, delays, creative blocks, missed opportunities",
-    keywords: ["inspiration", "creativity", "growth", "potential", "passion"],
-    element: "Fire",
-    description: "The Ace of Wands represents new creative and spiritual inspiration.",
-    spiritualMessage: "Divine fire ignites your creative and spiritual potential. Act on your inspired ideas."
-  },
-  { 
-    id: 37, 
-    name: "Two of Wands", 
-    suit: "Wands",
-    number: 2,
-    meaning: "Future planning, making decisions, personal power, control",
-    reversed: "Lack of planning, fear of unknown, playing it safe, bad planning",
-    keywords: ["planning", "decisions", "power", "control", "future"],
-    element: "Fire",
-    description: "The Two of Wands represents personal power and planning for the future.",
-    spiritualMessage: "Divine wisdom guides your planning. Trust your spiritual vision for the future."
-  },
-
-  // Minor Arcana - Swords (Thoughts, Communication, Conflict)
-  { 
-    id: 50, 
-    name: "Ace of Swords", 
-    suit: "Swords",
-    number: 1,
-    meaning: "Breakthrough, clarity, sharp mind, new ideas, mental clarity",
-    reversed: "Confusion, chaos, lack of clarity, misinformation",
-    keywords: ["clarity", "breakthrough", "truth", "justice", "new ideas"],
-    element: "Air",
-    description: "The Ace of Swords represents mental clarity and breakthrough moments.",
-    spiritualMessage: "Divine truth cuts through illusion. Trust your mental clarity and spiritual insights."
-  },
-  { 
-    id: 51, 
-    name: "Two of Swords", 
-    suit: "Swords",
-    number: 2,
-    meaning: "Difficult decisions, weighing options, indecision, blocked emotions",
-    reversed: "Indecision, confusion, information overload, no right choice",
-    keywords: ["decisions", "balance", "truce", "stalemate", "choices"],
-    element: "Air",
-    description: "The Two of Swords represents difficult decisions and the need for balance.",
-    spiritualMessage: "Divine wisdom will guide your choices. Quiet your mind to hear spiritual guidance."
-  },
-
-  // Minor Arcana - Pentacles (Material, Health, Career)
-  { 
-    id: 64, 
-    name: "Ace of Pentacles", 
-    suit: "Pentacles",
-    number: 1,
-    meaning: "Manifestation, new financial opportunity, abundance, material gain",
-    reversed: "Lost opportunity, lack of planning, poor financial decisions",
-    keywords: ["manifestation", "opportunity", "abundance", "prosperity", "material"],
-    element: "Earth",
-    description: "The Ace of Pentacles represents new material opportunities and manifestation.",
-    spiritualMessage: "Divine abundance flows into your material world. Use resources wisely for spiritual growth."
-  },
-  { 
-    id: 65, 
-    name: "Two of Pentacles", 
-    suit: "Pentacles",
-    number: 2,
-    meaning: "Multiple priorities, time management, prioritization, adaptability",
-    reversed: "Over-committed, disorganization, reprioritization",
-    keywords: ["balance", "priorities", "adaptability", "juggling", "flexibility"],
-    element: "Earth",
-    description: "The Two of Pentacles represents balancing multiple responsibilities and priorities.",
-    spiritualMessage: "Divine balance helps you manage earthly responsibilities while maintaining spiritual focus."
-  }
+  // Add more cards for a complete 78-card deck...
 ];
+
+export const shuffleDeck = (deck: TarotCard[]): TarotCard[] => {
+  const shuffled = [...deck];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
+export const drawCards = (deck: TarotCard[], count: number): TarotCard[] => {
+  const shuffled = shuffleDeck(deck);
+  return shuffled.slice(0, count);
+};
