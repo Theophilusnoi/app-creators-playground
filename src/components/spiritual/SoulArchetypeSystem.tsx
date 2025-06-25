@@ -1,377 +1,346 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Sparkles, Crown, Shield, Heart } from "lucide-react";
-import { ArchetypeAssessment } from './archetype/ArchetypeAssessment';
-import { ArchetypeProfile } from './archetype/ArchetypeProfile';
-import { CulturalWisdomGate } from './archetype/CulturalWisdomGate';
-import { WisdomTierSelector } from './subscription/WisdomTierSelector';
-import { SoulArchetype } from '@/types/archetype';
-import { CULTURAL_TRADITIONS } from '@/data/archetypes';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
+import { Crown, Star, Heart, Shield, Eye, Zap } from 'lucide-react';
 
-export const SoulArchetypeSystem: React.FC = () => {
+interface ArchetypeResult {
+  archetype: string;
+  percentage: number;
+  description: string;
+  strengths: string[];
+  challenges: string[];
+  growthPath: string[];
+}
+
+const archetypes = [
+  {
+    id: 'healer',
+    name: 'The Healer',
+    icon: Heart,
+    description: 'Compassionate soul focused on healing others and the world',
+    color: 'text-green-400'
+  },
+  {
+    id: 'visionary',
+    name: 'The Visionary',
+    icon: Eye,
+    description: 'Intuitive guide who sees beyond the veil of reality',
+    color: 'text-purple-400'
+  },
+  {
+    id: 'warrior',
+    name: 'The Warrior',
+    icon: Shield,
+    description: 'Courageous protector fighting for justice and truth',
+    color: 'text-red-400'
+  },
+  {
+    id: 'sage',
+    name: 'The Sage',
+    icon: Star,
+    description: 'Wise teacher sharing ancient knowledge and wisdom',
+    color: 'text-blue-400'
+  },
+  {
+    id: 'mystic',
+    name: 'The Mystic',
+    icon: Zap,
+    description: 'Bridge between worlds, master of spiritual mysteries',
+    color: 'text-yellow-400'
+  },
+  {
+    id: 'guardian',
+    name: 'The Guardian',
+    icon: Crown,
+    description: 'Sacred protector maintaining cosmic balance',
+    color: 'text-indigo-400'
+  }
+];
+
+const questions = [
+  {
+    id: 1,
+    text: "When facing a difficult situation, I tend to:",
+    options: [
+      { text: "Seek to understand and heal the root cause", archetype: 'healer', weight: 3 },
+      { text: "Look for the deeper spiritual meaning", archetype: 'visionary', weight: 3 },
+      { text: "Take action to protect those involved", archetype: 'warrior', weight: 3 },
+      { text: "Research and analyze all possibilities", archetype: 'sage', weight: 3 },
+      { text: "Meditate and connect with divine guidance", archetype: 'mystic', weight: 3 },
+      { text: "Ensure everyone's safety and wellbeing", archetype: 'guardian', weight: 3 }
+    ]
+  },
+  {
+    id: 2,
+    text: "My greatest spiritual gift is:",
+    options: [
+      { text: "Empathy and emotional healing", archetype: 'healer', weight: 3 },
+      { text: "Intuitive sight and prophecy", archetype: 'visionary', weight: 3 },
+      { text: "Courage and righteous strength", archetype: 'warrior', weight: 3 },
+      { text: "Wisdom and knowledge sharing", archetype: 'sage', weight: 3 },
+      { text: "Connection to higher realms", archetype: 'mystic', weight: 3 },
+      { text: "Protection and guidance", archetype: 'guardian', weight: 3 }
+    ]
+  },
+  {
+    id: 3,
+    text: "In my spiritual practice, I'm drawn to:",
+    options: [
+      { text: "Healing rituals and energy work", archetype: 'healer', weight: 2 },
+      { text: "Divination and prophetic dreams", archetype: 'visionary', weight: 2 },
+      { text: "Banishing and protection spells", archetype: 'warrior', weight: 2 },
+      { text: "Study of ancient texts and wisdom", archetype: 'sage', weight: 2 },
+      { text: "Deep meditation and transcendence", archetype: 'mystic', weight: 2 },
+      { text: "Sacred geometry and cosmic order", archetype: 'guardian', weight: 2 }
+    ]
+  }
+];
+
+export const SoulArchetypeSystem = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [currentPhase, setCurrentPhase] = useState<'assessment' | 'profile' | 'growth'>('assessment');
-  const [primaryArchetype, setPrimaryArchetype] = useState<SoulArchetype | null>(null);
-  const [secondaryArchetype, setSecondaryArchetype] = useState<SoulArchetype | null>(null);
-  const [spiritualMaturity, setSpiritualMaturity] = useState(25);
-  const [userLevel, setUserLevel] = useState<'beginner' | 'initiated' | 'advanced'>('beginner');
-  const [activeTab, setActiveTab] = useState('assessment');
-  const [practiceHours, setPracticeHours] = useState(0);
-  const [wisdomPoints, setWisdomPoints] = useState(0);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [results, setResults] = useState<ArchetypeResult[]>([]);
+  const [showResults, setShowResults] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  useEffect(() => {
-    loadUserArchetypeData();
-  }, [user]);
+  const handleAnswer = (archetype: string, weight: number) => {
+    setAnswers(prev => ({
+      ...prev,
+      [archetype]: (prev[archetype] || 0) + weight
+    }));
 
-  const loadUserArchetypeData = () => {
-    if (!user) return;
-    
-    try {
-      const savedData = localStorage.getItem(`archetype_${user.id}`);
-      if (savedData) {
-        const data = JSON.parse(savedData);
-        setPrimaryArchetype(data.primaryArchetype);
-        setSecondaryArchetype(data.secondaryArchetype);
-        setSpiritualMaturity(data.spiritualMaturity || 25);
-        setUserLevel(data.userLevel || 'beginner');
-        setPracticeHours(data.practiceHours || 0);
-        setWisdomPoints(data.wisdomPoints || 0);
-        setCurrentPhase('profile');
-        setActiveTab('profile');
-        
-        // Auto-advance user level based on practice and wisdom
-        updateUserLevel(data.practiceHours || 0, data.wisdomPoints || 0);
-      }
-    } catch (error) {
-      console.error('Error loading archetype data:', error);
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(prev => prev + 1);
+    } else {
+      analyzeResults();
     }
   };
 
-  const updateUserLevel = (hours: number, points: number) => {
-    let newLevel: 'beginner' | 'initiated' | 'advanced' = 'beginner';
+  const analyzeResults = () => {
+    setIsAnalyzing(true);
     
-    if (hours >= 100 && points >= 500) {
-      newLevel = 'advanced';
-    } else if (hours >= 25 && points >= 100) {
-      newLevel = 'initiated';
-    }
-    
-    if (newLevel !== userLevel) {
-      setUserLevel(newLevel);
+    setTimeout(() => {
+      const totalPoints = Object.values(answers).reduce((sum, points) => sum + points, 0);
+      
+      const archetypeResults: ArchetypeResult[] = archetypes.map(archetype => {
+        const points = answers[archetype.id] || 0;
+        const percentage = Math.round((points / totalPoints) * 100) || 0;
+        
+        return {
+          archetype: archetype.name,
+          percentage,
+          description: archetype.description,
+          strengths: generateStrengths(archetype.id),
+          challenges: generateChallenges(archetype.id),
+          growthPath: generateGrowthPath(archetype.id)
+        };
+      }).sort((a, b) => b.percentage - a.percentage);
+
+      setResults(archetypeResults);
+      setShowResults(true);
+      setIsAnalyzing(false);
+
       toast({
-        title: "Spiritual Level Advanced!",
-        description: `You have reached ${newLevel} level. New wisdom traditions are now available.`,
+        title: "Soul Archetype Analysis Complete! ✨",
+        description: `Your primary archetype is ${archetypeResults[0].archetype}`,
       });
-    }
+    }, 2000);
   };
 
-  const handleAssessmentComplete = (primary: SoulArchetype, secondary?: SoulArchetype) => {
-    const initialPoints = 50; // Starting wisdom points for completing assessment
-    const initialHours = 5; // Starting practice hours
-    
-    setPrimaryArchetype(primary);
-    setSecondaryArchetype(secondary);
-    setSpiritualMaturity(30);
-    setPracticeHours(initialHours);
-    setWisdomPoints(initialPoints);
-    
-    // Save to localStorage
-    if (user) {
-      const data = {
-        primaryArchetype: primary,
-        secondaryArchetype: secondary,
-        spiritualMaturity: 30,
-        userLevel: 'beginner',
-        practiceHours: initialHours,
-        wisdomPoints: initialPoints,
-        completedAt: new Date().toISOString()
-      };
-      localStorage.setItem(`archetype_${user.id}`, JSON.stringify(data));
-    }
-    
-    setCurrentPhase('profile');
-    setActiveTab('profile');
-    
-    toast({
-      title: "Soul Archetype Revealed!",
-      description: `You have been granted ${initialPoints} wisdom points and ${initialHours} practice hours to begin your journey.`,
-    });
+  const generateStrengths = (archetypeId: string): string[] => {
+    const strengthsMap: Record<string, string[]> = {
+      healer: ["Deep empathy", "Natural healing abilities", "Emotional intelligence", "Compassionate nature"],
+      visionary: ["Prophetic insight", "Intuitive wisdom", "Creative vision", "Spiritual sight"],
+      warrior: ["Courage and bravery", "Protective instincts", "Strong will", "Justice-oriented"],
+      sage: ["Ancient wisdom", "Teaching ability", "Analytical mind", "Knowledge seeker"],
+      mystic: ["Divine connection", "Transcendent awareness", "Magical abilities", "Spiritual mastery"],
+      guardian: ["Protective nature", "Cosmic awareness", "Sacred duty", "Balance keeper"]
+    };
+    return strengthsMap[archetypeId] || [];
   };
 
-  const handleStartGrowthPath = () => {
-    setCurrentPhase('growth');
-    setActiveTab('wisdom');
-    toast({
-      title: "Growth Path Activated",
-      description: "Your archetypal development journey begins now!",
-    });
+  const generateChallenges = (archetypeId: string): string[] => {
+    const challengesMap: Record<string, string[]> = {
+      healer: ["Absorbing others' pain", "Neglecting self-care", "Emotional overwhelm"],
+      visionary: ["Difficulty grounding visions", "Misunderstood by others", "Information overload"],
+      warrior: ["Righteous anger", "Burnout from fighting", "Difficulty with surrender"],
+      sage: ["Analysis paralysis", "Isolation from others", "Perfectionism"],
+      mystic: ["Disconnection from physical world", "Spiritual bypassing", "Integration challenges"],
+      guardian: ["Burden of responsibility", "Rigid thinking", "Difficulty with change"]
+    };
+    return challengesMap[archetypeId] || [];
   };
 
-  const handleWisdomAccess = (traditionId: string) => {
-    const tradition = CULTURAL_TRADITIONS.find(t => t.id === traditionId);
-    if (tradition) {
-      // Award wisdom points for accessing new traditions
-      const newPoints = wisdomPoints + 25;
-      const newHours = practiceHours + 2;
-      
-      setWisdomPoints(newPoints);
-      setPracticeHours(newHours);
-      
-      // Update saved data
-      if (user && primaryArchetype) {
-        const savedData = localStorage.getItem(`archetype_${user.id}`);
-        if (savedData) {
-          const data = JSON.parse(savedData);
-          data.wisdomPoints = newPoints;
-          data.practiceHours = newHours;
-          localStorage.setItem(`archetype_${user.id}`, JSON.stringify(data));
-        }
-      }
-      
-      updateUserLevel(newHours, newPoints);
-      
-      toast({
-        title: "Sacred Wisdom Unlocked",
-        description: `Access granted to ${tradition.name} teachings. +25 wisdom points earned!`,
-      });
-    }
+  const generateGrowthPath = (archetypeId: string): string[] => {
+    const growthMap: Record<string, string[]> = {
+      healer: ["Practice self-healing first", "Set energetic boundaries", "Develop discernment"],
+      visionary: ["Ground visions in action", "Develop communication skills", "Practice patience"],
+      warrior: ["Learn strategic thinking", "Cultivate inner peace", "Practice forgiveness"],
+      sage: ["Share knowledge freely", "Embrace uncertainty", "Connect with community"],
+      mystic: ["Integrate spiritual insights", "Maintain physical health", "Serve others"],
+      guardian: ["Embrace flexibility", "Trust the process", "Delegate responsibility"]
+    };
+    return growthMap[archetypeId] || [];
   };
 
-  const handleTierSelection = (tier: any) => {
-    toast({
-      title: "Wisdom Tier Selected",
-      description: `Upgrading to ${tier.name} - ${tier.description}`,
-    });
+  const resetAssessment = () => {
+    setCurrentQuestion(0);
+    setAnswers({});
+    setResults([]);
+    setShowResults(false);
   };
 
-  const handlePracticeSession = () => {
-    const newHours = practiceHours + 1;
-    const newPoints = wisdomPoints + 10;
-    
-    setPracticeHours(newHours);
-    setWisdomPoints(newPoints);
-    
-    // Update saved data
-    if (user && primaryArchetype) {
-      const savedData = localStorage.getItem(`archetype_${user.id}`);
-      if (savedData) {
-        const data = JSON.parse(savedData);
-        data.practiceHours = newHours;
-        data.wisdomPoints = newPoints;
-        localStorage.setItem(`archetype_${user.id}`, JSON.stringify(data));
-      }
-    }
-    
-    updateUserLevel(newHours, newPoints);
-    
-    toast({
-      title: "Practice Session Complete",
-      description: "+1 practice hour and +10 wisdom points earned!",
-    });
-  };
+  if (!user) {
+    return (
+      <Card className="bg-black/30 border-purple-500/30">
+        <CardContent className="text-center py-12">
+          <Crown className="w-16 h-16 text-purple-400 mx-auto mb-4" />
+          <h3 className="text-xl font-bold text-white mb-2">Soul Archetype Analysis</h3>
+          <p className="text-purple-200">Please log in to discover your spiritual archetype</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
-  return (
-    <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Soul Archetype System</h1>
-        <p className="text-purple-200">Discover your spiritual blueprint and unlock your sacred potential</p>
-        
-        {/* Progress Indicators */}
-        {primaryArchetype && (
-          <div className="flex justify-center gap-6 mt-4">
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="border-purple-400 text-purple-200">
-                Level: {userLevel}
-              </Badge>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="border-green-400 text-green-200">
-                Practice: {practiceHours}h
-              </Badge>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="border-yellow-400 text-yellow-200">
-                Wisdom: {wisdomPoints}pts
-              </Badge>
-            </div>
-          </div>
-        )}
-      </div>
+  if (isAnalyzing) {
+    return (
+      <Card className="bg-black/30 border-purple-500/30">
+        <CardContent className="text-center py-12">
+          <div className="animate-spin w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <h3 className="text-xl font-bold text-white mb-2">Analyzing Your Soul Signature...</h3>
+          <p className="text-purple-200">The cosmic energies are aligning your results</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
-      {/* Custom Tab Navigation */}
-      <div className="flex flex-wrap justify-center gap-2 mb-6">
-        <button
-          onClick={() => setActiveTab('assessment')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-            activeTab === 'assessment'
-              ? 'bg-purple-600 text-white'
-              : 'bg-gray-800 text-purple-300 hover:bg-purple-700 hover:text-white'
-          }`}
-        >
-          <Sparkles className="w-4 h-4" />
-          Assessment
-        </button>
-        
-        <button
-          onClick={() => setActiveTab('profile')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-            activeTab === 'profile'
-              ? 'bg-purple-600 text-white'
-              : 'bg-gray-800 text-purple-300 hover:bg-purple-700 hover:text-white'
-          }`}
-        >
-          <Crown className="w-4 h-4" />
-          Profile
-        </button>
-        
-        <button
-          onClick={() => setActiveTab('wisdom')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-            activeTab === 'wisdom'
-              ? 'bg-purple-600 text-white'
-              : 'bg-gray-800 text-purple-300 hover:bg-purple-700 hover:text-white'
-          }`}
-        >
-          <Shield className="w-4 h-4" />
-          Wisdom Access
-        </button>
-        
-        <button
-          onClick={() => setActiveTab('tiers')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-            activeTab === 'tiers'
-              ? 'bg-purple-600 text-white'
-              : 'bg-gray-800 text-purple-300 hover:bg-purple-700 hover:text-white'
-          }`}
-        >
-          <Heart className="w-4 h-4" />
-          Wisdom Tiers
-        </button>
-      </div>
+  if (showResults) {
+    const primaryArchetype = results[0];
+    const primaryArchetypeData = archetypes.find(a => a.name === primaryArchetype.archetype);
+    const PrimaryIcon = primaryArchetypeData?.icon || Crown;
 
-      {/* Tab Content */}
+    return (
       <div className="space-y-6">
-        {activeTab === 'assessment' && (
-          <div className="space-y-6">
-            {!primaryArchetype ? (
-              <ArchetypeAssessment onComplete={handleAssessmentComplete} />
-            ) : (
-              <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
-                <CardContent className="p-6 text-center">
-                  <Sparkles className="w-12 h-12 text-purple-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-white mb-2">Assessment Complete!</h3>
-                  <p className="text-purple-200 mb-4">
-                    Your soul archetype has been revealed. Explore your profile to begin your journey.
-                  </p>
-                  <Button onClick={() => setActiveTab('profile')} className="bg-purple-600 hover:bg-purple-700">
-                    View My Archetype Profile
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        )}
-
-        {activeTab === 'profile' && (
-          <div className="space-y-6">
-            {primaryArchetype ? (
-              <>
-                <ArchetypeProfile
-                  primaryArchetype={primaryArchetype}
-                  secondaryArchetype={secondaryArchetype}
-                  spiritualMaturity={spiritualMaturity}
-                  onStartGrowthPath={handleStartGrowthPath}
-                />
-                
-                {/* Practice Session Button */}
-                <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
-                  <CardContent className="p-6 text-center">
-                    <h3 className="text-xl font-semibold text-white mb-4">Daily Practice</h3>
-                    <p className="text-purple-200 mb-4">
-                      Complete practice sessions to earn wisdom points and advance your spiritual level.
-                    </p>
-                    <Button 
-                      onClick={handlePracticeSession}
-                      className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
-                    >
-                      Complete Practice Session (+1h, +10pts)
-                    </Button>
-                  </CardContent>
-                </Card>
-              </>
-            ) : (
-              <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
-                <CardContent className="p-6 text-center">
-                  <Crown className="w-12 h-12 text-purple-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-white mb-2">Complete Assessment First</h3>
-                  <p className="text-purple-200 mb-4">
-                    You need to complete the Soul Archetype Assessment to access your profile.
-                  </p>
-                  <Button onClick={() => setActiveTab('assessment')} className="bg-purple-600 hover:bg-purple-700">
-                    Take Assessment
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        )}
-
-        {activeTab === 'wisdom' && (
-          <div className="space-y-6">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2">Cultural Wisdom Access</h2>
-              <p className="text-purple-200">
-                Connect with sacred traditions from around the world
-              </p>
-              <div className="mt-4">
-                <p className="text-sm text-purple-200">
-                  Progress Requirements: Initiated (25h + 100pts) • Advanced (100h + 500pts)
-                </p>
+        <Card className="bg-gradient-to-br from-purple-900/50 to-indigo-900/50 border-purple-500/30">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3 text-white text-2xl">
+              <PrimaryIcon className={`w-8 h-8 ${primaryArchetypeData?.color || 'text-purple-400'}`} />
+              Your Soul Archetype: {primaryArchetype.archetype}
+            </CardTitle>
+            <p className="text-purple-200 text-lg">{primaryArchetype.description}</p>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="text-lg font-semibold text-green-400 mb-3">✨ Your Strengths</h4>
+                <ul className="space-y-2">
+                  {primaryArchetype.strengths.map((strength, index) => (
+                    <li key={index} className="text-purple-200 flex items-center gap-2">
+                      <Star className="w-4 h-4 text-yellow-400" />
+                      {strength}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="text-lg font-semibold text-red-400 mb-3">⚡ Growth Areas</h4>
+                <ul className="space-y-2">
+                  {primaryArchetype.challenges.map((challenge, index) => (
+                    <li key={index} className="text-purple-200 flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-orange-400" />
+                      {challenge}
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {CULTURAL_TRADITIONS.map((tradition) => (
-                <CulturalWisdomGate
-                  key={tradition.id}
-                  tradition={tradition}
-                  userLevel={userLevel}
-                  onAccessGranted={() => handleWisdomAccess(tradition.id)}
-                  onAccessDenied={(reason) => {
-                    toast({
-                      title: "Access Restricted",
-                      description: reason,
-                      variant: "destructive"
-                    });
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-        )}
 
-        {activeTab === 'tiers' && (
-          <div className="space-y-6">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2">Wisdom Tier Selection</h2>
-              <p className="text-purple-200">
-                Choose your spiritual development path
-              </p>
+            <div>
+              <h4 className="text-lg font-semibold text-blue-400 mb-3">🌟 Your Growth Path</h4>
+              <ul className="space-y-2">
+                {primaryArchetype.growthPath.map((step, index) => (
+                  <li key={index} className="text-purple-200 flex items-center gap-2">
+                    <Badge className="bg-indigo-600 text-white">{index + 1}</Badge>
+                    {step}
+                  </li>
+                ))}
+              </ul>
             </div>
-            
-            <WisdomTierSelector
-              currentTier="earth"
-              onSelectTier={handleTierSelection}
-            />
-          </div>
-        )}
+
+            <div>
+              <h4 className="text-lg font-semibold text-purple-400 mb-3">All Archetype Percentages</h4>
+              <div className="space-y-3">
+                {results.map((result, index) => {
+                  const archetypeData = archetypes.find(a => a.name === result.archetype);
+                  const ArchetypeIcon = archetypeData?.icon || Star;
+                  
+                  return (
+                    <div key={index} className="flex items-center gap-3">
+                      <ArchetypeIcon className={`w-5 h-5 ${archetypeData?.color || 'text-purple-400'}`} />
+                      <span className="text-white font-medium w-32">{result.archetype}</span>
+                      <Progress value={result.percentage} className="flex-1 h-2" />
+                      <span className="text-purple-300 w-12 text-right">{result.percentage}%</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <Button
+              onClick={resetAssessment}
+              className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+            >
+              Retake Assessment
+            </Button>
+          </CardContent>
+        </Card>
       </div>
-    </div>
+    );
+  }
+
+  const currentQ = questions[currentQuestion];
+  const progress = ((currentQuestion + 1) / questions.length) * 100;
+
+  return (
+    <Card className="bg-black/30 border-purple-500/30">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-3 text-white">
+          <Crown className="w-6 h-6 text-purple-400" />
+          Soul Archetype Assessment
+        </CardTitle>
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm text-purple-300">
+            <span>Question {currentQuestion + 1} of {questions.length}</span>
+            <span>{Math.round(progress)}% Complete</span>
+          </div>
+          <Progress value={progress} className="h-2" />
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="text-center">
+          <h3 className="text-xl font-semibold text-white mb-6">{currentQ.text}</h3>
+          <div className="grid grid-cols-1 gap-3">
+            {currentQ.options.map((option, index) => (
+              <Button
+                key={index}
+                onClick={() => handleAnswer(option.archetype, option.weight)}
+                variant="outline"
+                className="p-4 h-auto text-left border-purple-500/30 hover:bg-purple-600/20 hover:border-purple-400"
+              >
+                <span className="text-purple-200">{option.text}</span>
+              </Button>
+            ))}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
