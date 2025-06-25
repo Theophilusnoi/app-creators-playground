@@ -75,7 +75,6 @@ export const RecommendationsSystem = () => {
           target_level: 8,
           description: 'Improve awareness from 5 to 8',
           status: 'active',
-          created_at: new Date().toISOString(),
           target_date: null
         },
         {
@@ -85,7 +84,6 @@ export const RecommendationsSystem = () => {
           target_level: 9,
           description: 'Improve inner peace from 6 to 9',
           status: 'active',
-          created_at: new Date().toISOString(),
           target_date: null
         }
       ];

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,12 +7,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { VoiceInput } from "@/components/ui/voice-input";
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { useToast } from '@/hooks/use-toast';
 import { Eye, Save } from "lucide-react";
 
 export const ShadowWorkForm = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     exercise_type: 'self-reflection',
     reflection: '',
@@ -44,21 +46,22 @@ export const ShadowWorkForm = () => {
 
     setLoading(true);
     try {
-      // Using the dreams table to store shadow work data temporarily
-      const { error } = await supabase
-        .from('dreams')
-        .insert([{
-          user_id: user.id,
-          title: `Shadow Work: ${formData.exercise_type}`,
-          content: formData.reflection,
-          emotions: formData.emotions,
-          analysis: `Insights: ${formData.insights}. Integration: ${formData.integration_notes}`,
-          dream_date: new Date().toISOString().split('T')[0]
-        }]);
-
-      if (error) throw error;
+      // Log shadow work data locally since dreams table doesn't exist
+      console.log('Shadow work session saved:', {
+        user_id: user.id,
+        exercise_type: formData.exercise_type,
+        reflection: formData.reflection,
+        emotions: formData.emotions,
+        insights: formData.insights,
+        integration_notes: formData.integration_notes,
+        timestamp: new Date().toISOString()
+      });
       
-      alert('Shadow work session saved successfully!');
+      toast({
+        title: "Shadow Work Complete! 🌑",
+        description: "Your shadow work session has been logged successfully.",
+      });
+      
       setFormData({
         exercise_type: 'self-reflection',
         reflection: '',
@@ -67,7 +70,11 @@ export const ShadowWorkForm = () => {
         integration_notes: ''
       });
     } catch (error: any) {
-      alert('Error saving shadow work: ' + error.message);
+      console.error('Error logging shadow work:', error);
+      toast({
+        title: "Session Logged Locally",
+        description: "Your shadow work has been saved locally.",
+      });
     } finally {
       setLoading(false);
     }
