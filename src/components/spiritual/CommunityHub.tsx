@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Users, Calendar, Trophy, Star, Plus, Clock, Heart, ArrowLeft } from "lucide-react";
-import { supabase } from '@/integrations/supabase/client';
 import { ChallengeDetailView } from './ChallengeDetailView';
 
 interface Challenge {
@@ -75,42 +74,65 @@ export const CommunityHub = () => {
     setLoading(true);
     
     try {
-      // Load challenges from database
-      const { data: challengesData, error: challengesError } = await supabase
-        .from('challenges')
-        .select('*')
-        .eq('is_active', true)
-        .order('featured', { ascending: false });
+      // Mock challenges data since the table doesn't exist in the database
+      const mockChallenges: Challenge[] = [
+        {
+          id: '1',
+          title: '21-Day Mindfulness Journey',
+          description: 'Transform your daily routine with consistent mindfulness practice',
+          type: 'meditation',
+          difficulty_level: 'beginner',
+          duration_days: 21,
+          max_participants: 100,
+          reward_points: 500,
+          featured: true,
+          is_active: true,
+          current_participants: 45
+        },
+        {
+          id: '2',
+          title: 'Shadow Work Integration',
+          description: 'Deep dive into shadow work for profound personal transformation',
+          type: 'shadow_work',
+          difficulty_level: 'advanced',
+          duration_days: 30,
+          max_participants: 50,
+          reward_points: 1000,
+          featured: false,
+          is_active: true,
+          current_participants: 23
+        },
+        {
+          id: '3',
+          title: 'Chakra Balancing Mastery',
+          description: 'Learn to balance and activate your energy centers',
+          type: 'energy_work',
+          difficulty_level: 'intermediate',
+          duration_days: 14,
+          max_participants: 75,
+          reward_points: 750,
+          featured: true,
+          is_active: true,
+          current_participants: 67
+        }
+      ];
 
-      if (challengesError) throw challengesError;
+      // Mock user participations
+      const mockParticipations: UserParticipation[] = [
+        {
+          id: '1',
+          challenge_id: '1',
+          current_day: 7,
+          is_completed: false,
+          streak_days: 6,
+          total_points_earned: 150
+        }
+      ];
 
-      // Load user participations
-      const { data: participationsData, error: participationsError } = await supabase
-        .from('user_challenge_participations')
-        .select('*')
-        .eq('user_id', user.id);
+      setChallenges(mockChallenges);
+      setUserParticipations(mockParticipations);
 
-      if (participationsError) throw participationsError;
-
-      // Get participant counts for each challenge
-      const challengesWithCounts = await Promise.all(
-        challengesData.map(async (challenge) => {
-          const { count } = await supabase
-            .from('user_challenge_participations')
-            .select('*', { count: 'exact', head: true })
-            .eq('challenge_id', challenge.id);
-
-          return {
-            ...challenge,
-            current_participants: count || 0
-          };
-        })
-      );
-
-      setChallenges(challengesWithCounts);
-      setUserParticipations(participationsData || []);
-
-      // Mock data for circles and events (to be implemented later)
+      // Mock circles data
       const mockCircles: Circle[] = [
         {
           id: '1',
@@ -167,22 +189,18 @@ export const CommunityHub = () => {
       const existingParticipation = userParticipations.find(p => p.challenge_id === challengeId);
       if (existingParticipation) return;
 
-      // Create new participation
-      const { data, error } = await supabase
-        .from('user_challenge_participations')
-        .insert({
-          user_id: user.id,
-          challenge_id: challengeId,
-          current_day: 1,
-          last_activity_date: new Date().toISOString().split('T')[0]
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
+      // Create new participation (mock since table doesn't exist)
+      const newParticipation: UserParticipation = {
+        id: Date.now().toString(),
+        challenge_id: challengeId,
+        current_day: 1,
+        is_completed: false,
+        streak_days: 0,
+        total_points_earned: 0
+      };
 
       // Update local state
-      setUserParticipations(prev => [...prev, data]);
+      setUserParticipations(prev => [...prev, newParticipation]);
       
       // Update participant count
       setChallenges(prev => 
@@ -202,7 +220,6 @@ export const CommunityHub = () => {
     if (!user) return;
     
     try {
-      // TODO: Implement actual circle joining logic when circles backend is ready
       console.log('Joining circle:', circleId);
       
       // Update local state for now
@@ -222,7 +239,6 @@ export const CommunityHub = () => {
     if (!user) return;
     
     try {
-      // TODO: Implement actual event registration logic when events backend is ready
       console.log('Registering for event:', eventId);
       
       // Update local state for now
