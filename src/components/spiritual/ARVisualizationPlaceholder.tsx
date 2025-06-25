@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Eye, Circle, Star, Zap } from 'lucide-react';
+import { sanitizeHTML } from '@/utils/security';
 
 interface ARVisualizationPlaceholderProps {
   ritualType: string;
@@ -90,7 +90,7 @@ export const ARVisualizationPlaceholder: React.FC<ARVisualizationPlaceholderProp
               {sealSvg ? (
                 <div 
                   className="w-16 h-16 text-white"
-                  dangerouslySetInnerHTML={{ __html: sealSvg }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHTML(sealSvg) }}
                 />
               ) : (
                 <Sparkles className={`w-12 h-12 text-white transition-all duration-2000 ${getRotationClass()}`} />

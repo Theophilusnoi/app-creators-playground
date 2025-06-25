@@ -8,10 +8,13 @@ import { Label } from "@/components/ui/label";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthProvider';
 import { Star, Sparkles } from "lucide-react";
+import { useToast } from '@/hooks/use-toast';
+import { validateEmail, validatePassword, sanitizeError } from '@/utils/security';
 
 export const AuthPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,6 +29,29 @@ export const AuthPage = () => {
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Input validation
+    if (!validateEmail(email)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!isLogin) {
+      const passwordValidation = validatePassword(password);
+      if (!passwordValidation.isValid) {
+        toast({
+          title: "Invalid Password",
+          description: passwordValidation.message,
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {
@@ -33,24 +59,37 @@ export const AuthPage = () => {
 
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({
-          email,
+          email: email.trim(),
           password,
         });
         if (error) throw error;
-        // Navigation will be handled by the useEffect above
+        
+        toast({
+          title: "Welcome back!",
+          description: "You have been successfully signed in.",
+        });
       } else {
         const { error } = await supabase.auth.signUp({
-          email,
+          email: email.trim(),
           password,
           options: {
             emailRedirectTo: redirectUrl
           }
         });
         if (error) throw error;
-        alert('Check your email for the confirmation link!');
+        
+        toast({
+          title: "Account Created",
+          description: "Please check your email for the confirmation link!",
+        });
       }
     } catch (error: any) {
-      alert(error.message);
+      const sanitizedError = sanitizeError(error);
+      toast({
+        title: "Authentication Failed",
+        description: sanitizedError,
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
@@ -89,6 +128,7 @@ export const AuthPage = () => {
                 placeholder="your@email.com"
                 required
                 className="bg-black/20 border-purple-500/30 text-white placeholder-purple-300"
+                autoComplete="email"
               />
             </div>
             
@@ -102,6 +142,7 @@ export const AuthPage = () => {
                 placeholder="Enter your password"
                 required
                 className="bg-black/20 border-purple-500/30 text-white placeholder-purple-300"
+                autoComplete={isLogin ? "current-password" : "new-password"}
               />
             </div>
             
