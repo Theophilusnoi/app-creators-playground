@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -151,7 +150,7 @@ export const SacredBathingSystem = () => {
           <Card className="bg-black/30 border-purple-500/30">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
-                {problemIcons[currentGuidance.ritual_details.category as keyof typeof problemIcons] || <Candle className="w-5 h-5" />}
+                {problemIcons[currentGuidance.ritual_details.category as keyof typeof problemIcons] || <Flame className="w-5 h-5" />}
                 {currentGuidance.ritual_details.name}
               </CardTitle>
               <div className="flex flex-wrap gap-2">

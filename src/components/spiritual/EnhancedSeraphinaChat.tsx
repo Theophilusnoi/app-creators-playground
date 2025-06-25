@@ -108,8 +108,8 @@ Always remember you are speaking to a beloved soul who deserves love, respect, a
         systemPrompt
       );
 
-      // Extract the response content properly
-      const responseContent = typeof response === 'string' ? response : response.response || response.content || 'I am here with you, dear soul. Please share more about what you need guidance with.';
+      // Extract the response content properly - only access 'response' property
+      const responseContent = typeof response === 'string' ? response : response.response || 'I am here with you, dear soul. Please share more about what you need guidance with.';
 
       const seraphinaMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
