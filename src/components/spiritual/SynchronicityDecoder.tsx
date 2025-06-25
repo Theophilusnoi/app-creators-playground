@@ -60,7 +60,7 @@ const symbolDatabase = {
     'full moon': 'Culmination, completion, psychic enhancement',
     'clouds': 'Divine messages, spiritual guidance'
   }
-};
+} as const;
 
 export const SynchronicityDecoder = () => {
   const { user } = useAuth();
@@ -116,11 +116,16 @@ export const SynchronicityDecoder = () => {
     const lowerDesc = description.toLowerCase();
     let interpretation = '';
     
-    // Look for known symbols
+    // Look for known symbols with proper type checking
     symbols.forEach(symbol => {
       const symbolKey = symbol.toLowerCase();
-      if (symbolDatabase[type as keyof typeof symbolDatabase]?.[symbolKey as keyof typeof symbolDatabase[typeof type]]) {
-        interpretation += `${symbol}: ${symbolDatabase[type as keyof typeof symbolDatabase][symbolKey as keyof typeof symbolDatabase[typeof type]]}. `;
+      const typeKey = type as keyof typeof symbolDatabase;
+      
+      if (symbolDatabase[typeKey] && typeof symbolDatabase[typeKey] === 'object') {
+        const symbolMap = symbolDatabase[typeKey] as Record<string, string>;
+        if (symbolMap[symbolKey]) {
+          interpretation += `${symbol}: ${symbolMap[symbolKey]}. `;
+        }
       }
     });
     
@@ -154,10 +159,16 @@ export const SynchronicityDecoder = () => {
   };
 
   const getSignificanceLevel = (type: string, symbols: string[]): 'low' | 'medium' | 'high' => {
-    // Check if symbols are in our database
+    // Check if symbols are in our database with proper type checking
     const knownSymbols = symbols.filter(symbol => {
       const symbolKey = symbol.toLowerCase();
-      return symbolDatabase[type as keyof typeof symbolDatabase]?.[symbolKey as keyof typeof symbolDatabase[typeof type]];
+      const typeKey = type as keyof typeof symbolDatabase;
+      
+      if (symbolDatabase[typeKey] && typeof symbolDatabase[typeKey] === 'object') {
+        const symbolMap = symbolDatabase[typeKey] as Record<string, string>;
+        return symbolMap[symbolKey] !== undefined;
+      }
+      return false;
     });
     
     if (knownSymbols.length >= 2) return 'high';
