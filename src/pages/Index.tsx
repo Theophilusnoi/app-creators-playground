@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -71,13 +70,13 @@ const Index = () => {
           description: "You have been successfully signed in.",
         });
         setShowAuthModal(false);
-        navigate('/pro-features');
+        navigate('/dashboard'); // Navigate to dashboard after successful sign in
       } else {
         const { error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/pro-features`
+            emailRedirectTo: `${window.location.origin}/dashboard`
           }
         });
         if (error) throw error;
@@ -290,12 +289,13 @@ const Index = () => {
                   to support your journey of awakening and transformation.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Link to="/dashboard">
-                    <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
-                      <Star className="w-4 h-4 mr-2" />
-                      Enter Full Dashboard
-                    </Button>
-                  </Link>
+                  <Button 
+                    onClick={() => navigate('/dashboard')}
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                  >
+                    <Star className="w-4 h-4 mr-2" />
+                    Enter Full Dashboard
+                  </Button>
                   <Link to="/pro-features">
                     <Button variant="outline" className="border-purple-400 text-purple-200 hover:bg-purple-400/20">
                       <Crown className="w-4 h-4 mr-2" />

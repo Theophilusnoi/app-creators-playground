@@ -1,7 +1,12 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { TopNavigation } from '@/components/spiritual/TopNavigation';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { LogIn, Loader2 } from 'lucide-react';
 import SubscriptionStatus from '@/components/subscription/SubscriptionStatus';
 
 // Import all spiritual components
@@ -27,22 +32,64 @@ import { PersonalGuidanceSystem } from '@/components/spiritual/PersonalGuidanceS
 import { SoulArchetypeSystem } from '@/components/spiritual/SoulArchetypeSystem';
 
 const SpiritualDashboard = () => {
-  const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('archetype'); // Changed default to showcase new feature
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('archetype');
 
   const handleAssessmentComplete = () => {
-    // Navigate to Seraphina chat after assessment completion
     setActiveTab('seraphina');
   };
 
-  if (!user) {
+  const handleSignInClick = () => {
+    navigate('/');
+  };
+
+  // Show loading state while authentication is being determined
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 flex items-center justify-center">
-        <div className="text-white text-xl">Please log in to access the spiritual dashboard.</div>
+        <div className="flex items-center gap-3 text-white">
+          <Loader2 className="w-6 h-6 animate-spin" />
+          <span className="text-xl">Loading your spiritual dashboard...</span>
+        </div>
       </div>
     );
   }
 
+  // Show sign-in prompt if no user is authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 flex items-center justify-center p-4">
+        <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm max-w-md w-full">
+          <CardContent className="pt-6 text-center">
+            <LogIn className="w-12 h-12 text-purple-400 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-white mb-2">Authentication Required</h2>
+            <p className="text-purple-200 mb-6">
+              Please sign in to access your spiritual dashboard and begin your journey with Seraphina.
+            </p>
+            <div className="space-y-3">
+              <Button 
+                onClick={handleSignInClick}
+                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              >
+                <LogIn className="w-4 h-4 mr-2" />
+                Go to Sign In
+              </Button>
+              <Button 
+                onClick={() => navigate('/')}
+                variant="outline"
+                className="w-full border-purple-400/50 text-purple-200 hover:bg-purple-400/20"
+              >
+                Return to Home
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Render the dashboard for authenticated users
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
       <div className="container mx-auto px-4 py-6">
