@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, Crown, Zap, Sparkles, Gift, Mountain, Waves, Flame, Wind } from 'lucide-react';
+import { Check, Crown, Zap, Sparkles, Gift, Mountain, Waves, Flame, Wind, Loader2 } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
@@ -126,7 +126,22 @@ const PricingPage = () => {
       if (referralCode) {
         localStorage.setItem('referralCode', referralCode);
       }
+      
+      // Add timeout to prevent hanging
+      const timeoutId = setTimeout(() => {
+        if (clickingTier === planId) {
+          setClickingTier(null);
+          toast({
+            title: "Request Timeout",
+            description: "The request is taking too long. Please try again.",
+            variant: "destructive",
+          });
+        }
+      }, 30000); // 30 second timeout
+
       await createCheckout(planId, referralCode);
+      clearTimeout(timeoutId);
+      
     } catch (error) {
       console.error('Subscription error:', error);
       toast({
@@ -216,7 +231,10 @@ const PricingPage = () => {
                     } ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {isProcessing ? (
-                      'Processing...'
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Processing...
+                      </>
                     ) : isCurrentTier ? (
                       'Current Tier'
                     ) : !user ? (

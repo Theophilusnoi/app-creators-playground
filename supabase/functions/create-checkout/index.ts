@@ -27,18 +27,17 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    // Parse the request body properly for Supabase functions
+    // Parse the request body
     let requestBody;
     try {
       const rawBody = await req.text();
-      logStep("Raw body received", { length: rawBody.length, preview: rawBody.substring(0, 200) });
+      logStep("Raw body received", { length: rawBody.length });
       
       if (rawBody && rawBody.trim()) {
         requestBody = JSON.parse(rawBody);
         logStep("Parsed request body", requestBody);
       } else {
-        // Handle case where body might be empty or malformed
-        logStep("Empty or invalid body, using default");
+        logStep("Empty body, using default");
         requestBody = {};
       }
     } catch (parseError) {
@@ -63,8 +62,9 @@ serve(async (req) => {
       });
     }
     
-    logStep("Tier and referral code received", { tier, referralCode });
+    logStep("Processing tier", { tier, referralCode });
 
+    // Get user from auth header
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(JSON.stringify({ 
@@ -88,27 +88,12 @@ serve(async (req) => {
     }
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    // Check if user was referred
-    let referralRecord = null;
-    if (referralCode) {
-      const { data: referralData } = await supabaseClient
-        .from('referrals')
-        .select('*')
-        .eq('referral_code', referralCode)
-        .eq('status', 'pending')
-        .single();
-      
-      if (referralData) {
-        referralRecord = referralData;
-        logStep("Valid referral found", { referralId: referralRecord.id });
-      }
-    }
-
+    // Initialize Stripe
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) {
       logStep("Missing Stripe secret key");
       return new Response(JSON.stringify({ 
-        error: "Payment system configuration error. Please contact support." 
+        error: "Payment system configuration error" 
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,
@@ -116,31 +101,19 @@ serve(async (req) => {
     }
     
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
-    
-    // Check for existing customer
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    let customerId;
-    if (customers.data.length > 0) {
-      customerId = customers.data[0].id;
-      logStep("Found existing customer", { customerId });
-    } else {
-      logStep("No existing customer found, will create new one");
-    }
+    logStep("Stripe initialized");
 
-    // Define wisdom tier pricing
+    // Define tier pricing
     const wisdomTiers = {
-      earth: { amount: 2900, name: "Earth Keeper - Monthly" }, // $29.00
-      water: { amount: 7900, name: "Water Bearer - Monthly" }, // $79.00
-      fire: { amount: 19700, name: "Fire Keeper - Monthly" }, // $197.00
-      ether: { amount: 49700, name: "Ether Walker - Monthly" }, // $497.00
-      // Legacy pricing for backwards compatibility
-      basic: { amount: 999, name: "Basic Plan" },
-      premium: { amount: 1999, name: "Premium Plan" },
-      pro: { amount: 4999, name: "Pro Plan" }
+      earth: { amount: 2900, name: "Earth Keeper - Monthly" },
+      water: { amount: 7900, name: "Water Bearer - Monthly" },
+      fire: { amount: 19700, name: "Fire Keeper - Monthly" },
+      ether: { amount: 49700, name: "Ether Walker - Monthly" },
     };
 
     const selectedTier = wisdomTiers[tier as keyof typeof wisdomTiers];
     if (!selectedTier) {
+      logStep("Invalid tier", { tier });
       return new Response(JSON.stringify({ 
         error: `Invalid subscription tier: ${tier}` 
       }), {
@@ -148,21 +121,37 @@ serve(async (req) => {
         status: 400,
       });
     }
-    logStep("Tier pricing", selectedTier);
+    logStep("Tier selected", selectedTier);
+
+    // Check for existing customer
+    let customerId;
+    try {
+      const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+      if (customers.data.length > 0) {
+        customerId = customers.data[0].id;
+        logStep("Found existing customer", { customerId });
+      } else {
+        logStep("No existing customer found");
+      }
+    } catch (stripeError) {
+      logStep("Stripe customer lookup error", { error: stripeError.message });
+    }
 
     const origin = req.headers.get("origin") || "https://yrshvcaoczjsqziwllqi.supabase.co";
-    
-    // Create checkout session with metadata for referral tracking
+    logStep("Using origin", { origin });
+
+    // Create checkout session
     const sessionMetadata: any = {
       tier,
       user_id: user.id,
       user_email: user.email
     };
     
-    if (referralRecord) {
-      sessionMetadata.referral_id = referralRecord.id;
-      sessionMetadata.referrer_user_id = referralRecord.referrer_user_id;
+    if (referralCode) {
+      sessionMetadata.referral_code = referralCode;
     }
+
+    logStep("Creating checkout session", { metadata: sessionMetadata });
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -188,16 +177,23 @@ serve(async (req) => {
       allow_promotion_codes: true,
     });
 
-    logStep("Checkout session created", { sessionId: session.id, url: session.url });
+    logStep("Checkout session created successfully", { sessionId: session.id });
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
+
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR in create-checkout", { message: errorMessage, stack: error instanceof Error ? error.stack : undefined });
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    logStep("ERROR in create-checkout", { 
+      message: errorMessage, 
+      stack: error instanceof Error ? error.stack : undefined 
+    });
+    
+    return new Response(JSON.stringify({ 
+      error: `Checkout creation failed: ${errorMessage}` 
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });
