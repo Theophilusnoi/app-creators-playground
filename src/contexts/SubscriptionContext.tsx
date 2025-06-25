@@ -10,7 +10,7 @@ interface SubscriptionContextType {
   subscriptionEnd: string | null;
   loading: boolean;
   checkSubscription: () => Promise<void>;
-  createCheckout: (tier: string) => Promise<void>;
+  createCheckout: (tier: string, referralCode?: string) => Promise<void>;
   openCustomerPortal: () => Promise<void>;
 }
 
@@ -33,13 +33,23 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [loading, setLoading] = useState(false);
 
   const checkSubscription = async () => {
-    if (!user) return;
+    if (!user) {
+      setSubscribed(false);
+      setSubscriptionTier(null);
+      setSubscriptionEnd(null);
+      return;
+    }
     
     setLoading(true);
     try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session?.access_token) {
+        throw new Error('No valid session');
+      }
+
       const { data, error } = await supabase.functions.invoke('check-subscription', {
         headers: {
-          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          Authorization: `Bearer ${session.session.access_token}`,
         },
       });
 
@@ -47,7 +57,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         console.error('Subscription check error:', error);
         toast({
           title: "Subscription Check",
-          description: "Unable to verify subscription status. Please try again or contact support if the issue persists.",
+          description: "Unable to verify subscription status. Using demo mode.",
           variant: "destructive",
         });
         return;
@@ -57,7 +67,6 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setSubscriptionTier(data.subscription_tier || null);
       setSubscriptionEnd(data.subscription_end || null);
 
-      // Show success message if user has active subscription
       if (data.subscribed && data.subscription_tier) {
         const tierNames = {
           earth: 'Earth Keeper',
@@ -79,10 +88,9 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       console.error('Error checking subscription:', error);
       toast({
         title: "Connection Error",
-        description: "Unable to connect to subscription service. Please check your internet connection.",
+        description: "Unable to connect to subscription service. Using demo mode.",
         variant: "destructive",
       });
-      // Set demo defaults
       setSubscribed(false);
       setSubscriptionTier(null);
       setSubscriptionEnd(null);
@@ -91,7 +99,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   };
 
-  const createCheckout = async (tier: string) => {
+  const createCheckout = async (tier: string, referralCode?: string) => {
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -103,19 +111,28 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     setLoading(true);
     try {
-      // Get referral code from localStorage if present
-      const referralCode = localStorage.getItem('referralCode');
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session?.access_token) {
+        throw new Error('No valid session');
+      }
+
+      // Get referral code from localStorage if not provided
+      const finalReferralCode = referralCode || localStorage.getItem('referralCode');
       
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { tier, referralCode },
+        body: { tier, referralCode: finalReferralCode },
         headers: {
-          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          Authorization: `Bearer ${session.session.access_token}`,
         },
       });
 
       if (error) {
         console.error('Checkout creation error:', error);
         throw error;
+      }
+
+      if (!data?.url) {
+        throw new Error('No checkout URL received');
       }
 
       // Open Stripe checkout in a new tab
@@ -138,17 +155,33 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   };
 
   const openCustomerPortal = async () => {
-    if (!user) return;
+    if (!user || !subscribed) {
+      toast({
+        title: "No Active Subscription",
+        description: "You need an active subscription to access the customer portal.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setLoading(true);
     try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session?.access_token) {
+        throw new Error('No valid session');
+      }
+
       const { data, error } = await supabase.functions.invoke('customer-portal', {
         headers: {
-          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          Authorization: `Bearer ${session.session.access_token}`,
         },
       });
 
       if (error) throw error;
+
+      if (!data?.url) {
+        throw new Error('No portal URL received');
+      }
 
       // Open customer portal in a new tab
       window.open(data.url, '_blank');
