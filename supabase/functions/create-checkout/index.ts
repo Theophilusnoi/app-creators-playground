@@ -27,17 +27,25 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    const { tier, referralCode } = await req.json();
-    if (!tier) throw new Error("Subscription tier is required");
+    const requestBody = await req.json();
+    const { tier, referralCode } = requestBody;
+    
+    if (!tier) {
+      throw new Error("Subscription tier is required");
+    }
     logStep("Tier and referral code received", { tier, referralCode });
 
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header provided");
+    if (!authHeader) {
+      throw new Error("No authorization header provided");
+    }
     
     const token = authHeader.replace("Bearer ", "");
     const { data } = await supabaseClient.auth.getUser(token);
     const user = data.user;
-    if (!user?.email) throw new Error("User not authenticated or email not available");
+    if (!user?.email) {
+      throw new Error("User not authenticated or email not available");
+    }
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     // Check if user was referred
@@ -57,7 +65,9 @@ serve(async (req) => {
     }
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
+    if (!stripeKey) {
+      throw new Error("STRIPE_SECRET_KEY is not configured. Please set up your Stripe secret key.");
+    }
     
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     
@@ -68,7 +78,7 @@ serve(async (req) => {
       customerId = customers.data[0].id;
       logStep("Found existing customer", { customerId });
     } else {
-      logStep("No existing customer found");
+      logStep("No existing customer found, will create new one");
     }
 
     // Define wisdom tier pricing
@@ -84,10 +94,12 @@ serve(async (req) => {
     };
 
     const selectedTier = wisdomTiers[tier as keyof typeof wisdomTiers];
-    if (!selectedTier) throw new Error("Invalid subscription tier");
+    if (!selectedTier) {
+      throw new Error(`Invalid subscription tier: ${tier}`);
+    }
     logStep("Tier pricing", selectedTier);
 
-    const origin = req.headers.get("origin") || "http://localhost:3000";
+    const origin = req.headers.get("origin") || "https://yrshvcaoczjsqziwllqi.supabase.co";
     
     // Create checkout session with metadata for referral tracking
     const sessionMetadata: any = {
@@ -110,7 +122,7 @@ serve(async (req) => {
             currency: "usd",
             product_data: { 
               name: selectedTier.name,
-              description: `Access to ${tier} tier spiritual guidance and tools`
+              description: `Access to ${tier} tier spiritual guidance and AI mentorship`
             },
             unit_amount: selectedTier.amount,
             recurring: { interval: "month" },

@@ -44,7 +44,8 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     try {
       const { data: session } = await supabase.auth.getSession();
       if (!session.session?.access_token) {
-        throw new Error('No valid session');
+        console.log('No valid session found');
+        return;
       }
 
       const { data, error } = await supabase.functions.invoke('check-subscription', {
@@ -55,11 +56,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       if (error) {
         console.error('Subscription check error:', error);
-        toast({
-          title: "Subscription Check",
-          description: "Unable to verify subscription status. Using demo mode.",
-          variant: "destructive",
-        });
+        // Don't show error toast for subscription check failures
         return;
       }
 
@@ -86,11 +83,6 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       }
     } catch (error) {
       console.error('Error checking subscription:', error);
-      toast({
-        title: "Connection Error",
-        description: "Unable to connect to subscription service. Using demo mode.",
-        variant: "destructive",
-      });
       setSubscribed(false);
       setSubscriptionTier(null);
       setSubscriptionEnd(null);
@@ -113,9 +105,11 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     try {
       const { data: session } = await supabase.auth.getSession();
       if (!session.session?.access_token) {
-        throw new Error('No valid session');
+        throw new Error('No valid session found. Please log in again.');
       }
 
+      console.log('Creating checkout for tier:', tier);
+      
       // Get referral code from localStorage if not provided
       const finalReferralCode = referralCode || localStorage.getItem('referralCode');
       
@@ -123,30 +117,34 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         body: { tier, referralCode: finalReferralCode },
         headers: {
           Authorization: `Bearer ${session.session.access_token}`,
+          'Content-Type': 'application/json',
         },
       });
 
       if (error) {
         console.error('Checkout creation error:', error);
-        throw error;
+        throw new Error(error.message || 'Failed to create checkout session');
       }
 
       if (!data?.url) {
-        throw new Error('No checkout URL received');
+        throw new Error('No checkout URL received from server');
       }
 
-      // Open Stripe checkout in a new tab
-      window.open(data.url, '_blank');
+      console.log('Checkout URL received:', data.url);
+
+      // Redirect to Stripe checkout
+      window.location.href = data.url;
       
       toast({
         title: "Redirecting to Checkout",
-        description: "Opening secure payment page in a new tab...",
+        description: "Taking you to secure payment page...",
       });
     } catch (error) {
       console.error('Error creating checkout:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       toast({
         title: "Checkout Error",
-        description: "Unable to create checkout session. Please try again or contact support.",
+        description: `Unable to create checkout session: ${errorMessage}`,
         variant: "destructive",
       });
     } finally {
