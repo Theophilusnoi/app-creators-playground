@@ -67,7 +67,6 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       if (error) {
         console.error('Subscription check error:', error);
-        // Set default values on error instead of throwing
         setSubscribed(false);
         setSubscriptionTier(null);
         setSubscriptionEnd(null);
@@ -102,20 +101,14 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       return;
     }
 
-    if (loading) {
-      console.log('Checkout already in progress');
-      return;
-    }
+    console.log('Creating checkout for tier:', tier, 'with referral:', referralCode);
 
-    setLoading(true);
     try {
       const { data: session } = await supabase.auth.getSession();
       if (!session.session?.access_token) {
         throw new Error('No valid session found. Please log in again.');
       }
 
-      console.log('Creating checkout for tier:', tier);
-      
       const finalReferralCode = referralCode || localStorage.getItem('referralCode');
       
       const requestBody = { 
@@ -123,7 +116,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         referralCode: finalReferralCode 
       };
       
-      console.log('Sending request body:', requestBody);
+      console.log('Sending checkout request:', requestBody);
 
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: requestBody,
@@ -142,13 +135,16 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         throw new Error('No checkout URL received from server');
       }
 
-      console.log('Checkout URL received:', data.url);
+      console.log('Checkout URL received, redirecting to:', data.url);
+      
+      // Clear any stored referral code after successful checkout creation
+      if (finalReferralCode) {
+        localStorage.removeItem('referralCode');
+      }
+      
+      // Redirect to Stripe checkout
       window.location.href = data.url;
       
-      toast({
-        title: "Redirecting to Checkout",
-        description: "Taking you to secure payment page...",
-      });
     } catch (error) {
       console.error('Error creating checkout:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -157,8 +153,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         description: `Unable to create checkout session: ${errorMessage}`,
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
+      throw error; // Re-throw to let the calling component handle it
     }
   };
 

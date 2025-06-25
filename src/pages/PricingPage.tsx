@@ -1,17 +1,18 @@
+
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Check, Crown, Zap, Sparkles, Gift, Mountain, Waves, Flame, Wind } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 
 const PricingPage = () => {
-  const { createCheckout, subscriptionTier, subscribed, loading } = useSubscription();
+  const { createCheckout, subscriptionTier, subscribed, loading, checkSubscription } = useSubscription();
   const { user } = useAuth();
   const { toast } = useToast();
   const [referralCode, setReferralCode] = useState<string>('');
+  const [clickingTier, setClickingTier] = useState<string | null>(null);
 
   // Check for referral code in URL
   useEffect(() => {
@@ -113,9 +114,16 @@ const PricingPage = () => {
       return;
     }
 
+    if (clickingTier || loading) {
+      console.log('Already processing subscription');
+      return;
+    }
+
+    setClickingTier(planId);
+    console.log('Starting subscription process for tier:', planId);
+
     try {
       if (referralCode) {
-        // Store referral code in localStorage for checkout process
         localStorage.setItem('referralCode', referralCode);
       }
       await createCheckout(planId, referralCode);
@@ -126,42 +134,10 @@ const PricingPage = () => {
         description: "There was an issue starting your subscription. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setClickingTier(null);
     }
   };
-
-  // Show loading skeleton only while actually loading
-  if (loading && user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 py-12">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <Skeleton className="h-10 w-96 mx-auto mb-4" />
-            <Skeleton className="h-6 w-[600px] mx-auto" />
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-            {[1, 2, 3, 4].map((i) => (
-              <Card key={i} className="bg-gray-900 border-gray-700">
-                <CardHeader>
-                  <Skeleton className="h-6 w-6 mx-auto mb-4" />
-                  <Skeleton className="h-6 w-32 mx-auto mb-2" />
-                  <Skeleton className="h-4 w-24 mx-auto mb-4" />
-                  <Skeleton className="h-8 w-20 mx-auto" />
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 mb-6">
-                    {[1, 2, 3, 4].map((j) => (
-                      <Skeleton key={j} className="h-4 w-full" />
-                    ))}
-                  </div>
-                  <Skeleton className="h-10 w-full" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 py-12">
@@ -185,6 +161,7 @@ const PricingPage = () => {
           {wisdomTiers.map((tier) => {
             const isCurrentTier = subscribed && subscriptionTier === tier.id;
             const isUpgrade = subscribed && subscriptionTier !== tier.id;
+            const isProcessing = clickingTier === tier.id;
             
             return (
               <Card
@@ -231,14 +208,14 @@ const PricingPage = () => {
 
                   <Button
                     onClick={() => handleSubscribe(tier.id)}
-                    disabled={loading || isCurrentTier}
+                    disabled={isCurrentTier || isProcessing}
                     className={`w-full ${
                       isCurrentTier
                         ? 'bg-green-600 hover:bg-green-700'
                         : `bg-gradient-to-r ${tier.color} hover:opacity-90`
-                    }`}
+                    } ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    {loading ? (
+                    {isProcessing ? (
                       'Processing...'
                     ) : isCurrentTier ? (
                       'Current Tier'
