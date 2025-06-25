@@ -3,10 +3,12 @@ import React, { useState } from 'react';
 import { MeditationTimer } from './MeditationTimer';
 import { MeditationStats } from './MeditationStats';
 import { meditationService } from '@/services/meditationService';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 
 export const MeditationTracker = () => {
   const [refreshKey, setRefreshKey] = useState(0);
+  const { user } = useAuth();
   const { toast } = useToast();
 
   const handleMeditationComplete = async (sessionData: {
@@ -15,8 +17,18 @@ export const MeditationTracker = () => {
     actual_duration: number;
   }) => {
     try {
+      if (!user) {
+        toast({
+          title: "Authentication Required",
+          description: "Please log in to track your meditation sessions.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       // Create a new meditation session
       const session = await meditationService.createSession({
+        user_id: user.id,
         meditation_type: sessionData.meditation_type,
         planned_duration: sessionData.planned_duration,
         actual_duration: sessionData.actual_duration,
