@@ -41,7 +41,7 @@ export const AssessmentForm = () => {
     for (let i = 0; i < Math.min(3, scoreEntries.length); i++) {
       const area = scoreEntries[i];
       recommendations.push({
-        user_id: user.id,
+        user_id: user?.id,
         assessment_id: assessmentId,
         recommendation_type: area.type === 'awareness' || area.type === 'presence' || area.type === 'inner_peace' ? 'meditation' : 
                            area.type === 'wisdom' ? 'shadow_work' : 'meditation',
@@ -53,7 +53,7 @@ export const AssessmentForm = () => {
 
     // Insert recommendations
     if (recommendations.length > 0) {
-      await supabase.from('spiritual_recommendations').insert(recommendations);
+      await supabase.from('spiritual_recommendations' as any).insert(recommendations);
     }
   };
 
@@ -65,7 +65,7 @@ export const AssessmentForm = () => {
     try {
       // Insert into spiritual_assessments table
       const { data: assessment, error: assessmentError } = await supabase
-        .from('spiritual_assessments')
+        .from('spiritual_assessments' as any)
         .insert([{
           user_id: user.id,
           spiritual_level: formData.spiritual_level,
@@ -82,7 +82,9 @@ export const AssessmentForm = () => {
       if (assessmentError) throw assessmentError;
 
       // Generate recommendations based on assessment
-      await generateRecommendations(assessment.id, formData);
+      if (assessment?.id) {
+        await generateRecommendations(assessment.id, formData);
+      }
       
       alert('Spiritual assessment saved successfully! Check your recommendations for personalized guidance.');
       setFormData({

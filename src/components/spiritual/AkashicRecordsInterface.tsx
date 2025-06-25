@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -50,7 +49,7 @@ export const AkashicRecordsInterface = () => {
   const fetchRecords = async () => {
     try {
       const { data, error } = await supabase
-        .from('akashic_access')
+        .from('akashic_access' as any)
         .select('*')
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
@@ -104,8 +103,8 @@ export const AkashicRecordsInterface = () => {
       const recordsData = generateRecordsData(lifetimeFocus, accessLevel);
       
       const { error } = await supabase
-        .from('akashic_access')
-        .insert([{
+        .from('akashic_access' as any)
+        .insert({
           user_id: user.id,
           soul_signature: soulSignature,
           lifetime_focus: lifetimeFocus,
@@ -114,7 +113,7 @@ export const AkashicRecordsInterface = () => {
           access_level: accessLevel,
           verification_hash: generateVerificationHash(),
           expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
-        }]);
+        });
 
       if (error) throw error;
 
@@ -173,7 +172,7 @@ export const AkashicRecordsInterface = () => {
   };
 
   const getAccessLevelColor = (level: number) => {
-    if (level >= 6) return 'text-gold-400';
+    if (level >= 6) return 'text-yellow-400';
     if (level >= 4) return 'text-purple-400';
     return 'text-blue-400';
   };

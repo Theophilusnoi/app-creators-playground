@@ -9,7 +9,225 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      akashic_access: {
+        Row: {
+          access_level: number
+          created_at: string
+          expires_at: string | null
+          id: string
+          karmic_insights: string | null
+          lifetime_focus: string
+          records_retrieved: Json | null
+          soul_signature: string
+          user_id: string
+          verification_hash: string | null
+        }
+        Insert: {
+          access_level?: number
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          karmic_insights?: string | null
+          lifetime_focus: string
+          records_retrieved?: Json | null
+          soul_signature: string
+          user_id: string
+          verification_hash?: string | null
+        }
+        Update: {
+          access_level?: number
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          karmic_insights?: string | null
+          lifetime_focus?: string
+          records_retrieved?: Json | null
+          soul_signature?: string
+          user_id?: string
+          verification_hash?: string | null
+        }
+        Relationships: []
+      }
+      akashic_records: {
+        Row: {
+          created_at: string | null
+          id: string
+          lifetime_focus: string
+          records_retrieved: Json | null
+          soul_signature: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          lifetime_focus: string
+          records_retrieved?: Json | null
+          soul_signature: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          lifetime_focus?: string
+          records_retrieved?: Json | null
+          soul_signature?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      daily_protection_logs: {
+        Row: {
+          created_at: string
+          id: string
+          practice_details: Json | null
+          practice_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          practice_details?: Json | null
+          practice_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          practice_details?: Json | null
+          practice_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          spiritual_level: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          spiritual_level?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          spiritual_level?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      spiritual_assessments: {
+        Row: {
+          awareness: number
+          compassion: number
+          created_at: string | null
+          id: string
+          inner_peace: number
+          notes: string | null
+          presence: number
+          spiritual_level: string
+          user_id: string
+          wisdom: number
+        }
+        Insert: {
+          awareness: number
+          compassion: number
+          created_at?: string | null
+          id?: string
+          inner_peace: number
+          notes?: string | null
+          presence: number
+          spiritual_level: string
+          user_id: string
+          wisdom: number
+        }
+        Update: {
+          awareness?: number
+          compassion?: number
+          created_at?: string | null
+          id?: string
+          inner_peace?: number
+          notes?: string | null
+          presence?: number
+          spiritual_level?: string
+          user_id?: string
+          wisdom?: number
+        }
+        Relationships: []
+      }
+      spiritual_practices: {
+        Row: {
+          created_at: string | null
+          id: string
+          practice_details: Json | null
+          practice_type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          practice_details?: Json | null
+          practice_type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          practice_details?: Json | null
+          practice_type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      spiritual_recommendations: {
+        Row: {
+          assessment_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          priority: number | null
+          recommendation_type: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          assessment_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          priority?: number | null
+          recommendation_type: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          assessment_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          priority?: number | null
+          recommendation_type?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

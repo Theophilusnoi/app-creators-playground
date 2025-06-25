@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -168,7 +167,7 @@ export const BanishingRituals: React.FC<BanishingRitualsProps> = ({
     // Log ritual start
     if (user) {
       supabase
-        .from('daily_protection_logs')
+        .from('daily_protection_logs' as any)
         .insert({
           user_id: user.id,
           practice_type: 'banishing_ritual',
@@ -209,7 +208,7 @@ export const BanishingRituals: React.FC<BanishingRitualsProps> = ({
     try {
       if (user) {
         await supabase
-          .from('daily_protection_logs')
+          .from('daily_protection_logs' as any)
           .update({
             practice_details: { 
               ritual_name: selectedRitual.name,
