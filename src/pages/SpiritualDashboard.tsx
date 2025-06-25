@@ -41,7 +41,7 @@ const SpiritualDashboard = () => {
   };
 
   const handleSignInClick = () => {
-    navigate('/');
+    navigate('/auth');
   };
 
   // Show loading state while authentication is being determined

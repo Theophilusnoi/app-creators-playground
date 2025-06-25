@@ -23,7 +23,7 @@ export const AuthPage = () => {
   // Redirect if user is already authenticated
   useEffect(() => {
     if (user) {
-      navigate('/pro-features');
+      navigate('/dashboard');
     }
   }, [user, navigate]);
 
@@ -55,7 +55,7 @@ export const AuthPage = () => {
     setLoading(true);
 
     try {
-      const redirectUrl = `${window.location.origin}/pro-features`;
+      const redirectUrl = `${window.location.origin}/dashboard`;
 
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({
@@ -68,6 +68,7 @@ export const AuthPage = () => {
           title: "Welcome back!",
           description: "You have been successfully signed in.",
         });
+        navigate('/dashboard');
       } else {
         const { error } = await supabase.auth.signUp({
           email: email.trim(),
@@ -171,6 +172,15 @@ export const AuthPage = () => {
                 ? "Don't have an account? Sign up" 
                 : "Already have an account? Sign in"
               }
+            </button>
+          </div>
+          
+          <div className="text-center mt-4">
+            <button
+              onClick={() => navigate('/')}
+              className="text-purple-400 hover:text-purple-300 text-sm"
+            >
+              ← Return to Home
             </button>
           </div>
         </CardContent>
