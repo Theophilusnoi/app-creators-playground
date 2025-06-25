@@ -136,6 +136,7 @@ export const SpiritualAssessment = ({ onComplete }: SpiritualAssessmentProps) =>
 
   const progress = ((currentQuestion + 1) / assessmentQuestions.length) * 100;
   const question = assessmentQuestions[currentQuestion];
+  const isAnswered = answers[question.id] !== undefined && answers[question.id] !== '';
 
   return (
     <Card className="bg-gradient-to-br from-purple-900/50 to-indigo-900/50 border-purple-400/30">
@@ -166,8 +167,8 @@ export const SpiritualAssessment = ({ onComplete }: SpiritualAssessmentProps) =>
         <div className="flex justify-end">
           <Button 
             onClick={handleNext}
-            disabled={!answers[question.id]}
-            className="bg-purple-600 hover:bg-purple-700 text-white"
+            disabled={!isAnswered}
+            className="bg-purple-600 hover:bg-purple-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {currentQuestion < assessmentQuestions.length - 1 ? 'Next' : 'Complete Assessment'}
           </Button>
