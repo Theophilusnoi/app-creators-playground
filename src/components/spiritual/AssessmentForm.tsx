@@ -53,7 +53,14 @@ export const AssessmentForm = () => {
 
     // Insert recommendations
     if (recommendations.length > 0) {
-      await supabase.from('spiritual_recommendations' as any).insert(recommendations);
+      try {
+        const { error } = await supabase.from('spiritual_recommendations').insert(recommendations);
+        if (error) {
+          console.error('Error inserting recommendations:', error);
+        }
+      } catch (error) {
+        console.error('Error inserting recommendations:', error);
+      }
     }
   };
 
@@ -65,7 +72,7 @@ export const AssessmentForm = () => {
     try {
       // Insert into spiritual_assessments table
       const { data: assessment, error: assessmentError } = await supabase
-        .from('spiritual_assessments' as any)
+        .from('spiritual_assessments')
         .insert([{
           user_id: user.id,
           spiritual_level: formData.spiritual_level,
@@ -79,7 +86,11 @@ export const AssessmentForm = () => {
         .select()
         .single();
 
-      if (assessmentError) throw assessmentError;
+      if (assessmentError) {
+        console.error('Assessment error:', assessmentError);
+        alert('Error saving assessment. Please try again.');
+        return;
+      }
 
       // Generate recommendations based on assessment
       if (assessment?.id) {
@@ -97,6 +108,7 @@ export const AssessmentForm = () => {
         notes: ''
       });
     } catch (error: any) {
+      console.error('Error saving assessment:', error);
       alert('Error saving assessment: ' + error.message);
     } finally {
       setLoading(false);

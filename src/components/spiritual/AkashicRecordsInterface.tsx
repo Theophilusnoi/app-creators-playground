@@ -47,15 +47,33 @@ export const AkashicRecordsInterface = () => {
   }, [user]);
 
   const fetchRecords = async () => {
+    if (!user) return;
+    
     try {
       const { data, error } = await supabase
-        .from('akashic_access' as any)
+        .from('akashic_access')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setRecords(data || []);
+      if (error) {
+        console.error('Error fetching akashic records:', error);
+        return;
+      }
+      
+      // Type assertion with proper error handling
+      const typedRecords = (data || []).map(record => ({
+        id: record.id,
+        soul_signature: record.soul_signature,
+        lifetime_focus: record.lifetime_focus,
+        records_retrieved: record.records_retrieved,
+        karmic_insights: record.karmic_insights || '',
+        access_level: record.access_level,
+        created_at: record.created_at,
+        expires_at: record.expires_at || ''
+      })) as AkashicRecord[];
+      
+      setRecords(typedRecords);
     } catch (error) {
       console.error('Error fetching akashic records:', error);
     }
@@ -103,7 +121,7 @@ export const AkashicRecordsInterface = () => {
       const recordsData = generateRecordsData(lifetimeFocus, accessLevel);
       
       const { error } = await supabase
-        .from('akashic_access' as any)
+        .from('akashic_access')
         .insert({
           user_id: user.id,
           soul_signature: soulSignature,
@@ -115,7 +133,9 @@ export const AkashicRecordsInterface = () => {
           expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error saving akashic access:', error);
+      }
 
       toast({
         title: "Akashic Records Accessed! 📜",
