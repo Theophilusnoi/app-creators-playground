@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -56,6 +57,11 @@ export const ShadowWorkTracker = () => {
   };
 
   const narrative = spiritualNarratives.shadowWork;
+  
+  // Flatten the benefits array from ProcessBenefit[] to string[]
+  const flattenedBenefits = narrative.benefits.flatMap(benefitCategory => 
+    benefitCategory.benefits
+  );
 
   return (
     <div>
@@ -67,7 +73,7 @@ export const ShadowWorkTracker = () => {
         subtitle={narrative.subtitle}
         introduction={narrative.introduction}
         steps={narrative.steps}
-        benefits={narrative.benefits}
+        benefits={flattenedBenefits}
         guidelines={narrative.guidelines}
         headerIcon={narrative.headerIcon}
       />
