@@ -31,20 +31,31 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [subscriptionTier, setSubscriptionTier] = useState<string | null>(null);
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [hasChecked, setHasChecked] = useState(false);
 
   const checkSubscription = async () => {
-    if (!user) {
-      setSubscribed(false);
-      setSubscriptionTier(null);
-      setSubscriptionEnd(null);
+    if (!user || loading) {
+      console.log('Skipping subscription check - no user or already loading');
+      if (!user) {
+        setSubscribed(false);
+        setSubscriptionTier(null);
+        setSubscriptionEnd(null);
+        setHasChecked(true);
+      }
       return;
     }
     
+    console.log('Starting subscription check for user:', user.email);
     setLoading(true);
+    
     try {
       const { data: session } = await supabase.auth.getSession();
       if (!session.session?.access_token) {
         console.log('No valid session found');
+        setSubscribed(false);
+        setSubscriptionTier(null);
+        setSubscriptionEnd(null);
+        setHasChecked(true);
         return;
       }
 
@@ -56,36 +67,26 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       if (error) {
         console.error('Subscription check error:', error);
-        // Don't show error toast for subscription check failures
+        // Set default values on error instead of throwing
+        setSubscribed(false);
+        setSubscriptionTier(null);
+        setSubscriptionEnd(null);
+        setHasChecked(true);
         return;
       }
 
+      console.log('Subscription check response:', data);
       setSubscribed(data.subscribed || false);
       setSubscriptionTier(data.subscription_tier || null);
       setSubscriptionEnd(data.subscription_end || null);
+      setHasChecked(true);
 
-      if (data.subscribed && data.subscription_tier) {
-        const tierNames = {
-          earth: 'Earth Keeper',
-          water: 'Water Bearer', 
-          fire: 'Fire Keeper',
-          ether: 'Ether Walker',
-          basic: 'Basic',
-          premium: 'Premium',
-          pro: 'Pro'
-        };
-        const tierName = tierNames[data.subscription_tier as keyof typeof tierNames] || data.subscription_tier;
-        
-        toast({
-          title: "Active Subscription",
-          description: `Your ${tierName} subscription is active until ${new Date(data.subscription_end).toLocaleDateString()}`,
-        });
-      }
     } catch (error) {
       console.error('Error checking subscription:', error);
       setSubscribed(false);
       setSubscriptionTier(null);
       setSubscriptionEnd(null);
+      setHasChecked(true);
     } finally {
       setLoading(false);
     }
@@ -101,6 +102,11 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       return;
     }
 
+    if (loading) {
+      console.log('Checkout already in progress');
+      return;
+    }
+
     setLoading(true);
     try {
       const { data: session } = await supabase.auth.getSession();
@@ -110,7 +116,6 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       console.log('Creating checkout for tier:', tier);
       
-      // Get referral code from localStorage if not provided
       const finalReferralCode = referralCode || localStorage.getItem('referralCode');
       
       const requestBody = { 
@@ -120,11 +125,11 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       
       console.log('Sending request body:', requestBody);
 
-      // Use the body parameter directly without JSON.stringify for Supabase functions
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: requestBody,
         headers: {
           Authorization: `Bearer ${session.session.access_token}`,
+          'Content-Type': 'application/json',
         },
       });
 
@@ -138,8 +143,6 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       }
 
       console.log('Checkout URL received:', data.url);
-
-      // Redirect to Stripe checkout
       window.location.href = data.url;
       
       toast({
@@ -188,7 +191,6 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         throw new Error('No portal URL received');
       }
 
-      // Open customer portal in a new tab
       window.open(data.url, '_blank');
       
       toast({
@@ -207,15 +209,17 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   };
 
+  // Only check subscription once when user changes and hasn't been checked yet
   useEffect(() => {
-    if (user) {
+    if (user && !hasChecked && !loading) {
       checkSubscription();
-    } else {
+    } else if (!user) {
       setSubscribed(false);
       setSubscriptionTier(null);
       setSubscriptionEnd(null);
+      setHasChecked(true);
     }
-  }, [user]);
+  }, [user, hasChecked, loading]);
 
   return (
     <SubscriptionContext.Provider
