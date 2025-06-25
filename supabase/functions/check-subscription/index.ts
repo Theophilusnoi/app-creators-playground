@@ -28,17 +28,49 @@ serve(async (req) => {
     logStep("Function started");
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
+    if (!stripeKey) {
+      logStep("STRIPE_SECRET_KEY not configured");
+      return new Response(JSON.stringify({ 
+        subscribed: false,
+        subscription_tier: null,
+        subscription_end: null,
+        error: "Payment system not configured" 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
     logStep("Stripe key verified");
 
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header provided");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ 
+        error: "No authorization header provided" 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401,
+      });
+    }
     
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
-    if (userError) throw new Error(`Authentication error: ${userError.message}`);
+    if (userError) {
+      return new Response(JSON.stringify({ 
+        error: `Authentication error: ${userError.message}` 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401,
+      });
+    }
     const user = userData.user;
-    if (!user?.email) throw new Error("User not authenticated or email not available");
+    if (!user?.email) {
+      return new Response(JSON.stringify({ 
+        error: "User not authenticated or email not available" 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401,
+      });
+    }
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
@@ -55,7 +87,12 @@ serve(async (req) => {
         subscription_end: null,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'email' });
-      return new Response(JSON.stringify({ subscribed: false }), {
+      
+      return new Response(JSON.stringify({ 
+        subscribed: false,
+        subscription_tier: null,
+        subscription_end: null 
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });
@@ -69,6 +106,7 @@ serve(async (req) => {
       status: "active",
       limit: 1,
     });
+    
     const hasActiveSub = subscriptions.data.length > 0;
     let subscriptionTier = null;
     let subscriptionEnd = null;
@@ -83,23 +121,21 @@ serve(async (req) => {
       const price = await stripe.prices.retrieve(priceId);
       const amount = price.unit_amount || 0;
       
-      // Map amounts to wisdom tiers
-      if (amount >= 49700) {
-        subscriptionTier = "ether";
-      } else if (amount >= 19700) {
-        subscriptionTier = "fire";
-      } else if (amount >= 7900) {
-        subscriptionTier = "water";
-      } else if (amount >= 2900) {
+      // Map amount to tier names
+      if (amount === 2900) {
         subscriptionTier = "earth";
-      } else if (amount >= 4999) {
-        subscriptionTier = "pro";
-      } else if (amount >= 1999) {
-        subscriptionTier = "premium";
-      } else if (amount >= 999) {
+      } else if (amount === 7900) {
+        subscriptionTier = "water";
+      } else if (amount === 19700) {
+        subscriptionTier = "fire";
+      } else if (amount === 49700) {
+        subscriptionTier = "ether";
+      } else if (amount <= 999) {
         subscriptionTier = "basic";
+      } else if (amount <= 1999) {
+        subscriptionTier = "premium";
       } else {
-        subscriptionTier = "unknown";
+        subscriptionTier = "pro";
       }
       
       logStep("Determined subscription tier", { priceId, amount, subscriptionTier });
@@ -107,6 +143,7 @@ serve(async (req) => {
       logStep("No active subscription found");
     }
 
+    // Update subscribers table
     await supabaseClient.from("subscribers").upsert({
       email: user.email,
       user_id: user.id,
@@ -118,6 +155,7 @@ serve(async (req) => {
     }, { onConflict: 'email' });
 
     logStep("Updated database with subscription info", { subscribed: hasActiveSub, subscriptionTier });
+    
     return new Response(JSON.stringify({
       subscribed: hasActiveSub,
       subscription_tier: subscriptionTier,

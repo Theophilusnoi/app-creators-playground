@@ -27,42 +27,64 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    // Check if request has a body
-    const contentType = req.headers.get("content-type");
-    logStep("Content type", { contentType });
-
+    // Parse the request body properly for Supabase functions
     let requestBody;
     try {
       const rawBody = await req.text();
-      logStep("Raw body received", { length: rawBody.length, body: rawBody });
+      logStep("Raw body received", { length: rawBody.length, preview: rawBody.substring(0, 200) });
       
-      if (rawBody) {
+      if (rawBody && rawBody.trim()) {
         requestBody = JSON.parse(rawBody);
+        logStep("Parsed request body", requestBody);
       } else {
-        throw new Error("Empty request body");
+        // Handle case where body might be empty or malformed
+        logStep("Empty or invalid body, using default");
+        requestBody = {};
       }
     } catch (parseError) {
       logStep("JSON parse error", { error: parseError.message });
-      throw new Error(`Invalid JSON in request body: ${parseError.message}`);
+      return new Response(JSON.stringify({ 
+        error: `Invalid request format: ${parseError.message}` 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
     }
 
     const { tier, referralCode } = requestBody;
     
     if (!tier) {
-      throw new Error("Subscription tier is required");
+      logStep("Missing tier parameter");
+      return new Response(JSON.stringify({ 
+        error: "Subscription tier is required" 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
     }
+    
     logStep("Tier and referral code received", { tier, referralCode });
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      throw new Error("No authorization header provided");
+      return new Response(JSON.stringify({ 
+        error: "No authorization header provided" 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401,
+      });
     }
     
     const token = authHeader.replace("Bearer ", "");
     const { data } = await supabaseClient.auth.getUser(token);
     const user = data.user;
     if (!user?.email) {
-      throw new Error("User not authenticated or email not available");
+      return new Response(JSON.stringify({ 
+        error: "User not authenticated or email not available" 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401,
+      });
     }
     logStep("User authenticated", { userId: user.id, email: user.email });
 
@@ -84,7 +106,13 @@ serve(async (req) => {
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) {
-      throw new Error("STRIPE_SECRET_KEY is not configured. Please set up your Stripe secret key.");
+      logStep("Missing Stripe secret key");
+      return new Response(JSON.stringify({ 
+        error: "Payment system configuration error. Please contact support." 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      });
     }
     
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
@@ -113,7 +141,12 @@ serve(async (req) => {
 
     const selectedTier = wisdomTiers[tier as keyof typeof wisdomTiers];
     if (!selectedTier) {
-      throw new Error(`Invalid subscription tier: ${tier}`);
+      return new Response(JSON.stringify({ 
+        error: `Invalid subscription tier: ${tier}` 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
     }
     logStep("Tier pricing", selectedTier);
 
@@ -163,7 +196,7 @@ serve(async (req) => {
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR in create-checkout", { message: errorMessage });
+    logStep("ERROR in create-checkout", { message: errorMessage, stack: error instanceof Error ? error.stack : undefined });
     return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
