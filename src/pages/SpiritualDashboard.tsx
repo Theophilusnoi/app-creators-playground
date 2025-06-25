@@ -31,6 +31,11 @@ import { WisdomPhilosophy } from '@/components/spiritual/WisdomPhilosophy';
 import { PersonalGuidanceSystem } from '@/components/spiritual/PersonalGuidanceSystem';
 import { SoulArchetypeSystem } from '@/components/spiritual/SoulArchetypeSystem';
 
+// Import new enhanced components
+import { SacredBathingSystem } from '@/components/spiritual/SacredBathingSystem';
+import { SpiritualKnowledgeBase } from '@/components/spiritual/SpiritualKnowledgeBase';
+import { EnhancedSeraphinaChat } from '@/components/spiritual/EnhancedSeraphinaChat';
+
 const SpiritualDashboard = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -102,6 +107,18 @@ const SpiritualDashboard = () => {
 
           <TabsContent value="seraphina">
             <SoulGuideChat />
+          </TabsContent>
+
+          <TabsContent value="enhanced-seraphina">
+            <EnhancedSeraphinaChat />
+          </TabsContent>
+
+          <TabsContent value="sacred-bathing">
+            <SacredBathingSystem />
+          </TabsContent>
+
+          <TabsContent value="knowledge-base">
+            <SpiritualKnowledgeBase />
           </TabsContent>
 
           <TabsContent value="subscription">
