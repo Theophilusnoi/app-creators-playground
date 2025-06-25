@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 interface VoiceSettings {
@@ -254,13 +254,14 @@ export const useAdvancedVoice = () => {
   const speakSpiritualMessage = useCallback((text: string, messageType: 'guidance' | 'blessing' | 'wisdom' | 'emergency' = 'guidance') => {
     const processedText = processSpiritualText(text);
     
-    const voiceSettings: Partial<VoiceSettings> = {
+    const voiceSettingsMap: Record<string, Partial<VoiceSettings>> = {
       guidance: { voiceType: 'compassionate', speechRate: 0.85 },
       blessing: { voiceType: 'gentle', speechRate: 0.8 },
       wisdom: { voiceType: 'wise', speechRate: 0.75 },
       emergency: { voiceType: 'authoritative', speechRate: 0.9 }
-    }[messageType];
+    };
 
+    const voiceSettings = voiceSettingsMap[messageType];
     speakText(processedText, voiceSettings);
   }, [speakText, processSpiritualText]);
 

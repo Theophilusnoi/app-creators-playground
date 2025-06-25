@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -251,7 +250,7 @@ What aspect of your spiritual journey would you like to explore today, beloved s
       preferredTraditions: ['universal', 'buddhist'],
       currentChallenges: ['meditation', 'purpose'],
       spiritualGoals: ['inner peace', 'spiritual growth'],
-      communicationStyle: 'compassionate',
+      communicationStyle: 'gentle', // Fixed: using valid type
       interests: ['meditation', 'manifestation', 'healing']
     });
   };

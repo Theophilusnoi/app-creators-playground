@@ -1,3 +1,4 @@
+
 import { TarotCard } from '@/types/tarot';
 
 export const tarotDeck: TarotCard[] = [
@@ -70,6 +71,9 @@ export const tarotDeck: TarotCard[] = [
   },
   // Add more cards for a complete 78-card deck...
 ];
+
+// Export the complete deck as well
+export const completeTarotDeck = tarotDeck;
 
 export const shuffleDeck = (deck: TarotCard[]): TarotCard[] => {
   const shuffled = [...deck];
