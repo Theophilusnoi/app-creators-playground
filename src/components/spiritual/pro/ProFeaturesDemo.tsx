@@ -1,5 +1,5 @@
-
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,8 +29,17 @@ interface ProFeaturesDemoProps {
 }
 
 export const ProFeaturesDemo: React.FC<ProFeaturesDemoProps> = ({ userProfile }) => {
+  const navigate = useNavigate();
   const [activeDemo, setActiveDemo] = useState('overview');
   const [demoSession, setDemoSession] = useState(false);
+
+  const handleUpgradeClick = () => {
+    navigate('/pricing');
+  };
+
+  const handleLearnMoreClick = () => {
+    navigate('/pricing');
+  };
 
   const proFeatures = [
     {
@@ -329,11 +338,18 @@ export const ProFeaturesDemo: React.FC<ProFeaturesDemoProps> = ({ userProfile })
               <h3 className="text-2xl font-bold text-white">Ready to Unlock Complete Spiritual Mastery?</h3>
               <p className="text-purple-200">Join thousands of advanced practitioners who have transformed their spiritual journey</p>
               <div className="flex justify-center gap-4">
-                <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90">
+                <Button 
+                  onClick={handleUpgradeClick}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90"
+                >
                   <Crown className="w-4 h-4 mr-2" />
                   Upgrade to Pro - $49.99/month
                 </Button>
-                <Button variant="outline" className="border-purple-500/30 text-purple-200">
+                <Button 
+                  onClick={handleLearnMoreClick}
+                  variant="outline" 
+                  className="border-purple-500/30 text-purple-200"
+                >
                   Learn More
                 </Button>
               </div>
