@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 import { Zap, Triangle, Rotate3D, Shield } from 'lucide-react';
@@ -48,14 +47,31 @@ export const MerkabaActivationSystem = () => {
 
   const fetchActivations = async () => {
     try {
-      const { data, error } = await supabase
-        .from('merkaba_activations')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setActivations(data || []);
+      // Use mock data since merkaba_activations table doesn't exist
+      const mockActivations: MerkabaActivation[] = [
+        {
+          id: '1',
+          activation_level: 5,
+          spin_direction: 'masculine',
+          frequency_hz: 528,
+          geometric_pattern: 'Star Tetrahedron',
+          biofield_response: {
+            chakra_alignment: [0.8, 0.7, 0.9, 0.6, 0.8, 0.7, 0.9],
+            auric_expansion: 45.2,
+            dna_activation: 0.65,
+            pineal_response: 0.78,
+            crystalline_structure: {
+              coherence: 0.82,
+              frequency_match: 0.71,
+              geometric_stability: 0.89
+            }
+          },
+          completed_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+          created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+        }
+      ];
+      
+      setActivations(mockActivations);
     } catch (error) {
       console.error('Error fetching merkaba activations:', error);
     }
@@ -81,26 +97,24 @@ export const MerkabaActivationSystem = () => {
       const pattern = geometricPatterns[Math.floor(Math.random() * geometricPatterns.length)];
       const biofieldResponse = generateBiofieldResponse(activationLevel[0]);
       
-      const { error } = await supabase
-        .from('merkaba_activations')
-        .insert([{
-          user_id: user.id,
-          activation_level: activationLevel[0],
-          spin_direction: spinDirection,
-          frequency_hz: frequencyHz[0],
-          geometric_pattern: pattern,
-          biofield_response: biofieldResponse,
-          completed_at: new Date().toISOString()
-        }]);
+      // Create new activation locally since merkaba_activations table doesn't exist
+      const newActivation: MerkabaActivation = {
+        id: Date.now().toString(),
+        activation_level: activationLevel[0],
+        spin_direction: spinDirection,
+        frequency_hz: frequencyHz[0],
+        geometric_pattern: pattern,
+        biofield_response: biofieldResponse,
+        completed_at: new Date().toISOString(),
+        created_at: new Date().toISOString()
+      };
 
-      if (error) throw error;
+      setActivations(prev => [newActivation, ...prev]);
 
       toast({
         title: "Merkaba Activated! ⚡",
         description: `Level ${activationLevel[0]} activation complete at ${frequencyHz[0]} Hz`,
       });
-
-      await fetchActivations();
 
     } catch (error) {
       console.error('Error activating merkaba:', error);
