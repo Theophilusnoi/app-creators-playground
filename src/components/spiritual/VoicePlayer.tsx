@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useVoiceService } from '@/hooks/useVoiceService';
 import { useToast } from '@/hooks/use-toast';
-import { Volume2, VolumeX, Play, Loader2, AlertTriangle } from "lucide-react";
+import { Volume2, VolumeX, Play, Loader2 } from "lucide-react";
 
 interface VoicePlayerProps {
   script: string;
@@ -36,8 +36,8 @@ export const VoicePlayer: React.FC<VoicePlayerProps> = ({ script, tone }) => {
     
     if (!success) {
       toast({
-        title: "Voice service temporarily unavailable",
-        description: "The voice generation service has reached its daily limit. Please continue with the text-based guidance for now.",
+        title: "Voice generation failed",
+        description: "There was an error generating the voice. Please try again.",
         variant: "destructive"
       });
     }
@@ -92,12 +92,6 @@ export const VoicePlayer: React.FC<VoicePlayerProps> = ({ script, tone }) => {
           Stop Voice
         </Button>
       )}
-
-      {/* Fallback message when voice is unavailable */}
-      <div className="flex items-center text-amber-200 text-sm bg-amber-900/20 px-3 py-2 rounded-lg border border-amber-500/30">
-        <AlertTriangle className="w-4 h-4 mr-2" />
-        <span className="font-medium crisp-text">Voice service temporarily unavailable - continue with text guidance</span>
-      </div>
     </div>
   );
 };

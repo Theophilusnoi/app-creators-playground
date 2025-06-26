@@ -42,7 +42,7 @@ class VoiceService {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Edge function error:', errorText);
-        throw new Error(errorText);
+        throw new Error(`API Error: ${response.status} - ${errorText}`);
       }
 
       // Check if response is audio data
@@ -63,23 +63,23 @@ class VoiceService {
       } else {
         // Handle JSON error response
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Unknown error');
+        throw new Error(errorData.error || 'Unknown error occurred');
       }
 
     } catch (error) {
-      console.error('Voice generation failed:', error)
+      console.error('Voice generation failed:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      }
+        error: error instanceof Error ? error.message : 'Voice generation failed'
+      };
     }
   }
 
   cleanup(audioUrl?: string) {
     if (audioUrl) {
-      URL.revokeObjectURL(audioUrl)
+      URL.revokeObjectURL(audioUrl);
     }
   }
 }
 
-export const voiceService = new VoiceService()
+export const voiceService = new VoiceService();

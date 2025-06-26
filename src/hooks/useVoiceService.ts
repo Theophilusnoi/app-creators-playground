@@ -19,7 +19,7 @@ export const useVoiceService = () => {
     try {
       const voiceOptions: VoiceOptions = {
         ...options,
-        locale: i18n.language
+        locale: i18n.language || 'en'
       };
 
       console.log('Generating speech with options:', voiceOptions);
@@ -37,7 +37,7 @@ export const useVoiceService = () => {
         pendingAudioRef.current = response.audioUrl;
         setAudioReady(true);
 
-        // Show toast with play button instead of auto-playing
+        // Show success toast
         toast({
           title: "Divine Voice Ready",
           description: "Your spiritual guidance is ready. Click the play button to listen.",
@@ -47,8 +47,8 @@ export const useVoiceService = () => {
       } else {
         console.error('Voice generation failed:', response.error);
         toast({
-          title: "Voice Unavailable",
-          description: response.error || "Voice service temporarily unavailable",
+          title: "Voice Generation Failed",
+          description: response.error || "Unable to generate voice at this time. Please try again.",
           variant: "destructive"
         });
         return false;
@@ -57,7 +57,7 @@ export const useVoiceService = () => {
       console.error('Voice generation error:', error);
       toast({
         title: "Voice Error", 
-        description: "Failed to generate voice guidance",
+        description: "Failed to generate voice guidance. Please try again.",
         variant: "destructive"
       });
       return false;
@@ -94,7 +94,7 @@ export const useVoiceService = () => {
       audio.onerror = (error) => {
         console.error('Audio playback error:', error);
         toast({
-          title: "Voice Error",
+          title: "Playback Error",
           description: "Failed to play audio guidance. Please try again.",
           variant: "destructive"
         });
@@ -116,7 +116,7 @@ export const useVoiceService = () => {
       setIsPlaying(false);
       toast({
         title: "Playback Failed",
-        description: "Could not start audio playback. Your browser may be blocking audio.",
+        description: "Could not start audio playback. Please try again.",
         variant: "destructive"
       });
     }
