@@ -14,7 +14,7 @@ serve(async (req) => {
   try {
     const { text, locale, emotion } = await req.json()
     
-    console.log('Request received:', { text: text?.substring(0, 50), locale, emotion })
+    console.log('Request received:', { text: text?.substring(0, 50), locale, emotion, textLength: text?.length })
     
     if (!text) {
       throw new Error('No text provided')
@@ -77,6 +77,17 @@ serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text()
       console.error('ElevenLabs API error:', response.status, errorText)
+      
+      // Parse error for quota exceeded
+      try {
+        const errorData = JSON.parse(errorText)
+        if (errorData.detail && errorData.detail.status === 'quota_exceeded') {
+          throw new Error(`Quota exceeded: ${errorData.detail.message}`)
+        }
+      } catch (parseError) {
+        // If JSON parsing fails, use original error
+      }
+      
       throw new Error(`ElevenLabs API error: ${response.status} - ${errorText}`)
     }
 

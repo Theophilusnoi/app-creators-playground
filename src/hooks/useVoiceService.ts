@@ -8,6 +8,7 @@ export const useVoiceService = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioReady, setAudioReady] = useState(false);
+  const [generationProgress, setGenerationProgress] = useState<string>('');
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
   const pendingAudioRef = useRef<string | null>(null);
   const { i18n } = useTranslation();
@@ -15,6 +16,7 @@ export const useVoiceService = () => {
 
   const generateAndPlay = useCallback(async (options: Omit<VoiceOptions, 'locale'>) => {
     setIsGenerating(true);
+    setGenerationProgress('Preparing voice generation...');
     
     try {
       const voiceOptions: VoiceOptions = {
@@ -22,7 +24,13 @@ export const useVoiceService = () => {
         locale: i18n.language || 'en'
       };
 
-      console.log('Generating speech with options:', voiceOptions);
+      console.log('Generating speech with advanced service:', voiceOptions);
+      
+      // Update progress for long texts
+      if (options.text.length > 500) {
+        setGenerationProgress('Processing long text in chunks...');
+      }
+      
       const response: VoiceResponse = await voiceService.generateSpeech(voiceOptions);
 
       if (response.success && response.audioUrl) {
@@ -37,32 +45,53 @@ export const useVoiceService = () => {
         pendingAudioRef.current = response.audioUrl;
         setAudioReady(true);
 
-        // Show success toast
+        // Show success toast with additional info for chunked audio
+        const successMessage = response.isChunked 
+          ? `Divine Voice Ready (processed in ${response.chunkCount} parts)`
+          : "Divine Voice Ready";
+          
         toast({
-          title: "Divine Voice Ready",
+          title: successMessage,
           description: "Your spiritual guidance is ready. Click the play button to listen.",
         });
 
         return true;
       } else {
-        console.error('Voice generation failed:', response.error);
+        console.error('Advanced voice generation failed:', response.error);
+        
+        // Enhanced error messages
+        let errorMessage = response.error || "Unable to generate voice at this time.";
+        let errorTitle = "Voice Generation Failed";
+        
+        if (response.error?.includes('quota_exceeded')) {
+          errorTitle = "ElevenLabs Quota Exceeded";
+          errorMessage = "Your ElevenLabs quota is insufficient for this text length. Try shorter text or upgrade your plan.";
+        }
+        
         toast({
-          title: "Voice Generation Failed",
-          description: response.error || "Unable to generate voice at this time. Please try again.",
+          title: errorTitle,
+          description: errorMessage,
           variant: "destructive"
         });
         return false;
       }
     } catch (error) {
       console.error('Voice generation error:', error);
+      
+      let errorMessage = "Failed to generate voice guidance. Please try again.";
+      if (error instanceof Error && error.message.includes('quota')) {
+        errorMessage = "ElevenLabs quota exceeded. Please try with shorter text or upgrade your plan.";
+      }
+      
       toast({
         title: "Voice Error", 
-        description: "Failed to generate voice guidance. Please try again.",
+        description: errorMessage,
         variant: "destructive"
       });
       return false;
     } finally {
       setIsGenerating(false);
+      setGenerationProgress('');
     }
   }, [i18n.language, toast]);
 
@@ -146,6 +175,7 @@ export const useVoiceService = () => {
     stopAudio,
     isGenerating,
     isPlaying,
-    audioReady
+    audioReady,
+    generationProgress
   };
 };
