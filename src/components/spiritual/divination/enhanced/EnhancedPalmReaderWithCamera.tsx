@@ -51,33 +51,118 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
 
   const initCamera = async () => {
     try {
+      console.log('🎥 Starting enhanced camera initialization...');
       setCameraStatus('starting');
       
+      // Stop any existing stream first
       if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current.getTracks().forEach(track => {
+          console.log('🛑 Stopping existing track:', track.kind, track.label);
+          track.stop();
+        });
         streamRef.current = null;
       }
       
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-          facingMode: 'environment',
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        } 
-      });
+      // Try multiple constraint configurations for better compatibility
+      const constraints = [
+        {
+          video: {
+            width: { ideal: 1280, max: 1920 },
+            height: { ideal: 720, max: 1080 },
+            facingMode: 'environment'
+          }
+        },
+        {
+          video: {
+            width: { ideal: 640, max: 1280 },
+            height: { ideal: 480, max: 720 },
+            facingMode: 'environment'
+          }
+        },
+        {
+          video: {
+            facingMode: 'environment'
+          }
+        },
+        {
+          video: true
+        }
+      ];
+
+      let stream = null;
+      let lastError = null;
+
+      for (let i = 0; i < constraints.length; i++) {
+        try {
+          console.log(`📹 Trying constraint option ${i + 1}:`, constraints[i]);
+          stream = await navigator.mediaDevices.getUserMedia(constraints[i]);
+          console.log('✅ Camera stream acquired successfully');
+          break;
+        } catch (err) {
+          console.log(`❌ Constraint option ${i + 1} failed:`, err);
+          lastError = err;
+          continue;
+        }
+      }
+
+      if (!stream) {
+        throw lastError || new Error('No camera constraints worked');
+      }
       
       streamRef.current = stream;
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         
-        await new Promise((resolve) => {
-          if (videoRef.current) {
-            videoRef.current.onloadedmetadata = resolve;
+        // Wait for metadata to load
+        await new Promise<void>((resolve, reject) => {
+          if (!videoRef.current) {
+            reject(new Error('Video element not available'));
+            return;
           }
+
+          const handleLoadedMetadata = () => {
+            console.log('📹 Video metadata loaded, dimensions:', 
+              videoRef.current?.videoWidth, 'x', videoRef.current?.videoHeight);
+            resolve();
+          };
+
+          const handleError = (e: Event) => {
+            console.error('Video loading error:', e);
+            reject(new Error('Video failed to load'));
+          };
+
+          videoRef.current.addEventListener('loadedmetadata', handleLoadedMetadata, { once: true });
+          videoRef.current.addEventListener('error', handleError, { once: true });
+
+          // Cleanup function
+          setTimeout(() => {
+            if (videoRef.current) {
+              videoRef.current.removeEventListener('loadedmetadata', handleLoadedMetadata);
+              videoRef.current.removeEventListener('error', handleError);
+            }
+          }, 10000);
         });
         
-        await videoRef.current.play();
+        // Start playing the video
+        try {
+          await videoRef.current.play();
+          console.log('📹 Video playback started');
+        } catch (playError) {
+          console.error('Video play error:', playError);
+          // Try to play again after a short delay
+          setTimeout(async () => {
+            try {
+              if (videoRef.current) {
+                await videoRef.current.play();
+                console.log('📹 Video playback started (retry)');
+              }
+            } catch (retryError) {
+              console.error('Video play retry failed:', retryError);
+            }
+          }, 500);
+        }
+        
         setCameraStatus('active');
         
         toast({
@@ -86,8 +171,15 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
         });
       }
     } catch (err) {
-      console.error("Camera error:", err);
+      console.error("Camera initialization error:", err);
       setCameraStatus('error');
+      
+      // Cleanup on error
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
+      
       toast({
         title: "Camera Access Required",
         description: "Please enable camera permissions to scan your palm.",
@@ -96,22 +188,34 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
     }
   };
 
+  const stopCamera = () => {
+    console.log('🛑 Stopping enhanced camera...');
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => {
+        console.log('🛑 Stopping track:', track.kind, track.label);
+        track.stop();
+      });
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setCameraStatus('inactive');
+  };
+
   const cropPalmImage = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, video: HTMLVideoElement): string => {
-    // Calculate crop area for palm (center 60% of the image)
     const cropWidth = video.videoWidth * 0.6;
     const cropHeight = video.videoHeight * 0.6;
     const cropX = (video.videoWidth - cropWidth) / 2;
     const cropY = (video.videoHeight - cropHeight) / 2;
     
-    // Set canvas to crop dimensions
     canvas.width = cropWidth;
     canvas.height = cropHeight;
     
-    // Draw the cropped region
     ctx.drawImage(
       video,
-      cropX, cropY, cropWidth, cropHeight,  // Source rectangle
-      0, 0, cropWidth, cropHeight           // Destination rectangle
+      cropX, cropY, cropWidth, cropHeight,
+      0, 0, cropWidth, cropHeight
     );
     
     return canvas.toDataURL('image/jpeg', 0.9);
@@ -127,23 +231,40 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
       return;
     }
     
+    if (!videoRef.current || !videoRef.current.videoWidth) {
+      toast({
+        title: "Video Not Ready",
+        description: "Please wait for video to load completely",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsAnalyzing(true);
     setScanProgress(0);
     setPalmReading(null);
     setShowGuidance(false);
     
-    const canvas = document.createElement('canvas');
-    const video = videoRef.current;
-    if (video && canvasRef.current) {
+    try {
+      const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      if (ctx) {
-        // Crop the image to focus only on palm area
-        const croppedImageData = cropPalmImage(canvas, ctx, video);
+      
+      if (ctx && videoRef.current) {
+        const croppedImageData = cropPalmImage(canvas, ctx, videoRef.current);
         setPalmImage(croppedImageData);
+        console.log('📸 Palm image captured and cropped');
       }
+      
+      await simulatePalmAnalysis();
+    } catch (error) {
+      console.error('Error during palm scan:', error);
+      setIsAnalyzing(false);
+      toast({
+        title: "Scan Error",
+        description: "Failed to capture palm image. Please try again.",
+        variant: "destructive"
+      });
     }
-    
-    simulatePalmAnalysis();
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -153,14 +274,12 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
       reader.onload = (e) => {
         const imageData = e.target?.result as string;
         
-        // Create an image element to get dimensions for cropping
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
           
           if (ctx) {
-            // Calculate crop area for uploaded image (center 70%)
             const cropWidth = img.width * 0.7;
             const cropHeight = img.height * 0.7;
             const cropX = (img.width - cropWidth) / 2;
@@ -201,18 +320,23 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
     });
   };
 
-  const simulatePalmAnalysis = () => {
-    const interval = setInterval(() => {
-      setScanProgress(prev => {
-        const newProgress = prev + 5;
-        if (newProgress >= 100) {
-          clearInterval(interval);
-          generatePalmReading();
-          return 100;
-        }
-        return newProgress;
-      });
-    }, 200);
+  const simulatePalmAnalysis = async () => {
+    const steps = [
+      { progress: 10, delay: 300 },
+      { progress: 25, delay: 500 },
+      { progress: 40, delay: 400 },
+      { progress: 60, delay: 600 },
+      { progress: 80, delay: 500 },
+      { progress: 95, delay: 400 },
+      { progress: 100, delay: 300 }
+    ];
+
+    for (const step of steps) {
+      await new Promise(resolve => setTimeout(resolve, step.delay));
+      setScanProgress(step.progress);
+    }
+
+    generatePalmReading();
   };
 
   const generatePalmReading = () => {
@@ -329,18 +453,10 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
     return guidance[Math.floor(Math.random() * guidance.length)];
   };
 
-  // Auto-initialize camera when component mounts
+  // Cleanup on unmount
   useEffect(() => {
-    const autoStartCamera = () => {
-      if (cameraStatus === 'inactive') {
-        initCamera();
-      }
-    };
-
-    const timer = setTimeout(autoStartCamera, 1000);
-    
     return () => {
-      clearTimeout(timer);
+      console.log('🧹 Component unmounting, cleaning up camera...');
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
@@ -386,7 +502,6 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
                     {/* Palm Positioning Guide Overlay */}
                     {!isAnalyzing && (
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        {/* Main palm guide */}
                         <div className="relative">
                           <div className="border-4 border-white/90 rounded-xl w-64 h-80 animate-pulse flex items-center justify-center bg-white/10 backdrop-blur-sm">
                             <div className="text-white font-bold text-center text-lg">
@@ -433,12 +548,25 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
                         {Math.round(zoomLevel * 100)}%
                       </div>
                     </div>
+
+                    {/* Camera Control */}
+                    <div className="absolute top-4 left-4">
+                      <Button
+                        onClick={stopCamera}
+                        className="bg-red-600/80 hover:bg-red-700 text-white p-2 rounded-full"
+                        size="sm"
+                      >
+                        <Camera size={16} />
+                      </Button>
+                    </div>
                   </>
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center">
                     <div className="bg-purple-200/30 rounded-full p-6 mb-6">
                       {cameraStatus === 'error' ? (
                         <Camera size={64} className="text-red-400" />
+                      ) : cameraStatus === 'starting' ? (
+                        <RotateCw size={64} className="text-purple-400 animate-spin" />
                       ) : (
                         <Camera size={64} className="text-purple-400" />
                       )}
@@ -447,21 +575,30 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
                     <h3 className="text-2xl font-bold mb-4 text-purple-200">
                       {cameraStatus === 'error' 
                         ? 'Camera Access Required' 
-                        : 'Initializing Divine Vision...'}
+                        : cameraStatus === 'starting'
+                        ? 'Initializing Camera...'
+                        : 'Camera Ready to Start'}
                     </h3>
                     
                     <p className="text-purple-300 mb-6 text-lg">
                       {cameraStatus === 'error'
-                        ? 'Please enable camera permissions for advanced palm scanning'
-                        : 'Preparing enhanced spiritual analysis technology'}
+                        ? 'Please enable camera permissions for palm scanning'
+                        : cameraStatus === 'starting'
+                        ? 'Please wait while we prepare your camera'
+                        : 'Click to start your enhanced palm reading experience'}
                     </p>
                     
                     <Button 
                       onClick={initCamera}
+                      disabled={cameraStatus === 'starting'}
                       className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-3 text-lg"
                       size="lg"
                     >
-                      <RotateCw className="mr-2" size={20} />
+                      {cameraStatus === 'starting' ? (
+                        <RotateCw className="mr-2 animate-spin" size={20} />
+                      ) : (
+                        <Camera className="mr-2" size={20} />
+                      )}
                       {cameraStatus === 'error' ? 'Retry Camera' : 'Start Camera'}
                     </Button>
                   </div>
@@ -582,19 +719,19 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
                       <p className="text-purple-200 text-sm mt-1"><strong>Meaning:</strong> {palmReading.fateLineReading.meaning}</p>
                     </div>
 
-                    <div className="bg-white/10 rounded-lg p-4">
-                      <h4 className="font-semibold text-lg text-purple-300 mb-2">🎁 Your Spiritual Gifts</h4>
-                      <p className="text-purple-100">{palmReading.spiritualGifts}</p>
+                    <div className="bg-gradient-to-r from-green-900/30 to-teal-900/30 rounded-lg p-4 border border-green-400/30">
+                      <h4 className="font-semibold text-lg text-green-200 mb-2">✨ Spiritual Gifts</h4>
+                      <p className="text-green-100">{palmReading.spiritualGifts}</p>
                     </div>
 
-                    <div className="bg-white/10 rounded-lg p-4">
-                      <h4 className="font-semibold text-lg text-purple-300 mb-2">⚡ Growth Areas</h4>
-                      <p className="text-purple-100">{palmReading.challenges}</p>
+                    <div className="bg-gradient-to-r from-orange-900/30 to-red-900/30 rounded-lg p-4 border border-orange-400/30">
+                      <h4 className="font-semibold text-lg text-orange-200 mb-2">⚡ Growth Areas</h4>
+                      <p className="text-orange-100">{palmReading.challenges}</p>
                     </div>
 
-                    <div className="bg-white/10 rounded-lg p-4">
-                      <h4 className="font-semibold text-lg text-purple-300 mb-2">🙏 Divine Guidance</h4>
-                      <p className="text-purple-100">{palmReading.guidance}</p>
+                    <div className="bg-gradient-to-r from-blue-900/30 to-indigo-900/30 rounded-lg p-4 border border-blue-400/30">
+                      <h4 className="font-semibold text-lg text-blue-200 mb-2">🙏 Divine Guidance</h4>
+                      <p className="text-blue-100">{palmReading.guidance}</p>
                     </div>
 
                     <div className="bg-gradient-to-r from-yellow-900/30 to-orange-900/30 rounded-lg p-4 border border-yellow-400/30">
@@ -605,12 +742,12 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
                 </div>
               ) : (
                 <div className="bg-gradient-to-br from-purple-900/30 to-indigo-900/30 rounded-2xl p-8 text-center border border-purple-300/30">
-                  <div className="text-7xl mb-6">📱</div>
+                  <div className="text-7xl mb-6">👋</div>
                   <h3 className="font-bold text-2xl text-purple-200 mb-4">
-                    Ready for Advanced Palm Scan
+                    Sacred Palm Reading Ready
                   </h3>
                   <p className="text-purple-300 text-lg leading-relaxed">
-                    Position your palm in the guide above and capture for enhanced spiritual analysis with automatic cropping for optimal focus.
+                    Start your camera and position your palm in the guide frame for an advanced spiritual analysis of your life path.
                   </p>
                 </div>
               )}
@@ -619,14 +756,10 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
         </CardContent>
       </Card>
       
-      {/* Hidden canvas for image processing */}
-      <canvas ref={canvasRef} className="hidden" />
-      
       <div className="mt-8 text-center text-sm text-purple-400 space-y-2">
-        <p>📱 Enhanced camera with auto-cropping for palm-focused analysis</p>
-        <p>🔍 Zoom controls and positioning guides for optimal capture</p>
-        <p>✂️ Automatic image cropping ensures privacy and accuracy</p>
-        <p>🙏 Position your palm clearly with good lighting for best results</p>
+        <p>✨ Ancient palmistry wisdom enhanced with modern spiritual AI technology</p>
+        <p>📱 Advanced camera features for optimal palm capture and analysis</p>
+        <p>🔮 Your divine path awaits discovery through the sacred art of palm reading</p>
       </div>
     </div>
   );
