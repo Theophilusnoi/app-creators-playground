@@ -14,9 +14,12 @@ import {
   Heart,
   Star,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Microscope,
+  Globe2
 } from 'lucide-react';
 import { telekinesisKnowledgeBase, trainingProgression, ancientWisdomSources } from '@/data/telekinesisKnowledge';
+import { advancedTelekinesisKnowledge, traditionalTrainingStages, researchFrameworks } from '@/data/telekinesisAdvancedKnowledge';
 
 interface TelekinesisKnowledgeBaseProps {
   userProfile: any;
@@ -26,12 +29,18 @@ export const TelekinesisKnowledgeBase: React.FC<TelekinesisKnowledgeBaseProps> =
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
-  const [activeTab, setActiveTab] = useState<'knowledge' | 'progression' | 'wisdom'>('knowledge');
+  const [activeTab, setActiveTab] = useState<'knowledge' | 'progression' | 'wisdom' | 'advanced' | 'research'>('knowledge');
+
+  // Combine basic and advanced knowledge
+  const allKnowledge = [...telekinesisKnowledgeBase, ...advancedTelekinesisKnowledge];
 
   const categories = [
     'all',
     'Introduction',
     'Ancient Traditions', 
+    'Hindu Traditions',
+    'Buddhist Traditions',
+    'Universal Principles',
     'Scientific Perspective',
     'Preparation',
     'Training Methods',
@@ -44,7 +53,7 @@ export const TelekinesisKnowledgeBase: React.FC<TelekinesisKnowledgeBaseProps> =
     'Applications'
   ];
 
-  const filteredKnowledge = telekinesisKnowledgeBase.filter(item => {
+  const filteredKnowledge = allKnowledge.filter(item => {
     const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
     const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.content.toLowerCase().includes(searchTerm.toLowerCase());
@@ -63,11 +72,14 @@ export const TelekinesisKnowledgeBase: React.FC<TelekinesisKnowledgeBaseProps> =
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'Ancient Traditions': return Eye;
+      case 'Ancient Traditions': 
+      case 'Hindu Traditions':
+      case 'Buddhist Traditions': return Eye;
       case 'Scientific Perspective': return Brain;
       case 'Training Methods': return Zap;
       case 'Safety': return Shield;
       case 'Ethics': return Heart;
+      case 'Universal Principles': return Globe2;
       default: return BookOpen;
     }
   };
@@ -75,7 +87,7 @@ export const TelekinesisKnowledgeBase: React.FC<TelekinesisKnowledgeBaseProps> =
   return (
     <div className="space-y-6">
       {/* Navigation Tabs */}
-      <div className="flex gap-3">
+      <div className="flex gap-3 flex-wrap">
         <Button
           onClick={() => setActiveTab('knowledge')}
           variant={activeTab === 'knowledge' ? 'default' : 'outline'}
@@ -90,15 +102,31 @@ export const TelekinesisKnowledgeBase: React.FC<TelekinesisKnowledgeBaseProps> =
           className={activeTab === 'progression' ? 'bg-blue-600' : 'border-gray-400/50 text-gray-100'}
         >
           <Star className="w-4 h-4 mr-2" />
-          Training Progression
+          Basic Progression
+        </Button>
+        <Button
+          onClick={() => setActiveTab('advanced')}
+          variant={activeTab === 'advanced' ? 'default' : 'outline'}
+          className={activeTab === 'advanced' ? 'bg-blue-600' : 'border-gray-400/50 text-gray-100'}
+        >
+          <Eye className="w-4 h-4 mr-2" />
+          Traditional Stages
         </Button>
         <Button
           onClick={() => setActiveTab('wisdom')}
           variant={activeTab === 'wisdom' ? 'default' : 'outline'}
           className={activeTab === 'wisdom' ? 'bg-blue-600' : 'border-gray-400/50 text-gray-100'}
         >
-          <Eye className="w-4 h-4 mr-2" />
+          <Globe2 className="w-4 h-4 mr-2" />
           Ancient Wisdom
+        </Button>
+        <Button
+          onClick={() => setActiveTab('research')}
+          variant={activeTab === 'research' ? 'default' : 'outline'}
+          className={activeTab === 'research' ? 'bg-blue-600' : 'border-gray-400/50 text-gray-100'}
+        >
+          <Microscope className="w-4 h-4 mr-2" />
+          Research
         </Button>
       </div>
 
@@ -159,11 +187,16 @@ export const TelekinesisKnowledgeBase: React.FC<TelekinesisKnowledgeBaseProps> =
                           <IconComponent className="w-4 h-4 text-blue-400" />
                         </div>
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
                             <h4 className="text-gray-100 font-semibold">{item.title}</h4>
                             <Badge className="bg-blue-600/20 text-blue-200 text-xs">
                               {item.category}
                             </Badge>
+                            {(item as any).tradition && (
+                              <Badge className="bg-amber-600/20 text-amber-200 text-xs">
+                                {(item as any).tradition}
+                              </Badge>
+                            )}
                           </div>
                           <p className="text-gray-300 text-sm leading-relaxed">
                             {isExpanded ? item.content : `${item.content.substring(0, 150)}...`}
@@ -214,9 +247,13 @@ export const TelekinesisKnowledgeBase: React.FC<TelekinesisKnowledgeBaseProps> =
         </div>
       )}
 
-      {/* Training Progression Tab */}
+      {/* Basic Training Progression Tab */}
       {activeTab === 'progression' && (
         <div className="space-y-4">
+          <div className="text-center mb-6">
+            <h3 className="text-xl font-semibold text-purple-200 mb-2">Basic Modern Training Progression</h3>
+            <p className="text-purple-300 text-sm">Contemporary approach for beginners</p>
+          </div>
           {Object.entries(trainingProgression).map(([key, stage]) => (
             <Card key={key} className="bg-purple-900/20 border-purple-500/30">
               <CardHeader>
@@ -249,6 +286,61 @@ export const TelekinesisKnowledgeBase: React.FC<TelekinesisKnowledgeBaseProps> =
                     <ul className="space-y-1">
                       {stage.milestones.map((milestone, index) => (
                         <li key={index} className="text-purple-300 text-sm flex items-start">
+                          <span className="text-green-400 mr-2">✓</span>
+                          {milestone}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Traditional Hindu/Buddhist Stages Tab */}
+      {activeTab === 'advanced' && (
+        <div className="space-y-4">
+          <div className="text-center mb-6">
+            <h3 className="text-xl font-semibold text-amber-200 mb-2">Traditional Hindu/Buddhist Training Stages</h3>
+            <p className="text-amber-300 text-sm">Classical approach emphasizing spiritual development</p>
+          </div>
+          {Object.entries(traditionalTrainingStages).map(([key, stage]) => (
+            <Card key={key} className="bg-amber-900/20 border-amber-500/30">
+              <CardHeader>
+                <CardTitle className="text-amber-200 flex items-center gap-2">
+                  <Eye className="w-5 h-5" />
+                  {stage.name}
+                </CardTitle>
+                <div className="flex items-center gap-4 text-sm flex-wrap">
+                  <Badge className="bg-amber-600/20 text-amber-200">
+                    Duration: {stage.duration}
+                  </Badge>
+                  <Badge className="bg-orange-600/20 text-orange-200">
+                    {stage.tradition}
+                  </Badge>
+                  <span className="text-amber-300">Focus: {stage.focus}</span>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="text-amber-200 font-semibold mb-2">Traditional Practices</h4>
+                    <ul className="space-y-1">
+                      {stage.practices.map((practice, index) => (
+                        <li key={index} className="text-amber-300 text-sm flex items-start">
+                          <span className="text-amber-400 mr-2">•</span>
+                          {practice}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="text-amber-200 font-semibold mb-2">Spiritual Milestones</h4>
+                    <ul className="space-y-1">
+                      {stage.milestones.map((milestone, index) => (
+                        <li key={index} className="text-amber-300 text-sm flex items-start">
                           <span className="text-green-400 mr-2">✓</span>
                           {milestone}
                         </li>
@@ -301,6 +393,56 @@ export const TelekinesisKnowledgeBase: React.FC<TelekinesisKnowledgeBaseProps> =
                     <h4 className="text-amber-200 font-semibold mb-2">Modern Application</h4>
                     <p className="text-amber-300 text-sm">{tradition.modern_application}</p>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Research Tab */}
+      {activeTab === 'research' && (
+        <div className="space-y-4">
+          <div className="text-center mb-6">
+            <h3 className="text-xl font-semibold text-cyan-200 mb-2">Scientific Research Frameworks</h3>
+            <p className="text-cyan-300 text-sm">Contemporary theories and research approaches</p>
+          </div>
+          {Object.entries(researchFrameworks).map(([key, framework]) => (
+            <Card key={key} className="bg-cyan-900/20 border-cyan-500/30">
+              <CardHeader>
+                <CardTitle className="text-cyan-200 flex items-center gap-2">
+                  <Microscope className="w-5 h-5" />
+                  {framework.name}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="text-cyan-200 font-semibold mb-2">Key Researchers</h4>
+                    <ul className="space-y-1">
+                      {framework.key_researchers.map((researcher, index) => (
+                        <li key={index} className="text-cyan-300 text-sm flex items-start">
+                          <span className="text-cyan-400 mr-2">•</span>
+                          {researcher}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="text-cyan-200 font-semibold mb-2">Main Theories</h4>
+                    <ul className="space-y-1">
+                      {framework.main_theories.map((theory, index) => (
+                        <li key={index} className="text-cyan-300 text-sm flex items-start">
+                          <span className="text-cyan-400 mr-2">•</span>
+                          {theory}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+                <div className="bg-cyan-800/20 p-3 rounded-lg border border-cyan-600/30">
+                  <h4 className="text-cyan-200 font-semibold mb-2 text-sm">Relevance to Telekinesis</h4>
+                  <p className="text-cyan-300 text-sm">{framework.relevance_to_telekinesis}</p>
                 </div>
               </CardContent>
             </Card>
