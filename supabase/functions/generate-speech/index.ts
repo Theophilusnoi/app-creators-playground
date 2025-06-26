@@ -27,7 +27,7 @@ serve(async (req) => {
       throw new Error('ElevenLabs API key not configured')
     }
 
-    // CORRECTED VOICE MAPPING (using verified multilingual voices)
+    // Voice mapping for different locales
     const voiceMap: Record<string, string> = {
       'en': '21m00Tcm4TlvDq8ikWAM', // Rachel (English)
       'es': 'MF3mGyEYCl7XYWbV9V6O', // Elli (Spanish)
@@ -37,7 +37,7 @@ serve(async (req) => {
     }
 
     const voiceId = voiceMap[locale] || voiceMap['en']
-    console.log('Using voice ID:', voiceId)
+    console.log('Using voice ID:', voiceId, 'for locale:', locale)
 
     // Emotion to stability mapping
     const getStability = (emotion?: string) => {
@@ -49,21 +49,18 @@ serve(async (req) => {
       }
     }
 
-    // ADDED MODEL ID FOR MULTILINGUAL SUPPORT
     const modelId = 'eleven_multilingual_v2'
 
     const requestBody = {
       text,
-      model_id: modelId, // MUST be specified for multilingual
+      model_id: modelId,
       voice_settings: {
         stability: getStability(emotion),
         similarity_boost: 0.8,
-        // REMOVED STYLE PARAMETER (not supported in multilingual)
-        // REMOVED SPEAKER BOOST (requires specific voice settings)
       }
     }
 
-    console.log('Making request to ElevenLabs with voice ID:', voiceId, 'Model:', modelId)
+    console.log('Making request to ElevenLabs with:', { voiceId, modelId, textLength: text.length })
 
     const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
       method: 'POST',
