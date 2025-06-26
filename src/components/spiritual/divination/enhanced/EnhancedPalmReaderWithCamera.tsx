@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useVoiceService } from '@/hooks/useVoiceService';
-import { Camera, RotateCw, Scan, Hand, Upload, ZoomIn, ZoomOut, Move, X, AlertCircle, Wifi, WifiOff } from 'lucide-react';
+import { Camera, RotateCw, Scan, Hand, Upload, ZoomIn, ZoomOut, Move, X, AlertCircle, Wifi, WifiOff, Play } from 'lucide-react';
 
 interface PalmAnalysis {
   lifeLineReading: {
@@ -738,7 +738,7 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
       return (
         <span className="flex items-center justify-center">
           <RotateCw className="animate-spin mr-2" size={20} />
-          Initializing Camera... {cameraRetryCount > 0 && `(Attempt ${cameraRetryCount + 1})`}
+          Starting Camera... {cameraRetryCount > 0 && `(Attempt ${cameraRetryCount + 1})`}
         </span>
       );
     }
@@ -747,7 +747,7 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
       return (
         <span className="flex items-center justify-center">
           <Scan className="mr-2" size={20} />
-          📱 Scan My Palm
+          📱 Capture Palm Reading
         </span>
       );
     }
@@ -756,7 +756,7 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
       return (
         <span className="flex items-center justify-center">
           <AlertCircle className="mr-2" size={20} />
-          🔄 Advanced Retry {cameraRetryCount > 0 && `(${cameraRetryCount + 1})`}
+          🔄 Retry Camera {cameraRetryCount > 0 && `(${cameraRetryCount + 1})`}
         </span>
       );
     }
@@ -764,9 +764,35 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
     return (
       <span className="flex items-center justify-center">
         <Camera className="mr-2" size={20} />
-        🔮 Start Palm Reading
+        🎥 Start Camera
       </span>
     );
+  };
+
+  const handleMainButtonClick = async () => {
+    console.log('🎯 Main button clicked, current status:', cameraStatus);
+    
+    if (isAnalyzing) {
+      toast({
+        title: "Analysis in Progress",
+        description: "Please wait for the current analysis to complete",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (cameraStatus === 'inactive' || cameraStatus === 'error') {
+      console.log('🎥 Initiating camera...');
+      await initCamera();
+    } else if (cameraStatus === 'active') {
+      console.log('📸 Starting palm scan...');
+      await startPalmScan();
+    } else if (cameraStatus === 'starting') {
+      toast({
+        title: "Camera Starting",
+        description: "Please wait for camera to initialize",
+      });
+    }
   };
 
   const getDiagnosticInfo = () => {
@@ -833,7 +859,7 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
         
         <CardContent className="p-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Enhanced Camera Section */}
+            {/* Camera Section */}
             <div className="space-y-6">
               <div className="aspect-square bg-gradient-to-br from-purple-100/20 to-indigo-100/20 rounded-2xl border-2 border-dashed border-purple-400/50 relative overflow-hidden">
                 {cameraStatus === 'active' ? (
@@ -922,18 +948,18 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
                     
                     <h3 className="text-2xl font-bold mb-4 text-purple-200">
                       {cameraStatus === 'error' 
-                        ? 'Advanced Camera Error Detection' 
+                        ? 'Camera Error Detected' 
                         : cameraStatus === 'starting'
-                        ? 'Initializing Advanced Camera...'
-                        : 'Ready for Enhanced Palm Reading'}
+                        ? 'Starting Camera...'
+                        : 'Ready for Palm Reading'}
                     </h3>
                     
                     <p className="text-purple-300 mb-6 text-lg">
                       {cameraStatus === 'error'
-                        ? 'Advanced diagnostics detected an issue. View details below and try retry.'
+                        ? 'Click the button below to retry camera initialization.'
                         : cameraStatus === 'starting'
-                        ? 'Advanced camera system is preparing with multiple fallback options...'
-                        : 'Use our advanced camera system or upload an image for comprehensive spiritual analysis.'}
+                        ? 'Please wait while we initialize your camera...'
+                        : 'Click the button below to start your camera and begin palm reading.'}
                     </p>
                   </div>
                 )}
@@ -946,7 +972,7 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
                     <div className="w-full max-w-sm mx-auto">
                       <Progress value={scanProgress} className="bg-white/20 h-4 mb-4" />
                       <p className="text-white text-center text-lg font-semibold">
-                        🔮 Advanced palm analysis... {scanProgress}%
+                        🔮 Analyzing palm... {scanProgress}%
                       </p>
                       <p className="text-purple-300 text-center text-sm mt-2">
                         AI spiritual analysis in progress...
@@ -956,10 +982,10 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
                 )}
               </div>
               
-              {/* Integrated Main Button */}
+              {/* Main Action Button */}
               <div className="space-y-4">
                 <Button
-                  onClick={handleIntegratedScan}
+                  onClick={handleMainButtonClick}
                   disabled={isAnalyzing || cameraStatus === 'starting'}
                   className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-6 text-xl font-bold shadow-lg"
                   size="lg"
@@ -993,11 +1019,11 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
               {/* Diagnostic Information */}
               {getDiagnosticInfo()}
               
-              {/* Enhanced Positioning Tips */}
+              {/* Positioning Tips */}
               <div className="bg-gradient-to-r from-blue-900/30 to-indigo-900/30 rounded-xl p-4 border border-blue-400/30">
                 <h4 className="font-semibold text-blue-200 mb-2 flex items-center gap-2">
                   <Move size={16} />
-                  📋 Advanced Palm Positioning Guide
+                  📋 Palm Positioning Guide
                 </h4>
                 <ul className="text-blue-100 text-sm space-y-1">
                   <li>• Hold palm 6-8 inches from camera</li>
@@ -1014,7 +1040,7 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
             <div className="space-y-6">
               {palmImage && (
                 <div className="text-center mb-4">
-                  <img src={palmImage} alt="Cropped Palm" className="max-w-full max-h-48 rounded-lg mx-auto shadow-lg border-2 border-purple-300" />
+                  <img src={palmImage} alt="Captured Palm" className="max-w-full max-h-48 rounded-lg mx-auto shadow-lg border-2 border-purple-300" />
                   <p className="text-purple-300 text-sm mt-2">✂️ Auto-cropped for palm focus</p>
                 </div>
               )}
@@ -1023,7 +1049,7 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
                 <div className="bg-gradient-to-br from-purple-900/50 to-indigo-900/50 rounded-2xl p-6 border border-purple-300/30">
                   <h3 className="font-bold text-2xl text-purple-200 mb-6 flex items-center gap-2">
                     <Scan size={24} />
-                    ✨ Your Enhanced Palm Reading
+                    ✨ Your Palm Reading
                   </h3>
                   
                   <div className="space-y-4">
@@ -1076,10 +1102,10 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
                 <div className="bg-gradient-to-br from-purple-900/30 to-indigo-900/30 rounded-2xl p-8 text-center border border-purple-300/30">
                   <div className="text-7xl mb-6">👋</div>
                   <h3 className="font-bold text-2xl text-purple-200 mb-4">
-                    Advanced Sacred Palm Reading Ready
+                    Sacred Palm Reading Ready
                   </h3>
                   <p className="text-purple-300 text-lg leading-relaxed">
-                    Click the main button to start our advanced camera system or upload an image for comprehensive spiritual analysis.
+                    Click the camera button above to start your palm reading or upload an existing image.
                   </p>
                 </div>
               )}
@@ -1090,8 +1116,8 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
       
       <div className="mt-8 text-center text-sm text-purple-400 space-y-2">
         <p>✨ Ancient palmistry wisdom enhanced with advanced spiritual AI technology</p>
-        <p>📱 Advanced integrated camera system with multiple fallback options for optimal compatibility</p>
-        <p>🔮 Your divine path awaits discovery through the sacred art of enhanced palm reading</p>
+        <p>📱 Advanced camera system with multiple fallback options for optimal compatibility</p>
+        <p>🔮 Your divine path awaits discovery through the sacred art of palm reading</p>
       </div>
     </div>
   );
