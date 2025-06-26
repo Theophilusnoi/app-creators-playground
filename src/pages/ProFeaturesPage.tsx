@@ -5,6 +5,7 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { ProFeaturesDemo } from '@/components/spiritual/pro/ProFeaturesDemo';
 import { StripeSetupGuide } from '@/components/stripe/StripeSetupGuide';
+import { ProNavigationBar } from '@/components/spiritual/pro/ProNavigationBar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { LogIn, Crown } from 'lucide-react';
@@ -20,9 +21,19 @@ const ProFeaturesPage = () => {
     navigate('/auth');
   };
 
+  const handleBackToDashboard = () => {
+    navigate('/dashboard');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 p-4">
       <div className="max-w-7xl mx-auto space-y-6">
+        {/* Navigation Bar */}
+        <ProNavigationBar 
+          onBack={handleBackToDashboard}
+          backLabel="Back to Dashboard"
+        />
+
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-4 flex items-center justify-center gap-3">

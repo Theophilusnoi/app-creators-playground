@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
+import { ProNavigationBar } from '@/components/spiritual/pro/ProNavigationBar';
 import { 
   Droplets, 
   Eye, 
@@ -123,6 +124,9 @@ const SpiritualMindPro = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 p-4">
       <div className="max-w-7xl mx-auto space-y-6">
+        {/* Navigation Bar */}
+        <ProNavigationBar showHome={false} />
+
         {/* Header */}
         <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
           <CardHeader>

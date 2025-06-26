@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ProNavigationBar } from '@/components/spiritual/pro/ProNavigationBar';
 import { 
   Crown, 
   Zap, 
@@ -21,7 +22,8 @@ import {
   Bot,
   Calendar,
   Lock,
-  Check
+  Check,
+  ArrowLeft
 } from 'lucide-react';
 
 interface ProFeaturesDemoProps {
@@ -117,6 +119,11 @@ export const ProFeaturesDemo: React.FC<ProFeaturesDemoProps> = ({ userProfile })
   const startDemo = (featureId: string) => {
     setActiveDemo(featureId);
     setDemoSession(true);
+  };
+
+  const handleBackToOverview = () => {
+    setActiveDemo('overview');
+    setDemoSession(false);
   };
 
   const renderFeatureDemo = (feature: any) => {
@@ -366,11 +373,12 @@ export const ProFeaturesDemo: React.FC<ProFeaturesDemoProps> = ({ userProfile })
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Button 
-          onClick={() => setActiveDemo('overview')}
+          onClick={handleBackToOverview}
           variant="outline"
           className="border-purple-500/30 text-purple-200"
         >
-          ← Back to Overview
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Overview
         </Button>
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-3">
@@ -380,6 +388,12 @@ export const ProFeaturesDemo: React.FC<ProFeaturesDemoProps> = ({ userProfile })
           <p className="text-purple-300">{currentFeature?.description}</p>
         </div>
       </div>
+
+      {/* Demo Navigation */}
+      <ProNavigationBar 
+        onBack={handleBackToOverview}
+        backLabel="Back to Features"
+      />
 
       {currentFeature && renderFeatureDemo(currentFeature)}
 
