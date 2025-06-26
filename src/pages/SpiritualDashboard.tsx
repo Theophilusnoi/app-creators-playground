@@ -9,19 +9,20 @@ import { Button } from '@/components/ui/button';
 import { LogIn, Loader2 } from 'lucide-react';
 import SubscriptionStatus from '@/components/subscription/SubscriptionStatus';
 
-// Import all spiritual components
-import { SoulGuideChat } from '@/components/spiritual/SoulGuideChat';
-import { RitualsDirectory } from '@/components/spiritual/RitualsDirectory';
+// Import combined components
+import { CombinedSeraphinaChat } from '@/components/spiritual/CombinedSeraphinaChat';
+import { CombinedAssessment } from '@/components/spiritual/CombinedAssessment';
+import { CombinedRituals } from '@/components/spiritual/CombinedRituals';
+import { CombinedInsights } from '@/components/spiritual/CombinedInsights';
+
+// Import individual components that remain separate
 import { CulturalAdapter } from '@/components/spiritual/CulturalAdapter';
 import { CommunityHub } from '@/components/spiritual/CommunityHub';
-import { ProgressVisualization } from '@/components/spiritual/ProgressVisualization';
 import { MoodTracker } from '@/components/spiritual/MoodTracker';
 import { MeditationTracker } from '@/components/spiritual/MeditationTracker';
 import { DreamAnalysis } from '@/components/spiritual/DreamAnalysis';
 import { ShadowWorkTracker } from '@/components/spiritual/ShadowWorkTracker';
 import { SynchronicityDetector } from '@/components/spiritual/SynchronicityDetector';
-import { SpiritualAssessment } from '@/components/spiritual/SpiritualAssessment';
-import { EmergencyAnalyticsDashboard } from '@/components/spiritual/EmergencyAnalyticsDashboard';
 import { RecommendationsSystem } from '@/components/spiritual/RecommendationsSystem';
 import AngelicAssistance from '@/components/spiritual/AngelicAssistance';
 import DivinationHub from '@/components/spiritual/DivinationHub';
@@ -29,17 +30,12 @@ import { ThirdEyeActivation } from '@/components/spiritual/ThirdEyeActivation';
 import { ReferralSystem } from '@/components/spiritual/ReferralSystem';
 import { WisdomPhilosophy } from '@/components/spiritual/WisdomPhilosophy';
 import { PersonalGuidanceSystem } from '@/components/spiritual/PersonalGuidanceSystem';
-import { SoulArchetypeSystem } from '@/components/spiritual/SoulArchetypeSystem';
-
-// Import new enhanced components
-import { SacredBathingSystem } from '@/components/spiritual/SacredBathingSystem';
 import { SpiritualKnowledgeBase } from '@/components/spiritual/SpiritualKnowledgeBase';
-import { EnhancedSeraphinaChat } from '@/components/spiritual/EnhancedSeraphinaChat';
 
 const SpiritualDashboard = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('archetype');
+  const [activeTab, setActiveTab] = useState('seraphina');
 
   const handleAssessmentComplete = () => {
     setActiveTab('seraphina');
@@ -101,20 +97,20 @@ const SpiritualDashboard = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TopNavigation activeTab={activeTab} onTabChange={setActiveTab} />
           
-          <TabsContent value="archetype">
-            <SoulArchetypeSystem />
-          </TabsContent>
-
           <TabsContent value="seraphina">
-            <SoulGuideChat />
+            <CombinedSeraphinaChat />
           </TabsContent>
 
-          <TabsContent value="enhanced-seraphina">
-            <EnhancedSeraphinaChat />
+          <TabsContent value="archetype">
+            <CombinedAssessment onAssessmentComplete={handleAssessmentComplete} />
           </TabsContent>
 
-          <TabsContent value="sacred-bathing">
-            <SacredBathingSystem />
+          <TabsContent value="rituals">
+            <CombinedRituals />
+          </TabsContent>
+
+          <TabsContent value="insights">
+            <CombinedInsights />
           </TabsContent>
 
           <TabsContent value="knowledge-base">
@@ -125,20 +121,12 @@ const SpiritualDashboard = () => {
             <SubscriptionStatus />
           </TabsContent>
 
-          <TabsContent value="rituals">
-            <RitualsDirectory />
-          </TabsContent>
-
           <TabsContent value="cultural">
             <CulturalAdapter />
           </TabsContent>
 
           <TabsContent value="community">
             <CommunityHub />
-          </TabsContent>
-
-          <TabsContent value="progress">
-            <ProgressVisualization />
           </TabsContent>
 
           <TabsContent value="mood">
@@ -159,14 +147,6 @@ const SpiritualDashboard = () => {
 
           <TabsContent value="sync">
             <SynchronicityDetector />
-          </TabsContent>
-
-          <TabsContent value="assessment">
-            <SpiritualAssessment onComplete={handleAssessmentComplete} />
-          </TabsContent>
-
-          <TabsContent value="insights">
-            <EmergencyAnalyticsDashboard />
           </TabsContent>
 
           <TabsContent value="recommendations">

@@ -3,7 +3,6 @@ import React from 'react';
 import { TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Heart,
-  Sparkles,
   Book,
   Droplets,
   Shield,
@@ -34,23 +33,19 @@ interface TopNavigationProps {
 
 export const TopNavigation: React.FC<TopNavigationProps> = ({ activeTab, onTabChange }) => {
   const navigationTabs = [
-    { id: 'archetype', label: 'Soul Archetype', icon: <UserCheck className="w-4 h-4" /> },
     { id: 'seraphina', label: 'Seraphina Chat', icon: <Heart className="w-4 h-4" /> },
-    { id: 'enhanced-seraphina', label: 'Enhanced Seraphina', icon: <Sparkles className="w-4 h-4" /> },
-    { id: 'sacred-bathing', label: 'Sacred Bathing', icon: <Droplets className="w-4 h-4" /> },
+    { id: 'archetype', label: 'Soul Assessment', icon: <UserCheck className="w-4 h-4" /> },
+    { id: 'rituals', label: 'Sacred Rituals', icon: <Flame className="w-4 h-4" /> },
+    { id: 'insights', label: 'Insights & Progress', icon: <TrendingUp className="w-4 h-4" /> },
     { id: 'knowledge-base', label: 'Spiritual Knowledge', icon: <Book className="w-4 h-4" /> },
     { id: 'subscription', label: 'Subscription', icon: <CreditCard className="w-4 h-4" /> },
-    { id: 'rituals', label: 'Rituals', icon: <Flame className="w-4 h-4" /> },
     { id: 'cultural', label: 'Cultural Wisdom', icon: <Star className="w-4 h-4" /> },
     { id: 'community', label: 'Community', icon: <Users className="w-4 h-4" /> },
-    { id: 'progress', label: 'Progress', icon: <TrendingUp className="w-4 h-4" /> },
     { id: 'mood', label: 'Mood Tracker', icon: <Smile className="w-4 h-4" /> },
     { id: 'meditation', label: 'Meditation', icon: <Clock className="w-4 h-4" /> },
     { id: 'dreams', label: 'Dreams', icon: <Moon className="w-4 h-4" /> },
     { id: 'shadow', label: 'Shadow Work', icon: <Zap className="w-4 h-4" /> },
     { id: 'sync', label: 'Synchronicity', icon: <Target className="w-4 h-4" /> },
-    { id: 'assessment', label: 'Assessment', icon: <BarChart3 className="w-4 h-4" /> },
-    { id: 'insights', label: 'Insights', icon: <Lightbulb className="w-4 h-4" /> },
     { id: 'recommendations', label: 'Recommendations', icon: <Star className="w-4 h-4" /> },
     { id: 'angelic', label: 'Angelic Assistance', icon: <Crown className="w-4 h-4" /> },
     { id: 'divination', label: 'Divination', icon: <Wand2 className="w-4 h-4" /> },
