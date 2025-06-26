@@ -40,7 +40,6 @@ const SpiritualDashboard = () => {
   const [contentLoading, setContentLoading] = useState(false);
 
   useEffect(() => {
-    // Add smooth loading animation
     const timer = setTimeout(() => {
       setIsLoaded(true);
     }, 100);
@@ -56,12 +55,14 @@ const SpiritualDashboard = () => {
   };
 
   const handleTabChange = (newTab: string) => {
+    console.log(`Tab change requested: ${newTab}`);
     setContentLoading(true);
-    // Add a small delay for smooth transition
+    
     setTimeout(() => {
       setActiveTab(newTab);
       setContentLoading(false);
-    }, 150);
+      console.log(`Tab changed to: ${newTab}`);
+    }, 200);
   };
 
   // Show loading state while authentication is being determined
@@ -112,99 +113,106 @@ const SpiritualDashboard = () => {
   // Render the dashboard for authenticated users
   return (
     <div className={`min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TopNavigation activeTab={activeTab} onTabChange={handleTabChange} />
-        
-        <div className="container mx-auto px-4 py-6 relative z-10">
-          {contentLoading && (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
-            </div>
-          )}
+      <div className="relative z-10 w-full">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+          <TopNavigation activeTab={activeTab} onTabChange={handleTabChange} />
           
-          <div className={`transition-opacity duration-300 ${contentLoading ? 'opacity-0' : 'opacity-100'}`}>
-            <TabsContent value="seraphina" className="mt-0 animate-fade-in">
-              <CombinedSeraphinaChat />
-            </TabsContent>
+          <div className="relative z-20 bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 min-h-screen">
+            <div className="container mx-auto px-4 py-6">
+              {contentLoading && (
+                <div className="flex items-center justify-center py-12 relative z-30">
+                  <div className="bg-black/50 backdrop-blur-sm rounded-lg p-6">
+                    <Loader2 className="w-8 h-8 animate-spin text-purple-400 mx-auto mb-2" />
+                    <p className="text-purple-200 text-sm">Loading content...</p>
+                  </div>
+                </div>
+              )}
+              
+              <div className={`transition-all duration-300 relative z-30 ${contentLoading ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                <TabsContent value="seraphina" className="mt-0 animate-fade-in focus:outline-none">
+                  <CombinedSeraphinaChat />
+                </TabsContent>
 
-            <TabsContent value="archetype" className="mt-0 animate-fade-in">
-              <CombinedAssessment onAssessmentComplete={handleAssessmentComplete} />
-            </TabsContent>
+                <TabsContent value="archetype" className="mt-0 animate-fade-in focus:outline-none">
+                  <CombinedAssessment onAssessmentComplete={handleAssessmentComplete} />
+                </TabsContent>
 
-            <TabsContent value="rituals" className="mt-0 animate-fade-in">
-              <CombinedRituals />
-            </TabsContent>
+                <TabsContent value="rituals" className="mt-0 animate-fade-in focus:outline-none">
+                  <CombinedRituals />
+                </TabsContent>
 
-            <TabsContent value="insights" className="mt-0 animate-fade-in">
-              <CombinedInsights />
-            </TabsContent>
+                <TabsContent value="insights" className="mt-0 animate-fade-in focus:outline-none">
+                  <CombinedInsights />
+                </TabsContent>
 
-            <TabsContent value="knowledge-base" className="mt-0 animate-fade-in">
-              <SpiritualKnowledgeBase />
-            </TabsContent>
+                <TabsContent value="knowledge-base" className="mt-0 animate-fade-in focus:outline-none">
+                  <SpiritualKnowledgeBase />
+                </TabsContent>
 
-            <TabsContent value="subscription" className="mt-0 animate-fade-in">
-              <SubscriptionStatus />
-            </TabsContent>
+                <TabsContent value="subscription" className="mt-0 animate-fade-in focus:outline-none">
+                  <SubscriptionStatus />
+                </TabsContent>
 
-            <TabsContent value="cultural" className="mt-0 animate-fade-in">
-              <CulturalAdapter />
-            </TabsContent>
+                <TabsContent value="cultural" className="mt-0 animate-fade-in focus:outline-none">
+                  <CulturalAdapter />
+                </TabsContent>
 
-            <TabsContent value="community" className="mt-0 animate-fade-in">
-              <CommunityHub />
-            </TabsContent>
+                <TabsContent value="community" className="mt-0 animate-fade-in focus:outline-none">
+                  <CommunityHub />
+                </TabsContent>
 
-            <TabsContent value="mood" className="mt-0 animate-fade-in">
-              <MoodTracker />
-            </TabsContent>
+                <TabsContent value="mood" className="mt-0 animate-fade-in focus:outline-none">
+                  <MoodTracker />
+                </TabsContent>
 
-            <TabsContent value="meditation" className="mt-0 animate-fade-in">
-              <MeditationTracker />
-            </TabsContent>
+                <TabsContent value="meditation" className="mt-0 animate-fade-in focus:outline-none">
+                  <MeditationTracker />
+                </TabsContent>
 
-            <TabsContent value="dreams" className="mt-0 animate-fade-in">
-              <DreamAnalysis />
-            </TabsContent>
+                <TabsContent value="dreams" className="mt-0 animate-fade-in focus:outline-none">
+                  <DreamAnalysis />
+                </TabsContent>
 
-            <TabsContent value="shadow" className="mt-0 animate-fade-in">
-              <ShadowWorkTracker />
-            </TabsContent>
+                <TabsContent value="shadow" className="mt-0 animate-fade-in focus:outline-none">
+                  <ShadowWorkTracker />
+                </TabsContent>
 
-            <TabsContent value="sync" className="mt-0 animate-fade-in">
-              <SynchronicityDetector />
-            </TabsContent>
+                <TabsContent value="sync" className="mt-0 animate-fade-in focus:outline-none">
+                  <SynchronicityDetector />
+                </TabsContent>
 
-            <TabsContent value="recommendations" className="mt-0 animate-fade-in">
-              <RecommendationsSystem />
-            </TabsContent>
+                <TabsContent value="recommendations" className="mt-0 animate-fade-in focus:outline-none">
+                  <RecommendationsSystem />
+                </TabsContent>
 
-            <TabsContent value="angelic" className="mt-0 animate-fade-in">
-              <AngelicAssistance />
-            </TabsContent>
+                <TabsContent value="angelic" className="mt-0 animate-fade-in focus:outline-none">
+                  <AngelicAssistance />
+                </TabsContent>
 
-            <TabsContent value="divination" className="mt-0 animate-fade-in">
-              <DivinationHub />
-            </TabsContent>
+                <TabsContent value="divination" className="mt-0 animate-fade-in focus:outline-none">
+                  <DivinationHub />
+                </TabsContent>
 
-            <TabsContent value="third-eye" className="mt-0 animate-fade-in">
-              <ThirdEyeActivation />
-            </TabsContent>
+                <TabsContent value="third-eye" className="mt-0 animate-fade-in focus:outline-none">
+                  <ThirdEyeActivation />
+                </TabsContent>
 
-            <TabsContent value="referrals" className="mt-0 animate-fade-in">
-              <ReferralSystem />
-            </TabsContent>
+                <TabsContent value="referrals" className="mt-0 animate-fade-in focus:outline-none">
+                  <ReferralSystem />
+                </TabsContent>
 
-            <TabsContent value="wisdom" className="mt-0 animate-fade-in">
-              <WisdomPhilosophy />
-            </TabsContent>
+                <TabsContent value="wisdom" className="mt-0 animate-fade-in focus:outline-none">
+                  <WisdomPhilosophy />
+                </TabsContent>
 
-            <TabsContent value="guidance" className="mt-0 animate-fade-in">
-              <PersonalGuidanceSystem />
-            </TabsContent>
+                <TabsContent value="guidance" className="mt-0 animate-fade-in focus:outline-none">
+                  <PersonalGuidanceSystem />
+                </TabsContent>
+              </div>
+            </div>
           </div>
-        </div>
-      </Tabs>
+        </Tabs>
+      </div>
     </div>
   );
 };

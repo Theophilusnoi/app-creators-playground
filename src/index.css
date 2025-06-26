@@ -452,4 +452,62 @@
     text-rendering: geometricPrecision;
     will-change: transform;
   }
+
+  /* Enhanced animations for smooth transitions */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.3s ease-out;
+  }
+
+  .hover\\:scale-102:hover {
+    transform: scale(1.02);
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Smooth tab content transitions */
+  .tab-content-enter {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  .tab-content-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
+  }
+
+  .tab-content-exit {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .tab-content-exit-active {
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 200ms ease-in-out, transform 200ms ease-in-out;
+  }
 }
