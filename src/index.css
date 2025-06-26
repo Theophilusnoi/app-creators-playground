@@ -130,13 +130,24 @@
     
     /* Ensure minimum font sizes for readability */
     .text-sm {
-      font-size: 16px !important;
-      font-weight: 800 !important;
+      font-size: 14px !important;
+      font-weight: 700 !important;
+      display: block !important;
     }
     
     .text-xs {
-      font-size: 15px !important;
-      font-weight: 800 !important;
+      font-size: 13px !important;
+      font-weight: 700 !important;
+      display: block !important;
+    }
+    
+    /* Show hidden text on mobile tabs */
+    .hidden.sm\\:block {
+      display: block !important;
+      font-size: 12px !important;
+      font-weight: 700 !important;
+      color: white !important;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9) !important;
     }
     
     /* Enhanced backdrop blur alternatives for mobile */
@@ -168,16 +179,27 @@
       font-weight: 800 !important;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9) !important;
       border-width: 2px !important;
-      min-height: 48px !important;
+      min-height: 56px !important;
       color: white !important;
       background: rgba(31, 41, 55, 0.95) !important;
       border-color: rgba(255, 255, 255, 0.3) !important;
+      padding: 12px 16px !important;
       /* Fix blurry buttons on mobile */
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
       -webkit-backface-visibility: hidden;
       backface-visibility: hidden;
       -webkit-font-smoothing: subpixel-antialiased;
+    }
+    
+    /* Ensure tab text is always visible */
+    button span, button .text-xs {
+      display: block !important;
+      font-size: 12px !important;
+      font-weight: 800 !important;
+      color: white !important;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9) !important;
+      margin-top: 4px !important;
     }
     
     /* Active button states */
@@ -194,14 +216,30 @@
       border-width: 2px !important;
       background: rgba(31, 41, 55, 0.95) !important;
       color: white !important;
-      min-height: 48px !important;
+      min-height: 56px !important;
       border-color: rgba(255, 255, 255, 0.3) !important;
+      padding: 8px 12px !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
       /* Fix blurry tabs on mobile */
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
       -webkit-backface-visibility: hidden;
       backface-visibility: hidden;
       -webkit-font-smoothing: subpixel-antialiased;
+    }
+    
+    /* Force tab text to show */
+    [role="tab"] span, [role="tablist"] button span {
+      display: block !important;
+      font-size: 11px !important;
+      font-weight: 800 !important;
+      color: white !important;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9) !important;
+      margin-top: 2px !important;
+      text-align: center !important;
+      line-height: 1.2 !important;
     }
     
     /* Active tab state */
@@ -213,8 +251,8 @@
     
     /* Ensure proper touch targets */
     button, a, [role="button"], [role="tab"] {
-      min-height: 48px !important;
-      min-width: 48px !important;
+      min-height: 56px !important;
+      min-width: 56px !important;
       padding: 12px 16px !important;
     }
     
@@ -259,7 +297,7 @@
     
     /* Fix grid layouts on mobile */
     .grid {
-      gap: 8px !important;
+      gap: 6px !important;
     }
     
     .grid-cols-5 {
@@ -268,6 +306,12 @@
     
     .grid-cols-3 {
       grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+    
+    /* Ensure TabsTrigger text is visible */
+    .grid-cols-4.lg\\:grid-cols-7 [role="tab"] {
+      min-height: 64px !important;
+      padding: 8px 4px !important;
     }
   }
   
@@ -353,7 +397,7 @@
       font-weight: 800 !important;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9) !important;
       border-width: 2px !important;
-      min-height: 48px !important;
+      min-height: 56px !important;
       padding: 12px 20px !important;
       letter-spacing: 0.025em !important;
       color: white !important;
@@ -376,8 +420,9 @@
       background: rgba(31, 41, 55, 0.95) !important;
       border: 2px solid rgba(255, 255, 255, 0.3) !important;
       color: white !important;
-      min-height: 48px !important;
-      padding: 12px 16px !important;
+      min-height: 56px !important;
+      padding: 8px 12px !important;
+      flex-direction: column !important;
       /* Fix blurry tabs */
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
