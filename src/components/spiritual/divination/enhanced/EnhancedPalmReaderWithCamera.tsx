@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useVoiceService } from '@/hooks/useVoiceService';
-import { Camera, RotateCw, Scan, Hand, Upload, ZoomIn, ZoomOut, Move, X } from 'lucide-react';
+import { Camera, RotateCw, Scan, Hand, Upload, ZoomIn, ZoomOut, Move, X, AlertCircle } from 'lucide-react';
 
 interface PalmAnalysis {
   lifeLineReading: {
@@ -42,6 +42,7 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
   const [showGuidance, setShowGuidance] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [palmDetected, setPalmDetected] = useState(false);
+  const [initializationTimeout, setInitializationTimeout] = useState<NodeJS.Timeout | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -54,6 +55,19 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
       console.log('🎥 Starting enhanced camera initialization...');
       setCameraStatus('starting');
       
+      // Set a timeout for camera initialization
+      const timeoutId = setTimeout(() => {
+        console.log('⏰ Camera initialization timeout reached');
+        setCameraStatus('error');
+        toast({
+          title: "Camera Timeout",
+          description: "Camera initialization took too long. Please try again or use upload instead.",
+          variant: "destructive"
+        });
+      }, 10000); // 10 second timeout
+      
+      setInitializationTimeout(timeoutId);
+      
       // Stop any existing stream first
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => {
@@ -63,27 +77,44 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
         streamRef.current = null;
       }
       
-      // Try multiple constraint configurations for better compatibility
-      const constraints = [
+      // Check if getUserMedia is available
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Camera not supported on this device');
+      }
+      
+      // Progressive constraint fallback for better compatibility
+      const constraintOptions = [
+        // Option 1: High quality with rear camera
         {
           video: {
             width: { ideal: 1280, max: 1920 },
             height: { ideal: 720, max: 1080 },
-            facingMode: 'environment'
+            facingMode: { ideal: 'environment' }
           }
         },
+        // Option 2: Medium quality with rear camera
         {
           video: {
             width: { ideal: 640, max: 1280 },
             height: { ideal: 480, max: 720 },
-            facingMode: 'environment'
+            facingMode: { ideal: 'environment' }
           }
         },
+        // Option 3: Any rear camera
         {
           video: {
-            facingMode: 'environment'
+            facingMode: { ideal: 'environment' }
           }
         },
+        // Option 4: Front camera fallback
+        {
+          video: {
+            width: { ideal: 640 },
+            height: { ideal: 480 },
+            facingMode: { ideal: 'user' }
+          }
+        },
+        // Option 5: Basic video only
         {
           video: true
         }
@@ -92,21 +123,26 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
       let stream = null;
       let lastError = null;
 
-      for (let i = 0; i < constraints.length; i++) {
+      for (let i = 0; i < constraintOptions.length; i++) {
         try {
-          console.log(`📹 Trying constraint option ${i + 1}:`, constraints[i]);
-          stream = await navigator.mediaDevices.getUserMedia(constraints[i]);
-          console.log('✅ Camera stream acquired successfully');
+          console.log(`📹 Trying constraint option ${i + 1}:`, constraintOptions[i]);
+          stream = await navigator.mediaDevices.getUserMedia(constraintOptions[i]);
+          console.log('✅ Camera stream acquired successfully with option', i + 1);
           break;
         } catch (err) {
           console.log(`❌ Constraint option ${i + 1} failed:`, err);
           lastError = err;
+          
+          // If permission denied, don't try other options
+          if (err instanceof Error && err.name === 'NotAllowedError') {
+            throw err;
+          }
           continue;
         }
       }
 
       if (!stream) {
-        throw lastError || new Error('No camera constraints worked');
+        throw lastError || new Error('All camera options failed');
       }
       
       streamRef.current = stream;
@@ -114,16 +150,25 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         
-        // Wait for metadata to load
-        await new Promise<void>((resolve, reject) => {
+        // Create a promise that resolves when video is ready
+        const videoReady = new Promise<void>((resolve, reject) => {
           if (!videoRef.current) {
             reject(new Error('Video element not available'));
             return;
           }
 
+          const video = videoRef.current;
+          
           const handleLoadedMetadata = () => {
             console.log('📹 Video metadata loaded, dimensions:', 
-              videoRef.current?.videoWidth, 'x', videoRef.current?.videoHeight);
+              video.videoWidth, 'x', video.videoHeight);
+            
+            // Ensure we have valid dimensions
+            if (video.videoWidth === 0 || video.videoHeight === 0) {
+              reject(new Error('Invalid video dimensions'));
+              return;
+            }
+            
             resolve();
           };
 
@@ -132,46 +177,61 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
             reject(new Error('Video failed to load'));
           };
 
-          videoRef.current.addEventListener('loadedmetadata', handleLoadedMetadata, { once: true });
-          videoRef.current.addEventListener('error', handleError, { once: true });
-
-          // Cleanup function
+          video.addEventListener('loadedmetadata', handleLoadedMetadata, { once: true });
+          video.addEventListener('error', handleError, { once: true });
+          
+          // Cleanup after 8 seconds
           setTimeout(() => {
-            if (videoRef.current) {
-              videoRef.current.removeEventListener('loadedmetadata', handleLoadedMetadata);
-              videoRef.current.removeEventListener('error', handleError);
-            }
-          }, 10000);
+            video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+            video.removeEventListener('error', handleError);
+            reject(new Error('Video metadata load timeout'));
+          }, 8000);
         });
+        
+        // Wait for video to be ready
+        await videoReady;
         
         // Start playing the video
         try {
           await videoRef.current.play();
-          console.log('📹 Video playback started');
+          console.log('📹 Video playback started successfully');
         } catch (playError) {
-          console.error('Video play error:', playError);
+          console.warn('Video play error (retrying):', playError);
           // Try to play again after a short delay
-          setTimeout(async () => {
-            try {
-              if (videoRef.current) {
-                await videoRef.current.play();
-                console.log('📹 Video playback started (retry)');
-              }
-            } catch (retryError) {
-              console.error('Video play retry failed:', retryError);
+          await new Promise(resolve => setTimeout(resolve, 500));
+          try {
+            if (videoRef.current) {
+              await videoRef.current.play();
+              console.log('📹 Video playback started (retry successful)');
             }
-          }, 500);
+          } catch (retryError) {
+            console.error('Video play retry failed:', retryError);
+            // Don't throw here as the stream might still work for capture
+          }
+        }
+        
+        // Clear timeout on success
+        if (initializationTimeout) {
+          clearTimeout(initializationTimeout);
+          setInitializationTimeout(null);
         }
         
         setCameraStatus('active');
         
         toast({
-          title: "Camera Ready",
+          title: "Camera Ready! 📸",
           description: "Position your palm in the guide for optimal capture",
         });
       }
     } catch (err) {
       console.error("Camera initialization error:", err);
+      
+      // Clear timeout
+      if (initializationTimeout) {
+        clearTimeout(initializationTimeout);
+        setInitializationTimeout(null);
+      }
+      
       setCameraStatus('error');
       
       // Cleanup on error
@@ -180,9 +240,23 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
         streamRef.current = null;
       }
       
+      let errorMessage = "Please enable camera permissions to scan your palm.";
+      
+      if (err instanceof Error) {
+        if (err.name === 'NotAllowedError') {
+          errorMessage = "Camera permission denied. Please allow camera access in your browser settings.";
+        } else if (err.name === 'NotFoundError') {
+          errorMessage = "No camera found. Please connect a camera or use the upload option.";
+        } else if (err.name === 'NotSupportedError') {
+          errorMessage = "Camera not supported on this device. Please use the upload option.";
+        } else if (err.message.includes('timeout')) {
+          errorMessage = "Camera initialization timed out. Please try again or use upload.";
+        }
+      }
+      
       toast({
-        title: "Camera Access Required",
-        description: "Please enable camera permissions to scan your palm.",
+        title: "Camera Error",
+        description: errorMessage,
         variant: "destructive"
       });
     }
@@ -190,6 +264,13 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
 
   const stopCamera = () => {
     console.log('🛑 Stopping enhanced camera...');
+    
+    // Clear any pending timeout
+    if (initializationTimeout) {
+      clearTimeout(initializationTimeout);
+      setInitializationTimeout(null);
+    }
+    
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => {
         console.log('🛑 Stopping track:', track.kind, track.label);
@@ -201,6 +282,7 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
       videoRef.current.srcObject = null;
     }
     setCameraStatus('inactive');
+    setZoomLevel(1);
   };
 
   const cropPalmImage = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, video: HTMLVideoElement): string => {
@@ -231,6 +313,11 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
     if (cameraStatus === 'active') {
       // Scan palm
       await startPalmScan();
+    }
+    
+    if (cameraStatus === 'error') {
+      // Retry camera initialization
+      await initCamera();
     }
   };
 
@@ -485,7 +572,7 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
       return (
         <span className="flex items-center justify-center">
           <RotateCw className="animate-spin mr-2" size={20} />
-          Starting Camera...
+          Initializing Camera...
         </span>
       );
     }
@@ -495,6 +582,15 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
         <span className="flex items-center justify-center">
           <Scan className="mr-2" size={20} />
           📱 Scan My Palm
+        </span>
+      );
+    }
+
+    if (cameraStatus === 'error') {
+      return (
+        <span className="flex items-center justify-center">
+          <AlertCircle className="mr-2" size={20} />
+          🔄 Retry Camera
         </span>
       );
     }
@@ -511,11 +607,14 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
   useEffect(() => {
     return () => {
       console.log('🧹 Component unmounting, cleaning up camera...');
+      if (initializationTimeout) {
+        clearTimeout(initializationTimeout);
+      }
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
     };
-  }, []);
+  }, [initializationTimeout]);
 
   return (
     <div className="w-full max-w-6xl mx-auto p-4">
@@ -618,7 +717,7 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
                   <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center">
                     <div className="bg-purple-200/30 rounded-full p-6 mb-6">
                       {cameraStatus === 'error' ? (
-                        <Camera size={64} className="text-red-400" />
+                        <AlertCircle size={64} className="text-red-400" />
                       ) : cameraStatus === 'starting' ? (
                         <RotateCw size={64} className="text-purple-400 animate-spin" />
                       ) : (
@@ -628,7 +727,7 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
                     
                     <h3 className="text-2xl font-bold mb-4 text-purple-200">
                       {cameraStatus === 'error' 
-                        ? 'Camera Access Required' 
+                        ? 'Camera Error - Try Again' 
                         : cameraStatus === 'starting'
                         ? 'Initializing Camera...'
                         : 'Ready for Palm Reading'}
@@ -636,9 +735,9 @@ export const EnhancedPalmReaderWithCamera: React.FC = () => {
                     
                     <p className="text-purple-300 mb-6 text-lg">
                       {cameraStatus === 'error'
-                        ? 'Please enable camera permissions for palm scanning'
+                        ? 'Click retry to try again or use upload instead'
                         : cameraStatus === 'starting'
-                        ? 'Please wait while we prepare your camera'
+                        ? 'Please wait while we prepare your camera...'
                         : 'Use camera or upload an image to begin your spiritual palm analysis'}
                     </p>
                   </div>
