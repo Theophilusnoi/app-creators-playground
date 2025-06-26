@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -118,6 +119,11 @@ const Index = () => {
       title: "Welcome to Your Spiritual Journey!",
       description: "Your assessment is complete. Explore the tools below to begin your transformation.",
     });
+  };
+
+  const handleEnterDashboard = () => {
+    console.log('Navigating to dashboard...');
+    navigate('/dashboard');
   };
 
   return (
@@ -290,7 +296,7 @@ const Index = () => {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button 
-                    onClick={() => navigate('/dashboard')}
+                    onClick={handleEnterDashboard}
                     className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                   >
                     <Star className="w-4 h-4 mr-2" />
@@ -339,7 +345,7 @@ const Index = () => {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Link to="/spiritual-mind-pro" className="flex-1">
+                    <Link to="/pro" className="flex-1">
                       <Button className="w-full bg-indigo-600 hover:bg-indigo-700">
                         <Zap className="w-4 h-4 mr-2" />
                         Start Training
