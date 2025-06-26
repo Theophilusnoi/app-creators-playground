@@ -93,91 +93,91 @@ const SpiritualDashboard = () => {
   // Render the dashboard for authenticated users
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
-      <div className="container mx-auto px-4 py-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TopNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-          
-          <TabsContent value="seraphina">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TopNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+        
+        <div className="container mx-auto px-4 py-6 relative z-10">
+          <TabsContent value="seraphina" className="mt-0">
             <CombinedSeraphinaChat />
           </TabsContent>
 
-          <TabsContent value="archetype">
+          <TabsContent value="archetype" className="mt-0">
             <CombinedAssessment onAssessmentComplete={handleAssessmentComplete} />
           </TabsContent>
 
-          <TabsContent value="rituals">
+          <TabsContent value="rituals" className="mt-0">
             <CombinedRituals />
           </TabsContent>
 
-          <TabsContent value="insights">
+          <TabsContent value="insights" className="mt-0">
             <CombinedInsights />
           </TabsContent>
 
-          <TabsContent value="knowledge-base">
+          <TabsContent value="knowledge-base" className="mt-0">
             <SpiritualKnowledgeBase />
           </TabsContent>
 
-          <TabsContent value="subscription">
+          <TabsContent value="subscription" className="mt-0">
             <SubscriptionStatus />
           </TabsContent>
 
-          <TabsContent value="cultural">
+          <TabsContent value="cultural" className="mt-0">
             <CulturalAdapter />
           </TabsContent>
 
-          <TabsContent value="community">
+          <TabsContent value="community" className="mt-0">
             <CommunityHub />
           </TabsContent>
 
-          <TabsContent value="mood">
+          <TabsContent value="mood" className="mt-0">
             <MoodTracker />
           </TabsContent>
 
-          <TabsContent value="meditation">
+          <TabsContent value="meditation" className="mt-0">
             <MeditationTracker />
           </TabsContent>
 
-          <TabsContent value="dreams">
+          <TabsContent value="dreams" className="mt-0">
             <DreamAnalysis />
           </TabsContent>
 
-          <TabsContent value="shadow">
+          <TabsContent value="shadow" className="mt-0">
             <ShadowWorkTracker />
           </TabsContent>
 
-          <TabsContent value="sync">
+          <TabsContent value="sync" className="mt-0">
             <SynchronicityDetector />
           </TabsContent>
 
-          <TabsContent value="recommendations">
+          <TabsContent value="recommendations" className="mt-0">
             <RecommendationsSystem />
           </TabsContent>
 
-          <TabsContent value="angelic">
+          <TabsContent value="angelic" className="mt-0">
             <AngelicAssistance />
           </TabsContent>
 
-          <TabsContent value="divination">
+          <TabsContent value="divination" className="mt-0">
             <DivinationHub />
           </TabsContent>
 
-          <TabsContent value="third-eye">
+          <TabsContent value="third-eye" className="mt-0">
             <ThirdEyeActivation />
           </TabsContent>
 
-          <TabsContent value="referrals">
+          <TabsContent value="referrals" className="mt-0">
             <ReferralSystem />
           </TabsContent>
 
-          <TabsContent value="wisdom">
+          <TabsContent value="wisdom" className="mt-0">
             <WisdomPhilosophy />
           </TabsContent>
 
-          <TabsContent value="guidance">
+          <TabsContent value="guidance" className="mt-0">
             <PersonalGuidanceSystem />
           </TabsContent>
-        </Tabs>
-      </div>
+        </div>
+      </Tabs>
     </div>
   );
 };

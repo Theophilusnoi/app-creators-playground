@@ -41,7 +41,7 @@ export const TopNavigation: React.FC<TopNavigationProps> = ({ activeTab, onTabCh
   ];
 
   return (
-    <div className="sticky top-0 z-50 bg-gradient-to-r from-purple-900 via-indigo-900 to-blue-900 p-4 border-b border-purple-500/30">
+    <div className="sticky top-0 z-40 bg-gradient-to-r from-purple-900 via-indigo-900 to-blue-900 p-4 border-b border-purple-500/30">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold text-white">Spiritual Dashboard</h1>
         <div className="flex gap-2">
@@ -71,7 +71,7 @@ export const TopNavigation: React.FC<TopNavigationProps> = ({ activeTab, onTabCh
               className="flex flex-col items-center gap-1 p-3 min-h-[64px] data-[state=active]:bg-purple-600/50 data-[state=active]:text-white text-purple-300 mobile-tab"
             >
               <Icon className="w-5 h-5 flex-shrink-0" />
-              <span className="text-xs font-bold text-center leading-tight block">
+              <span className="text-xs font-bold text-center leading-tight">
                 {tab.label}
               </span>
             </TabsTrigger>
