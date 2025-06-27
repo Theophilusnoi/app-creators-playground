@@ -3,7 +3,9 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import { UniversalMagicFormula } from './UniversalMagicFormula';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Sparkles, 
   Calendar, 
@@ -13,7 +15,9 @@ import {
   BookOpen,
   Users,
   Settings,
-  Clock
+  Clock,
+  Bell,
+  Palette
 } from 'lucide-react';
 
 interface EnhancedRitualSystemProps {
@@ -87,7 +91,41 @@ export const EnhancedRitualSystem: React.FC<EnhancedRitualSystemProps> = ({
   userProfile,
   setUserProfile
 }) => {
+  const { toast } = useToast();
   const [activeView, setActiveView] = useState<'formula' | 'calendar' | 'community' | 'settings'>('formula');
+  const [practiceSettings, setPracticeSettings] = useState({
+    morningPractice: userProfile?.ritualSettings?.morningPractice ?? true,
+    middayPractice: userProfile?.ritualSettings?.middayPractice ?? false,
+    eveningPractice: userProfile?.ritualSettings?.eveningPractice ?? true,
+    lunarReminders: userProfile?.ritualSettings?.lunarReminders ?? true,
+    seasonalCelebrations: userProfile?.ritualSettings?.seasonalCelebrations ?? true,
+    dailyReminders: userProfile?.ritualSettings?.dailyReminders ?? 'custom'
+  });
+
+  const handleSettingChange = (setting: string, value: boolean | string) => {
+    const newSettings = { ...practiceSettings, [setting]: value };
+    setPracticeSettings(newSettings);
+    
+    // Save to user profile
+    const updatedProfile = {
+      ...userProfile,
+      ritualSettings: newSettings
+    };
+    setUserProfile(updatedProfile);
+    localStorage.setItem('spiritualMindProfile', JSON.stringify(updatedProfile));
+    
+    toast({
+      title: "Settings Updated",
+      description: `${setting} has been ${typeof value === 'boolean' ? (value ? 'enabled' : 'disabled') : 'updated'}`,
+    });
+  };
+
+  const handleAdvancedSetting = (settingType: string) => {
+    toast({
+      title: `${settingType} Configuration`,
+      description: "Advanced settings panel activated",
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -145,7 +183,16 @@ export const EnhancedRitualSystem: React.FC<EnhancedRitualSystemProps> = ({
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {LUNAR_CALENDAR.map((lunar, index) => (
-                  <Card key={index} className="bg-gradient-to-br from-indigo-900/30 to-purple-900/30 border-indigo-500/30">
+                  <Card 
+                    key={index} 
+                    className="bg-gradient-to-br from-indigo-900/30 to-purple-900/30 border-indigo-500/30 cursor-pointer hover:scale-105 transition-transform duration-300"
+                    onClick={() => {
+                      toast({
+                        title: `${lunar.phase} Ritual`,
+                        description: `${lunar.energy} practices activated`,
+                      });
+                    }}
+                  >
                     <CardContent className="p-4">
                       <div className="text-center mb-3">
                         <div className="text-2xl mb-1">{lunar.icon}</div>
@@ -180,7 +227,16 @@ export const EnhancedRitualSystem: React.FC<EnhancedRitualSystemProps> = ({
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {SEASONAL_CELEBRATIONS.map((season, index) => (
-                  <Card key={index} className={`bg-gradient-to-br ${season.color}/20 border-purple-500/30`}>
+                  <Card 
+                    key={index} 
+                    className={`bg-gradient-to-br ${season.color}/20 border-purple-500/30 cursor-pointer hover:scale-105 transition-transform duration-300`}
+                    onClick={() => {
+                      toast({
+                        title: `${season.name} Celebration`,
+                        description: `${season.theme} rituals activated`,
+                      });
+                    }}
+                  >
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-3">
                         <h4 className="text-white font-semibold">{season.name}</h4>
@@ -217,15 +273,18 @@ export const EnhancedRitualSystem: React.FC<EnhancedRitualSystemProps> = ({
                 Connect with fellow practitioners, join group rituals, and share spiritual insights.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
-                <div className="p-4 bg-purple-900/20 border border-purple-500/30 rounded-lg">
+                <div className="p-4 bg-purple-900/20 border border-purple-500/30 rounded-lg cursor-pointer hover:bg-purple-800/20 transition-colors"
+                     onClick={() => toast({ title: "Group Rituals", description: "Feature in development" })}>
                   <h4 className="text-purple-200 font-medium mb-2">Group Rituals</h4>
                   <p className="text-purple-300 text-sm">Participate in synchronized global rituals</p>
                 </div>
-                <div className="p-4 bg-indigo-900/20 border border-indigo-500/30 rounded-lg">
+                <div className="p-4 bg-indigo-900/20 border border-indigo-500/30 rounded-lg cursor-pointer hover:bg-indigo-800/20 transition-colors"
+                     onClick={() => toast({ title: "Sacred Sharing", description: "Feature in development" })}>
                   <h4 className="text-indigo-200 font-medium mb-2">Sacred Sharing</h4>
                   <p className="text-indigo-300 text-sm">Share experiences and wisdom safely</p>
                 </div>
-                <div className="p-4 bg-violet-900/20 border border-violet-500/30 rounded-lg">
+                <div className="p-4 bg-violet-900/20 border border-violet-500/30 rounded-lg cursor-pointer hover:bg-violet-800/20 transition-colors"
+                     onClick={() => toast({ title: "Mentorship", description: "Feature in development" })}>
                   <h4 className="text-violet-200 font-medium mb-2">Mentorship</h4>
                   <p className="text-violet-300 text-sm">Learn from experienced practitioners</p>
                 </div>
@@ -250,15 +309,39 @@ export const EnhancedRitualSystem: React.FC<EnhancedRitualSystemProps> = ({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-3 bg-purple-900/20 border border-purple-500/30 rounded-lg">
                     <span className="text-purple-200">Morning Awakening Practice</span>
-                    <Badge className="bg-green-600/20 text-green-200">Enabled</Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge className={`${practiceSettings.morningPractice ? 'bg-green-600/20 text-green-200' : 'bg-gray-600/20 text-gray-300'}`}>
+                        {practiceSettings.morningPractice ? 'Enabled' : 'Disabled'}
+                      </Badge>
+                      <Switch
+                        checked={practiceSettings.morningPractice}
+                        onCheckedChange={(checked) => handleSettingChange('morningPractice', checked)}
+                      />
+                    </div>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-purple-900/20 border border-purple-500/30 rounded-lg">
                     <span className="text-purple-200">Midday Renewal Practice</span>
-                    <Badge className="bg-gray-600/20 text-gray-300">Disabled</Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge className={`${practiceSettings.middayPractice ? 'bg-green-600/20 text-green-200' : 'bg-gray-600/20 text-gray-300'}`}>
+                        {practiceSettings.middayPractice ? 'Enabled' : 'Disabled'}
+                      </Badge>
+                      <Switch
+                        checked={practiceSettings.middayPractice}
+                        onCheckedChange={(checked) => handleSettingChange('middayPractice', checked)}
+                      />
+                    </div>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-purple-900/20 border border-purple-500/30 rounded-lg">
                     <span className="text-purple-200">Evening Integration Practice</span>
-                    <Badge className="bg-green-600/20 text-green-200">Enabled</Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge className={`${practiceSettings.eveningPractice ? 'bg-green-600/20 text-green-200' : 'bg-gray-600/20 text-gray-300'}`}>
+                        {practiceSettings.eveningPractice ? 'Enabled' : 'Disabled'}
+                      </Badge>
+                      <Switch
+                        checked={practiceSettings.eveningPractice}
+                        onCheckedChange={(checked) => handleSettingChange('eveningPractice', checked)}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -268,11 +351,27 @@ export const EnhancedRitualSystem: React.FC<EnhancedRitualSystemProps> = ({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-3 bg-indigo-900/20 border border-indigo-500/30 rounded-lg">
                     <span className="text-indigo-200">Lunar Phase Reminders</span>
-                    <Badge className="bg-green-600/20 text-green-200">On</Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge className={`${practiceSettings.lunarReminders ? 'bg-green-600/20 text-green-200' : 'bg-gray-600/20 text-gray-300'}`}>
+                        {practiceSettings.lunarReminders ? 'On' : 'Off'}
+                      </Badge>
+                      <Switch
+                        checked={practiceSettings.lunarReminders}
+                        onCheckedChange={(checked) => handleSettingChange('lunarReminders', checked)}
+                      />
+                    </div>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-indigo-900/20 border border-indigo-500/30 rounded-lg">
                     <span className="text-indigo-200">Seasonal Celebrations</span>
-                    <Badge className="bg-green-600/20 text-green-200">On</Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge className={`${practiceSettings.seasonalCelebrations ? 'bg-green-600/20 text-green-200' : 'bg-gray-600/20 text-gray-300'}`}>
+                        {practiceSettings.seasonalCelebrations ? 'On' : 'Off'}
+                      </Badge>
+                      <Switch
+                        checked={practiceSettings.seasonalCelebrations}
+                        onCheckedChange={(checked) => handleSettingChange('seasonalCelebrations', checked)}
+                      />
+                    </div>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-indigo-900/20 border border-indigo-500/30 rounded-lg">
                     <span className="text-indigo-200">Daily Practice Reminders</span>
@@ -285,15 +384,27 @@ export const EnhancedRitualSystem: React.FC<EnhancedRitualSystemProps> = ({
             <div className="pt-6 border-t border-purple-500/30">
               <h4 className="text-purple-200 font-medium mb-4">Advanced Settings</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Button variant="outline" className="border-purple-500/50 text-purple-200">
+                <Button 
+                  variant="outline" 
+                  className="border-purple-500/50 text-purple-200 hover:bg-purple-600/20"
+                  onClick={() => handleAdvancedSetting('Timing Preferences')}
+                >
                   <Clock className="w-4 h-4 mr-2" />
                   Timing Preferences
                 </Button>
-                <Button variant="outline" className="border-purple-500/50 text-purple-200">
+                <Button 
+                  variant="outline" 
+                  className="border-purple-500/50 text-purple-200 hover:bg-purple-600/20"
+                  onClick={() => handleAdvancedSetting('Tradition Focus')}
+                >
                   <BookOpen className="w-4 h-4 mr-2" />
                   Tradition Focus
                 </Button>
-                <Button variant="outline" className="border-purple-500/50 text-purple-200">
+                <Button 
+                  variant="outline" 
+                  className="border-purple-500/50 text-purple-200 hover:bg-purple-600/20"
+                  onClick={() => handleAdvancedSetting('Personal Mantras')}
+                >
                   <Star className="w-4 h-4 mr-2" />
                   Personal Mantras
                 </Button>

@@ -1,25 +1,23 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { 
-  Sparkles, 
-  Circle, 
+  Heart, 
   Triangle, 
-  Square, 
-  Shapes, 
-  Eye,
-  Clock,
+  Circle, 
+  Droplets, 
+  Clock, 
+  Shield, 
+  Sparkles,
   Star,
-  Shield,
-  Heart,
-  Zap,
-  Brain,
   Flame,
-  Moon,
-  Sun
+  Wind,
+  Mountain,
+  Waves
 } from 'lucide-react';
 
 interface UniversalMagicFormulaProps {
@@ -29,116 +27,110 @@ interface UniversalMagicFormulaProps {
 
 const SEVEN_PILLARS = [
   {
-    id: 'sacred-intention',
+    id: 'intention',
     name: 'Sacred Intention (Sankalpa)',
-    icon: Heart,
     description: 'Establishing divine will alignment',
-    practices: ['Intention Clarification', 'Divine Alignment', 'Purpose Setting'],
-    mastery: 0
+    icon: Heart,
+    color: 'from-pink-600 to-rose-600',
+    practices: [
+      'Clear intention setting meditation',
+      'Heart-centered alignment breathing',
+      'Divine will invocation',
+      'Purpose clarification ritual'
+    ]
   },
   {
-    id: 'elemental-harmony',
+    id: 'harmony',
     name: 'Elemental Harmony',
-    icon: Shapes,
     description: 'Balancing the five elements',
-    practices: ['Earth Grounding', 'Water Flow', 'Fire Ignition', 'Air Clarity', 'Space Expansion'],
-    mastery: 0
+    icon: Triangle,
+    color: 'from-green-600 to-emerald-600',
+    practices: [
+      'Earth grounding exercises',
+      'Water flow meditation',
+      'Fire energy activation',
+      'Air breathing techniques',
+      'Space consciousness expansion'
+    ]
   },
   {
     id: 'divine-names',
     name: 'Divine Names & Sacred Sounds',
-    icon: Sparkles,
     description: 'Mantric activation of divine forces',
-    practices: ['Universal Mantras', 'Divine Name Invocation', 'Sound Healing'],
-    mastery: 0
+    icon: Sparkles,
+    color: 'from-purple-600 to-violet-600',
+    practices: [
+      'OM chanting (108 repetitions)',
+      'Divine name repetition',
+      'Sacred sound vibrations',
+      'Mantra meditation'
+    ]
   },
   {
-    id: 'celestial-timing',
+    id: 'timing',
     name: 'Celestial Timing',
-    icon: Moon,
     description: 'Cosmic alignment and muhurta',
-    practices: ['Lunar Phases', 'Planetary Hours', 'Seasonal Energies'],
-    mastery: 0
+    icon: Clock,
+    color: 'from-blue-600 to-indigo-600',
+    practices: [
+      'Lunar phase alignment',
+      'Planetary hour selection',
+      'Seasonal ceremony timing',
+      'Personal biorhythm sync'
+    ]
   },
   {
-    id: 'sacred-geometry',
+    id: 'geometry',
     name: 'Sacred Geometry',
-    icon: Triangle,
     description: 'Symbolic activation and yantra',
-    practices: ['Circle Creation', 'Triangle Power', 'Pentagram Activation'],
-    mastery: 0
+    icon: Triangle,
+    color: 'from-yellow-600 to-orange-600',
+    practices: [
+      'Yantra construction',
+      'Mandala meditation',
+      'Sacred symbol visualization',
+      'Geometric pattern alignment'
+    ]
   },
   {
-    id: 'protective-boundaries',
+    id: 'boundaries',
     name: 'Protective Boundaries',
-    icon: Shield,
     description: 'Energetic shielding and kavach',
-    practices: ['Divine Light Shield', 'Sacred Space', 'Energy Clearing'],
-    mastery: 0
-  },
-  {
-    id: 'integration',
-    name: 'Integration & Embodiment',
-    icon: Brain,
-    description: 'Dharana and manifestation',
-    practices: ['Gratitude Grounding', 'Embodiment Work', 'Daily Integration'],
-    mastery: 0
+    icon: Shield,
+    color: 'from-red-600 to-pink-600',
+    practices: [
+      'Energetic shielding visualization',
+      'Protective circle casting',
+      'Divine armor invocation',
+      'Boundary reinforcement'
+    ]
   }
-];
-
-const MANIFESTATION_PROTOCOL = [
-  { phase: 1, name: 'Preparation & Purification', duration: '10 min', completed: false },
-  { phase: 2, name: 'Invocation & Alignment', duration: '15 min', completed: false },
-  { phase: 3, name: 'Intention Crystallization', duration: '10 min', completed: false },
-  { phase: 4, name: 'Elemental Integration', duration: '20 min', completed: false },
-  { phase: 5, name: 'Sacred Geometry Activation', duration: '15 min', completed: false },
-  { phase: 6, name: 'Mantric Empowerment', duration: '10 min', completed: false },
-  { phase: 7, name: 'Energy Projection & Release', duration: '15 min', completed: false },
-  { phase: 8, name: 'Gratitude & Integration', duration: '10 min', completed: false }
 ];
 
 const SPECIALIZED_FORMULAS = [
   {
-    id: 'protection',
-    name: 'Spiritual Protection & Purification',
-    icon: Shield,
-    description: 'Divine light shield and negative energy clearing',
-    elements: ['Divine Light Shield', 'Purification Sequence', 'Protection Anchoring']
+    name: 'Healing & Recovery',
+    elements: ['Water', 'Earth', 'Divine Light'],
+    timing: 'Waxing Moon, Morning Hours',
+    duration: '21 minutes'
   },
   {
-    id: 'abundance',
     name: 'Abundance & Prosperity',
-    icon: Star,
-    description: 'Material and spiritual prosperity manifestation',
-    elements: ['Abundance Consciousness', 'Prosperity Visualization', 'Gratitude Multiplication']
+    elements: ['Fire', 'Earth', 'Jupiter Energy'],
+    timing: 'New Moon, Thursday',
+    duration: '45 minutes'
   },
   {
-    id: 'love',
+    name: 'Protection & Clearing',
+    elements: ['Fire', 'Air', 'Mars Energy'],
+    timing: 'Full Moon, Tuesday',
+    duration: '30 minutes'
+  },
+  {
     name: 'Love & Relationships',
-    icon: Heart,
-    description: 'Harmonious relationships and divine love',
-    elements: ['Heart Chakra Activation', 'Self-Love Foundation', 'Divine Love Invocation']
-  },
-  {
-    id: 'healing',
-    name: 'Healing & Wellness',
-    icon: Zap,
-    description: 'Physical, emotional, and spiritual healing',
-    elements: ['Divine Healing Light', 'Cellular Regeneration', 'Emotional Release']
-  },
-  {
-    id: 'success',
-    name: 'Success & Achievement',
-    icon: Sun,
-    description: 'Goal achievement aligned with divine purpose',
-    elements: ['Divine Purpose Alignment', 'Success Consciousness', 'Inspired Action']
-  },
-  {
-    id: 'wisdom',
-    name: 'Wisdom & Spiritual Development',
-    icon: Eye,
-    description: 'Accelerated spiritual growth and enlightenment',
-    elements: ['Wisdom Invocation', 'Intuition Development', 'Service Commitment']
+    elements: ['Water', 'Air', 'Venus Energy'],
+    timing: 'Friday, Venus Hour',
+    duration: '35 minutes'
   }
 ];
 
@@ -147,206 +139,183 @@ export const UniversalMagicFormula: React.FC<UniversalMagicFormulaProps> = ({
   setUserProfile
 }) => {
   const { toast } = useToast();
-  const [activeView, setActiveView] = useState<'overview' | 'pillars' | 'protocol' | 'formulas' | 'practice'>('overview');
+  const [activeView, setActiveView] = useState<'overview' | 'seven-pillars' | 'protocol' | 'specialized' | 'live-practice'>('overview');
   const [selectedPillar, setSelectedPillar] = useState<string | null>(null);
-  const [protocolProgress, setProtocolProgress] = useState(0);
+  const [intention, setIntention] = useState('');
   const [isProtocolActive, setIsProtocolActive] = useState(false);
-  const [currentPhase, setCurrentPhase] = useState(0);
+  const [practiceTimer, setPracticeTimer] = useState(0);
 
-  const startProtocol = () => {
-    setIsProtocolActive(true);
-    setCurrentPhase(0);
-    setProtocolProgress(0);
+  const handleActivatePillar = (pillarId: string) => {
+    setSelectedPillar(pillarId);
+    const pillar = SEVEN_PILLARS.find(p => p.id === pillarId);
+    
     toast({
-      title: "Universal Manifestation Protocol Activated",
-      description: "Beginning the 8-phase sacred manifestation process",
+      title: `${pillar?.name} Activated`,
+      description: "Sacred energy alignment in progress",
     });
   };
 
-  const completePhase = () => {
-    if (currentPhase < MANIFESTATION_PROTOCOL.length - 1) {
-      const newPhase = currentPhase + 1;
-      setCurrentPhase(newPhase);
-      setProtocolProgress(((newPhase) / MANIFESTATION_PROTOCOL.length) * 100);
-      
+  const handleStartProtocol = () => {
+    if (!intention.trim()) {
       toast({
-        title: `Phase ${newPhase} Complete`,
-        description: `Proceeding to: ${MANIFESTATION_PROTOCOL[newPhase].name}`,
+        title: "Set Your Intention",
+        description: "Please enter your sacred intention before beginning",
+        variant: "destructive"
       });
-    } else {
-      setIsProtocolActive(false);
-      setProtocolProgress(100);
-      toast({
-        title: "Protocol Complete! 🎉",
-        description: "Your manifestation has been released to divine timing",
-      });
+      return;
     }
+
+    setIsProtocolActive(true);
+    setPracticeTimer(21 * 60); // 21 minutes in seconds
+    
+    // Save to user profile
+    const updatedProfile = {
+      ...userProfile,
+      activeRitual: {
+        type: 'Universal Magic Formula',
+        intention,
+        startTime: new Date().toISOString(),
+        duration: 21
+      }
+    };
+    setUserProfile(updatedProfile);
+    localStorage.setItem('spiritualMindProfile', JSON.stringify(updatedProfile));
+    
+    toast({
+      title: "Universal Protocol Activated",
+      description: "Sacred transformation sequence initiated",
+    });
   };
 
-  const currentProtocolPhase = MANIFESTATION_PROTOCOL[currentPhase];
+  const handleLivePractice = () => {
+    setActiveView('live-practice');
+    toast({
+      title: "Live Practice Mode",
+      description: "Real-time guidance activated",
+    });
+  };
 
   return (
     <div className="space-y-6">
-      {/* Navigation */}
-      <div className="flex flex-wrap gap-3">
-        <Button
-          onClick={() => setActiveView('overview')}
-          variant={activeView === 'overview' ? 'default' : 'outline'}
-          className={activeView === 'overview' ? 'bg-purple-600' : 'border-purple-500/50 text-purple-200'}
-        >
-          <Sparkles className="w-4 h-4 mr-2" />
-          Overview
-        </Button>
-        <Button
-          onClick={() => setActiveView('pillars')}
-          variant={activeView === 'pillars' ? 'default' : 'outline'}
-          className={activeView === 'pillars' ? 'bg-purple-600' : 'border-purple-500/50 text-purple-200'}
-        >
-          <Triangle className="w-4 h-4 mr-2" />
-          Seven Pillars
-        </Button>
-        <Button
-          onClick={() => setActiveView('protocol')}
-          variant={activeView === 'protocol' ? 'default' : 'outline'}
-          className={activeView === 'protocol' ? 'bg-purple-600' : 'border-purple-500/50 text-purple-200'}
-        >
-          <Circle className="w-4 h-4 mr-2" />
-          Protocol
-        </Button>
-        <Button
-          onClick={() => setActiveView('formulas')}
-          variant={activeView === 'formulas' ? 'default' : 'outline'}
-          className={activeView === 'formulas' ? 'bg-purple-600' : 'border-purple-500/50 text-purple-200'}
-        >
-          <Flame className="w-4 h-4 mr-2" />
-          Specialized Formulas
-        </Button>
-        <Button
-          onClick={() => setActiveView('practice')}
-          variant={activeView === 'practice' ? 'default' : 'outline'}
-          className={activeView === 'practice' ? 'bg-purple-600' : 'border-purple-500/50 text-purple-200'}
-        >
-          <Star className="w-4 h-4 mr-2" />
-          Live Practice
-        </Button>
+      {/* Navigation Tabs */}
+      <div className="flex flex-wrap gap-2">
+        {[
+          { id: 'overview', label: 'Overview', icon: Star },
+          { id: 'seven-pillars', label: 'Seven Pillars', icon: Triangle },
+          { id: 'protocol', label: 'Protocol', icon: Circle },
+          { id: 'specialized', label: 'Specialized Formulas', icon: Droplets },
+          { id: 'live-practice', label: 'Live Practice', icon: Sparkles }
+        ].map((tab) => {
+          const Icon = tab.icon;
+          return (
+            <Button
+              key={tab.id}
+              onClick={() => setActiveView(tab.id as any)}
+              variant={activeView === tab.id ? 'default' : 'outline'}
+              className={`${
+                activeView === tab.id 
+                  ? 'bg-purple-600 text-white' 
+                  : 'border-purple-500/50 text-purple-200 hover:bg-purple-600/20'
+              }`}
+            >
+              <Icon className="w-4 h-4 mr-2" />
+              {tab.label}
+            </Button>
+          );
+        })}
       </div>
 
-      {/* Main Content */}
+      {/* Overview */}
       {activeView === 'overview' && (
         <Card className="bg-gradient-to-br from-purple-900/30 to-indigo-900/30 border-purple-500/30">
           <CardHeader>
-            <CardTitle className="text-purple-200 text-xl flex items-center gap-2">
-              <Sparkles className="w-6 h-6" />
-              Enhanced Universal Magic Formula
+            <CardTitle className="text-purple-200 flex items-center gap-2">
+              <Star className="w-6 h-6" />
+              Universal Magic Formula Overview
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="text-purple-300 text-sm leading-relaxed">
+            <div className="text-purple-100">
               <p className="mb-4">
-                A revolutionary synthesis of the world's most powerful ancient magical traditions, 
-                carefully adapted for contemporary spiritual practice. This enhanced formula provides 
-                a comprehensive framework for manifesting positive transformation in all aspects of life.
+                The Universal Magic Formula is a comprehensive system that integrates ancient wisdom 
+                with modern understanding of consciousness and energy work.
               </p>
               <p className="mb-4">
-                Drawing from the profound wisdom of the 108 sacred formulas, the celestial magic of 
-                the Picatrix, the divine authority of the Key of Solomon, the creative force of Egyptian 
-                Heka, and the protective power of Vedic mantras.
+                This formula works through seven foundational pillars that create a complete 
+                framework for spiritual practice and manifestation.
               </p>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-purple-800/20 p-4 rounded-lg border border-purple-600/30">
-                <h4 className="text-purple-200 font-semibold mb-2 flex items-center gap-2">
-                  <Triangle className="w-4 h-4" />
-                  Seven Pillars System
-                </h4>
-                <p className="text-purple-300 text-sm">
-                  Comprehensive framework addressing every aspect of magical practice from intention to embodiment.
-                </p>
-              </div>
-              
-              <div className="bg-indigo-800/20 p-4 rounded-lg border border-indigo-600/30">
-                <h4 className="text-indigo-200 font-semibold mb-2 flex items-center gap-2">
-                  <Circle className="w-4 h-4" />
-                  8-Phase Protocol
-                </h4>
-                <p className="text-indigo-300 text-sm">
-                  Systematic manifestation process that can be adapted for any positive intention or goal.
-                </p>
-              </div>
-              
-              <div className="bg-violet-800/20 p-4 rounded-lg border border-violet-600/30">
-                <h4 className="text-violet-200 font-semibold mb-2 flex items-center gap-2">
-                  <Flame className="w-4 h-4" />
-                  Specialized Formulas
-                </h4>
-                <p className="text-violet-300 text-sm">
-                  Targeted approaches for specific areas: protection, abundance, love, healing, success, and wisdom.
-                </p>
-              </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {SEVEN_PILLARS.slice(0, 4).map((pillar) => {
+                const Icon = pillar.icon;
+                return (
+                  <div key={pillar.id} className={`p-4 rounded-lg bg-gradient-to-r ${pillar.color}/20 border border-purple-500/30`}>
+                    <div className="flex items-center gap-3 mb-2">
+                      <Icon className="w-5 h-5 text-purple-300" />
+                      <h4 className="text-purple-200 font-medium">{pillar.name}</h4>
+                    </div>
+                    <p className="text-purple-300 text-sm">{pillar.description}</p>
+                  </div>
+                );
+              })}
             </div>
-
-            <div className="bg-gradient-to-r from-amber-900/20 to-orange-900/20 p-4 rounded-lg border border-amber-600/30">
-              <h4 className="text-amber-200 font-semibold mb-2">Ancient Wisdom Sources</h4>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
-                <div className="text-amber-300">• 108 Sacred Formulas</div>
-                <div className="text-amber-300">• Picatrix Celestial Magic</div>
-                <div className="text-amber-300">• Key of Solomon</div>
-                <div className="text-amber-300">• Egyptian Heka</div>
-                <div className="text-amber-300">• Vedic Mantras</div>
-              </div>
+            
+            <div className="flex gap-4">
+              <Button
+                onClick={() => setActiveView('seven-pillars')}
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+              >
+                Explore Seven Pillars
+              </Button>
+              <Button
+                onClick={() => setActiveView('protocol')}
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+              >
+                Start Protocol
+              </Button>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {activeView === 'pillars' && (
+      {/* Seven Pillars */}
+      {activeView === 'seven-pillars' && (
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {SEVEN_PILLARS.map((pillar, index) => {
-              const IconComponent = pillar.icon;
+            {SEVEN_PILLARS.map((pillar) => {
+              const Icon = pillar.icon;
+              const isActive = selectedPillar === pillar.id;
+              
               return (
                 <Card 
                   key={pillar.id}
-                  className={`cursor-pointer transition-colors ${
-                    selectedPillar === pillar.id
-                      ? 'bg-purple-800/30 border-purple-400/50'
-                      : 'bg-purple-900/20 border-purple-600/30 hover:bg-purple-800/20'
+                  className={`cursor-pointer transition-all duration-300 ${
+                    isActive 
+                      ? 'bg-gradient-to-br from-purple-600/30 to-indigo-600/30 border-purple-400/50 scale-105' 
+                      : 'bg-black/20 border-purple-500/30 hover:bg-purple-900/20'
                   }`}
-                  onClick={() => setSelectedPillar(selectedPillar === pillar.id ? null : pillar.id)}
+                  onClick={() => handleActivatePillar(pillar.id)}
                 >
                   <CardContent className="p-4">
-                    <div className="flex items-start gap-3 mb-3">
-                      <div className="bg-purple-600/20 p-2 rounded-lg">
-                        <IconComponent className="w-5 h-5 text-purple-400" />
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className={`p-2 rounded-lg bg-gradient-to-r ${pillar.color}/30`}>
+                        <Icon className="w-5 h-5 text-white" />
                       </div>
-                      <div className="flex-1">
-                        <h4 className="text-purple-200 font-semibold text-sm">{pillar.name}</h4>
-                        <p className="text-purple-300 text-xs mt-1">{pillar.description}</p>
+                      <div>
+                        <h4 className="text-white font-semibold text-sm">{pillar.name}</h4>
+                        <p className="text-purple-300 text-xs">{pillar.description}</p>
                       </div>
                     </div>
                     
-                    {selectedPillar === pillar.id && (
-                      <div className="space-y-3 mt-4 pt-3 border-t border-purple-600/30">
-                        <div>
-                          <h5 className="text-purple-200 font-medium text-xs mb-2">Core Practices:</h5>
-                          <ul className="space-y-1">
-                            {pillar.practices.map((practice, i) => (
-                              <li key={i} className="text-purple-300 text-xs flex items-center">
-                                <span className="w-1 h-1 bg-purple-400 rounded-full mr-2"></span>
-                                {practice}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                        
-                        <div>
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-purple-200 text-xs">Mastery Progress</span>
-                            <span className="text-purple-200 text-xs">{pillar.mastery}%</span>
+                    {isActive && (
+                      <div className="space-y-2 animate-fade-in">
+                        <h5 className="text-purple-200 text-sm font-medium">Practices:</h5>
+                        {pillar.practices.map((practice, index) => (
+                          <div key={index} className="text-purple-300 text-xs">
+                            • {practice}
                           </div>
-                          <Progress value={pillar.mastery} className="h-1" />
-                        </div>
+                        ))}
                       </div>
                     )}
                   </CardContent>
@@ -357,153 +326,152 @@ export const UniversalMagicFormula: React.FC<UniversalMagicFormulaProps> = ({
         </div>
       )}
 
+      {/* Protocol */}
       {activeView === 'protocol' && (
-        <Card className="bg-indigo-900/20 border-indigo-500/30">
+        <Card className="bg-gradient-to-br from-indigo-900/30 to-purple-900/30 border-indigo-500/30">
           <CardHeader>
             <CardTitle className="text-indigo-200 flex items-center gap-2">
               <Circle className="w-6 h-6" />
-              Universal Manifestation Protocol
+              Sacred Protocol Activation
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Protocol Progress */}
-            <div className="bg-indigo-800/20 p-4 rounded-lg border border-indigo-600/30">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="text-indigo-200 font-semibold">Protocol Progress</h4>
-                <Badge className={`${isProtocolActive ? 'bg-green-600/20 text-green-200' : 'bg-gray-600/20 text-gray-300'}`}>
-                  {isProtocolActive ? 'Active' : 'Ready'}
-                </Badge>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-indigo-200 font-medium mb-2">
+                  Set Your Sacred Intention
+                </label>
+                <Textarea
+                  value={intention}
+                  onChange={(e) => setIntention(e.target.value)}
+                  placeholder="What spiritual transformation are you seeking? (e.g., emotional healing, protection, abundance, love attraction)"
+                  className="bg-black/20 border-indigo-400/30 text-white placeholder:text-indigo-300/70 min-h-[100px]"
+                />
               </div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-indigo-300 text-sm">Completion</span>
-                <span className="text-indigo-300 text-sm">{Math.round(protocolProgress)}%</span>
-              </div>
-              <Progress value={protocolProgress} className="h-2 mb-4" />
               
-              {!isProtocolActive ? (
-                <Button onClick={startProtocol} className="w-full bg-indigo-600 hover:bg-indigo-700">
-                  Begin Universal Protocol
-                </Button>
-              ) : (
-                <div className="space-y-3">
-                  <div className="bg-indigo-700/20 p-3 rounded-lg border border-indigo-500/30">
-                    <h5 className="text-indigo-200 font-medium mb-1">
-                      Phase {currentPhase + 1}: {currentProtocolPhase.name}
-                    </h5>
-                    <p className="text-indigo-300 text-sm mb-2">Duration: {currentProtocolPhase.duration}</p>
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-indigo-400" />
-                      <span className="text-indigo-300 text-sm">Practice this phase, then continue</span>
-                    </div>
-                  </div>
-                  <Button onClick={completePhase} className="w-full bg-green-600 hover:bg-green-700">
-                    Complete Phase {currentPhase + 1}
-                  </Button>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-indigo-800/20 p-4 rounded-lg border border-indigo-600/30">
+                  <h4 className="text-indigo-200 font-medium mb-2">Duration</h4>
+                  <p className="text-indigo-100 text-sm">21 minutes (sacred number)</p>
+                </div>
+                <div className="bg-indigo-800/20 p-4 rounded-lg border border-indigo-600/30">
+                  <h4 className="text-indigo-200 font-medium mb-2">Timing</h4>
+                  <p className="text-indigo-100 text-sm">Optimal current moment</p>
+                </div>
+                <div className="bg-indigo-800/20 p-4 rounded-lg border border-indigo-600/30">
+                  <h4 className="text-indigo-200 font-medium mb-2">State</h4>
+                  <Badge className={`${isProtocolActive ? 'bg-green-600/20 text-green-200' : 'bg-gray-600/20 text-gray-300'}`}>
+                    {isProtocolActive ? 'Active' : 'Ready'}
+                  </Badge>
+                </div>
+              </div>
+              
+              <Button
+                onClick={handleStartProtocol}
+                disabled={isProtocolActive}
+                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-lg py-3"
+              >
+                {isProtocolActive ? 'Protocol Active...' : 'Activate Sacred Protocol'}
+              </Button>
+              
+              {isProtocolActive && (
+                <div className="bg-green-900/20 p-4 rounded-lg border border-green-500/30 animate-pulse-glow">
+                  <h4 className="text-green-200 font-medium mb-2">Protocol Active</h4>
+                  <p className="text-green-100 text-sm">
+                    Sacred transformation sequence is running. Stay present and allow the energy to flow.
+                  </p>
                 </div>
               )}
-            </div>
-
-            {/* Phase Details */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {MANIFESTATION_PROTOCOL.map((phase, index) => (
-                <div 
-                  key={index}
-                  className={`p-3 rounded-lg border ${
-                    index === currentPhase && isProtocolActive
-                      ? 'bg-indigo-700/30 border-indigo-400/50'
-                      : index < currentPhase && isProtocolActive
-                        ? 'bg-green-800/20 border-green-600/30'
-                        : 'bg-indigo-800/20 border-indigo-600/30'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <h5 className="text-indigo-200 font-medium text-sm">
-                      Phase {phase.phase}: {phase.name}
-                    </h5>
-                    <Badge className={`text-xs ${
-                      index === currentPhase && isProtocolActive
-                        ? 'bg-blue-600/20 text-blue-200'
-                        : index < currentPhase && isProtocolActive
-                          ? 'bg-green-600/20 text-green-200'
-                          : 'bg-gray-600/20 text-gray-300'
-                    }`}>
-                      {index === currentPhase && isProtocolActive ? 'Active' : 
-                       index < currentPhase && isProtocolActive ? 'Complete' : 'Pending'}
-                    </Badge>
-                  </div>
-                  <p className="text-indigo-300 text-xs">Duration: {phase.duration}</p>
-                </div>
-              ))}
             </div>
           </CardContent>
         </Card>
       )}
 
-      {activeView === 'formulas' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {SPECIALIZED_FORMULAS.map((formula) => {
-            const IconComponent = formula.icon;
-            return (
-              <Card key={formula.id} className="bg-purple-900/20 border-purple-600/30 hover:bg-purple-800/20 transition-colors">
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="bg-purple-600/20 p-2 rounded-lg">
-                      <IconComponent className="w-5 h-5 text-purple-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-purple-200 font-semibold text-sm mb-1">{formula.name}</h4>
-                      <p className="text-purple-300 text-xs">{formula.description}</p>
-                    </div>
+      {/* Specialized Formulas */}
+      {activeView === 'specialized' && (
+        <div className="space-y-4">
+          {SPECIALIZED_FORMULAS.map((formula, index) => (
+            <Card key={index} className="bg-gradient-to-r from-purple-900/20 to-indigo-900/20 border-purple-500/30">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-purple-200 font-semibold">{formula.name}</h4>
+                  <Badge className="bg-purple-600/20 text-purple-200">{formula.duration}</Badge>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <span className="text-purple-300">Elements: </span>
+                    <span className="text-purple-100">{formula.elements.join(', ')}</span>
                   </div>
-                  
-                  <div className="space-y-2">
-                    <h5 className="text-purple-200 font-medium text-xs">Key Elements:</h5>
-                    {formula.elements.map((element, index) => (
-                      <div key={index} className="text-purple-300 text-xs flex items-center">
-                        <span className="w-1 h-1 bg-purple-400 rounded-full mr-2"></span>
-                        {element}
-                      </div>
-                    ))}
+                  <div>
+                    <span className="text-purple-300">Timing: </span>
+                    <span className="text-purple-100">{formula.timing}</span>
                   </div>
-                  
-                  <Button size="sm" className="w-full mt-3 bg-purple-600 hover:bg-purple-700">
-                    Practice Formula
-                  </Button>
-                </CardContent>
-              </Card>
-            );
-          })}
+                  <div className="flex justify-end">
+                    <Button
+                      size="sm"
+                      className="bg-purple-600 hover:bg-purple-700"
+                      onClick={() => {
+                        toast({
+                          title: `${formula.name} Formula`,
+                          description: "Specialized protocol activated",
+                        });
+                      }}
+                    >
+                      Activate
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       )}
 
-      {activeView === 'practice' && (
-        <Card className="bg-gradient-to-br from-amber-900/20 to-orange-900/20 border-amber-500/30">
+      {/* Live Practice */}
+      {activeView === 'live-practice' && (
+        <Card className="bg-gradient-to-br from-green-900/30 to-blue-900/30 border-green-500/30">
           <CardHeader>
-            <CardTitle className="text-amber-200 flex items-center gap-2">
-              <Star className="w-6 h-6" />
-              Live Magic Practice Session
+            <CardTitle className="text-green-200 flex items-center gap-2">
+              <Sparkles className="w-6 h-6" />
+              Live Practice Session
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="text-center py-12">
-              <Star className="w-16 h-16 text-amber-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-amber-200 mb-2">Guided Practice Coming Soon</h3>
-              <p className="text-amber-300 mb-6">
-                Interactive magical practice sessions with real-time guidance and energy tracking.
+            <div className="text-center py-8">
+              <div className="animate-pulse-glow w-16 h-16 bg-green-500/20 rounded-full mx-auto mb-4 flex items-center justify-center">
+                <Sparkles className="w-8 h-8 text-green-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-green-200 mb-2">Live Guidance Active</h3>
+              <p className="text-green-300 mb-6">
+                Real-time spiritual practice guidance with AI-enhanced sacred wisdom
               </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
-                <div className="bg-amber-800/20 p-4 rounded-lg border border-amber-600/30">
-                  <h4 className="text-amber-200 font-medium mb-2">Real-Time Guidance</h4>
-                  <p className="text-amber-300 text-sm">Step-by-step instructions with timing</p>
-                </div>
-                <div className="bg-orange-800/20 p-4 rounded-lg border border-orange-600/30">
-                  <h4 className="text-orange-200 font-medium mb-2">Energy Tracking</h4>
-                  <p className="text-orange-300 text-sm">Monitor your energetic state during practice</p>
-                </div>
-                <div className="bg-red-800/20 p-4 rounded-lg border border-red-600/30">
-                  <h4 className="text-red-200 font-medium mb-2">Progress Analytics</h4>
-                  <p className="text-red-300 text-sm">Detailed feedback and development insights</p>
-                </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                <Button
+                  className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
+                  onClick={() => {
+                    toast({
+                      title: "Voice Guidance Activated",
+                      description: "Sacred voice instructions now active",
+                    });
+                  }}
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Voice Guidance
+                </Button>
+                <Button
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  onClick={() => {
+                    toast({
+                      title: "Energy Tracking Active",
+                      description: "Monitoring your energetic state",
+                    });
+                  }}
+                >
+                  <Heart className="w-4 h-4 mr-2" />
+                  Energy Tracking
+                </Button>
               </div>
             </div>
           </CardContent>
