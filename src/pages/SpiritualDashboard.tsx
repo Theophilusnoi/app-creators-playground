@@ -112,13 +112,13 @@ const SpiritualDashboard = () => {
 
   // Render the dashboard for authenticated users
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+    <div className={`min-h-screen w-full bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
       <div className="relative z-10 w-full">
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TopNavigation activeTab={activeTab} onTabChange={handleTabChange} />
           
-          <div className="relative z-20 bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 min-h-screen">
-            <div className="container mx-auto px-4 py-6">
+          <div className="relative z-20 bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 min-h-screen w-full">
+            <div className="w-full max-w-none mx-auto">
               {contentLoading && (
                 <div className="flex items-center justify-center py-12 relative z-30">
                   <div className="bg-black/50 backdrop-blur-sm rounded-lg p-6">
@@ -128,85 +128,123 @@ const SpiritualDashboard = () => {
                 </div>
               )}
               
-              <div className={`transition-all duration-300 relative z-30 ${contentLoading ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-                <TabsContent value="seraphina" className="mt-0 animate-fade-in focus:outline-none">
+              <div className={`transition-all duration-300 relative z-30 w-full ${contentLoading ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                <TabsContent value="seraphina" className="mt-0 animate-fade-in focus:outline-none w-full">
                   <CombinedSeraphinaChat />
                 </TabsContent>
 
                 <TabsContent value="archetype" className="mt-0 animate-fade-in focus:outline-none">
-                  <CombinedAssessment onAssessmentComplete={handleAssessmentComplete} />
+                  <div className="container mx-auto px-4 py-6">
+                    <CombinedAssessment onAssessmentComplete={handleAssessmentComplete} />
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="rituals" className="mt-0 animate-fade-in focus:outline-none">
-                  <CombinedRituals />
+                  <div className="container mx-auto px-4 py-6">
+                    <CombinedRituals />
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="insights" className="mt-0 animate-fade-in focus:outline-none">
-                  <CombinedInsights />
+                  <div className="container mx-auto px-4 py-6">
+                    <CombinedInsights />
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="knowledge-base" className="mt-0 animate-fade-in focus:outline-none">
-                  <SpiritualKnowledgeBase />
+                  <div className="container mx-auto px-4 py-6">
+                    <SpiritualKnowledgeBase />
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="subscription" className="mt-0 animate-fade-in focus:outline-none">
-                  <SubscriptionStatus />
+                  <div className="container mx-auto px-4 py-6">
+                    <SubscriptionStatus />
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="cultural" className="mt-0 animate-fade-in focus:outline-none">
-                  <CulturalAdapter />
+                  <div className="container mx-auto px-4 py-6">
+                    <CulturalAdapter />
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="community" className="mt-0 animate-fade-in focus:outline-none">
-                  <CommunityHub />
+                  <div className="container mx-auto px-4 py-6">
+                    <CommunityHub />
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="mood" className="mt-0 animate-fade-in focus:outline-none">
-                  <MoodTracker />
+                  <div className="container mx-auto px-4 py-6">
+                    <MoodTracker />
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="meditation" className="mt-0 animate-fade-in focus:outline-none">
-                  <MeditationTracker />
+                  <div className="container mx-auto px-4 py-6">
+                    <MeditationTracker />
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="dreams" className="mt-0 animate-fade-in focus:outline-none">
-                  <DreamAnalysis />
+                  <div className="container mx-auto px-4 py-6">
+                    <DreamAnalysis />
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="shadow" className="mt-0 animate-fade-in focus:outline-none">
-                  <ShadowWorkTracker />
+                  <div className="container mx-auto px-4 py-6">
+                    <ShadowWorkTracker />
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="sync" className="mt-0 animate-fade-in focus:outline-none">
-                  <SynchronicityDetector />
+                  <div className="container mx-auto px-4 py-6">
+                    <SynchronicityDetector />
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="recommendations" className="mt-0 animate-fade-in focus:outline-none">
-                  <RecommendationsSystem />
+                  <div className="container mx-auto px-4 py-6">
+                    <RecommendationsSystem />
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="angelic" className="mt-0 animate-fade-in focus:outline-none">
-                  <AngelicAssistance />
+                  <div className="container mx-auto px-4 py-6">
+                    <AngelicAssistance />
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="divination" className="mt-0 animate-fade-in focus:outline-none">
-                  <DivinationHub />
+                  <div className="container mx-auto px-4 py-6">
+                    <DivinationHub />
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="third-eye" className="mt-0 animate-fade-in focus:outline-none">
-                  <ThirdEyeActivation />
+                  <div className="container mx-auto px-4 py-6">
+                    <ThirdEyeActivation />
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="referrals" className="mt-0 animate-fade-in focus:outline-none">
-                  <ReferralSystem />
+                  <div className="container mx-auto px-4 py-6">
+                    <ReferralSystem />
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="wisdom" className="mt-0 animate-fade-in focus:outline-none">
-                  <WisdomPhilosophy />
+                  <div className="container mx-auto px-4 py-6">
+                    <WisdomPhilosophy />
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="guidance" className="mt-0 animate-fade-in focus:outline-none">
-                  <PersonalGuidanceSystem />
+                  <div className="container mx-auto px-4 py-6">
+                    <PersonalGuidanceSystem />
+                  </div>
                 </TabsContent>
               </div>
             </div>
