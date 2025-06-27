@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
@@ -15,12 +14,12 @@ import {
   Globe, 
   Shield,
   Brain,
-  Waves,
   Sparkles,
   Play,
   Pause,
   Volume2,
-  Flame
+  Flame,
+  ArrowLeft
 } from 'lucide-react';
 import { SacredBathingCreator } from '@/components/spiritual/pro/SacredBathingCreator';
 import { ThirdEyeTracker } from '@/components/spiritual/pro/ThirdEyeTracker';
@@ -36,13 +35,21 @@ const SpiritualMindPro = () => {
   const [activeModule, setActiveModule] = useState('dashboard');
   const [userProfile, setUserProfile] = useState<any>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
       // Load user's spiritual profile
       const savedProfile = localStorage.getItem('spiritualMindProfile');
       if (savedProfile) {
-        setUserProfile(JSON.parse(savedProfile));
+        try {
+          setUserProfile(JSON.parse(savedProfile));
+        } catch (error) {
+          console.error('Error parsing saved profile:', error);
+          setUserProfile({});
+        }
+      } else {
+        setUserProfile({});
       }
     }
   }, [user]);
@@ -53,51 +60,88 @@ const SpiritualMindPro = () => {
       title: 'Enhanced Ritual System',
       icon: Flame,
       description: 'Universal Magic Formula & Ancient Wisdom',
-      component: EnhancedRitualSystem
+      component: EnhancedRitualSystem,
+      status: 'Ready'
     },
     {
       id: 'sacred-bath',
       title: 'Sacred Bathing',
       icon: Droplets,
       description: 'AI-Guided Spiritual Cleansing',
-      component: SacredBathingCreator
+      component: SacredBathingCreator,
+      status: 'Ready'
     },
     {
       id: 'third-eye',
       title: 'Third Eye Activation',
       icon: Eye,
       description: '5-Stage Neuro-Spiritual Pathway',
-      component: ThirdEyeTracker
+      component: ThirdEyeTracker,
+      status: 'Ready'
     },
     {
       id: 'telekinesis',
       title: 'Telekinesis Training',
       icon: Zap,
       description: 'Mind-Matter Interface',
-      component: TelekinesisGym
+      component: TelekinesisGym,
+      status: 'Ready'
     },
     {
       id: 'zodiac',
       title: 'Zodiac Integration',
       icon: Star,
       description: 'Celestial Personalization Engine',
-      component: ZodiacIntegration
+      component: ZodiacIntegration,
+      status: 'Ready'
     },
     {
       id: 'cultural',
       title: 'Cultural Frameworks',
       icon: Globe,
       description: 'Respectfully Curated Traditions',
-      component: CulturalFrameworks
+      component: CulturalFrameworks,
+      status: 'Ready'
     },
     {
       id: 'neurofeedback',
       title: 'Neuro-Feedback',
       icon: Brain,
       description: 'Consciousness-Forward Design',
-      component: NeuroFeedbackHub
+      component: NeuroFeedbackHub,
+      status: 'Ready'
     }
   ];
+
+  const handleModuleClick = (moduleId: string) => {
+    setIsLoading(true);
+    console.log(`Entering module: ${moduleId}`);
+    
+    // Add a small delay for smooth transition
+    setTimeout(() => {
+      setActiveModule(moduleId);
+      setIsLoading(false);
+      
+      toast({
+        title: "Module Activated",
+        description: `${modules.find(m => m.id === moduleId)?.title} is now active`,
+      });
+    }, 300);
+  };
+
+  const handleBackToDashboard = () => {
+    setIsLoading(true);
+    
+    setTimeout(() => {
+      setActiveModule('dashboard');
+      setIsLoading(false);
+      
+      toast({
+        title: "Dashboard",
+        description: "Returned to main dashboard",
+      });
+    }, 200);
+  };
 
   const toggleBinauralBeats = () => {
     setIsPlaying(!isPlaying);
@@ -147,34 +191,46 @@ const SpiritualMindPro = () => {
                     isPlaying 
                       ? 'bg-purple-600 hover:bg-purple-700' 
                       : 'bg-gray-600 hover:bg-gray-700'
-                  } transition-colors`}
+                  } transition-all duration-300`}
                 >
                   {isPlaying ? <Pause className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
                   <Volume2 className="w-4 h-4 mr-2" />
                   963Hz
                 </Button>
                 <Badge className="bg-green-600/20 text-green-200 border-green-500/30">
-                  Neural State: Active
+                  Neural State: {isPlaying ? 'Enhanced' : 'Active'}
                 </Badge>
               </div>
             </div>
           </CardHeader>
         </Card>
 
+        {/* Loading State */}
+        {isLoading && (
+          <Card className="bg-black/50 border-purple-500/30 backdrop-blur-sm">
+            <CardContent className="py-8">
+              <div className="flex items-center justify-center space-x-3">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-400"></div>
+                <span className="text-purple-200">Loading module...</span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Dashboard Overview */}
-        {activeModule === 'dashboard' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {activeModule === 'dashboard' && !isLoading && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
             {modules.map((module) => {
               const Icon = module.icon;
               return (
                 <Card 
                   key={module.id}
-                  className="bg-black/30 border-purple-500/30 backdrop-blur-sm hover:bg-black/40 transition-colors cursor-pointer"
-                  onClick={() => setActiveModule(module.id)}
+                  className="bg-black/30 border-purple-500/30 backdrop-blur-sm hover:bg-black/40 transition-all duration-300 cursor-pointer group hover:scale-105"
+                  onClick={() => handleModuleClick(module.id)}
                 >
-                  <CardHeader>
+                  <CardHeader className="pb-4">
                     <CardTitle className="flex items-center gap-3 text-white">
-                      <div className="bg-purple-600/20 p-3 rounded-lg">
+                      <div className="bg-purple-600/20 p-3 rounded-lg group-hover:bg-purple-500/30 transition-colors">
                         <Icon className="w-6 h-6 text-purple-400" />
                       </div>
                       <div>
@@ -187,10 +243,17 @@ const SpiritualMindPro = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center justify-between">
-                      <Badge className="bg-indigo-600/20 text-indigo-200">
-                        Ready
+                      <Badge className="bg-indigo-600/20 text-indigo-200 border-indigo-500/30">
+                        {module.status}
                       </Badge>
-                      <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
+                      <Button 
+                        size="sm" 
+                        className="bg-purple-600 hover:bg-purple-700 transition-all duration-300"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleModuleClick(module.id);
+                        }}
+                      >
                         Enter
                       </Button>
                     </div>
@@ -202,14 +265,15 @@ const SpiritualMindPro = () => {
         )}
 
         {/* Module Content */}
-        {activeModule !== 'dashboard' && (
-          <div className="space-y-6">
+        {activeModule !== 'dashboard' && !isLoading && (
+          <div className="space-y-6 animate-fade-in">
             <Button
-              onClick={() => setActiveModule('dashboard')}
+              onClick={handleBackToDashboard}
               variant="outline"
-              className="border-purple-500/30 text-purple-200 hover:bg-purple-600/20"
+              className="border-purple-500/30 text-purple-200 hover:bg-purple-600/20 transition-all duration-300"
             >
-              ← Back to Dashboard
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard
             </Button>
             
             {modules.map((module) => {
@@ -225,7 +289,10 @@ const SpiritualMindPro = () => {
                       <p className="text-purple-200">{module.description}</p>
                     </CardHeader>
                     <CardContent>
-                      <Component userProfile={userProfile} setUserProfile={setUserProfile} />
+                      <Component 
+                        userProfile={userProfile} 
+                        setUserProfile={setUserProfile} 
+                      />
                     </CardContent>
                   </Card>
                 );
