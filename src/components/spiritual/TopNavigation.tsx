@@ -50,27 +50,27 @@ export const TopNavigation: React.FC<TopNavigationProps> = ({ activeTab, onTabCh
   };
 
   return (
-    <div className="sticky top-0 z-50 bg-gradient-to-r from-purple-900 via-indigo-900 to-blue-900 border-b border-purple-500/30 backdrop-blur-sm">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold text-white">Spiritual Dashboard</h1>
-          <div className="flex gap-2">
-            <Button
-              onClick={() => handleNavigation('/pro')}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold transition-all duration-300 hover:scale-105"
-            >
-              ✨ Pro Features
-            </Button>
-            <Button
-              onClick={() => handleNavigation('/quantum-dashboard')}
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold transition-all duration-300 hover:scale-105"
-            >
-              🌌 Quantum
-            </Button>
-          </div>
+    <div className="h-full bg-gradient-to-b from-purple-900 via-indigo-900 to-blue-900 border-r border-purple-500/30 flex flex-col">
+      <div className="p-4 border-b border-purple-500/30">
+        <h1 className="text-xl font-bold text-white mb-4">Spiritual Dashboard</h1>
+        <div className="flex flex-col gap-2">
+          <Button
+            onClick={() => handleNavigation('/pro')}
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold transition-all duration-300 hover:scale-105 text-sm"
+          >
+            ✨ Pro Features
+          </Button>
+          <Button
+            onClick={() => handleNavigation('/quantum-dashboard')}
+            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold transition-all duration-300 hover:scale-105 text-sm"
+          >
+            🌌 Quantum
+          </Button>
         </div>
+      </div>
 
-        <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-10 gap-2 bg-black/20 p-2 h-auto w-full">
+      <div className="flex-1 overflow-y-auto p-4">
+        <TabsList className="flex flex-col w-full h-auto bg-transparent gap-2">
           {navigationTabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -79,14 +79,14 @@ export const TopNavigation: React.FC<TopNavigationProps> = ({ activeTab, onTabCh
                 key={tab.id}
                 value={tab.id}
                 onClick={() => handleTabClick(tab.id)}
-                className={`flex flex-col items-center gap-1 p-3 min-h-[64px] transition-all duration-300 mobile-tab ${
+                className={`w-full flex items-center justify-start gap-3 p-3 rounded-lg transition-all duration-300 ${
                   isActive 
                     ? 'bg-purple-600/80 text-white border-purple-400/70 border-2 scale-105 shadow-lg' 
                     : 'bg-gray-800/40 text-purple-300 hover:bg-purple-600/40 hover:text-white hover:scale-102'
                 }`}
               >
                 <Icon className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 ${isActive ? 'scale-110' : ''}`} />
-                <span className="text-xs font-bold text-center leading-tight crisp-text">
+                <span className="font-medium text-left flex-1">
                   {tab.label}
                 </span>
               </TabsTrigger>
