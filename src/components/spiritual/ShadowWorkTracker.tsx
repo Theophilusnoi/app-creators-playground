@@ -127,7 +127,6 @@ export const ShadowWorkTracker = () => {
   });
   const [currentStep, setCurrentStep] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [dailyReminders, setDailyReminders] = useState(true);
   const [privacyMode, setPrivacyMode] = useState(false);
   const [sharingEnabled, setSharingEnabled] = useState(false);
@@ -403,7 +402,7 @@ export const ShadowWorkTracker = () => {
   }).length / progress.weeklyGoal) * 100, 100);
 
   return (
-    <div>
+    <div className="w-full max-w-7xl mx-auto p-6 space-y-6">
       <ProcessNarrative
         open={showNarrative}
         onClose={() => setShowNarrative(false)}
@@ -418,7 +417,7 @@ export const ShadowWorkTracker = () => {
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-6 gap-4">
           <div className="flex items-center gap-4">
             <h2 className="text-2xl font-bold text-white">Shadow Work Journey</h2>
             <Badge className="bg-purple-600/20 text-purple-200">
@@ -448,7 +447,7 @@ export const ShadowWorkTracker = () => {
           </div>
         </div>
 
-        <TabsList className="grid grid-cols-6 w-full bg-black/30 mb-6">
+        <TabsList className="grid grid-cols-3 lg:grid-cols-6 w-full bg-black/30 mb-6">
           <TabsTrigger value="practice" className="data-[state=active]:bg-purple-600">
             <Heart className="w-4 h-4 mr-2" />
             Practice
@@ -590,7 +589,7 @@ export const ShadowWorkTracker = () => {
                       max="10"
                       value={intensity}
                       onChange={(e) => setIntensity(parseInt(e.target.value))}
-                      className="w-full"
+                      className="w-full accent-purple-600"
                       disabled={completedToday}
                     />
                     <div className="flex justify-between text-xs text-purple-300 mt-1">
@@ -883,6 +882,12 @@ export const ShadowWorkTracker = () => {
                       </div>
                     </div>
                   ))}
+                  {shadowEntries.length === 0 && (
+                    <div className="text-center text-purple-400 py-8">
+                      <Moon className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p>Begin your shadow work journey to see insights here</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -949,6 +954,12 @@ export const ShadowWorkTracker = () => {
                       <div className="flex items-center gap-2 text-sm text-purple-300">
                         <Target className="w-4 h-4" />
                         Continue regular practice to deepen your shadow work journey
+                      </div>
+                    )}
+                    {progress.totalSessions === 0 && (
+                      <div className="flex items-center gap-2 text-sm text-purple-300">
+                        <Star className="w-4 h-4" />
+                        Start with the "Emotional Triggers Awareness" exercise for beginners
                       </div>
                     )}
                   </div>
