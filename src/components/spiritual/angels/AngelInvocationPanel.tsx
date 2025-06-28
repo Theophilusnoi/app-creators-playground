@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -137,24 +138,19 @@ export const AngelInvocationPanel: React.FC<AngelInvocationPanelProps> = ({
         )}
       </div>
 
-      {/* Enhanced Tabbed Content */}
-      <Tabs defaultValue="info" className="w-full">
-        <TabsList className="grid w-full grid-cols-5 bg-black/30">
-          <TabsTrigger value="info" className="flex items-center gap-1">
-            <Info className="w-4 h-4" />
-            Angel Info
-          </TabsTrigger>
-          <TabsTrigger value="guide">Invocation</TabsTrigger>
+      {/* Display Detailed Angel Information by Default */}
+      <DetailedAngelInfo angel={selectedAngel} />
+
+      {/* Enhanced Tabbed Content for Additional Actions */}
+      <Tabs defaultValue="invocation" className="w-full">
+        <TabsList className="grid w-full grid-cols-4 bg-black/30">
+          <TabsTrigger value="invocation">Invocation</TabsTrigger>
           <TabsTrigger value="evocation">Evocation</TabsTrigger>
           <TabsTrigger value="meditation">Meditation</TabsTrigger>
           <TabsTrigger value="practical">Practical</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="info" className="space-y-4">
-          <DetailedAngelInfo angel={selectedAngel} />
-        </TabsContent>
-
-        <TabsContent value="guide" className="space-y-4">
+        <TabsContent value="invocation" className="space-y-4">
           <div className="flex items-center justify-between">
             <h5 className="text-lg font-semibold text-white mb-3">How to Invoke {selectedAngel.name}</h5>
             
@@ -226,26 +222,6 @@ export const AngelInvocationPanel: React.FC<AngelInvocationPanelProps> = ({
                 </p>
               </div>
             )}
-          </div>
-
-          <div>
-            <h5 className="text-lg font-semibold text-white mb-3">Offerings & Timing</h5>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-black/40 p-4 rounded-lg border border-purple-500/20">
-                <h6 className="text-purple-300 font-medium mb-2">Recommended Offerings:</h6>
-                <ul className="text-purple-100 text-sm space-y-1">
-                  {selectedAngel.offerings.map((offering, index) => (
-                    <li key={index}>• {offering}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="bg-black/40 p-4 rounded-lg border border-purple-500/20">
-                <h6 className="text-purple-300 font-medium mb-2">Best Timing:</h6>
-                <p className="text-purple-100 text-sm">{selectedAngel.timing}</p>
-                <h6 className="text-purple-300 font-medium mb-2 mt-3">Associated Psalm:</h6>
-                <p className="text-purple-100 text-sm">{selectedAngel.psalm}</p>
-              </div>
-            </div>
           </div>
 
           <div>
