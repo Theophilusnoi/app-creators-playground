@@ -1,162 +1,128 @@
-
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
-import { AngelMeditationInterface } from './AngelMeditationInterface';
-import { AngelDirectory } from './angels/AngelDirectory';
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { AngelInvocationPanel } from './angels/AngelInvocationPanel';
-import { angelicEntities, type AngelEntity } from './angels/angelData';
-import { useAngelSearch } from './angels/useAngelSearch';
-import { Sparkles, Heart } from 'lucide-react';
+import { AngelCard } from './angels/AngelCard';
+import { AngelMeditationInterface } from './AngelMeditationInterface';
+import { useToast } from '@/hooks/use-toast';
+import { Search, Sparkles } from 'lucide-react';
+import { enhancedAngels } from './angels/enhancedAngelData';
+import type { EnhancedAngelEntity } from './angels/enhancedAngelData';
 
 const AngelicAssistance = () => {
-  const [angels, setAngels] = useState<AngelEntity[]>([]);
-  const { searchTerm, setSearchTerm, filteredAngels } = useAngelSearch(angels);
-  const [selectedAngel, setSelectedAngel] = useState<AngelEntity | null>(null);
+  const { toast } = useToast();
+  const [selectedAngel, setSelectedAngel] = useState<EnhancedAngelEntity | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [invocationText, setInvocationText] = useState('');
-  const [activeTab, setActiveTab] = useState('directory');
   const [isInvoking, setIsInvoking] = useState(false);
   const [connectionActive, setConnectionActive] = useState(false);
   const [showMeditation, setShowMeditation] = useState(false);
-  const { toast } = useToast();
-  
-  // Initialize angel data
-  useEffect(() => {
-    setAngels(angelicEntities);
-  }, []);
 
-  const handleInvokeAngel = (angel: AngelEntity) => {
+  const filteredAngels = enhancedAngels.filter(angel =>
+    angel.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    angel.domain.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    angel.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleInvokeAngel = (angel: EnhancedAngelEntity) => {
     setSelectedAngel(angel);
-    setActiveTab('invocation');
-    setInvocationText(`Blessed ${angel.name}, ${angel.title}, I humbly call upon your divine presence. ${angel.domain.toLowerCase()} is what I seek. Please guide me with your divine wisdom and assistance...`);
+    setInvocationText(`Divine ${angel.name}, ${angel.title}, I humbly seek your guidance and protection...`);
   };
 
-  const submitInvocation = async () => {
-    if (!selectedAngel || !invocationText) {
-      toast({
-        title: "Incomplete Invocation",
-        description: "Please select an angel and enter your invocation text.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
+  const handleStartMeditation = (angel: EnhancedAngelEntity) => {
+    setSelectedAngel(angel);
+    setShowMeditation(true);
+  };
+
+  const handleSubmitInvocation = async () => {
+    if (!selectedAngel || !invocationText.trim()) return;
+
     setIsInvoking(true);
     
     try {
+      // Simulate invocation process
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      setConnectionActive(true);
       toast({
-        title: "✨ Invocation Sent",
-        description: `Your request to ${selectedAngel.name} has been received. Divine assistance is on its way.`,
+        title: `🕊️ Connection Established`,
+        description: `${selectedAngel.name} has heard your call and offers divine protection.`,
       });
-      
-      console.log("Invocation:", {
-        angel: selectedAngel.name,
-        text: invocationText,
-        timestamp: new Date().toISOString()
-      });
-      
-      // Simulate connection establishing
-      setTimeout(() => {
-        setConnectionActive(true);
-        setIsInvoking(false);
-        toast({
-          title: `🌟 ${selectedAngel.name} Connected`,
-          description: "The angelic presence is now with you. Begin your meditation or requested work.",
-        });
-      }, 3000);
-      
     } catch (error) {
-      console.error('Invocation error:', error);
+      toast({
+        title: "Invocation Failed",
+        description: "Please purify your intentions and try again.",
+        variant: "destructive"
+      });
+    } finally {
       setIsInvoking(false);
     }
   };
 
-  const startMeditation = (angel: AngelEntity) => {
-    setSelectedAngel(angel);
-    setShowMeditation(true);
-    toast({
-      title: `🧘‍♀️ Starting Meditation with ${angel.name}`,
-      description: "Prepare yourself for a divine connection.",
-    });
-  };
-
-  const handleBackFromMeditation = () => {
-    setShowMeditation(false);
-    setActiveTab('directory');
-  };
-
-  // Show meditation interface if meditation is active
   if (showMeditation && selectedAngel) {
     return (
       <AngelMeditationInterface
         angel={selectedAngel}
-        onBack={handleBackFromMeditation}
+        onBack={() => setShowMeditation(false)}
       />
     );
   }
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold text-white mb-2">Angelic Assistance</h2>
-        <p className="text-purple-200">Connect with divine angelic entities for protection, guidance, and assistance</p>
-      </div>
-      
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 bg-black/30">
-          <TabsTrigger value="directory" className="data-[state=active]:bg-purple-600">
-            <Sparkles className="w-4 h-4 mr-2" />
-            Angelic Directory
-          </TabsTrigger>
-          <TabsTrigger value="invocation" className="data-[state=active]:bg-purple-600">
-            <Heart className="w-4 h-4 mr-2" />
-            Divine Invocation
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="directory" className="space-y-4">
-          <AngelDirectory
-            angels={filteredAngels}
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            onInvokeAngel={handleInvokeAngel}
-            onStartMeditation={startMeditation}
-          />
-        </TabsContent>
-        
-        <TabsContent value="invocation" className="space-y-4">
-          <div className="bg-gradient-to-br from-purple-900/50 to-indigo-900/50 rounded-xl p-6 max-w-4xl mx-auto backdrop-blur-sm border border-purple-500/30">
-            <AngelInvocationPanel
-              selectedAngel={selectedAngel}
-              invocationText={invocationText}
-              onInvocationTextChange={setInvocationText}
-              onSubmitInvocation={submitInvocation}
-              onStartMeditation={startMeditation}
-              isInvoking={isInvoking}
-              connectionActive={connectionActive}
+      <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Sparkles className="w-6 h-6 text-purple-400" />
+            Angelic Assistance Directory
+          </CardTitle>
+          <p className="text-purple-200">
+            Connect with divine messengers for guidance, protection, and spiritual support
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="relative mb-6">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400 w-4 h-4" />
+            <Input
+              placeholder="Search angels by name, domain, or specialty..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 bg-black/30 border-purple-500/30 text-white placeholder:text-purple-300"
             />
-            
-            {!selectedAngel && (
-              <div className="text-center">
-                <Button
-                  onClick={() => setActiveTab('directory')}
-                  className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
-                >
-                  Browse Angelic Directory
-                </Button>
-              </div>
-            )}
-            
-            <div className="mt-8 text-center text-sm text-purple-400 space-y-1">
-              <p>✨ Invoke angels with pure intention and an open heart for best results</p>
-              <p>🙏 Your requests are received in the divine realm instantly</p>
-              <p>💫 Divine assistance flows through love, gratitude, and faith</p>
-            </div>
           </div>
-        </TabsContent>
-      </Tabs>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Angel Directory */}
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold text-white">Angel Directory</h3>
+          <div className="grid gap-3 max-h-96 overflow-y-auto">
+            {filteredAngels.map((angel) => (
+              <AngelCard
+                key={angel.id}
+                angel={angel}
+                onInvoke={handleInvokeAngel}
+                onMeditate={handleStartMeditation}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Angel Invocation Panel */}
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold text-white">Angel Communication</h3>
+          <AngelInvocationPanel
+            selectedAngel={selectedAngel}
+            invocationText={invocationText}
+            onInvocationTextChange={setInvocationText}
+            onSubmitInvocation={handleSubmitInvocation}
+            onStartMeditation={handleStartMeditation}
+            isInvoking={isInvoking}
+            connectionActive={connectionActive}
+          />
+        </div>
+      </div>
     </div>
   );
 };

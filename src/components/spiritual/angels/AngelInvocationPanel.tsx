@@ -1,19 +1,19 @@
-
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { VoicePlayer } from '@/components/spiritual/VoicePlayer';
-import { Sparkles, Shield, PlayCircle, Play, Pause, Volume2 } from 'lucide-react';
-import type { AngelEntity } from './angelData';
+import { Sparkles, Shield, PlayCircle, Play, Pause, Volume2, Info } from 'lucide-react';
+import { DetailedAngelInfo } from './DetailedAngelInfo';
+import type { EnhancedAngelEntity } from './enhancedAngelData';
 
 interface AngelInvocationPanelProps {
-  selectedAngel: AngelEntity | null;
+  selectedAngel: EnhancedAngelEntity | null;
   invocationText: string;
   onInvocationTextChange: (text: string) => void;
   onSubmitInvocation: () => void;
-  onStartMeditation: (angel: AngelEntity) => void;
+  onStartMeditation: (angel: EnhancedAngelEntity) => void;
   isInvoking: boolean;
   connectionActive: boolean;
 }
@@ -137,14 +137,22 @@ export const AngelInvocationPanel: React.FC<AngelInvocationPanelProps> = ({
         )}
       </div>
 
-      {/* Tabbed Content */}
-      <Tabs defaultValue="guide" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 bg-black/30">
-          <TabsTrigger value="guide">Invocation Guide</TabsTrigger>
+      {/* Enhanced Tabbed Content */}
+      <Tabs defaultValue="info" className="w-full">
+        <TabsList className="grid w-full grid-cols-5 bg-black/30">
+          <TabsTrigger value="info" className="flex items-center gap-1">
+            <Info className="w-4 h-4" />
+            Angel Info
+          </TabsTrigger>
+          <TabsTrigger value="guide">Invocation</TabsTrigger>
           <TabsTrigger value="evocation">Evocation</TabsTrigger>
           <TabsTrigger value="meditation">Meditation</TabsTrigger>
-          <TabsTrigger value="practical">Practical Uses</TabsTrigger>
+          <TabsTrigger value="practical">Practical</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="info" className="space-y-4">
+          <DetailedAngelInfo angel={selectedAngel} />
+        </TabsContent>
 
         <TabsContent value="guide" className="space-y-4">
           <div className="flex items-center justify-between">
