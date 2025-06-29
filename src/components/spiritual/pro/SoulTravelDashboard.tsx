@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Sparkles, BarChart3, Settings, BookOpen } from 'lucide-react';
 import ProjectionTimer from './soulTravel/ProjectionTimer';
@@ -269,7 +270,7 @@ const SoulTravelDashboard: React.FC<SoulTravelDashboardProps> = ({
         {activeTab === 'safety' && (
           <SafetyProtocols
             onProtocolChange={handleProtocolChange}
-            initialProtocols={safetyProtocols as Record<string, boolean>}
+            initialProtocols={safetyProtocols as unknown as Record<string, boolean>}
           />
         )}
 
