@@ -1,14 +1,15 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sparkles, BarChart3, Settings, BookOpen, Shield, AlertTriangle, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import ProjectionTimer from './ProjectionTimer';
-import TechniqueSelector from './TechniqueSelector';
+import SessionManager from './SessionManager';
+import TechniqueLibrary from './TechniqueLibrary';
 import SafetyProtocols from './SafetyProtocols';
 import VerificationChallenges from './VerificationChallenges';
+import HealthDisclaimer from './HealthDisclaimer';
+import { SafetyValidator, useSafetyMonitoring } from './SafetyValidator';
 
 interface UserProgress {
   totalSessions: number;
@@ -42,6 +43,7 @@ const SoulTravelDashboard: React.FC<SoulTravelDashboardProps> = ({
   className = ""
 }) => {
   const { toast } = useToast();
+  const safetyMonitoring = useSafetyMonitoring();
   const [activeTab, setActiveTab] = useState('training');
   const [selectedTechnique, setSelectedTechnique] = useState('rope');
   const [safetyProtocols, setSafetyProtocols] = useState<SafetyProtocolsState>({
@@ -172,8 +174,11 @@ const SoulTravelDashboard: React.FC<SoulTravelDashboardProps> = ({
     }
   }, [userProgress, userId, onProgressUpdate]);
 
+  // Enhanced session handlers
   const handleSessionStart = (sessionId: string, sessionData: any) => {
-    if (!validatePreSession()) {
+    const user = { age: 25, hasHealthRestrictions: false, healthClearance: userProgress.healthClearance };
+    
+    if (!safetyMonitoring.validateSession(user, sessionData)) {
       return;
     }
 
@@ -188,11 +193,11 @@ const SoulTravelDashboard: React.FC<SoulTravelDashboardProps> = ({
     setCurrentSession(newSession);
     
     toast({
-      title: "Session Started",
-      description: `${selectedTechnique} technique session is now active`,
+      title: "Projection Session Started",
+      description: `${selectedTechnique} technique is now active. Stay focused and safe.`,
     });
 
-    console.log('Session started:', newSession);
+    console.log('Enhanced session started:', newSession);
   };
 
   const handleSessionEnd = (sessionId: string, sessionData: any) => {
@@ -212,12 +217,23 @@ const SoulTravelDashboard: React.FC<SoulTravelDashboardProps> = ({
 
       setCurrentSession(null);
       
+      if (sessionData.emergency) {
+        safetyMonitoring.logIncident({
+          userId,
+          sessionId,
+          incidentType: 'emergency_end',
+          description: 'Session ended via emergency protocol',
+          severity: 'medium'
+        });
+      }
+
       toast({
-        title: "Session Completed",
-        description: `Duration: ${Math.floor(sessionData.duration / 60000)} minutes`,
+        title: sessionData.emergency ? "Emergency Session End" : "Session Completed",
+        description: `Duration: ${Math.floor(sessionData.duration / 60000)} minutes. ${sessionData.emergency ? 'Please ground yourself and rest.' : 'Great work!'}`,
+        variant: sessionData.emergency ? "destructive" : "default"
       });
 
-      console.log('Session completed:', completedSession);
+      console.log('Enhanced session completed:', completedSession);
     }
   };
 
@@ -232,7 +248,11 @@ const SoulTravelDashboard: React.FC<SoulTravelDashboardProps> = ({
 
   const handleTechniqueSelect = (technique: any) => {
     setSelectedTechnique(technique.id);
-    console.log('Technique selected:', technique);
+    toast({
+      title: "Technique Selected",
+      description: `${technique.name} selected. Review the steps before beginning your session.`,
+    });
+    console.log('Enhanced technique selected:', technique);
   };
 
   const handleProtocolChange = (protocols: Record<string, boolean>) => {
@@ -288,35 +308,19 @@ const SoulTravelDashboard: React.FC<SoulTravelDashboardProps> = ({
     <div className={`max-w-6xl mx-auto space-y-6 ${className}`}>
       {/* Health Disclaimer */}
       {showHealthDisclaimer && (
-        <Card className="bg-yellow-500/10 border-yellow-500/20">
-          <CardHeader>
-            <CardTitle className="text-yellow-300 flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5" />
-              Important Health Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-yellow-200 text-sm space-y-2 mb-4">
-              <p><strong>Do not practice astral projection if you have:</strong></p>
-              <ul className="list-disc list-inside space-y-1 ml-4">
-                <li>History of seizures or epilepsy</li>
-                <li>Severe mental health conditions</li>
-                <li>Heart conditions or blood pressure issues</li>
-                <li>Recent trauma or emotional instability</li>
-                <li>Are under the influence of substances</li>
-              </ul>
-              <p className="mt-3">
-                <strong>Consult a healthcare provider</strong> before practicing if you have any medical concerns.
-              </p>
-            </div>
-            <Button 
-              onClick={() => setShowHealthDisclaimer(false)}
-              className="bg-yellow-600 hover:bg-yellow-700"
-            >
-              I Understand
-            </Button>
-          </CardContent>
-        </Card>
+        <HealthDisclaimer
+          onAccept={() => {
+            setShowHealthDisclaimer(false);
+            setUserProgress(prev => ({ ...prev, healthClearance: true }));
+          }}
+          onDecline={() => {
+            toast({
+              title: "Health Requirements Not Met",
+              description: "Please address health concerns before practicing astral projection.",
+              variant: "destructive"
+            });
+          }}
+        />
       )}
 
       {/* Emergency Mode Overlay */}
@@ -418,7 +422,9 @@ const SoulTravelDashboard: React.FC<SoulTravelDashboardProps> = ({
         {activeTab === 'training' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-6">
-              <ProjectionTimer
+              <SessionManager
+                selectedTechnique={selectedTechnique}
+                safetyProtocols={safetyProtocols as unknown as Record<string, boolean>}
                 onSessionStart={handleSessionStart}
                 onSessionEnd={handleSessionEnd}
                 onSessionUpdate={handleSessionUpdate}
@@ -430,30 +436,38 @@ const SoulTravelDashboard: React.FC<SoulTravelDashboardProps> = ({
                   <CardHeader>
                     <CardTitle className="text-green-300 text-lg flex items-center gap-2">
                       <Clock className="w-5 h-5" />
-                      Active Session
+                      Active Session Monitor
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-sm text-green-200 space-y-1">
-                      <p>Technique: <span className="font-semibold">{currentSession.technique}</span></p>
-                      <p>Started: <span className="font-semibold">{new Date(currentSession.startTime).toLocaleTimeString()}</span></p>
-                      <p>Safety Protocols: <span className="font-semibold">{Object.values(currentSession.safetyProtocols).filter(Boolean).length}/4 Active</span></p>
+                    <div className="text-sm text-green-200 space-y-2">
+                      <p><strong>Technique:</strong> {currentSession.technique}</p>
+                      <p><strong>Started:</strong> {new Date(currentSession.startTime).toLocaleTimeString()}</p>
+                      <p><strong>Safety Status:</strong> {Object.values(currentSession.safetyProtocols).filter(Boolean).length}/4 Protocols Active</p>
+                      <div className="bg-green-500/10 rounded p-2 mt-3">
+                        <p className="text-xs text-green-300">
+                          🧘‍♂️ Focus on your chosen technique<br/>
+                          🛡️ Trust your safety protocols<br/>
+                          ⚡ Use Emergency Return if needed
+                        </p>
+                      </div>
                     </div>
                     <Button 
-                      onClick={() => handleEmergency('difficulty_returning')}
-                      className="mt-3 bg-red-600 hover:bg-red-700 text-white"
+                      onClick={() => safetyMonitoring.handleEmergency('difficulty_returning', currentSession)}
+                      className="mt-3 bg-red-600 hover:bg-red-700 text-white w-full"
                       size="sm"
                     >
-                      Emergency Return
+                      <AlertTriangle className="w-4 h-4 mr-2" />
+                      Emergency Return Protocol
                     </Button>
                   </CardContent>
                 </Card>
               )}
             </div>
             
-            <TechniqueSelector
-              onTechniqueSelect={handleTechniqueSelect}
+            <TechniqueLibrary
               selectedTechnique={selectedTechnique}
+              onTechniqueSelect={handleTechniqueSelect}
               userLevel={userProgress.level}
             />
           </div>
@@ -477,30 +491,38 @@ const SoulTravelDashboard: React.FC<SoulTravelDashboardProps> = ({
 
         {activeTab === 'guide' && (
           <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-6">
-            <h3 className="text-white text-xl font-semibold mb-4">Soul Travel Guide</h3>
+            <h3 className="text-white text-xl font-semibold mb-4">Enhanced Soul Travel Guide</h3>
             
             <div className="space-y-6">
               <div>
-                <h4 className="text-white font-semibold mb-2">Getting Started</h4>
+                <h4 className="text-white font-semibold mb-2">🚀 Getting Started</h4>
                 <div className="text-purple-200 text-sm space-y-2">
-                  <p>1. <strong>Complete Health Screening:</strong> Ensure you meet all health requirements</p>
-                  <p>2. <strong>Activate Safety Protocols:</strong> Always ensure all four safety measures are active</p>
-                  <p>3. <strong>Choose Your Technique:</strong> Start with the Rope Technique if you're a beginner</p>
-                  <p>4. <strong>Set Clear Intentions:</strong> Define what you want to achieve in your session</p>
-                  <p>5. <strong>Practice Regularly:</strong> Consistency is key to developing projection abilities</p>
-                  <p>6. <strong>Verify Experiences:</strong> Use verification challenges to validate your progress</p>
+                  <p>1. <strong>Complete Health Screening:</strong> Accept the health disclaimer to unlock features</p>
+                  <p>2. <strong>Activate Safety Protocols:</strong> Ensure all four safety measures are active</p>
+                  <p>3. <strong>Choose Your Technique:</strong> Select from our comprehensive technique library</p>
+                  <p>4. <strong>Start Your Session:</strong> Use the enhanced session manager for safe practice</p>
+                  <p>5. <strong>Track Progress:</strong> Complete verification challenges to advance</p>
                 </div>
               </div>
 
               <div>
-                <h4 className="text-white font-semibold mb-2">Safety First</h4>
+                <h4 className="text-white font-semibold mb-2">🛡️ Enhanced Safety Features</h4>
                 <div className="text-purple-200 text-sm space-y-2">
-                  <p>• Never practice under the influence of substances</p>
-                  <p>• Always maintain positive, fearless mindset</p>
-                  <p>• Practice in a quiet, comfortable environment</p>
-                  <p>• Set session time limits (max 1 hour for safety)</p>
-                  <p>• Keep emergency contact information available</p>
-                  <p>• Ground yourself thoroughly after each session</p>
+                  <p>• <strong>Real-time Monitoring:</strong> Automatic session duration tracking</p>
+                  <p>• <strong>Emergency Protocols:</strong> One-click emergency return system</p>
+                  <p>• <strong>Safety Validation:</strong> Pre-session safety checks</p>
+                  <p>• <strong>Incident Logging:</strong> Automatic safety event recording</p>
+                  <p>• <strong>Progressive Limits:</strong> Duration limits based on experience</p>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-white font-semibold mb-2">📚 Technique Mastery</h4>
+                <div className="text-purple-200 text-sm space-y-2">
+                  <p>• <strong>Structured Learning:</strong> Techniques unlock based on skill level</p>
+                  <p>• <strong>Detailed Instructions:</strong> Step-by-step guidance for each method</p>
+                  <p>• <strong>Expert Tips:</strong> Advanced insights for better results</p>
+                  <p>• <strong>Progress Tracking:</strong> Monitor your development over time</p>
                 </div>
               </div>
 
@@ -514,12 +536,12 @@ const SoulTravelDashboard: React.FC<SoulTravelDashboardProps> = ({
                 </div>
               </div>
 
-              <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-                <h4 className="text-blue-300 font-semibold mb-2">Remember</h4>
-                <p className="text-blue-200 text-sm">
-                  Astral projection is a natural ability that can be developed safely with proper training. 
-                  The silver cord connecting you to your physical body cannot be broken, ensuring your safety 
-                  at all times. Trust in the process and maintain positive intentions throughout your journey.
+              <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-lg p-4">
+                <h4 className="text-purple-300 font-semibold mb-2">✨ Remember</h4>
+                <p className="text-purple-200 text-sm">
+                  This enhanced system provides comprehensive safety monitoring and structured learning. 
+                  The silver cord connecting you to your physical body cannot be broken. Trust the process, 
+                  follow safety protocols, and maintain positive intentions throughout your journey.
                 </p>
               </div>
             </div>

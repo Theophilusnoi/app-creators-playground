@@ -12,6 +12,7 @@ import SpiritualDashboard from "./pages/SpiritualDashboard";
 import QuantumSpiritualDashboard from "./pages/QuantumSpiritualDashboard";
 import MeditationEnvironment from "./pages/MeditationEnvironment";
 import SpiritualMindPro from "./pages/SpiritualMindPro";
+import SoulTravelPage from "./pages/SoulTravelPage";
 import ProFeaturesPage from "./pages/ProFeaturesPage";
 import PricingPage from "./pages/PricingPage";
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
@@ -34,6 +35,7 @@ const App = () => (
               <Route path="/quantum-dashboard" element={<QuantumSpiritualDashboard />} />
               <Route path="/meditation" element={<MeditationEnvironment />} />
               <Route path="/pro" element={<SpiritualMindPro />} />
+              <Route path="/soul-travel" element={<SoulTravelPage />} />
               <Route path="/pro-features" element={<ProFeaturesPage />} />
               <Route path="/pricing" element={<PricingPage />} />
               <Route path="/subscription-success" element={<SubscriptionSuccess />} />
