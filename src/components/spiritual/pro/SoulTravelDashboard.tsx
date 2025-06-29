@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sparkles, BarChart3, Settings, BookOpen } from 'lucide-react';
 import ProjectionTimer from './soulTravel/ProjectionTimer';
@@ -12,6 +11,13 @@ interface UserProgress {
   level: string;
   challenges: Record<string, any>;
   sessions: any[];
+}
+
+interface SafetyProtocolsState {
+  whiteLight: boolean;
+  spiritGuides: boolean;
+  grounding: boolean;
+  intention: boolean;
 }
 
 interface SoulTravelDashboardProps {
@@ -29,7 +35,7 @@ const SoulTravelDashboard: React.FC<SoulTravelDashboardProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState('training');
   const [selectedTechnique, setSelectedTechnique] = useState('rope');
-  const [safetyProtocols, setSafetyProtocols] = useState({
+  const [safetyProtocols, setSafetyProtocols] = useState<SafetyProtocolsState>({
     whiteLight: true,
     spiritGuides: true,
     grounding: true,
@@ -116,7 +122,14 @@ const SoulTravelDashboard: React.FC<SoulTravelDashboardProps> = ({
   };
 
   const handleProtocolChange = (protocols: Record<string, boolean>) => {
-    setSafetyProtocols(protocols);
+    // Ensure we only update the protocols that exist in our state structure
+    const updatedProtocols: SafetyProtocolsState = {
+      whiteLight: protocols.whiteLight ?? safetyProtocols.whiteLight,
+      spiritGuides: protocols.spiritGuides ?? safetyProtocols.spiritGuides,
+      grounding: protocols.grounding ?? safetyProtocols.grounding,
+      intention: protocols.intention ?? safetyProtocols.intention
+    };
+    setSafetyProtocols(updatedProtocols);
   };
 
   const handleChallengeStart = (challenge: any) => {
