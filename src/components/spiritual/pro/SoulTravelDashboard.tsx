@@ -269,7 +269,7 @@ const SoulTravelDashboard: React.FC<SoulTravelDashboardProps> = ({
         {activeTab === 'safety' && (
           <SafetyProtocols
             onProtocolChange={handleProtocolChange}
-            initialProtocols={safetyProtocols}
+            initialProtocols={safetyProtocols as Record<string, boolean>}
           />
         )}
 
