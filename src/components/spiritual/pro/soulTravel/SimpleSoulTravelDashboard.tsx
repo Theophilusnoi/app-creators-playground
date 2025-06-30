@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Sparkles, Clock, Shield, BookOpen, AlertTriangle } from 'lucide-react';
+import { Sparkles, Clock, Shield, BookOpen, AlertTriangle, CheckCircle, Moon, Heart, Brain } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface SimpleSoulTravelDashboardProps {
@@ -247,27 +247,75 @@ const SimpleSoulTravelDashboard: React.FC<SimpleSoulTravelDashboardProps> = ({ c
               </CardContent>
             </Card>
 
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-              <CardHeader>
-                <CardTitle className="text-white">Techniques</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                    <h4 className="text-white font-semibold">Rope Technique</h4>
-                    <p className="text-purple-200 text-sm">Visualize climbing an invisible rope above your body</p>
+            <div className="space-y-4">
+              {/* Prerequisites Section */}
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5" />
+                    Essential Prerequisites
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Moon className="w-4 h-4 text-blue-300" />
+                        <h4 className="text-blue-300 font-semibold">Deep Relaxation Mastery</h4>
+                      </div>
+                      <p className="text-blue-200 text-sm">Ability to achieve complete physical relaxation and enter hypnagogic states</p>
+                    </div>
+                    
+                    <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Brain className="w-4 h-4 text-green-300" />
+                        <h4 className="text-green-300 font-semibold">Meditation Experience</h4>
+                      </div>
+                      <p className="text-green-200 text-sm">At least 2-3 months of regular meditation practice (20+ minutes daily)</p>
+                    </div>
+                    
+                    <div className="p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Heart className="w-4 h-4 text-purple-300" />
+                        <h4 className="text-purple-300 font-semibold">Mental & Emotional Stability</h4>
+                      </div>
+                      <p className="text-purple-200 text-sm">Clear mental state, balanced emotions, and absence of fear regarding the practice</p>
+                    </div>
+                    
+                    <div className="p-3 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Shield className="w-4 h-4 text-yellow-300" />
+                        <h4 className="text-yellow-300 font-semibold">Protection Knowledge</h4>
+                      </div>
+                      <p className="text-yellow-200 text-sm">Understanding of spiritual protection methods and safety protocols</p>
+                    </div>
                   </div>
-                  <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                    <h4 className="text-white font-semibold">Roll-Out Method</h4>
-                    <p className="text-blue-200 text-sm">Imagine rolling out of your physical body</p>
+                </CardContent>
+              </Card>
+
+              {/* Techniques Section */}
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                <CardHeader>
+                  <CardTitle className="text-white">Techniques</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                      <h4 className="text-white font-semibold">Rope Technique</h4>
+                      <p className="text-purple-200 text-sm">Visualize climbing an invisible rope above your body</p>
+                    </div>
+                    <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                      <h4 className="text-white font-semibold">Roll-Out Method</h4>
+                      <p className="text-blue-200 text-sm">Imagine rolling out of your physical body</p>
+                    </div>
+                    <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                      <h4 className="text-white font-semibold">Lift-Out Technique</h4>
+                      <p className="text-green-200 text-sm">Visualize floating upward from your body</p>
+                    </div>
                   </div>
-                  <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20">
-                    <h4 className="text-white font-semibold">Lift-Out Technique</h4>
-                    <p className="text-green-200 text-sm">Visualize floating upward from your body</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )}
 
