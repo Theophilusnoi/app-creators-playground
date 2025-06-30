@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Sparkles, Clock, Shield, BookOpen, AlertTriangle, CheckCircle, Moon, Heart, Brain } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { ProNavigationBar } from '@/components/spiritual/pro/ProNavigationBar';
 
 interface SimpleSoulTravelDashboardProps {
   className?: string;
@@ -72,6 +73,11 @@ const SimpleSoulTravelDashboard: React.FC<SimpleSoulTravelDashboardProps> = ({ c
   if (showHealthDisclaimer) {
     return (
       <div className={`max-w-4xl mx-auto space-y-6 ${className}`}>
+        <ProNavigationBar 
+          backLabel="Back to Pro Features"
+          showHome={true}
+        />
+        
         <Card className="bg-purple-900/50 border-purple-500/30">
           <CardHeader>
             <CardTitle className="text-white text-center flex items-center justify-center gap-2">
@@ -125,6 +131,12 @@ const SimpleSoulTravelDashboard: React.FC<SimpleSoulTravelDashboardProps> = ({ c
 
   return (
     <div className={`max-w-6xl mx-auto space-y-6 ${className}`}>
+      {/* Navigation */}
+      <ProNavigationBar 
+        backLabel="Back to Pro Features"
+        showHome={true}
+      />
+
       {/* Header */}
       <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-6">
         <div className="flex items-center justify-between mb-4">
