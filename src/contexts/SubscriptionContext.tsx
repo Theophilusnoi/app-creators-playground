@@ -121,7 +121,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const finalReferralCode = referralCode || localStorage.getItem('referralCode');
       
       const requestBody = { 
-        tier: tier, // Ensure tier is properly included
+        tier: tier,
         referralCode: finalReferralCode 
       };
       
@@ -139,7 +139,16 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       if (error) {
         console.error('Checkout creation error:', error);
-        throw new Error(error.message || 'Failed to create checkout session');
+        let errorMessage = 'Failed to create checkout session';
+        
+        // Handle specific error types
+        if (error.message) {
+          errorMessage = error.message;
+        } else if (typeof error === 'string') {
+          errorMessage = error;
+        }
+        
+        throw new Error(errorMessage);
       }
 
       if (!data?.url) {
@@ -159,12 +168,26 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     } catch (error) {
       console.error('Error creating checkout:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      
+      // Provide more specific error messages based on common issues
+      let userFriendlyMessage = errorMessage;
+      
+      if (errorMessage.includes('not configured')) {
+        userFriendlyMessage = 'Payment system is not configured. Please contact support.';
+      } else if (errorMessage.includes('Authentication')) {
+        userFriendlyMessage = 'Please log in again and try subscribing.';
+      } else if (errorMessage.includes('Invalid subscription tier')) {
+        userFriendlyMessage = 'Invalid subscription plan selected. Please try again.';
+      } else if (errorMessage.includes('network')) {
+        userFriendlyMessage = 'Network error. Please check your connection and try again.';
+      }
+      
       toast({
-        title: "Checkout Error",
-        description: `Unable to create checkout session: ${errorMessage}`,
+        title: "Subscription Error",
+        description: userFriendlyMessage,
         variant: "destructive",
       });
-      throw error; // Re-throw to let the calling component handle it
+      throw error;
     }
   };
 

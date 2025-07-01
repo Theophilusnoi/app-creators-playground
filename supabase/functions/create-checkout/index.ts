@@ -27,7 +27,7 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    // Parse the request body
+    // Parse the request body with error handling
     let requestBody;
     try {
       const rawBody = await req.text();
@@ -37,8 +37,13 @@ serve(async (req) => {
         requestBody = JSON.parse(rawBody);
         logStep("Parsed request body", requestBody);
       } else {
-        logStep("Empty body, using default");
-        requestBody = {};
+        logStep("Empty body received");
+        return new Response(JSON.stringify({ 
+          error: "Request body is required" 
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        });
       }
     } catch (parseError) {
       logStep("JSON parse error", { error: parseError.message });
@@ -67,8 +72,9 @@ serve(async (req) => {
     // Get user from auth header
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
+      logStep("Missing authorization header");
       return new Response(JSON.stringify({ 
-        error: "No authorization header provided" 
+        error: "Authorization header is required" 
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 401,
@@ -76,9 +82,21 @@ serve(async (req) => {
     }
     
     const token = authHeader.replace("Bearer ", "");
-    const { data } = await supabaseClient.auth.getUser(token);
+    const { data, error: userError } = await supabaseClient.auth.getUser(token);
+    
+    if (userError) {
+      logStep("User authentication error", { error: userError.message });
+      return new Response(JSON.stringify({ 
+        error: `Authentication failed: ${userError.message}` 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401,
+      });
+    }
+    
     const user = data.user;
     if (!user?.email) {
+      logStep("User not found or missing email");
       return new Response(JSON.stringify({ 
         error: "User not authenticated or email not available" 
       }), {
@@ -86,24 +104,36 @@ serve(async (req) => {
         status: 401,
       });
     }
+    
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    // Initialize Stripe
+    // Initialize Stripe with error handling
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) {
       logStep("Missing Stripe secret key");
       return new Response(JSON.stringify({ 
-        error: "Payment system configuration error" 
+        error: "Payment system not configured" 
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,
       });
     }
     
-    const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
-    logStep("Stripe initialized");
+    let stripe;
+    try {
+      stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
+      logStep("Stripe initialized");
+    } catch (stripeError) {
+      logStep("Stripe initialization error", { error: stripeError.message });
+      return new Response(JSON.stringify({ 
+        error: "Payment system initialization failed" 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      });
+    }
 
-    // Define tier pricing
+    // Define tier pricing with validation
     const wisdomTiers = {
       earth: { amount: 2900, name: "Earth Keeper - Monthly" },
       water: { amount: 7900, name: "Water Bearer - Monthly" },
@@ -115,7 +145,7 @@ serve(async (req) => {
     if (!selectedTier) {
       logStep("Invalid tier", { tier });
       return new Response(JSON.stringify({ 
-        error: `Invalid subscription tier: ${tier}` 
+        error: `Invalid subscription tier: ${tier}. Valid tiers are: ${Object.keys(wisdomTiers).join(', ')}` 
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 400,
@@ -123,7 +153,7 @@ serve(async (req) => {
     }
     logStep("Tier selected", selectedTier);
 
-    // Check for existing customer
+    // Check for existing customer with error handling
     let customerId;
     try {
       const customers = await stripe.customers.list({ email: user.email, limit: 1 });
@@ -135,12 +165,18 @@ serve(async (req) => {
       }
     } catch (stripeError) {
       logStep("Stripe customer lookup error", { error: stripeError.message });
+      return new Response(JSON.stringify({ 
+        error: "Unable to verify customer information" 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      });
     }
 
     const origin = req.headers.get("origin") || "https://yrshvcaoczjsqziwllqi.supabase.co";
     logStep("Using origin", { origin });
 
-    // Create checkout session
+    // Create checkout session with comprehensive error handling
     const sessionMetadata: any = {
       tier,
       user_id: user.id,
@@ -153,40 +189,61 @@ serve(async (req) => {
 
     logStep("Creating checkout session", { metadata: sessionMetadata });
 
-    const session = await stripe.checkout.sessions.create({
-      customer: customerId,
-      customer_email: customerId ? undefined : user.email,
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            product_data: { 
-              name: selectedTier.name,
-              description: `Access to ${tier} tier spiritual guidance and AI mentorship`
+    try {
+      const session = await stripe.checkout.sessions.create({
+        customer: customerId,
+        customer_email: customerId ? undefined : user.email,
+        line_items: [
+          {
+            price_data: {
+              currency: "usd",
+              product_data: { 
+                name: selectedTier.name,
+                description: `Access to ${tier} tier spiritual guidance and AI mentorship`
+              },
+              unit_amount: selectedTier.amount,
+              recurring: { interval: "month" },
             },
-            unit_amount: selectedTier.amount,
-            recurring: { interval: "month" },
+            quantity: 1,
           },
-          quantity: 1,
-        },
-      ],
-      mode: "subscription",
-      success_url: `${origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/pricing`,
-      metadata: sessionMetadata,
-      allow_promotion_codes: true,
-    });
+        ],
+        mode: "subscription",
+        success_url: `${origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${origin}/pricing`,
+        metadata: sessionMetadata,
+        allow_promotion_codes: true,
+      });
 
-    logStep("Checkout session created successfully", { sessionId: session.id });
+      logStep("Checkout session created successfully", { sessionId: session.id, url: session.url });
 
-    return new Response(JSON.stringify({ url: session.url }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
-    });
+      if (!session.url) {
+        logStep("No checkout URL returned from Stripe");
+        return new Response(JSON.stringify({ 
+          error: "Unable to create checkout session - no URL returned" 
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 500,
+        });
+      }
+
+      return new Response(JSON.stringify({ url: session.url }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+
+    } catch (stripeError) {
+      logStep("Stripe checkout session creation error", { error: stripeError.message, stack: stripeError.stack });
+      return new Response(JSON.stringify({ 
+        error: `Unable to create checkout session: ${stripeError.message}` 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      });
+    }
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR in create-checkout", { 
+    logStep("CRITICAL ERROR in create-checkout", { 
       message: errorMessage, 
       stack: error instanceof Error ? error.stack : undefined 
     });
