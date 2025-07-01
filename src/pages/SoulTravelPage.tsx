@@ -11,16 +11,18 @@ const SoulTravelPage: React.FC = () => {
   const { toast } = useToast();
   const [currentView, setCurrentView] = useState('dashboard');
   const [selectedJourney, setSelectedJourney] = useState('');
-  const [setupData, setSetupData] = useState(null);
-  const [sessionData, setSessionData] = useState(null);
+  const [setupData, setSetupData] = useState<any>(null);
+  const [sessionData, setSessionData] = useState<any>(null);
   const [useSimpleView, setUseSimpleView] = useState(false);
 
   const handleJourneySelect = (journeyType: string) => {
+    console.log('Journey selected:', journeyType);
     setSelectedJourney(journeyType);
     setCurrentView('setup');
   };
 
   const handleJourneyStart = (data: any) => {
+    console.log('Journey starting with data:', data);
     setSetupData(data);
     setCurrentView('session');
     
@@ -31,6 +33,7 @@ const SoulTravelPage: React.FC = () => {
   };
 
   const handleSessionEnd = (data: any) => {
+    console.log('Session ending with data:', data);
     setSessionData(data);
     setCurrentView('reflection');
     
@@ -41,6 +44,7 @@ const SoulTravelPage: React.FC = () => {
   };
 
   const handleEmergencyEnd = () => {
+    console.log('Emergency end triggered');
     setCurrentView('dashboard');
     setSetupData(null);
     setSessionData(null);
@@ -52,32 +56,68 @@ const SoulTravelPage: React.FC = () => {
   };
 
   const handleReflectionSave = (reflectionData: any) => {
-    // Save to localStorage for now
-    const existingJournals = JSON.parse(localStorage.getItem('soulJourneyJournals') || '[]');
-    existingJournals.push(reflectionData);
-    localStorage.setItem('soulJourneyJournals', JSON.stringify(existingJournals));
-    
-    // Update stats
-    const stats = JSON.parse(localStorage.getItem('soulJourneyStats') || '{"totalJourneys":0,"favoriteType":"Astral","totalTime":0,"badges":[]}');
-    stats.totalJourneys += 1;
-    stats.totalTime += reflectionData.duration;
-    localStorage.setItem('soulJourneyStats', JSON.stringify(stats));
+    console.log('Saving reflection:', reflectionData);
+    try {
+      const existingJournals = JSON.parse(localStorage.getItem('soulJourneyJournals') || '[]');
+      const newEntry = {
+        ...reflectionData,
+        id: Date.now(),
+        timestamp: new Date().toISOString()
+      };
+      existingJournals.push(newEntry);
+      localStorage.setItem('soulJourneyJournals', JSON.stringify(existingJournals));
+      
+      // Update stats
+      const stats = JSON.parse(localStorage.getItem('soulJourneyStats') || '{"totalJourneys":0,"favoriteType":"Astral","totalTime":0,"badges":[]}');
+      stats.totalJourneys += 1;
+      stats.totalTime += reflectionData.duration || 0;
+      localStorage.setItem('soulJourneyStats', JSON.stringify(stats));
+      
+      toast({
+        title: "Journey Saved",
+        description: "Your journey has been recorded in your journal",
+      });
+    } catch (error) {
+      console.error('Error saving reflection:', error);
+      toast({
+        title: "Save Error",
+        description: "There was an issue saving your journey. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleReflectionShare = (reflectionData: any) => {
-    // For now, just save to community storage
-    const communityPosts = JSON.parse(localStorage.getItem('soulJourneyCommunity') || '[]');
-    communityPosts.unshift({
-      ...reflectionData,
-      id: Date.now(),
-      author: 'Anonymous Traveler',
-      likes: 0,
-      comments: []
-    });
-    localStorage.setItem('soulJourneyCommunity', JSON.stringify(communityPosts));
+    console.log('Sharing reflection:', reflectionData);
+    try {
+      const communityPosts = JSON.parse(localStorage.getItem('soulJourneyCommunity') || '[]');
+      const newPost = {
+        ...reflectionData,
+        id: Date.now(),
+        author: 'Anonymous Traveler',
+        likes: 0,
+        comments: [],
+        timestamp: new Date().toISOString()
+      };
+      communityPosts.unshift(newPost);
+      localStorage.setItem('soulJourneyCommunity', JSON.stringify(communityPosts));
+      
+      toast({
+        title: "Shared with Community",
+        description: "Your experience has been shared with the community circle",
+      });
+    } catch (error) {
+      console.error('Error sharing reflection:', error);
+      toast({
+        title: "Share Error",
+        description: "There was an issue sharing your journey. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleReflectionComplete = () => {
+    console.log('Reflection completed, returning to dashboard');
     setCurrentView('dashboard');
     setSetupData(null);
     setSessionData(null);
@@ -85,6 +125,7 @@ const SoulTravelPage: React.FC = () => {
   };
 
   const handleBackToDashboard = () => {
+    console.log('Returning to dashboard');
     setCurrentView('dashboard');
     setSetupData(null);
     setSessionData(null);

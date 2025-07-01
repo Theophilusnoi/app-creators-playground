@@ -22,8 +22,8 @@ const JourneySession: React.FC<JourneySessionProps> = ({ setupData, onSessionEnd
   const [duration, setDuration] = useState(1800); // 30 minutes default
   const [volume, setVolume] = useState(0.7);
   const [isMuted, setIsMuted] = useState(false);
-  const [phase, setPhase] = useState('preparation'); // preparation, journey, integration
-  const intervalRef = useRef<NodeJS.Timeout>();
+  const [phase, setPhase] = useState('preparation');
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (isPlaying) {
@@ -32,13 +32,13 @@ const JourneySession: React.FC<JourneySessionProps> = ({ setupData, onSessionEnd
           const newTime = prev + 1;
           
           // Phase transitions
-          if (newTime === 300) { // 5 minutes
+          if (newTime === 300 && phase === 'preparation') {
             setPhase('journey');
             toast({
               title: "Journey Phase",
               description: "You are now entering the journey phase. Let go and trust the process.",
             });
-          } else if (newTime === duration - 300) { // 5 minutes before end
+          } else if (newTime === duration - 300 && phase === 'journey') {
             setPhase('integration');
             toast({
               title: "Integration Phase",
@@ -65,7 +65,7 @@ const JourneySession: React.FC<JourneySessionProps> = ({ setupData, onSessionEnd
         clearInterval(intervalRef.current);
       }
     };
-  }, [isPlaying, duration]);
+  }, [isPlaying, duration, phase]);
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -74,9 +74,10 @@ const JourneySession: React.FC<JourneySessionProps> = ({ setupData, onSessionEnd
   };
 
   const handlePlayPause = () => {
-    setIsPlaying(!isPlaying);
+    const newPlaying = !isPlaying;
+    setIsPlaying(newPlaying);
     
-    if (!isPlaying && currentTime === 0) {
+    if (newPlaying && currentTime === 0) {
       toast({
         title: "Journey Beginning",
         description: "Your soul journey has begun. Focus on your breath and intention.",
@@ -85,25 +86,36 @@ const JourneySession: React.FC<JourneySessionProps> = ({ setupData, onSessionEnd
   };
 
   const handleSessionEnd = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
     setIsPlaying(false);
+    
     const sessionData = {
       ...setupData,
       endTime: new Date().toISOString(),
       duration: currentTime,
       completed: currentTime >= duration * 0.8,
-      phase: phase
+      phase: phase,
+      actualDuration: currentTime
     };
     
+    console.log('Ending session with data:', sessionData);
     onSessionEnd(sessionData);
   };
 
   const handleEmergencyStop = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
     setIsPlaying(false);
+    
     toast({
       title: "Emergency Return",
       description: "Returning to your body safely. Take deep breaths and ground yourself.",
       variant: "destructive"
     });
+    
     onEmergencyEnd();
   };
 
@@ -140,9 +152,6 @@ const JourneySession: React.FC<JourneySessionProps> = ({ setupData, onSessionEnd
 
   return (
     <div className="max-w-4xl mx-auto space-y-6" style={{ backgroundColor: '#1a1a2e', minHeight: '100vh' }}>
-      {/* Ambient Background */}
-      <div className="fixed inset-0 bg-gradient-to-br from-purple-900/30 via-indigo-900/30 to-blue-900/30 pointer-events-none" />
-      
       {/* Header */}
       <Card className="relative bg-black/50 backdrop-blur-md border-purple-500/30 text-white">
         <CardHeader>
@@ -152,7 +161,7 @@ const JourneySession: React.FC<JourneySessionProps> = ({ setupData, onSessionEnd
                 {getPhaseIcon()}
               </div>
               <div>
-                <h2 className="text-2xl font-bold">{setupData.journeyType}</h2>
+                <h2 className="text-2xl font-bold">{setupData.journeyType || 'Soul Journey'}</h2>
                 <p className="text-purple-200 text-sm capitalize">{phase} Phase</p>
               </div>
             </div>
@@ -215,46 +224,24 @@ const JourneySession: React.FC<JourneySessionProps> = ({ setupData, onSessionEnd
             </Button>
           </div>
 
-          {/* Volume Control */}
-          <div className="flex items-center justify-center gap-4 mb-6">
-            <Button
-              onClick={() => setIsMuted(!isMuted)}
-              variant="ghost"
-              size="sm"
-              className="text-purple-300 hover:text-white"
-            >
-              {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-            </Button>
-            
-            <div className="flex items-center gap-2">
-              <span className="text-purple-300 text-sm">Volume</span>
-              <div className="w-24 h-2 bg-purple-900/50 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-purple-400 transition-all duration-200"
-                  style={{ width: `${volume * 100}%` }}
-                />
-              </div>
-            </div>
-          </div>
-
           {/* Session Info */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-purple-900/30 rounded-lg p-3 text-center">
               <div className="text-purple-300 text-sm">Intention</div>
               <div className="text-white text-xs font-medium truncate">
-                {setupData.intention.substring(0, 20)}...
+                {setupData.intention ? setupData.intention.substring(0, 20) + '...' : 'Not set'}
               </div>
             </div>
             <div className="bg-purple-900/30 rounded-lg p-3 text-center">
               <div className="text-purple-300 text-sm">Protection</div>
               <div className="text-white text-xs font-medium">
-                {setupData.protection.length} Methods
+                {setupData.protection ? setupData.protection.length : 0} Methods
               </div>
             </div>
             <div className="bg-purple-900/30 rounded-lg p-3 text-center">
               <div className="text-purple-300 text-sm">State</div>
               <div className="text-white text-xs font-medium">
-                {setupData.emotionalState}
+                {setupData.emotionalState || 'Calm'}
               </div>
             </div>
             <div className="bg-purple-900/30 rounded-lg p-3 text-center">
@@ -287,14 +274,20 @@ const JourneySession: React.FC<JourneySessionProps> = ({ setupData, onSessionEnd
             <span className="text-green-300 text-sm font-medium">Active Protection</span>
           </div>
           <div className="flex flex-wrap gap-2">
-            {setupData.protection.map((protection: string, index: number) => (
-              <span
-                key={index}
-                className="px-2 py-1 bg-green-900/30 text-green-300 text-xs rounded-full border border-green-500/30"
-              >
-                {protection.replace('_', ' ')}
+            {setupData.protection && setupData.protection.length > 0 ? (
+              setupData.protection.map((protection: string, index: number) => (
+                <span
+                  key={index}
+                  className="px-2 py-1 bg-green-900/30 text-green-300 text-xs rounded-full border border-green-500/30"
+                >
+                  {protection.replace('_', ' ')}
+                </span>
+              ))
+            ) : (
+              <span className="px-2 py-1 bg-green-900/30 text-green-300 text-xs rounded-full border border-green-500/30">
+                Light Shield Active
               </span>
-            ))}
+            )}
           </div>
         </CardContent>
       </Card>

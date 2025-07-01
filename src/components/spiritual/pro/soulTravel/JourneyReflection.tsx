@@ -59,10 +59,19 @@ const JourneyReflection: React.FC<JourneyReflectionProps> = ({
   };
 
   const handleSave = () => {
+    if (!reflection.trim()) {
+      toast({
+        title: "Reflection Required",
+        description: "Please share your journey experience before saving.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const reflectionData = {
       id: Date.now(),
       sessionData,
-      title: title || `${sessionData.journeyType} Journey`,
+      title: title || `${sessionData.journeyType || 'Soul'} Journey`,
       reflection,
       insights,
       beings,
@@ -70,39 +79,41 @@ const JourneyReflection: React.FC<JourneyReflectionProps> = ({
       tags: selectedTags,
       mood,
       timestamp: new Date().toISOString(),
-      duration: sessionData.duration
+      duration: sessionData.duration || sessionData.actualDuration || 0
     };
 
+    console.log('Saving reflection data:', reflectionData);
     onSave(reflectionData);
-    
-    toast({
-      title: "Journey Saved",
-      description: "Your journey has been recorded in your journal",
-    });
   };
 
   const handleShareToCommunity = () => {
+    if (!reflection.trim()) {
+      toast({
+        title: "Reflection Required",
+        description: "Please share your journey experience before sharing with the community.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const reflectionData = {
-      title: title || `${sessionData.journeyType} Journey`,
+      title: title || `${sessionData.journeyType || 'Soul'} Journey`,
       reflection,
       insights,
       tags: selectedTags,
       mood,
-      journeyType: sessionData.journeyType,
+      journeyType: sessionData.journeyType || 'Soul Journey',
       timestamp: new Date().toISOString()
     };
 
+    console.log('Sharing reflection data:', reflectionData);
     onShare(reflectionData);
-    
-    toast({
-      title: "Shared with Community",
-      description: "Your experience has been shared with the community circle",
-    });
   };
 
   const formatDuration = (seconds: number) => {
+    if (!seconds) return '0 minutes';
     const minutes = Math.floor(seconds / 60);
-    return `${minutes} minutes`;
+    return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
   };
 
   return (
@@ -134,11 +145,11 @@ const JourneyReflection: React.FC<JourneyReflectionProps> = ({
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-3 bg-green-50 rounded-lg">
               <div className="text-green-800 font-semibold">Journey Type</div>
-              <div className="text-green-600">{sessionData.journeyType}</div>
+              <div className="text-green-600">{sessionData.journeyType || 'Soul Journey'}</div>
             </div>
             <div className="text-center p-3 bg-green-50 rounded-lg">
               <div className="text-green-800 font-semibold">Duration</div>
-              <div className="text-green-600">{formatDuration(sessionData.duration)}</div>
+              <div className="text-green-600">{formatDuration(sessionData.duration || sessionData.actualDuration)}</div>
             </div>
             <div className="text-center p-3 bg-green-50 rounded-lg">
               <div className="text-green-800 font-semibold">Completed</div>
@@ -146,7 +157,7 @@ const JourneyReflection: React.FC<JourneyReflectionProps> = ({
             </div>
             <div className="text-center p-3 bg-green-50 rounded-lg">
               <div className="text-green-800 font-semibold">Phase</div>
-              <div className="text-green-600 capitalize">{sessionData.phase}</div>
+              <div className="text-green-600 capitalize">{sessionData.phase || 'Complete'}</div>
             </div>
           </div>
         </CardContent>
@@ -195,7 +206,7 @@ const JourneyReflection: React.FC<JourneyReflectionProps> = ({
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder={`${sessionData.journeyType} Journey - ${new Date().toLocaleDateString()}`}
+              placeholder={`${sessionData.journeyType || 'Soul'} Journey - ${new Date().toLocaleDateString()}`}
               className="border-green-300 focus:border-green-500"
             />
           </CardContent>
