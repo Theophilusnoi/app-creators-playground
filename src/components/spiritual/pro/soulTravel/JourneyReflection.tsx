@@ -84,6 +84,11 @@ const JourneyReflection: React.FC<JourneyReflectionProps> = ({
 
     console.log('Saving reflection data:', reflectionData);
     onSave(reflectionData);
+
+    toast({
+      title: "Journey Saved",
+      description: "Your journey has been recorded in your journal"
+    });
   };
 
   const handleShareToCommunity = () => {
@@ -108,6 +113,11 @@ const JourneyReflection: React.FC<JourneyReflectionProps> = ({
 
     console.log('Sharing reflection data:', reflectionData);
     onShare(reflectionData);
+
+    toast({
+      title: "Shared with Community",
+      description: "Your experience has been shared with the community circle"
+    });
   };
 
   const formatDuration = (seconds: number) => {
