@@ -1,12 +1,11 @@
-
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Camera, Upload, CheckCircle, AlertCircle, RotateCw } from 'lucide-react';
+import { Camera, Upload, CheckCircle, AlertCircle, RotateCw, X } from 'lucide-react';
 
 interface PalmAnalysis {
   overallReading: string;
@@ -29,20 +28,111 @@ export const WorkingPalmReader: React.FC = () => {
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [palmReading, setPalmReading] = useState<PalmAnalysis | null>(null);
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [isInitializingCamera, setIsInitializingCamera] = useState(false);
+
+  // Cleanup camera stream on unmount
+  useEffect(() => {
+    return () => {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [cameraStream]);
 
   const startCamera = async () => {
+    setIsInitializingCamera(true);
+    setCameraError(null);
+    
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { 
-          facingMode: 'environment',
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
+      // Check if browser supports camera
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Camera not supported in this browser');
+      }
+
+      // Request camera permissions with fallback constraints
+      const constraints = {
+        video: {
+          facingMode: 'environment', // Try back camera first
+          width: { ideal: 1280, max: 1920 },
+          height: { ideal: 720, max: 1080 },
         }
-      });
+      };
+
+      let stream: MediaStream;
+      
+      try {
+        // Try with back camera first
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+      } catch (backCameraError) {
+        console.log('Back camera failed, trying front camera:', backCameraError);
+        // Fallback to front camera
+        const frontCameraConstraints = {
+          video: {
+            facingMode: 'user',
+            width: { ideal: 1280, max: 1920 },
+            height: { ideal: 720, max: 1080 },
+          }
+        };
+        
+        try {
+          stream = await navigator.mediaDevices.getUserMedia(frontCameraConstraints);
+        } catch (frontCameraError) {
+          console.log('Front camera failed, trying basic constraints:', frontCameraError);
+          // Final fallback - basic video
+          stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        }
+      }
+
+      setCameraStream(stream);
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        setCameraStream(stream);
+        
+        // Wait for video to be ready
+        await new Promise<void>((resolve, reject) => {
+          if (!videoRef.current) {
+            reject(new Error('Video element not available'));
+            return;
+          }
+
+          const video = videoRef.current;
+          
+          const handleLoadedMetadata = () => {
+            video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+            video.removeEventListener('error', handleError);
+            resolve();
+          };
+
+          const handleError = (e: Event) => {
+            video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+            video.removeEventListener('error', handleError);
+            reject(new Error('Video failed to load'));
+          };
+
+          video.addEventListener('loadedmetadata', handleLoadedMetadata);
+          video.addEventListener('error', handleError);
+          
+          // Fallback timeout
+          setTimeout(() => {
+            video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+            video.removeEventListener('error', handleError);
+            if (video.videoWidth === 0 || video.videoHeight === 0) {
+              reject(new Error('Video dimensions invalid'));
+            } else {
+              resolve();
+            }
+          }, 5000);
+        });
+
+        // Try to play the video
+        try {
+          await videoRef.current.play();
+        } catch (playError) {
+          console.warn('Video autoplay failed:', playError);
+          // This is often due to browser policies, but video should still work for capture
+        }
+        
         setStep('camera');
         
         toast({
@@ -51,39 +141,85 @@ export const WorkingPalmReader: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error('Camera error:', error);
+      console.error('Camera initialization error:', error);
+      setCameraError(error instanceof Error ? error.message : 'Unknown camera error');
+      
+      let errorMessage = "Camera access failed. Please check permissions and try again.";
+      
+      if (error instanceof Error) {
+        if (error.name === 'NotAllowedError') {
+          errorMessage = "Camera permission denied. Please allow camera access and try again.";
+        } else if (error.name === 'NotFoundError') {
+          errorMessage = "No camera found. Please connect a camera or use file upload.";
+        } else if (error.name === 'NotSupportedError') {
+          errorMessage = "Camera not supported on this device. Please use file upload.";
+        }
+      }
+      
       toast({
         title: "Camera Error",
-        description: "Please use the upload option instead",
+        description: errorMessage,
         variant: "destructive"
       });
+    } finally {
+      setIsInitializingCamera(false);
     }
   };
 
   const captureImage = () => {
-    if (!videoRef.current || !canvasRef.current) return;
+    if (!videoRef.current || !canvasRef.current) {
+      toast({
+        title: "Capture Error",
+        description: "Camera not ready. Please try again.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
 
-    if (!context) return;
+    if (!context || video.videoWidth === 0 || video.videoHeight === 0) {
+      toast({
+        title: "Capture Error",
+        description: "Video not ready. Please wait and try again.",
+        variant: "destructive"
+      });
+      return;
+    }
 
+    // Set canvas dimensions to match video
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    context.drawImage(video, 0, 0);
+    
+    // Draw the current video frame to canvas
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
+    // Convert to base64
     const capturedData = canvas.toDataURL('image/jpeg', 0.8);
     setImageData(capturedData);
+    
+    // Stop camera and start analysis
     stopCamera();
     analyzePalm(capturedData);
   };
 
   const stopCamera = () => {
     if (cameraStream) {
-      cameraStream.getTracks().forEach(track => track.stop());
+      cameraStream.getTracks().forEach(track => {
+        track.stop();
+        console.log('Stopped camera track:', track.kind);
+      });
       setCameraStream(null);
     }
+    
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    
+    setCameraError(null);
+    setStep('upload');
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -165,6 +301,7 @@ export const WorkingPalmReader: React.FC = () => {
     setImageData(null);
     setPalmReading(null);
     setAnalysisProgress(0);
+    setCameraError(null);
     stopCamera();
   };
 
@@ -181,13 +318,29 @@ export const WorkingPalmReader: React.FC = () => {
                 Upload a clear photo of your palm or use your camera
               </p>
               
+              {cameraError && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-600 text-sm">{cameraError}</p>
+                </div>
+              )}
+              
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
                   onClick={startCamera}
+                  disabled={isInitializingCamera}
                   className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
                 >
-                  <Camera className="w-4 h-4" />
-                  Use Camera
+                  {isInitializingCamera ? (
+                    <>
+                      <RotateCw className="w-4 h-4 animate-spin" />
+                      Starting Camera...
+                    </>
+                  ) : (
+                    <>
+                      <Camera className="w-4 h-4" />
+                      Use Camera
+                    </>
+                  )}
                 </Button>
                 
                 <Button
@@ -211,7 +364,6 @@ export const WorkingPalmReader: React.FC = () => {
           </CardContent>
         </Card>
         
-        {/* Hidden canvas for image processing */}
         <canvas ref={canvasRef} className="hidden" />
       </div>
     );
@@ -222,7 +374,17 @@ export const WorkingPalmReader: React.FC = () => {
       <div className="space-y-6">
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
-            <CardTitle className="text-center text-purple-800">Position Your Palm</CardTitle>
+            <CardTitle className="text-center text-purple-800 flex items-center justify-between">
+              Position Your Palm
+              <Button
+                onClick={stopCamera}
+                variant="outline"
+                size="sm"
+                className="text-red-600 hover:text-red-700"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="relative bg-black rounded-lg overflow-hidden" style={{ height: '400px' }}>
@@ -237,6 +399,8 @@ export const WorkingPalmReader: React.FC = () => {
                 <div className="border-4 border-white border-dashed rounded-full w-64 h-64 flex items-center justify-center">
                   <span className="text-white font-semibold text-center">
                     Center Your Palm Here
+                    <br />
+                    <span className="text-sm opacity-80">Keep steady & well-lit</span>
                   </span>
                 </div>
               </div>
@@ -251,7 +415,7 @@ export const WorkingPalmReader: React.FC = () => {
                 Capture Palm
               </Button>
               <Button
-                onClick={() => { stopCamera(); setStep('upload'); }}
+                onClick={stopCamera}
                 variant="outline"
               >
                 Cancel
@@ -260,7 +424,6 @@ export const WorkingPalmReader: React.FC = () => {
           </CardContent>
         </Card>
         
-        {/* Hidden canvas for image processing */}
         <canvas ref={canvasRef} className="hidden" />
       </div>
     );
