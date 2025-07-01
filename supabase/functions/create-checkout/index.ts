@@ -18,47 +18,79 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const supabaseClient = createClient(
-    Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-    { auth: { persistSession: false } }
-  );
-
   try {
-    logStep("Function started");
+    logStep("=== FUNCTION START ===");
+    logStep("Method", req.method);
+    logStep("Headers", Object.fromEntries(req.headers.entries()));
 
-    // Parse the request body with error handling
+    // Check environment variables first
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    
+    logStep("Environment check", {
+      hasSupabaseUrl: !!supabaseUrl,
+      hasServiceKey: !!supabaseServiceKey,
+      hasStripeKey: !!stripeKey,
+      stripeKeyPrefix: stripeKey ? stripeKey.substring(0, 10) + "..." : "missing"
+    });
+
+    if (!stripeKey) {
+      logStep("ERROR: Missing Stripe key");
+      return new Response(JSON.stringify({ 
+        error: "Payment system not configured - missing Stripe key" 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      });
+    }
+
+    // Initialize Supabase client
+    const supabaseClient = createClient(
+      supabaseUrl ?? "",
+      supabaseServiceKey ?? "",
+      { auth: { persistSession: false } }
+    );
+    logStep("Supabase client initialized");
+
+    // Parse request body - try both methods
     let requestBody;
     try {
-      const rawBody = await req.text();
-      logStep("Raw body received", { length: rawBody.length });
-      
-      if (rawBody && rawBody.trim()) {
-        requestBody = JSON.parse(rawBody);
-        logStep("Parsed request body", requestBody);
-      } else {
-        logStep("Empty body received");
+      requestBody = await req.json();
+      logStep("Request body parsed as JSON", requestBody);
+    } catch (jsonError) {
+      logStep("JSON parse failed, trying text", { error: jsonError.message });
+      try {
+        const textBody = await req.text();
+        logStep("Raw text body", { body: textBody, length: textBody.length });
+        if (textBody && textBody.trim()) {
+          requestBody = JSON.parse(textBody);
+          logStep("Parsed text body as JSON", requestBody);
+        } else {
+          logStep("ERROR: Empty body");
+          return new Response(JSON.stringify({ 
+            error: "Request body is required" 
+          }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 400,
+          });
+        }
+      } catch (textError) {
+        logStep("ERROR: Failed to parse body", { jsonError: jsonError.message, textError: textError.message });
         return new Response(JSON.stringify({ 
-          error: "Request body is required" 
+          error: `Invalid request format: ${textError.message}` 
         }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 400,
         });
       }
-    } catch (parseError) {
-      logStep("JSON parse error", { error: parseError.message });
-      return new Response(JSON.stringify({ 
-        error: `Invalid request format: ${parseError.message}` 
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      });
     }
 
     const { tier, referralCode } = requestBody;
+    logStep("Extracted data", { tier, referralCode });
     
     if (!tier) {
-      logStep("Missing tier parameter");
+      logStep("ERROR: Missing tier parameter");
       return new Response(JSON.stringify({ 
         error: "Subscription tier is required" 
       }), {
@@ -66,13 +98,13 @@ serve(async (req) => {
         status: 400,
       });
     }
-    
-    logStep("Processing tier", { tier, referralCode });
 
     // Get user from auth header
     const authHeader = req.headers.get("Authorization");
+    logStep("Auth header check", { hasAuth: !!authHeader, authPrefix: authHeader ? authHeader.substring(0, 20) + "..." : "missing" });
+    
     if (!authHeader) {
-      logStep("Missing authorization header");
+      logStep("ERROR: Missing authorization header");
       return new Response(JSON.stringify({ 
         error: "Authorization header is required" 
       }), {
@@ -82,10 +114,12 @@ serve(async (req) => {
     }
     
     const token = authHeader.replace("Bearer ", "");
+    logStep("Attempting user authentication");
+    
     const { data, error: userError } = await supabaseClient.auth.getUser(token);
     
     if (userError) {
-      logStep("User authentication error", { error: userError.message });
+      logStep("AUTH ERROR", { error: userError.message, code: userError.status });
       return new Response(JSON.stringify({ 
         error: `Authentication failed: ${userError.message}` 
       }), {
@@ -96,7 +130,7 @@ serve(async (req) => {
     
     const user = data.user;
     if (!user?.email) {
-      logStep("User not found or missing email");
+      logStep("ERROR: User not found or missing email", { hasUser: !!user, userEmail: user?.email });
       return new Response(JSON.stringify({ 
         error: "User not authenticated or email not available" 
       }), {
@@ -105,26 +139,16 @@ serve(async (req) => {
       });
     }
     
-    logStep("User authenticated", { userId: user.id, email: user.email });
+    logStep("User authenticated successfully", { userId: user.id, email: user.email });
 
-    // Initialize Stripe with error handling
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) {
-      logStep("Missing Stripe secret key");
-      return new Response(JSON.stringify({ 
-        error: "Payment system not configured" 
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 500,
-      });
-    }
-    
+    // Initialize Stripe
+    logStep("Initializing Stripe");
     let stripe;
     try {
       stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
-      logStep("Stripe initialized");
+      logStep("Stripe initialized successfully");
     } catch (stripeError) {
-      logStep("Stripe initialization error", { error: stripeError.message });
+      logStep("STRIPE INIT ERROR", { error: stripeError.message });
       return new Response(JSON.stringify({ 
         error: "Payment system initialization failed" 
       }), {
@@ -133,7 +157,7 @@ serve(async (req) => {
       });
     }
 
-    // Define tier pricing with validation
+    // Define tier pricing
     const wisdomTiers = {
       earth: { amount: 2900, name: "Earth Keeper - Monthly" },
       water: { amount: 7900, name: "Water Bearer - Monthly" },
@@ -143,7 +167,7 @@ serve(async (req) => {
 
     const selectedTier = wisdomTiers[tier as keyof typeof wisdomTiers];
     if (!selectedTier) {
-      logStep("Invalid tier", { tier });
+      logStep("ERROR: Invalid tier", { tier, availableTiers: Object.keys(wisdomTiers) });
       return new Response(JSON.stringify({ 
         error: `Invalid subscription tier: ${tier}. Valid tiers are: ${Object.keys(wisdomTiers).join(', ')}` 
       }), {
@@ -151,9 +175,10 @@ serve(async (req) => {
         status: 400,
       });
     }
-    logStep("Tier selected", selectedTier);
+    logStep("Tier validated", selectedTier);
 
-    // Check for existing customer with error handling
+    // Check for existing customer
+    logStep("Checking for existing Stripe customer");
     let customerId;
     try {
       const customers = await stripe.customers.list({ email: user.email, limit: 1 });
@@ -161,10 +186,10 @@ serve(async (req) => {
         customerId = customers.data[0].id;
         logStep("Found existing customer", { customerId });
       } else {
-        logStep("No existing customer found");
+        logStep("No existing customer found, will create new one");
       }
     } catch (stripeError) {
-      logStep("Stripe customer lookup error", { error: stripeError.message });
+      logStep("STRIPE CUSTOMER ERROR", { error: stripeError.message });
       return new Response(JSON.stringify({ 
         error: "Unable to verify customer information" 
       }), {
@@ -174,9 +199,9 @@ serve(async (req) => {
     }
 
     const origin = req.headers.get("origin") || "https://yrshvcaoczjsqziwllqi.supabase.co";
-    logStep("Using origin", { origin });
+    logStep("Using origin for URLs", { origin });
 
-    // Create checkout session with comprehensive error handling
+    // Create checkout session
     const sessionMetadata: any = {
       tier,
       user_id: user.id,
@@ -187,7 +212,12 @@ serve(async (req) => {
       sessionMetadata.referral_code = referralCode;
     }
 
-    logStep("Creating checkout session", { metadata: sessionMetadata });
+    logStep("Creating Stripe checkout session", { 
+      customerId,
+      customerEmail: customerId ? undefined : user.email,
+      metadata: sessionMetadata,
+      tierAmount: selectedTier.amount
+    });
 
     try {
       const session = await stripe.checkout.sessions.create({
@@ -214,10 +244,10 @@ serve(async (req) => {
         allow_promotion_codes: true,
       });
 
-      logStep("Checkout session created successfully", { sessionId: session.id, url: session.url });
+      logStep("SUCCESS: Checkout session created", { sessionId: session.id, hasUrl: !!session.url });
 
       if (!session.url) {
-        logStep("No checkout URL returned from Stripe");
+        logStep("ERROR: No checkout URL returned from Stripe");
         return new Response(JSON.stringify({ 
           error: "Unable to create checkout session - no URL returned" 
         }), {
@@ -226,13 +256,19 @@ serve(async (req) => {
         });
       }
 
+      logStep("=== FUNCTION SUCCESS ===", { url: session.url });
       return new Response(JSON.stringify({ url: session.url }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });
 
     } catch (stripeError) {
-      logStep("Stripe checkout session creation error", { error: stripeError.message, stack: stripeError.stack });
+      logStep("STRIPE CHECKOUT ERROR", { 
+        error: stripeError.message, 
+        type: stripeError.type,
+        code: stripeError.code,
+        stack: stripeError.stack 
+      });
       return new Response(JSON.stringify({ 
         error: `Unable to create checkout session: ${stripeError.message}` 
       }), {
@@ -243,9 +279,10 @@ serve(async (req) => {
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("CRITICAL ERROR in create-checkout", { 
+    logStep("=== CRITICAL ERROR ===", { 
       message: errorMessage, 
-      stack: error instanceof Error ? error.stack : undefined 
+      stack: error instanceof Error ? error.stack : undefined,
+      type: typeof error
     });
     
     return new Response(JSON.stringify({ 
