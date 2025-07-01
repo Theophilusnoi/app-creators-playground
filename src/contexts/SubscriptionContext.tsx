@@ -98,7 +98,16 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         description: "Please log in to subscribe",
         variant: "destructive",
       });
-      return;
+      throw new Error('User not authenticated');
+    }
+
+    if (!tier) {
+      toast({
+        title: "Invalid Tier",
+        description: "Please select a valid subscription tier",
+        variant: "destructive",
+      });
+      throw new Error('Tier is required');
     }
 
     console.log('Creating checkout for tier:', tier, 'with referral:', referralCode);
@@ -112,11 +121,11 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const finalReferralCode = referralCode || localStorage.getItem('referralCode');
       
       const requestBody = { 
-        tier, 
+        tier: tier, // Ensure tier is properly included
         referralCode: finalReferralCode 
       };
       
-      console.log('Sending checkout request:', requestBody);
+      console.log('Sending checkout request with body:', requestBody);
 
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: requestBody,
@@ -125,6 +134,8 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
           'Content-Type': 'application/json',
         },
       });
+
+      console.log('Checkout response:', { data, error });
 
       if (error) {
         console.error('Checkout creation error:', error);

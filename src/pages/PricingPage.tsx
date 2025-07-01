@@ -104,7 +104,9 @@ const PricingPage = () => {
     },
   ];
 
-  const handleSubscribe = async (planId: string) => {
+  const handleSubscribe = async (tierId: string) => {
+    console.log('handleSubscribe called with tier:', tierId);
+    
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -115,38 +117,31 @@ const PricingPage = () => {
     }
 
     if (clickingTier || loading) {
-      console.log('Already processing subscription');
+      console.log('Already processing subscription or loading');
       return;
     }
 
-    setClickingTier(planId);
-    console.log('Starting subscription process for tier:', planId);
+    setClickingTier(tierId);
+    console.log('Starting subscription process for tier:', tierId);
 
     try {
+      // Store referral code in localStorage if present
       if (referralCode) {
         localStorage.setItem('referralCode', referralCode);
+        console.log('Stored referral code:', referralCode);
       }
       
-      // Add timeout to prevent hanging
-      const timeoutId = setTimeout(() => {
-        if (clickingTier === planId) {
-          setClickingTier(null);
-          toast({
-            title: "Request Timeout",
-            description: "The request is taking too long. Please try again.",
-            variant: "destructive",
-          });
-        }
-      }, 30000); // 30 second timeout
-
-      await createCheckout(planId, referralCode);
-      clearTimeout(timeoutId);
+      console.log('Calling createCheckout with:', { tierId, referralCode });
+      await createCheckout(tierId, referralCode);
       
     } catch (error) {
       console.error('Subscription error:', error);
+      
+      // Show user-friendly error message
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       toast({
         title: "Subscription Error",
-        description: "There was an issue starting your subscription. Please try again.",
+        description: `Unable to start subscription: ${errorMessage}`,
         variant: "destructive",
       });
     } finally {
