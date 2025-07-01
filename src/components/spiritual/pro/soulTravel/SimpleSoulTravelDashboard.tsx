@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,13 @@ interface SimpleSoulTravelDashboardProps {
   className?: string;
 }
 
+interface SessionStats {
+  totalSessions: number;
+  totalPracticeTime: number;
+  challengesCompleted: number;
+  accuracy: number;
+}
+
 const SimpleSoulTravelDashboard: React.FC<SimpleSoulTravelDashboardProps> = ({ className = "" }) => {
   const { toast } = useToast();
   const [showHealthDisclaimer, setShowHealthDisclaimer] = useState(true);
@@ -19,10 +26,64 @@ const SimpleSoulTravelDashboard: React.FC<SimpleSoulTravelDashboardProps> = ({ c
   const [isSessionActive, setIsSessionActive] = useState(false);
   const [sessionTime, setSessionTime] = useState(0);
   const [healthAccepted, setHealthAccepted] = useState(false);
+  const [selectedTechnique, setSelectedTechnique] = useState('');
+  const [sessionStats, setSessionStats] = useState<SessionStats>({
+    totalSessions: 0,
+    totalPracticeTime: 0,
+    challengesCompleted: 0,
+    accuracy: 0
+  });
+
+  // Timer effect for active sessions
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (isSessionActive) {
+      interval = setInterval(() => {
+        setSessionTime(prev => prev + 1);
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isSessionActive]);
+
+  // Load saved data on component mount
+  useEffect(() => {
+    const savedStats = localStorage.getItem('soulTravelStats');
+    const savedHealthStatus = localStorage.getItem('soulTravelHealthAccepted');
+    
+    if (savedStats) {
+      setSessionStats(JSON.parse(savedStats));
+    }
+    
+    if (savedHealthStatus === 'true') {
+      setHealthAccepted(true);
+      setShowHealthDisclaimer(false);
+    }
+  }, []);
+
+  // Save stats to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('soulTravelStats', JSON.stringify(sessionStats));
+  }, [sessionStats]);
+
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    
+    if (hours > 0) {
+      return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const handleHealthAccept = () => {
     setHealthAccepted(true);
     setShowHealthDisclaimer(false);
+    localStorage.setItem('soulTravelHealthAccepted', 'true');
     toast({
       title: "Health Disclaimer Accepted",
       description: "You can now access the Soul Travel Academy features.",
@@ -37,7 +98,7 @@ const SimpleSoulTravelDashboard: React.FC<SimpleSoulTravelDashboardProps> = ({ c
     });
   };
 
-  const startSession = () => {
+  const startSession = (technique: string = 'Rope Technique') => {
     if (!healthAccepted) {
       toast({
         title: "Health Clearance Required",
@@ -49,17 +110,34 @@ const SimpleSoulTravelDashboard: React.FC<SimpleSoulTravelDashboardProps> = ({ c
     
     setIsSessionActive(true);
     setSessionTime(0);
+    setSelectedTechnique(technique);
+    
     toast({
       title: "Session Started",
-      description: "Your astral projection session has begun. Stay focused and safe.",
+      description: `Your ${technique} session has begun. Stay focused and safe.`,
     });
   };
 
   const endSession = () => {
+    if (!isSessionActive) return;
+    
+    const sessionDuration = sessionTime;
     setIsSessionActive(false);
+    
+    // Update stats
+    setSessionStats(prev => ({
+      totalSessions: prev.totalSessions + 1,
+      totalPracticeTime: prev.totalPracticeTime + sessionDuration,
+      challengesCompleted: prev.challengesCompleted + (sessionDuration > 300 ? 1 : 0), // 5+ minutes = challenge completed
+      accuracy: Math.min(100, prev.accuracy + (sessionDuration > 600 ? 5 : 2)) // Longer sessions improve accuracy
+    }));
+    
+    setSessionTime(0);
+    setSelectedTechnique('');
+    
     toast({
-      title: "Session Ended",
-      description: `Session completed. Duration: ${Math.floor(sessionTime / 60)}:${(sessionTime % 60).toString().padStart(2, '0')}`,
+      title: "Session Completed",
+      description: `Session duration: ${formatTime(sessionDuration)}. Well done!`,
     });
   };
 
@@ -67,6 +145,12 @@ const SimpleSoulTravelDashboard: React.FC<SimpleSoulTravelDashboardProps> = ({ c
     { id: 'training', name: 'Training', icon: <Sparkles className="w-4 h-4" /> },
     { id: 'safety', name: 'Safety', icon: <Shield className="w-4 h-4" /> },
     { id: 'guide', name: 'Guide', icon: <BookOpen className="w-4 h-4" /> }
+  ];
+
+  const techniques = [
+    { name: 'Rope Technique', description: 'Visualize climbing an invisible rope above your body' },
+    { name: 'Roll-Out Method', description: 'Imagine rolling out of your physical body' },
+    { name: 'Lift-Out Technique', description: 'Visualize floating upward from your body' }
   ];
 
   // Health Disclaimer Modal
@@ -148,7 +232,9 @@ const SimpleSoulTravelDashboard: React.FC<SimpleSoulTravelDashboardProps> = ({ c
           </h2>
           <div className="text-right">
             <div className="text-purple-200 text-sm">Current Level</div>
-            <div className="text-white font-semibold">Beginner</div>
+            <div className="text-white font-semibold">
+              {sessionStats.totalSessions < 5 ? 'Beginner' : sessionStats.totalSessions < 15 ? 'Intermediate' : 'Advanced'}
+            </div>
           </div>
         </div>
         
@@ -178,19 +264,19 @@ const SimpleSoulTravelDashboard: React.FC<SimpleSoulTravelDashboardProps> = ({ c
         {/* Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white/5 rounded-lg p-3 text-center">
-            <div className="text-white text-lg font-bold">0</div>
+            <div className="text-white text-lg font-bold">{sessionStats.totalSessions}</div>
             <div className="text-purple-300 text-sm">Sessions</div>
           </div>
           <div className="bg-white/5 rounded-lg p-3 text-center">
-            <div className="text-white text-lg font-bold">0h</div>
+            <div className="text-white text-lg font-bold">{Math.floor(sessionStats.totalPracticeTime / 3600)}h</div>
             <div className="text-purple-300 text-sm">Practice Time</div>
           </div>
           <div className="bg-white/5 rounded-lg p-3 text-center">
-            <div className="text-white text-lg font-bold">0/5</div>
+            <div className="text-white text-lg font-bold">{sessionStats.challengesCompleted}/5</div>
             <div className="text-purple-300 text-sm">Challenges</div>
           </div>
           <div className="bg-white/5 rounded-lg p-3 text-center">
-            <div className="text-white text-lg font-bold">0%</div>
+            <div className="text-white text-lg font-bold">{Math.round(sessionStats.accuracy)}%</div>
             <div className="text-purple-300 text-sm">Accuracy</div>
           </div>
         </div>
@@ -232,18 +318,42 @@ const SimpleSoulTravelDashboard: React.FC<SimpleSoulTravelDashboardProps> = ({ c
                   <div className={`inline-flex items-center justify-center w-32 h-32 rounded-full text-3xl font-bold ${
                     isSessionActive ? 'bg-green-500/20 text-green-300' : 'bg-gray-500/20 text-gray-300'
                   }`}>
-                    {Math.floor(sessionTime / 60)}:{(sessionTime % 60).toString().padStart(2, '0')}
+                    {formatTime(sessionTime)}
                   </div>
                   <div className="mt-2 text-purple-200 text-sm">
-                    {isSessionActive ? 'Session Active' : 'Ready to Begin'}
+                    {isSessionActive ? `${selectedTechnique} Active` : 'Ready to Begin'}
                   </div>
                 </div>
+
+                {/* Technique Selection */}
+                {!isSessionActive && (
+                  <div className="space-y-2">
+                    <label className="text-purple-200 text-sm">Select Technique:</label>
+                    <div className="space-y-2">
+                      {techniques.map((technique) => (
+                        <button
+                          key={technique.name}
+                          onClick={() => setSelectedTechnique(technique.name)}
+                          className={`w-full p-3 rounded-lg text-left transition-colors ${
+                            selectedTechnique === technique.name
+                              ? 'bg-purple-600/50 border border-purple-400'
+                              : 'bg-white/5 hover:bg-white/10 border border-white/10'
+                          }`}
+                        >
+                          <div className="text-white font-medium">{technique.name}</div>
+                          <div className="text-purple-200 text-sm">{technique.description}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex gap-3">
                   {!isSessionActive ? (
                     <Button
-                      onClick={startSession}
+                      onClick={() => startSession(selectedTechnique || 'Rope Technique')}
                       className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+                      disabled={!healthAccepted}
                     >
                       Begin Projection
                     </Button>
@@ -305,24 +415,26 @@ const SimpleSoulTravelDashboard: React.FC<SimpleSoulTravelDashboardProps> = ({ c
                 </CardContent>
               </Card>
 
-              {/* Techniques Section */}
+              {/* Progress Tracking */}
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardHeader>
-                  <CardTitle className="text-white">Techniques</CardTitle>
+                  <CardTitle className="text-white">Your Progress</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    <div className="p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                      <h4 className="text-white font-semibold">Rope Technique</h4>
-                      <p className="text-purple-200 text-sm">Visualize climbing an invisible rope above your body</p>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="text-purple-200">Experience Level</span>
+                        <span className="text-white">{Math.round((sessionStats.totalSessions / 20) * 100)}%</span>
+                      </div>
+                      <Progress value={(sessionStats.totalSessions / 20) * 100} className="h-2" />
                     </div>
-                    <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                      <h4 className="text-white font-semibold">Roll-Out Method</h4>
-                      <p className="text-blue-200 text-sm">Imagine rolling out of your physical body</p>
-                    </div>
-                    <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20">
-                      <h4 className="text-white font-semibold">Lift-Out Technique</h4>
-                      <p className="text-green-200 text-sm">Visualize floating upward from your body</p>
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="text-purple-200">Technique Mastery</span>
+                        <span className="text-white">{Math.round(sessionStats.accuracy)}%</span>
+                      </div>
+                      <Progress value={sessionStats.accuracy} className="h-2" />
                     </div>
                   </div>
                 </CardContent>
