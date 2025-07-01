@@ -1,329 +1,245 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/components/auth/AuthProvider';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { useToast } from '@/hooks/use-toast';
-import { ProNavigationBar } from '@/components/spiritual/pro/ProNavigationBar';
 import { 
-  Droplets, 
-  Eye, 
-  Zap, 
-  Star, 
-  Globe, 
-  Shield,
-  Brain,
-  Sparkles,
-  Play,
-  Pause,
-  Volume2,
-  Flame,
-  ArrowLeft
+  Crown, Sparkles, Brain, Eye, Shield, Zap, 
+  Star, Moon, Heart, ArrowRight, LogIn, Users,
+  BookOpen, Target, Wand2
 } from 'lucide-react';
-import { SacredBathingCreator } from '@/components/spiritual/pro/SacredBathingCreator';
-import { ThirdEyeTracker } from '@/components/spiritual/pro/ThirdEyeTracker';
-import { TelekinesisGym } from '@/components/spiritual/pro/TelekinesisGym';
-import { ZodiacIntegration } from '@/components/spiritual/pro/ZodiacIntegration';
-import { CulturalFrameworks } from '@/components/spiritual/pro/CulturalFrameworks';
-import { NeuroFeedbackHub } from '@/components/spiritual/pro/NeuroFeedbackHub';
-import { EnhancedRitualSystem } from '@/components/spiritual/pro/EnhancedRitualSystem';
 
 const SpiritualMindPro = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
-  const { toast } = useToast();
-  const [activeModule, setActiveModule] = useState('dashboard');
-  const [userProfile, setUserProfile] = useState<any>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { subscribed, subscriptionTier } = useSubscription();
 
-  useEffect(() => {
-    if (user) {
-      // Load user's spiritual profile
-      const savedProfile = localStorage.getItem('spiritualMindProfile');
-      if (savedProfile) {
-        try {
-          setUserProfile(JSON.parse(savedProfile));
-        } catch (error) {
-          console.error('Error parsing saved profile:', error);
-          setUserProfile({});
-        }
-      } else {
-        setUserProfile({});
-      }
+  const isProUser = subscribed && (subscriptionTier === 'pro' || subscriptionTier === 'ether' || subscriptionTier === 'fire');
+
+  const handleAuthClick = () => {
+    navigate('/auth');
+  };
+
+  const handleFeatureClick = (path: string) => {
+    if (!user) {
+      navigate('/auth');
+    } else if (!isProUser) {
+      navigate('/pricing');
+    } else {
+      navigate(path);
     }
-  }, [user]);
+  };
 
-  const modules = [
+  const proFeatures = [
     {
-      id: 'enhanced-rituals',
-      title: 'Enhanced Ritual System',
-      icon: Flame,
-      description: 'Universal Magic Formula & Ancient Wisdom',
-      component: EnhancedRitualSystem,
-      status: 'Ready'
-    },
-    {
-      id: 'sacred-bath',
-      title: 'Sacred Bathing',
-      icon: Droplets,
-      description: 'AI-Guided Spiritual Cleansing',
-      component: SacredBathingCreator,
-      status: 'Ready'
+      id: 'soul-travel',
+      title: 'Soul Travel Academy',
+      description: 'Master astral projection with structured training and safety protocols',
+      icon: <Sparkles className="w-6 h-6" />,
+      path: '/soul-travel',
+      gradient: 'from-purple-500 to-pink-500'
     },
     {
       id: 'third-eye',
       title: 'Third Eye Activation',
-      icon: Eye,
-      description: '5-Stage Neuro-Spiritual Pathway',
-      component: ThirdEyeTracker,
-      status: 'Ready'
+      description: 'Develop psychic abilities and enhanced spiritual perception',
+      icon: <Eye className="w-6 h-6" />,
+      path: '/dashboard?tab=third-eye',
+      gradient: 'from-indigo-500 to-purple-500'
     },
     {
       id: 'telekinesis',
       title: 'Telekinesis Training',
-      icon: Zap,
-      description: 'Mind-Matter Interface',
-      component: TelekinesisGym,
-      status: 'Ready'
+      description: 'Learn to influence matter with focused intention and practice',
+      icon: <Brain className="w-6 h-6" />,
+      path: '/dashboard?tab=telekinesis',
+      gradient: 'from-blue-500 to-indigo-500'
     },
     {
-      id: 'zodiac',
-      title: 'Zodiac Integration',
-      icon: Star,
-      description: 'Celestial Personalization Engine',
-      component: ZodiacIntegration,
-      status: 'Ready'
+      id: 'protection',
+      title: 'Advanced Protection',
+      description: 'Seven-layer spiritual protection and entity removal systems',
+      icon: <Shield className="w-6 h-6" />,
+      path: '/dashboard?tab=protection',
+      gradient: 'from-green-500 to-teal-500'
     },
     {
-      id: 'cultural',
-      title: 'Cultural Frameworks',
-      icon: Globe,
-      description: 'Respectfully Curated Traditions',
-      component: CulturalFrameworks,
-      status: 'Ready'
+      id: 'divination',
+      title: 'Enhanced Divination',
+      description: 'Advanced palm reading, tarot, and spiritual guidance tools',
+      icon: <Target className="w-6 h-6" />,
+      path: '/dashboard?tab=divination',
+      gradient: 'from-orange-500 to-red-500'
     },
     {
-      id: 'neurofeedback',
-      title: 'Neuro-Feedback',
-      icon: Brain,
-      description: 'Consciousness-Forward Design',
-      component: NeuroFeedbackHub,
-      status: 'Ready'
+      id: 'rituals',
+      title: 'Sacred Rituals',
+      description: 'Comprehensive ritual directory and sacred bathing ceremonies',
+      icon: <Wand2 className="w-6 h-6" />,
+      path: '/dashboard?tab=rituals',
+      gradient: 'from-yellow-500 to-orange-500'
     }
   ];
 
-  const handleModuleClick = (moduleId: string) => {
-    setIsLoading(true);
-    console.log(`Entering module: ${moduleId}`);
-    
-    // Add a small delay for smooth transition
-    setTimeout(() => {
-      setActiveModule(moduleId);
-      setIsLoading(false);
-      
-      toast({
-        title: "Module Activated",
-        description: `${modules.find(m => m.id === moduleId)?.title} is now active`,
-      });
-    }, 300);
-  };
-
-  const handleBackToDashboard = () => {
-    setIsLoading(true);
-    
-    setTimeout(() => {
-      setActiveModule('dashboard');
-      setIsLoading(false);
-      
-      toast({
-        title: "Dashboard",
-        description: "Returned to main dashboard",
-      });
-    }, 200);
-  };
-
-  const toggleBinauralBeats = () => {
-    setIsPlaying(!isPlaying);
-    toast({
-      title: isPlaying ? "Binaural Beats Paused" : "Binaural Beats Active",
-      description: isPlaying ? "Neural entrainment stopped" : "963Hz Third Eye frequency activated",
-    });
-  };
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center p-4">
-        <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm max-w-md">
-          <CardContent className="text-center py-12">
-            <Shield className="w-16 h-16 text-purple-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-4">Consciousness Portal</h2>
-            <p className="text-purple-200 mb-6">Please authenticate to access advanced spiritual technologies</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 p-4">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Navigation Bar */}
-        <ProNavigationBar showHome={false} />
-
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
+      <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
-          <CardHeader>
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <CardTitle className="text-3xl text-white mb-2 flex items-center gap-3">
-                  <Sparkles className="w-8 h-8 text-purple-400" />
-                  SpiritualMind Pro
-                </CardTitle>
-                <p className="text-purple-200 text-lg">
-                  Where Ancient Wisdom Meets Modern Neuroscience
-                </p>
-              </div>
-              <div className="flex items-center gap-4">
-                <Button
-                  onClick={toggleBinauralBeats}
-                  className={`${
-                    isPlaying 
-                      ? 'bg-purple-600 hover:bg-purple-700' 
-                      : 'bg-gray-600 hover:bg-gray-700'
-                  } transition-all duration-300`}
-                >
-                  {isPlaying ? <Pause className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
-                  <Volume2 className="w-4 h-4 mr-2" />
-                  963Hz
-                </Button>
-                <Badge className="bg-green-600/20 text-green-200 border-green-500/30">
-                  Neural State: {isPlaying ? 'Enhanced' : 'Active'}
-                </Badge>
-              </div>
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
+              <Crown className="w-10 h-10 text-white" />
             </div>
-          </CardHeader>
-        </Card>
+          </div>
+          
+          <h1 className="text-5xl font-bold text-white mb-4">
+            SpiritualMind Pro
+          </h1>
+          
+          <p className="text-xl text-purple-200 max-w-3xl mx-auto mb-8">
+            Unlock advanced spiritual technologies and consciousness expansion tools designed for serious practitioners
+          </p>
 
-        {/* Loading State */}
-        {isLoading && (
-          <Card className="bg-black/50 border-purple-500/30 backdrop-blur-sm">
-            <CardContent className="py-8">
-              <div className="flex items-center justify-center space-x-3">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-400"></div>
-                <span className="text-purple-200">Loading module...</span>
-              </div>
+          {/* User Status */}
+          {!user ? (
+            <Card className="bg-purple-900/30 border-purple-500/30 max-w-md mx-auto mb-8">
+              <CardContent className="pt-6 text-center">
+                <LogIn className="w-8 h-8 text-purple-400 mx-auto mb-3" />
+                <h3 className="text-purple-200 font-semibold mb-2">Authentication Required</h3>
+                <p className="text-purple-300 text-sm mb-4">
+                  Sign in to access your Pro features or start your journey
+                </p>
+                <Button 
+                  onClick={handleAuthClick}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  Sign In / Sign Up
+                </Button>
+              </CardContent>
+            </Card>
+          ) : isProUser ? (
+            <Card className="bg-green-900/20 border-green-500/30 max-w-md mx-auto mb-8">
+              <CardContent className="pt-6 text-center">
+                <Crown className="w-8 h-8 text-green-400 mx-auto mb-3" />
+                <h3 className="text-green-200 font-semibold mb-2">Pro Member Active</h3>
+                <p className="text-green-300 text-sm">
+                  Welcome back! Access all Pro features below.
+                </p>
+                <Badge className="mt-2 bg-green-600">{subscriptionTier?.toUpperCase()}</Badge>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="bg-yellow-900/20 border-yellow-500/30 max-w-md mx-auto mb-8">
+              <CardContent className="pt-6 text-center">
+                <Star className="w-8 h-8 text-yellow-400 mx-auto mb-3" />
+                <h3 className="text-yellow-200 font-semibold mb-2">Upgrade to Pro</h3>
+                <p className="text-yellow-300 text-sm mb-4">
+                  Unlock all advanced spiritual technologies
+                </p>
+                <Button 
+                  onClick={() => navigate('/pricing')}
+                  className="bg-yellow-600 hover:bg-yellow-700"
+                >
+                  View Pricing
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Pro Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {proFeatures.map((feature) => (
+            <Card 
+              key={feature.id}
+              className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/15 transition-all duration-300 cursor-pointer group"
+              onClick={() => handleFeatureClick(feature.path)}
+            >
+              <CardHeader>
+                <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                  {feature.icon}
+                </div>
+                <CardTitle className="text-white text-xl flex items-center justify-between">
+                  {feature.title}
+                  <ArrowRight className="w-5 h-5 text-purple-300 group-hover:translate-x-1 transition-transform" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-purple-200 text-sm leading-relaxed">
+                  {feature.description}
+                </p>
+                {!isProUser && (
+                  <Badge variant="outline" className="mt-3 border-yellow-400 text-yellow-400">
+                    Pro Feature
+                  </Badge>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Quick Access Buttons */}
+        <div className="flex flex-wrap gap-4 justify-center mb-12">
+          <Button
+            onClick={() => navigate('/dashboard')}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3"
+          >
+            <Heart className="w-4 h-4 mr-2" />
+            Main Dashboard
+          </Button>
+          
+          <Button
+            onClick={() => navigate('/quantum-dashboard')}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3"
+          >
+            <Zap className="w-4 h-4 mr-2" />
+            Quantum Dashboard
+          </Button>
+          
+          <Button
+            onClick={() => navigate('/meditation')}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3"
+          >
+            <Moon className="w-4 h-4 mr-2" />
+            Meditation Space
+          </Button>
+        </div>
+
+        {/* Feature Highlights */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <Card className="bg-gradient-to-br from-purple-900/50 to-indigo-900/50 border-purple-500/30">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Sparkles className="w-6 h-6 text-purple-400" />
+                Advanced Consciousness Technologies
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-purple-200 space-y-2">
+              <p>• AI-powered spiritual guidance and personalized practices</p>
+              <p>• Real-time biofeedback and consciousness monitoring</p>
+              <p>• Advanced protection protocols and entity detection</p>
+              <p>• Personalized ritual creation and sacred technology</p>
             </CardContent>
           </Card>
-        )}
 
-        {/* Dashboard Overview */}
-        {activeModule === 'dashboard' && !isLoading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
-            {modules.map((module) => {
-              const Icon = module.icon;
-              return (
-                <Card 
-                  key={module.id}
-                  className="bg-black/30 border-purple-500/30 backdrop-blur-sm hover:bg-black/40 transition-all duration-300 cursor-pointer group hover:scale-105"
-                  onClick={() => handleModuleClick(module.id)}
-                >
-                  <CardHeader className="pb-4">
-                    <CardTitle className="flex items-center gap-3 text-white">
-                      <div className="bg-purple-600/20 p-3 rounded-lg group-hover:bg-purple-500/30 transition-colors">
-                        <Icon className="w-6 h-6 text-purple-400" />
-                      </div>
-                      <div>
-                        <div className="text-lg">{module.title}</div>
-                        <div className="text-sm text-purple-300 font-normal">
-                          {module.description}
-                        </div>
-                      </div>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between">
-                      <Badge className="bg-indigo-600/20 text-indigo-200 border-indigo-500/30">
-                        {module.status}
-                      </Badge>
-                      <Button 
-                        size="sm" 
-                        className="bg-purple-600 hover:bg-purple-700 transition-all duration-300"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleModuleClick(module.id);
-                        }}
-                      >
-                        Enter
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Module Content */}
-        {activeModule !== 'dashboard' && !isLoading && (
-          <div className="space-y-6 animate-fade-in">
-            <Button
-              onClick={handleBackToDashboard}
-              variant="outline"
-              className="border-purple-500/30 text-purple-200 hover:bg-purple-600/20 transition-all duration-300"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Dashboard
-            </Button>
-            
-            {modules.map((module) => {
-              if (module.id === activeModule) {
-                const Component = module.component;
-                return (
-                  <Card key={module.id} className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-3 text-white text-2xl">
-                        <module.icon className="w-8 h-8 text-purple-400" />
-                        {module.title}
-                      </CardTitle>
-                      <p className="text-purple-200">{module.description}</p>
-                    </CardHeader>
-                    <CardContent>
-                      <Component 
-                        userProfile={userProfile} 
-                        setUserProfile={setUserProfile} 
-                      />
-                    </CardContent>
-                  </Card>
-                );
-              }
-              return null;
-            })}
-          </div>
-        )}
-
-        {/* Safety Protocols */}
-        <Card className="bg-red-900/20 border-red-500/30 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-red-200">
-              <Shield className="w-5 h-5" />
-              Global Safety Standards Active
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div className="text-red-200">
-                <strong>Mental Health First:</strong> AI monitoring for dissociation risk
-              </div>
-              <div className="text-red-200">
-                <strong>Cultural Integrity:</strong> Ethical attribution protocols active
-              </div>
-              <div className="text-red-200">
-                <strong>Physics Compliance:</strong> All effects neuroplasticity-based
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          <Card className="bg-gradient-to-br from-indigo-900/50 to-blue-900/50 border-indigo-500/30">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Users className="w-6 h-6 text-indigo-400" />
+                Exclusive Community Access
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-indigo-200 space-y-2">
+              <p>• Connect with advanced practitioners worldwide</p>
+              <p>• Access to exclusive workshops and masterclasses</p>
+              <p>• Priority support and personalized guidance</p>
+              <p>• Beta access to new spiritual technologies</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
