@@ -32,13 +32,25 @@ serve(async (req) => {
       hasSupabaseUrl: !!supabaseUrl,
       hasServiceKey: !!supabaseServiceKey,
       hasStripeKey: !!stripeKey,
-      stripeKeyPrefix: stripeKey ? stripeKey.substring(0, 10) + "..." : "missing"
+      stripeKeyPrefix: stripeKey ? stripeKey.substring(0, 12) + "..." : "missing",
+      allEnvVars: Object.keys(Deno.env.toObject()).filter(k => k.includes('STRIPE')).join(',')
     });
 
     if (!stripeKey) {
-      logStep("ERROR: Missing Stripe key");
+      logStep("ERROR: Missing Stripe key - Please configure STRIPE_SECRET_KEY in Edge Function secrets");
       return new Response(JSON.stringify({ 
-        error: "Payment system not configured - missing Stripe key" 
+        error: "Payment system not configured - missing Stripe key. Please contact support." 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      });
+    }
+
+    // Validate Stripe key format
+    if (!stripeKey.startsWith('sk_')) {
+      logStep("ERROR: Invalid Stripe key format");
+      return new Response(JSON.stringify({ 
+        error: "Invalid Stripe key configuration" 
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,
