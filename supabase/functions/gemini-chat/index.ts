@@ -14,6 +14,18 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Check if Gemini API key is available
+  if (!geminiApiKey) {
+    console.error('GEMINI_API_KEY is not set');
+    return new Response(JSON.stringify({ 
+      error: 'Gemini API key not configured',
+      fallbackResponse: "I apologize, beautiful soul. I'm having trouble connecting with the divine wisdom right now. Please try again in a moment. Your spiritual journey matters deeply to me. 💜"
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
   try {
     const { 
       message, 
