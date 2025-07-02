@@ -25,6 +25,7 @@ export const generateGeminiResponse = async ({
   systemPrompt
 }: GeminiChatRequest): Promise<GeminiChatResponse> => {
   try {
+    // Try OpenAI function first, then fallback to Gemini
     const { data, error } = await supabase.functions.invoke('openai-chat', {
       body: {
         message,
@@ -35,30 +36,32 @@ export const generateGeminiResponse = async ({
       }
     });
 
-    if (error) {
-      console.error('Supabase function error:', error);
-      return generateFallbackResponse(message, 'quota');
+    // If OpenAI function works, return the response
+    if (!error && data && !data.error) {
+      return data;
     }
 
-    if (data.error) {
-      console.error('OpenAI API error:', data.error);
-      if (data.error.includes('quota') || data.error.includes('429') || data.error.includes('exceeded')) {
-        return generateFallbackResponse(message, 'quota');
+    // If OpenAI function fails, try Gemini as backup
+    console.log('OpenAI function failed, trying Gemini backup...');
+    
+    const geminiResponse = await supabase.functions.invoke('gemini-chat', {
+      body: {
+        message,
+        context,
+        personality,
+        conversationHistory,
+        systemPrompt
       }
-      if (data.fallbackResponse) {
-        return {
-          response: data.fallbackResponse,
-          tone: 'nurturing_gentle',
-          metadata: {
-            model: 'fallback',
-            timestamp: new Date().toISOString()
-          }
-        };
-      }
-      return generateFallbackResponse(message, 'error');
+    });
+
+    if (!geminiResponse.error && geminiResponse.data && !geminiResponse.data.error) {
+      return geminiResponse.data;
     }
 
-    return data;
+    // If both fail, use fallback
+    console.error('Both OpenAI and Gemini failed');
+    return generateFallbackResponse(message, 'error');
+    
   } catch (error) {
     console.error('Error in generateGeminiResponse:', error);
     return generateFallbackResponse(message, 'error');
