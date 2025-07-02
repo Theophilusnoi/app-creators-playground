@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -8,6 +7,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Helper logging function for enhanced debugging
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
@@ -19,305 +19,158 @@ serve(async (req) => {
   }
 
   try {
-    logStep("=== FUNCTION START ===");
-    logStep("Method", req.method);
-    logStep("Headers", Object.fromEntries(req.headers.entries()));
+    logStep("Function started");
 
-    // Check environment variables first
-    const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    
-    logStep("Environment check", {
-      hasSupabaseUrl: !!supabaseUrl,
-      hasServiceKey: !!supabaseServiceKey,
-      hasStripeKey: !!stripeKey,
-      stripeKeyPrefix: stripeKey ? stripeKey.substring(0, 12) + "..." : "missing",
-      allEnvVars: Object.keys(Deno.env.toObject()).filter(k => k.includes('STRIPE')).join(',')
-    });
-
     if (!stripeKey) {
-      logStep("ERROR: Missing Stripe key - Please configure STRIPE_SECRET_KEY in Edge Function secrets");
+      logStep("No Stripe key found");
       return new Response(JSON.stringify({ 
-        error: "Payment system not configured - missing Stripe key. Please contact support." 
+        error: "Stripe not configured",
+        message: "Payment system is not configured. Please contact support."
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,
       });
     }
+    logStep("Stripe key verified");
 
-    // Validate Stripe key format
-    if (!stripeKey.startsWith('sk_')) {
-      logStep("ERROR: Invalid Stripe key format");
-      return new Response(JSON.stringify({ 
-        error: "Invalid Stripe key configuration" 
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 500,
-      });
-    }
-
-    // Initialize Supabase client
+    // Use the service role key to perform writes (upsert) in Supabase
     const supabaseClient = createClient(
-      supabaseUrl ?? "",
-      supabaseServiceKey ?? "",
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       { auth: { persistSession: false } }
     );
-    logStep("Supabase client initialized");
 
-    // Parse request body properly
-    let requestBody;
-    try {
-      // Read the body as text first
-      const bodyText = await req.text();
-      logStep("Raw body received", { 
-        bodyText: bodyText,
-        length: bodyText.length,
-        contentType: req.headers.get("content-type")
-      });
-      
-      // Check if body is empty
-      if (!bodyText || bodyText.trim() === '') {
-        logStep("ERROR: Empty body received");
-        return new Response(JSON.stringify({ 
-          error: "Request body is required" 
-        }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 400,
-        });
-      }
-      
-      // Parse JSON
-      try {
-        requestBody = JSON.parse(bodyText);
-        logStep("Request body parsed successfully", { 
-          parsedBody: requestBody,
-          type: typeof requestBody 
-        });
-      } catch (jsonError) {
-        logStep("ERROR: JSON parsing failed", { 
-          error: jsonError.message,
-          bodyText: bodyText
-        });
-        return new Response(JSON.stringify({ 
-          error: `Invalid JSON format: ${jsonError.message}` 
-        }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 400,
-        });
-      }
-      
-    } catch (readError) {
-      logStep("ERROR: Failed to read request body", { error: readError.message });
-      return new Response(JSON.stringify({ 
-        error: `Failed to read request: ${readError.message}` 
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      });
-    }
-
-    const { tier, referralCode } = requestBody;
-    logStep("Extracted data", { tier, referralCode });
-    
-    if (!tier) {
-      logStep("ERROR: Missing tier parameter");
-      return new Response(JSON.stringify({ 
-        error: "Subscription tier is required" 
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      });
-    }
-
-    // Get user from auth header
     const authHeader = req.headers.get("Authorization");
-    logStep("Auth header check", { hasAuth: !!authHeader, authPrefix: authHeader ? authHeader.substring(0, 20) + "..." : "missing" });
-    
     if (!authHeader) {
-      logStep("ERROR: Missing authorization header");
+      logStep("No authorization header provided");
       return new Response(JSON.stringify({ 
-        error: "Authorization header is required" 
+        error: "Authentication required",
+        message: "Please log in to create a subscription."
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 401,
       });
     }
-    
+    logStep("Authorization header found");
+
     const token = authHeader.replace("Bearer ", "");
-    logStep("Attempting user authentication");
+    logStep("Authenticating user with token");
     
-    const { data, error: userError } = await supabaseClient.auth.getUser(token);
-    
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
     if (userError) {
-      logStep("AUTH ERROR", { error: userError.message, code: userError.status });
+      logStep("Authentication error", { error: userError.message });
       return new Response(JSON.stringify({ 
-        error: `Authentication failed: ${userError.message}` 
+        error: "Authentication failed",
+        message: "Please log in again."
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 401,
       });
     }
-    
-    const user = data.user;
+    const user = userData.user;
     if (!user?.email) {
-      logStep("ERROR: User not found or missing email", { hasUser: !!user, userEmail: user?.email });
+      logStep("User not authenticated or missing email");
       return new Response(JSON.stringify({ 
-        error: "User not authenticated or email not available" 
+        error: "User not authenticated",
+        message: "Please log in with a valid email address."
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 401,
       });
     }
-    
-    logStep("User authenticated successfully", { userId: user.id, email: user.email });
+    logStep("User authenticated", { userId: user.id, email: user.email });
 
-    // Initialize Stripe
-    logStep("Initializing Stripe");
-    let stripe;
-    try {
-      stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
-      logStep("Stripe initialized successfully");
-    } catch (stripeError) {
-      logStep("STRIPE INIT ERROR", { error: stripeError.message });
+    const { tier, referralCode } = await req.json();
+    if (!tier) {
+      logStep("No tier provided");
       return new Response(JSON.stringify({ 
-        error: "Payment system initialization failed" 
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 500,
-      });
-    }
-
-    // Define tier pricing
-    const wisdomTiers = {
-      earth: { amount: 2900, name: "Earth Keeper - Monthly" },
-      water: { amount: 7900, name: "Water Bearer - Monthly" },
-      fire: { amount: 19700, name: "Fire Keeper - Monthly" },
-      ether: { amount: 49700, name: "Ether Walker - Monthly" },
-    };
-
-    const selectedTier = wisdomTiers[tier as keyof typeof wisdomTiers];
-    if (!selectedTier) {
-      logStep("ERROR: Invalid tier", { tier, availableTiers: Object.keys(wisdomTiers) });
-      return new Response(JSON.stringify({ 
-        error: `Invalid subscription tier: ${tier}. Valid tiers are: ${Object.keys(wisdomTiers).join(', ')}` 
+        error: "Invalid subscription tier",
+        message: "Please select a valid subscription plan."
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 400,
       });
     }
-    logStep("Tier validated", selectedTier);
+    logStep("Request body parsed", { tier, referralCode });
 
-    // Check for existing customer
-    logStep("Checking for existing Stripe customer");
+    const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
+
+    // Check if customer already exists
+    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     let customerId;
-    try {
-      const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-      if (customers.data.length > 0) {
-        customerId = customers.data[0].id;
-        logStep("Found existing customer", { customerId });
-      } else {
-        logStep("No existing customer found, will create new one");
-      }
-    } catch (stripeError) {
-      logStep("STRIPE CUSTOMER ERROR", { error: stripeError.message });
-      return new Response(JSON.stringify({ 
-        error: "Unable to verify customer information" 
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 500,
-      });
+    if (customers.data.length > 0) {
+      customerId = customers.data[0].id;
+      logStep("Found existing customer", { customerId });
+    } else {
+      logStep("Creating new customer");
     }
 
-    const origin = req.headers.get("origin") || "https://yrshvcaoczjsqziwllqi.supabase.co";
-    logStep("Using origin for URLs", { origin });
-
-    // Create checkout session
-    const sessionMetadata: any = {
-      tier,
-      user_id: user.id,
-      user_email: user.email
+    // Define pricing based on tier
+    const pricingMap: Record<string, number> = {
+      "earth": 2999, // $29.99
+      "water": 7999, // $79.99  
+      "fire": 19999, // $199.99
+      "ether": 49999, // $499.99
     };
-    
-    if (referralCode) {
-      sessionMetadata.referral_code = referralCode;
-    }
 
-    logStep("Creating Stripe checkout session", { 
-      customerId,
-      customerEmail: customerId ? undefined : user.email,
-      metadata: sessionMetadata,
-      tierAmount: selectedTier.amount
-    });
-
-    try {
-      const session = await stripe.checkout.sessions.create({
-        customer: customerId,
-        customer_email: customerId ? undefined : user.email,
-        line_items: [
-          {
-            price_data: {
-              currency: "usd",
-              product_data: { 
-                name: selectedTier.name,
-                description: `Access to ${tier} tier spiritual guidance and AI mentorship`
-              },
-              unit_amount: selectedTier.amount,
-              recurring: { interval: "month" },
-            },
-            quantity: 1,
-          },
-        ],
-        mode: "subscription",
-        success_url: `${origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${origin}/pricing`,
-        metadata: sessionMetadata,
-        allow_promotion_codes: true,
-      });
-
-      logStep("SUCCESS: Checkout session created", { sessionId: session.id, hasUrl: !!session.url });
-
-      if (!session.url) {
-        logStep("ERROR: No checkout URL returned from Stripe");
-        return new Response(JSON.stringify({ 
-          error: "Unable to create checkout session - no URL returned" 
-        }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 500,
-        });
-      }
-
-      logStep("=== FUNCTION SUCCESS ===", { url: session.url });
-      return new Response(JSON.stringify({ url: session.url }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
-
-    } catch (stripeError) {
-      logStep("STRIPE CHECKOUT ERROR", { 
-        error: stripeError.message, 
-        type: stripeError.type,
-        code: stripeError.code,
-        stack: stripeError.stack 
-      });
+    const amount = pricingMap[tier.toLowerCase()];
+    if (!amount) {
+      logStep("Invalid tier", { tier });
       return new Response(JSON.stringify({ 
-        error: `Unable to create checkout session: ${stripeError.message}` 
+        error: "Invalid subscription tier",
+        message: "Please select a valid subscription plan."
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 500,
+        status: 400,
       });
     }
+    logStep("Pricing determined", { tier, amount });
 
+    const origin = req.headers.get("origin") || "http://localhost:3000";
+    
+    const sessionParams: any = {
+      customer: customerId,
+      customer_email: customerId ? undefined : user.email,
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: { 
+              name: `SpiritualMind ${tier.charAt(0).toUpperCase() + tier.slice(1)} Subscription`,
+              description: `Access to ${tier} tier spiritual features and guidance`
+            },
+            unit_amount: amount,
+            recurring: { interval: "month" },
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "subscription",
+      success_url: `${origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/pricing`,
+      metadata: {
+        tier: tier,
+        user_id: user.id,
+        referral_code: referralCode || "",
+      },
+    };
+
+    logStep("Creating checkout session", { sessionParams: { ...sessionParams, line_items: "..." } });
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
+    logStep("Checkout session created", { sessionId: session.id, url: session.url });
+
+    return new Response(JSON.stringify({ url: session.url }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200,
+    });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("=== CRITICAL ERROR ===", { 
-      message: errorMessage, 
-      stack: error instanceof Error ? error.stack : undefined,
-      type: typeof error
-    });
-    
+    logStep("ERROR in create-checkout", { message: errorMessage });
     return new Response(JSON.stringify({ 
-      error: `Checkout creation failed: ${errorMessage}` 
+      error: "Checkout creation failed",
+      message: "Unable to create checkout session. Please try again or contact support."
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
