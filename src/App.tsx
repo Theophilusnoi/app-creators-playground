@@ -6,10 +6,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import Index from "./pages/Index";
-import SpiritualHub from "./components/spiritual/SpiritualHub";
+import { SpiritualHub } from "./components/spiritual/SpiritualHub";
 import SoulTravelPage from "./pages/SoulTravelPage";
-import EnhancedAuthPage from "./components/auth/EnhancedAuthPage";
-import SimplifiedPricingPage from "./pages/SimplifiedPricingPage";
+import AuthPage from "./components/auth/AuthPage";
+import PricingPage from "./pages/PricingPage";
 import OnboardingFlow from "./components/onboarding/OnboardingFlow";
 import { AuthProvider } from "./components/auth/AuthProvider";
 import { SubscriptionProvider } from "./contexts/SubscriptionContext";
@@ -28,8 +28,8 @@ function App() {
               <BrowserRouter>
                 <Routes>
                   <Route path="/" element={<Index />} />
-                  <Route path="/auth" element={<EnhancedAuthPage />} />
-                  <Route path="/pricing" element={<SimplifiedPricingPage />} />
+                  <Route path="/auth" element={<AuthPage />} />
+                  <Route path="/pricing" element={<PricingPage />} />
                   <Route path="/onboarding" element={<OnboardingFlow />} />
                   <Route path="/pro" element={<SpiritualHub />} />
                   <Route path="/soul-travel" element={<SoulTravelPage />} />
