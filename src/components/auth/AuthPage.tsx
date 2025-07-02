@@ -23,7 +23,7 @@ export const AuthPage = () => {
   // Redirect if user is already authenticated
   useEffect(() => {
     if (user) {
-      navigate('/dashboard');
+      navigate('/pro');
     }
   }, [user, navigate]);
 
@@ -55,7 +55,7 @@ export const AuthPage = () => {
     setLoading(true);
 
     try {
-      const redirectUrl = `${window.location.origin}/dashboard`;
+      const redirectUrl = `${window.location.origin}/pro`;
 
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({
@@ -68,7 +68,7 @@ export const AuthPage = () => {
           title: "Welcome back!",
           description: "You have been successfully signed in.",
         });
-        navigate('/dashboard');
+        navigate('/pro');
       } else {
         const { error } = await supabase.auth.signUp({
           email: email.trim(),
