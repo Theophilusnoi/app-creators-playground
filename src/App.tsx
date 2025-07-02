@@ -8,7 +8,7 @@ import { ThemeProvider } from "next-themes";
 import Index from "./pages/Index";
 import { SpiritualHub } from "./components/spiritual/SpiritualHub";
 import SoulTravelPage from "./pages/SoulTravelPage";
-import AuthPage from "./components/auth/AuthPage";
+import { AuthPage } from "./components/auth/AuthPage";
 import PricingPage from "./pages/PricingPage";
 import OnboardingFlow from "./components/onboarding/OnboardingFlow";
 import { AuthProvider } from "./components/auth/AuthProvider";
