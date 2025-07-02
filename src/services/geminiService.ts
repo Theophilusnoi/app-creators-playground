@@ -26,7 +26,7 @@ export const generateGeminiResponse = async ({
   systemPrompt
 }: GeminiChatRequest): Promise<GeminiChatResponse> => {
   try {
-    const { data, error } = await supabase.functions.invoke('gemini-chat', {
+    const { data, error } = await supabase.functions.invoke('openai-chat', {
       body: {
         message,
         context,
