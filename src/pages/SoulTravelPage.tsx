@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Crown, Lock, ArrowRight } from 'lucide-react';
+import UpgradePrompt from '@/components/ui/UpgradePrompt';
 
 const SoulTravelPage: React.FC = () => {
   const navigate = useNavigate();
@@ -162,71 +163,18 @@ const SoulTravelPage: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-2xl mx-auto">
-            <Card className="bg-gray-900/50 border-purple-500/30 text-white backdrop-blur-sm">
-              <CardHeader className="text-center pb-4">
-                <div className="flex justify-center mb-6">
-                  <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center">
-                    <Lock className="w-10 h-10 text-white" />
-                  </div>
-                </div>
-                <CardTitle className="text-3xl flex items-center justify-center space-x-3 mb-4">
-                  <Crown className="w-8 h-8 text-yellow-400" />
-                  <span>Soul Journey - Premium Feature</span>
-                </CardTitle>
-                <p className="text-xl text-purple-200 mb-6">
-                  Unlock the ancient and transformative practice of Soul Traveling
-                </p>
-              </CardHeader>
-              
-              <CardContent className="space-y-6">
-                <div className="text-center space-y-4">
-                  <div className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 p-6 rounded-lg border border-purple-500/30">
-                    <h3 className="text-lg font-semibold text-purple-200 mb-3">What You'll Get:</h3>
-                    <ul className="text-left text-purple-300 space-y-2">
-                      <li>• Complete Soul Journey dashboard with guided experiences</li>
-                      <li>• Multiple journey types (Astral, Past Life, Spirit Guide encounters)</li>
-                      <li>• Advanced safety protocols and emergency return features</li>
-                      <li>• Journey reflection and community sharing tools</li>
-                      <li>• Progress tracking and spiritual development metrics</li>
-                    </ul>
-                  </div>
-
-                  <div className="space-y-4">
-                    <p className="text-purple-300">
-                      Upgrade to <span className="font-semibold text-yellow-400">Fire Keeper</span> or <span className="font-semibold text-yellow-400">Ether Walker</span> to access Soul Journey features
-                    </p>
-                    
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                      <Button 
-                        onClick={handleUpgrade}
-                        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 px-8 py-3 text-lg"
-                        size="lg"
-                      >
-                        {!user ? 'Sign In & Upgrade' : 'View Pricing Plans'}
-                        <ArrowRight className="w-5 h-5 ml-2" />
-                      </Button>
-                      
-                      <Button 
-                        onClick={() => navigate('/pro')}
-                        variant="outline"
-                        className="border-purple-400 text-purple-200 hover:bg-purple-600/20 px-8 py-3 text-lg"
-                        size="lg"
-                      >
-                        Explore Pro Features
-                      </Button>
-                    </div>
-                  </div>
-
-                  {!user && (
-                    <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-4">
-                      <p className="text-yellow-200 text-sm">
-                        <strong>New to SpiritualMind?</strong> Sign up for free to explore our basic features, then upgrade when you're ready for advanced soul travel experiences.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            <UpgradePrompt
+              feature="Soul Journey Experience"
+              description="Unlock the ancient and transformative practice of Soul Traveling with comprehensive guidance and safety protocols."
+              benefits={[
+                "Complete Soul Journey dashboard with guided experiences",
+                "Multiple journey types (Astral, Past Life, Spirit Guide encounters)",
+                "Advanced safety protocols and emergency return features",
+                "Journey reflection and community sharing tools",
+                "Progress tracking and spiritual development metrics"
+              ]}
+              requiredTier="fire"
+            />
           </div>
         </div>
       </div>
