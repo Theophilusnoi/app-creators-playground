@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,15 +18,49 @@ import {
   Eye, 
   Book, 
   Bath,
-  MessageCircle
+  MessageCircle,
+  BarChart3,
+  Home,
+  Zap
 } from 'lucide-react';
 
 export const SpiritualHub: React.FC = () => {
   const [activeTab, setActiveTab] = useState('seraphina');
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-950 via-blue-950 to-indigo-950 p-4">
       <div className="max-w-7xl mx-auto space-y-6">
+        {/* Navigation Header */}
+        <div className="flex justify-between items-center mb-6">
+          <Button
+            onClick={() => navigate('/')}
+            variant="outline"
+            className="border-purple-500/30 text-purple-200 hover:bg-purple-600/20"
+          >
+            <Home className="w-4 h-4 mr-2" />
+            Home
+          </Button>
+          
+          <div className="flex gap-3">
+            <Button
+              onClick={() => navigate('/quantum-dashboard')}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+            >
+              <Zap className="w-4 h-4 mr-2" />
+              Quantum Dashboard
+            </Button>
+            <Button
+              onClick={() => navigate('/gamification')}
+              variant="outline"
+              className="border-green-500/30 text-green-200 hover:bg-green-600/20"
+            >
+              <BarChart3 className="w-4 h-4 mr-2" />
+              Progress Dashboard
+            </Button>
+          </div>
+        </div>
+
         {/* Header */}
         <Card className="bg-gradient-to-r from-purple-900/60 via-blue-900/60 to-indigo-900/60 border-purple-500/30">
           <CardHeader className="text-center">

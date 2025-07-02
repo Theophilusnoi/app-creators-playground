@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import Index from "./pages/Index";
 import { SpiritualHub } from "./components/spiritual/SpiritualHub";
+import { QuantumSpiritualDashboard } from "./components/spiritual/QuantumSpiritualDashboard";
+import { GamificationDashboard } from "./components/spiritual/GamificationDashboard";
 import SoulTravelPage from "./pages/SoulTravelPage";
 import { AuthPage } from "./components/auth/AuthPage";
 import PricingPage from "./pages/PricingPage";
@@ -32,6 +34,8 @@ function App() {
                   <Route path="/pricing" element={<PricingPage />} />
                   <Route path="/onboarding" element={<OnboardingFlow />} />
                   <Route path="/pro" element={<SpiritualHub />} />
+                  <Route path="/quantum-dashboard" element={<QuantumSpiritualDashboard />} />
+                  <Route path="/gamification" element={<GamificationDashboard />} />
                   <Route path="/soul-travel" element={<SoulTravelPage />} />
                 </Routes>
               </BrowserRouter>
