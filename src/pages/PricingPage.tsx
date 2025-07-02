@@ -6,6 +6,7 @@ import { Check, Crown, Zap, Sparkles, Gift, Mountain, Waves, Flame, Wind, Loader
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const PricingPage = () => {
   const { createCheckout, subscriptionTier, subscribed, loading, checkSubscription } = useSubscription();
@@ -269,6 +270,36 @@ const PricingPage = () => {
             </p>
           </div>
         )}
+
+        {/* Debug Test Button */}
+        <div className="text-center mt-8">
+          <Button
+            onClick={async () => {
+              try {
+                const { data, error } = await supabase.functions.invoke('test-checkout', {
+                  body: { tier: 'test' },
+                  headers: { 'Content-Type': 'application/json' }
+                });
+                console.log('Test function result:', { data, error });
+                toast({
+                  title: "Test Result",
+                  description: data?.message || error?.message || "Check console for details",
+                });
+              } catch (err) {
+                console.error('Test error:', err);
+                toast({
+                  title: "Test Failed",
+                  description: "Check console for details",
+                  variant: "destructive"
+                });
+              }
+            }}
+            variant="outline"
+            className="bg-black/20 border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
+          >
+            Test Edge Function
+          </Button>
+        </div>
 
         <div className="text-center mt-12 max-w-3xl mx-auto">
           <h2 className="text-2xl font-bold text-white mb-4">Wisdom Through Cultural Integration</h2>
