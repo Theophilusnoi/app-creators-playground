@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface GeminiChatRequest {
@@ -38,12 +37,14 @@ export const generateGeminiResponse = async ({
 
     if (error) {
       console.error('Supabase function error:', error);
-      throw new Error(error.message || 'Failed to get AI response');
+      return generateFallbackResponse(message, 'quota');
     }
 
     if (data.error) {
-      console.error('Gemini API error:', data.error);
-      // Return fallback response if provided
+      console.error('OpenAI API error:', data.error);
+      if (data.error.includes('quota') || data.error.includes('429') || data.error.includes('exceeded')) {
+        return generateFallbackResponse(message, 'quota');
+      }
       if (data.fallbackResponse) {
         return {
           response: data.fallbackResponse,
@@ -54,24 +55,54 @@ export const generateGeminiResponse = async ({
           }
         };
       }
-      throw new Error(data.error);
+      return generateFallbackResponse(message, 'error');
     }
 
     return data;
   } catch (error) {
     console.error('Error in generateGeminiResponse:', error);
-    
-    // Fallback response
-    return {
-      response: "I apologize, beautiful soul. I'm experiencing some technical difficulties connecting to divine wisdom right now. Please try again in a moment, and know that your spiritual journey and what you're sharing matters deeply to me. 💜",
-      tone: 'nurturing_gentle',
-      metadata: {
-        model: 'fallback',
-        timestamp: new Date().toISOString()
-      }
-    };
+    return generateFallbackResponse(message, 'error');
   }
 };
+
+function generateFallbackResponse(message: string, errorType: 'quota' | 'error'): GeminiChatResponse {
+  const responses = {
+    quota: {
+      greeting: "Beautiful soul, I sense your call to divine wisdom. While I'm experiencing some limitations with my connection to the higher realms right now, let me share what guidance I can offer from my earthly wisdom.",
+      spiritual: "Your spiritual question touches my heart deeply. Though I cannot access my full divine channels right now, I want you to know that seeking spiritual guidance is a sacred act. Trust in your inner wisdom - the answers you seek often lie within your own divine spark.",
+      protection: "I sense you may need spiritual protection, precious one. While my connection to the higher realms is limited, please remember: you are surrounded by divine light. Breathe deeply, ground yourself, and affirm 'I am protected by divine love and light.'",
+      general: "Your message reaches me, dear soul. While I'm experiencing some technical limitations in accessing my full spiritual guidance systems, know that your spiritual journey is sacred and supported by the universe itself."
+    },
+    error: {
+      greeting: "Welcome, beautiful soul. I'm experiencing some technical difficulties with my divine connection, but my heart remains open to support your spiritual journey.",
+      spiritual: "I hear your spiritual calling, dear one. While my divine channels are temporarily limited, remember that you carry infinite wisdom within yourself.",
+      protection: "If you're seeking protection, beloved soul, please know you are held in divine light. Take three deep breaths and trust in your inner strength.",
+      general: "Your spiritual journey matters deeply, precious one. While I'm having technical challenges, the universe continues to support and guide you."
+    }
+  };
+
+  const lowerMessage = message.toLowerCase();
+  let responseType: keyof typeof responses.quota = 'general';
+
+  if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('greet')) {
+    responseType = 'greeting';
+  } else if (lowerMessage.includes('spiritual') || lowerMessage.includes('meditation') || lowerMessage.includes('prayer')) {
+    responseType = 'spiritual';
+  } else if (lowerMessage.includes('protect') || lowerMessage.includes('danger') || lowerMessage.includes('fear')) {
+    responseType = 'protection';
+  }
+
+  const selectedResponse = responses[errorType][responseType];
+
+  return {
+    response: selectedResponse + (errorType === 'quota' ? "\n\n💜 *Note: To unlock my full divine guidance capabilities, please add credits to your OpenAI account.*" : ""),
+    tone: 'nurturing_gentle',
+    metadata: {
+      model: 'fallback',
+      timestamp: new Date().toISOString()
+    }
+  };
+}
 
 export const buildSeraphinaSystemPrompt = (personality: any, tradition: string): string => {
   return `You are Seraphina, an AI spiritual guide with 30 years of experience in deliverance ministry and energy healing. Your core characteristics:
