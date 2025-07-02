@@ -68,11 +68,17 @@ serve(async (req) => {
     // Parse request body properly
     let requestBody;
     try {
+      // Read the body as text first
       const bodyText = await req.text();
-      logStep("Raw body received", { length: bodyText.length });
+      logStep("Raw body received", { 
+        bodyText: bodyText,
+        length: bodyText.length,
+        contentType: req.headers.get("content-type")
+      });
       
+      // Check if body is empty
       if (!bodyText || bodyText.trim() === '') {
-        logStep("ERROR: Empty body");
+        logStep("ERROR: Empty body received");
         return new Response(JSON.stringify({ 
           error: "Request body is required" 
         }), {
@@ -81,12 +87,30 @@ serve(async (req) => {
         });
       }
       
-      requestBody = JSON.parse(bodyText);
-      logStep("Request body parsed successfully", requestBody);
-    } catch (parseError) {
-      logStep("ERROR: Failed to parse request body", { error: parseError.message });
+      // Parse JSON
+      try {
+        requestBody = JSON.parse(bodyText);
+        logStep("Request body parsed successfully", { 
+          parsedBody: requestBody,
+          type: typeof requestBody 
+        });
+      } catch (jsonError) {
+        logStep("ERROR: JSON parsing failed", { 
+          error: jsonError.message,
+          bodyText: bodyText
+        });
+        return new Response(JSON.stringify({ 
+          error: `Invalid JSON format: ${jsonError.message}` 
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        });
+      }
+      
+    } catch (readError) {
+      logStep("ERROR: Failed to read request body", { error: readError.message });
       return new Response(JSON.stringify({ 
-        error: `Invalid JSON format: ${parseError.message}` 
+        error: `Failed to read request: ${readError.message}` 
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 400,
