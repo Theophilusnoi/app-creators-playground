@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, Play, ArrowRight, Star } from 'lucide-react';
@@ -60,6 +60,9 @@ const FeaturePreviewModal: React.FC<FeaturePreviewModalProps> = ({
             <Sparkles className="w-6 h-6 text-purple-400" />
             {feature.title}
           </DialogTitle>
+          <DialogDescription className="text-purple-200">
+            {feature.description}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
