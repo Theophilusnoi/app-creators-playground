@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -8,6 +7,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Helper logging function for enhanced debugging
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
@@ -18,23 +18,16 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const supabaseClient = createClient(
-    Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-    { auth: { persistSession: false } }
-  );
-
   try {
     logStep("Function started");
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) {
-      logStep("STRIPE_SECRET_KEY not configured");
+      logStep("No Stripe key found - returning unsubscribed");
       return new Response(JSON.stringify({ 
         subscribed: false,
         subscription_tier: null,
-        subscription_end: null,
-        error: "Payment system not configured" 
+        subscription_end: null 
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
@@ -42,33 +35,52 @@ serve(async (req) => {
     }
     logStep("Stripe key verified");
 
+    // Use the service role key to perform writes (upsert) in Supabase
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
+    );
+
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
+      logStep("No authorization header provided");
       return new Response(JSON.stringify({ 
-        error: "No authorization header provided" 
+        subscribed: false,
+        subscription_tier: null,
+        subscription_end: null 
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 401,
+        status: 200,
       });
     }
-    
+    logStep("Authorization header found");
+
     const token = authHeader.replace("Bearer ", "");
+    logStep("Authenticating user with token");
+    
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
     if (userError) {
+      logStep("Authentication error", { error: userError.message });
       return new Response(JSON.stringify({ 
-        error: `Authentication error: ${userError.message}` 
+        subscribed: false,
+        subscription_tier: null,
+        subscription_end: null 
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 401,
+        status: 200,
       });
     }
     const user = userData.user;
     if (!user?.email) {
+      logStep("User not authenticated or missing email");
       return new Response(JSON.stringify({ 
-        error: "User not authenticated or email not available" 
+        subscribed: false,
+        subscription_tier: null,
+        subscription_end: null 
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 401,
+        status: 200,
       });
     }
     logStep("User authenticated", { userId: user.id, email: user.email });
@@ -87,7 +99,6 @@ serve(async (req) => {
         subscription_end: null,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'email' });
-      
       return new Response(JSON.stringify({ 
         subscribed: false,
         subscription_tier: null,
@@ -106,7 +117,6 @@ serve(async (req) => {
       status: "active",
       limit: 1,
     });
-    
     const hasActiveSub = subscriptions.data.length > 0;
     let subscriptionTier = null;
     let subscriptionEnd = null;
@@ -116,34 +126,25 @@ serve(async (req) => {
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
       logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
       
-      // Determine subscription tier from price amount
+      // Determine subscription tier from price
       const priceId = subscription.items.data[0].price.id;
       const price = await stripe.prices.retrieve(priceId);
       const amount = price.unit_amount || 0;
       
-      // Map amount to tier names
-      if (amount === 2900) {
+      if (amount <= 2999) {
         subscriptionTier = "earth";
-      } else if (amount === 7900) {
+      } else if (amount <= 7999) {
         subscriptionTier = "water";
-      } else if (amount === 19700) {
+      } else if (amount <= 19999) {
         subscriptionTier = "fire";
-      } else if (amount === 49700) {
-        subscriptionTier = "ether";
-      } else if (amount <= 999) {
-        subscriptionTier = "basic";
-      } else if (amount <= 1999) {
-        subscriptionTier = "premium";
       } else {
-        subscriptionTier = "pro";
+        subscriptionTier = "ether";
       }
-      
       logStep("Determined subscription tier", { priceId, amount, subscriptionTier });
     } else {
       logStep("No active subscription found");
     }
 
-    // Update subscribers table
     await supabaseClient.from("subscribers").upsert({
       email: user.email,
       user_id: user.id,
@@ -155,7 +156,6 @@ serve(async (req) => {
     }, { onConflict: 'email' });
 
     logStep("Updated database with subscription info", { subscribed: hasActiveSub, subscriptionTier });
-    
     return new Response(JSON.stringify({
       subscribed: hasActiveSub,
       subscription_tier: subscriptionTier,
@@ -167,9 +167,14 @@ serve(async (req) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR in check-subscription", { message: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    return new Response(JSON.stringify({ 
+      subscribed: false,
+      subscription_tier: null,
+      subscription_end: null,
+      error: "Subscription check failed" 
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
+      status: 200, // Return 200 with safe defaults instead of error
     });
   }
 });

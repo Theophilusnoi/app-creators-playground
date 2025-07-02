@@ -19,7 +19,17 @@ const SubscriptionContext = createContext<SubscriptionContextType | undefined>(u
 export const useSubscription = () => {
   const context = useContext(SubscriptionContext);
   if (!context) {
-    throw new Error('useSubscription must be used within a SubscriptionProvider');
+    console.error('useSubscription must be used within a SubscriptionProvider - returning default values');
+    // Return safe defaults instead of throwing
+    return {
+      subscribed: false,
+      subscriptionTier: null,
+      subscriptionEnd: null,
+      loading: false,
+      checkSubscription: async () => {},
+      createCheckout: async () => {},
+      openCustomerPortal: async () => {}
+    };
   }
   return context;
 };
