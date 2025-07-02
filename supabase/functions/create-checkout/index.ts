@@ -65,37 +65,32 @@ serve(async (req) => {
     );
     logStep("Supabase client initialized");
 
-    // Parse request body - try both methods
+    // Parse request body properly
     let requestBody;
     try {
-      requestBody = await req.json();
-      logStep("Request body parsed as JSON", requestBody);
-    } catch (jsonError) {
-      logStep("JSON parse failed, trying text", { error: jsonError.message });
-      try {
-        const textBody = await req.text();
-        logStep("Raw text body", { body: textBody, length: textBody.length });
-        if (textBody && textBody.trim()) {
-          requestBody = JSON.parse(textBody);
-          logStep("Parsed text body as JSON", requestBody);
-        } else {
-          logStep("ERROR: Empty body");
-          return new Response(JSON.stringify({ 
-            error: "Request body is required" 
-          }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-            status: 400,
-          });
-        }
-      } catch (textError) {
-        logStep("ERROR: Failed to parse body", { jsonError: jsonError.message, textError: textError.message });
+      const bodyText = await req.text();
+      logStep("Raw body received", { length: bodyText.length });
+      
+      if (!bodyText || bodyText.trim() === '') {
+        logStep("ERROR: Empty body");
         return new Response(JSON.stringify({ 
-          error: `Invalid request format: ${textError.message}` 
+          error: "Request body is required" 
         }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 400,
         });
       }
+      
+      requestBody = JSON.parse(bodyText);
+      logStep("Request body parsed successfully", requestBody);
+    } catch (parseError) {
+      logStep("ERROR: Failed to parse request body", { error: parseError.message });
+      return new Response(JSON.stringify({ 
+        error: `Invalid JSON format: ${parseError.message}` 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
     }
 
     const { tier, referralCode } = requestBody;
