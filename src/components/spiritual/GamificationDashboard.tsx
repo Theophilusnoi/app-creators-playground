@@ -40,6 +40,9 @@ export const GamificationDashboard = () => {
   useEffect(() => {
     if (user) {
       loadGamificationData();
+    } else {
+      // Set loading to false if no user to prevent infinite loading
+      setLoading(false);
     }
   }, [user]);
 
