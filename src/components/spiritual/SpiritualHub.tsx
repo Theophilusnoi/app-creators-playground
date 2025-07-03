@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EnhancedSeraphinaChatPro } from './divination/enhanced/EnhancedSeraphinaChatPro';
-import { TarotReader } from './divination/TarotReader';
+import { CosmicDivinationEngine } from './divination/enhanced/CosmicDivinationEngine';
 import { SacredBathingSystem } from './SacredBathingSystem';
 import { SpiritualKnowledgeBase } from './SpiritualKnowledgeBase';
 import { SpiritualArmorToolkit } from './protection/SpiritualArmorToolkit';
@@ -145,7 +145,7 @@ export const SpiritualHub: React.FC = () => {
               className="flex items-center gap-2 data-[state=active]:bg-purple-600/50"
             >
               <Star className="w-4 h-4" />
-              Tarot
+              Oracle
             </TabsTrigger>
             <TabsTrigger 
               value="bathing" 
@@ -209,14 +209,14 @@ export const SpiritualHub: React.FC = () => {
               <Card className="bg-gradient-to-r from-blue-900/40 to-purple-900/40 border-blue-500/30">
                 <CardContent className="p-6">
                   <div className="text-center">
-                    <h3 className="text-2xl font-bold text-white mb-3">🃏 Divine Tarot Guidance</h3>
+                    <h3 className="text-2xl font-bold text-white mb-3">🌌 Cosmic Divination Oracle</h3>
                     <p className="text-blue-200">
-                      Receive sacred wisdom through authentic tarot readings with multiple spread options
+                      Enhanced palm reading, tarot wisdom, and soul archetype discovery with cosmic timing
                     </p>
                   </div>
                 </CardContent>
               </Card>
-              <TarotReader />
+              <CosmicDivinationEngine />
             </div>
           </TabsContent>
 
