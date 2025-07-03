@@ -195,8 +195,9 @@ const Index = () => {
                 <Button 
                   variant="ghost" 
                   className="w-full text-purple-300 hover:text-white hover:bg-purple-600/20"
+                  onClick={() => navigate(feature.route)}
                 >
-                  Learn More
+                  Try Now
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </CardContent>
