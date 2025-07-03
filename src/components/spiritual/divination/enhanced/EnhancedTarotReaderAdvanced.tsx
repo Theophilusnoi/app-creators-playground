@@ -8,7 +8,7 @@ import { useVoiceService } from '@/hooks/useVoiceService';
 import { useToast } from '@/hooks/use-toast';
 import { Zap, Volume2, Sparkles, Save, RefreshCw, History } from 'lucide-react';
 import { TarotCard, TarotReadingCard, TarotReading } from '@/types/tarot';
-import { completeTarotDeck } from '@/data/tarotDeck';
+import { enhancedTarotDeck } from '@/data/enhancedTarotDeck';
 import { spreadConfigurations } from '@/data/tarotSpreads';
 import { 
   generatePositionMeaning, 
@@ -46,7 +46,7 @@ export const EnhancedTarotReaderAdvanced: React.FC = () => {
     // Simulate card drawing with enhanced animation
     setTimeout(() => {
       const spread = spreadConfigurations[selectedSpread];
-      const shuffled = [...completeTarotDeck].sort(() => Math.random() - 0.5);
+      const shuffled = [...enhancedTarotDeck].sort(() => Math.random() - 0.5);
       const numCards = spread.positions.length;
       const selectedCards = shuffled.slice(0, numCards);
 
