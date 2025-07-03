@@ -9,6 +9,10 @@ import { EnhancedSeraphinaChatPro } from './divination/enhanced/EnhancedSeraphin
 import { TarotReader } from './divination/TarotReader';
 import { SacredBathingSystem } from './SacredBathingSystem';
 import { SpiritualKnowledgeBase } from './SpiritualKnowledgeBase';
+import { SpiritualArmorToolkit } from './protection/SpiritualArmorToolkit';
+import { CosmicCalendar } from './cosmic/CosmicCalendar';
+import { AngelicInvocationSystem } from './angelic/AngelicInvocationSystem';
+import { RitualBuilder } from './rituals/RitualBuilder';
 import { 
   Sparkles, 
   Star, 
@@ -21,7 +25,11 @@ import {
   MessageCircle,
   BarChart3,
   Home,
-  Zap
+  Zap,
+  Shield,
+  Crown,
+  Flame,
+  Calendar
 } from 'lucide-react';
 
 export const SpiritualHub: React.FC = () => {
@@ -96,41 +104,62 @@ export const SpiritualHub: React.FC = () => {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 bg-black/30">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 bg-black/30">
             <TabsTrigger 
               value="seraphina" 
               className="flex items-center gap-2 data-[state=active]:bg-purple-600/50"
             >
               <Sparkles className="w-4 h-4" />
-              Seraphina Pro
+              Seraphina
+            </TabsTrigger>
+            <TabsTrigger 
+              value="protection" 
+              className="flex items-center gap-2 data-[state=active]:bg-blue-600/50"
+            >
+              <Shield className="w-4 h-4" />
+              Protection
+            </TabsTrigger>
+            <TabsTrigger 
+              value="angelic" 
+              className="flex items-center gap-2 data-[state=active]:bg-gold-600/50"
+            >
+              <Crown className="w-4 h-4" />
+              Angels
+            </TabsTrigger>
+            <TabsTrigger 
+              value="rituals" 
+              className="flex items-center gap-2 data-[state=active]:bg-red-600/50"
+            >
+              <Flame className="w-4 h-4" />
+              Rituals
+            </TabsTrigger>
+            <TabsTrigger 
+              value="cosmic" 
+              className="flex items-center gap-2 data-[state=active]:bg-indigo-600/50"
+            >
+              <Calendar className="w-4 h-4" />
+              Cosmic
             </TabsTrigger>
             <TabsTrigger 
               value="tarot" 
-              className="flex items-center gap-2 data-[state=active]:bg-blue-600/50"
+              className="flex items-center gap-2 data-[state=active]:bg-purple-600/50"
             >
               <Star className="w-4 h-4" />
-              Tarot Reading
+              Tarot
             </TabsTrigger>
             <TabsTrigger 
               value="bathing" 
               className="flex items-center gap-2 data-[state=active]:bg-green-600/50"
             >
               <Bath className="w-4 h-4" />
-              Sacred Bathing
+              Bathing
             </TabsTrigger>
             <TabsTrigger 
               value="knowledge" 
               className="flex items-center gap-2 data-[state=active]:bg-yellow-600/50"
             >
               <Book className="w-4 h-4" />
-              Knowledge Base
-            </TabsTrigger>
-            <TabsTrigger 
-              value="classic" 
-              className="flex items-center gap-2 data-[state=active]:bg-pink-600/50"
-            >
-              <MessageCircle className="w-4 h-4" />
-              Classic Chat
+              Knowledge
             </TabsTrigger>
           </TabsList>
 
@@ -223,19 +252,67 @@ export const SpiritualHub: React.FC = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="classic" className="mt-6">
+          <TabsContent value="protection" className="mt-6">
             <div className="space-y-4">
-              <Card className="bg-gradient-to-r from-pink-900/40 to-purple-900/40 border-pink-500/30">
+              <Card className="bg-gradient-to-r from-blue-900/40 to-purple-900/40 border-blue-500/30">
                 <CardContent className="p-6">
                   <div className="text-center">
-                    <h3 className="text-2xl font-bold text-white mb-3">💬 Classic Seraphina Chat</h3>
-                    <p className="text-pink-200">
-                      Original spiritual guidance chat interface
+                    <h3 className="text-2xl font-bold text-white mb-3">🛡️ Spiritual Armor Toolkit</h3>
+                    <p className="text-blue-200">
+                      Divine protection techniques and spiritual warfare strategies
                     </p>
                   </div>
                 </CardContent>
               </Card>
-              {/* You can import and use your original EnhancedSeraphinaChat here */}
+              <SpiritualArmorToolkit />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="angelic" className="mt-6">
+            <div className="space-y-4">
+              <Card className="bg-gradient-to-r from-gold-900/40 to-yellow-900/40 border-gold-500/30">
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <h3 className="text-2xl font-bold text-white mb-3">👼 Angelic Invocation System</h3>
+                    <p className="text-gold-200">
+                      Call upon the mighty Archangels for divine guidance and protection
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+              <AngelicInvocationSystem />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="rituals" className="mt-6">
+            <div className="space-y-4">
+              <Card className="bg-gradient-to-r from-red-900/40 to-orange-900/40 border-red-500/30">
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <h3 className="text-2xl font-bold text-white mb-3">🔮 Sacred Ritual Builder</h3>
+                    <p className="text-red-200">
+                      Create and perform powerful rituals aligned with cosmic timing
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+              <RitualBuilder />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="cosmic" className="mt-6">
+            <div className="space-y-4">
+              <Card className="bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border-indigo-500/30">
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <h3 className="text-2xl font-bold text-white mb-3">🌌 Cosmic Calendar</h3>
+                    <p className="text-indigo-200">
+                      Align your practices with lunar phases and planetary energies
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+              <CosmicCalendar />
             </div>
           </TabsContent>
         </Tabs>
