@@ -16,6 +16,7 @@ import SpiritualAvatarSystem from './SpiritualAvatarSystem';
 import ChakraIntelligenceDashboard from './ChakraIntelligenceDashboard';
 import DreamCodeDecoder from './DreamCodeDecoder';
 import CosmicCalendar from './CosmicCalendar';
+import { SecurityMonitor } from './shared/SecurityMonitor';
 import { 
   Sparkles, 
   Star, 
@@ -34,13 +35,24 @@ import {
   Flame,
   Calendar
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 export const SpiritualHub: React.FC = () => {
   const [activeTab, setActiveTab] = useState('seraphina');
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
+
+  // Get current user for security monitoring
+  React.useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-950 via-blue-950 to-indigo-950 p-4">
+      <SecurityMonitor userId={user?.id} pageName="SpiritualHub" />
+      
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Navigation Header */}
         <div className="flex justify-between items-center mb-6">
