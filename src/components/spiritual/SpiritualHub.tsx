@@ -10,7 +10,6 @@ import { CosmicDivinationEngine } from './divination/enhanced/CosmicDivinationEn
 import { SacredBathingSystem } from './SacredBathingSystem';
 import { SpiritualKnowledgeBase } from './SpiritualKnowledgeBase';
 import { SpiritualArmorToolkit } from './protection/SpiritualArmorToolkit';
-import { CosmicCalendar } from './cosmic/CosmicCalendar';
 import { AngelicInvocationSystem } from './angelic/AngelicInvocationSystem';
 import { RitualBuilder } from './rituals/RitualBuilder';
 import SpiritualAvatarSystem from './SpiritualAvatarSystem';
