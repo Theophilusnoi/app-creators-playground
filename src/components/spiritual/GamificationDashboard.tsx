@@ -90,8 +90,8 @@ export const GamificationDashboard = () => {
       const mockAchievements: Achievement[] = [
         {
           id: '1',
-          title: 'First Steps',
-          description: 'Complete your first meditation session',
+          title: '🏛️ Foundation Stone',
+          description: 'Begin your sacred temple building journey - first meditation session',
           badge_icon: '🌱',
           points: 10,
           unlocked: true,
@@ -100,53 +100,73 @@ export const GamificationDashboard = () => {
         },
         {
           id: '2',
-          title: 'Week Warrior',
-          description: 'Maintain a 7-day meditation streak',
-          badge_icon: '🔥',
-          points: 50,
+          title: '🔥 Root Awakening',
+          description: 'Complete Days 1-7: The Root Awakening phase of Temple Building',
+          badge_icon: '🕉️',
+          points: 77,
           unlocked: true,
           progress: 7,
           max_progress: 7
         },
         {
           id: '3',
-          title: 'Mindful Month',
-          description: 'Practice meditation for 30 consecutive days',
-          badge_icon: '🏆',
-          points: 200,
+          title: '✨ Sacred Architect',
+          description: 'Reach Day 21: Clarity & Communication mastery in temple consciousness',
+          badge_icon: '🏛️',
+          points: 333,
           unlocked: false,
           progress: 7,
-          max_progress: 30
+          max_progress: 21
         },
         {
           id: '4',
-          title: 'Wisdom Seeker',
-          description: 'Complete 5 shadow work sessions',
+          title: '🌙 Shadow Temple Keeper',
+          description: 'Complete 7 shadow work sessions - master the dark temple chambers',
           badge_icon: '🔮',
-          points: 75,
+          points: 108,
           unlocked: false,
           progress: 2,
-          max_progress: 5
+          max_progress: 7
         },
         {
           id: '5',
-          title: 'Dream Walker',
-          description: 'Log 10 dream experiences',
+          title: '💫 Dream Temple Walker',
+          description: 'Navigate 13 dream experiences - unlock astral temple access',
           badge_icon: '🌙',
-          points: 60,
+          points: 144,
           unlocked: false,
           progress: 4,
-          max_progress: 10
+          max_progress: 13
         },
         {
           id: '6',
-          title: 'Community Builder',
-          description: 'Join 3 community circles',
+          title: '🙏 Temple Community Master',
+          description: 'Unite 7 sacred souls in temple building circles',
           badge_icon: '👥',
-          points: 40,
+          points: 222,
           unlocked: false,
           progress: 1,
-          max_progress: 3
+          max_progress: 7
+        },
+        {
+          id: '7',
+          title: '🎭 Cosmic Timing Initiate',
+          description: 'Align 5 practices with astrological sacred timing',
+          badge_icon: '🌟',
+          points: 555,
+          unlocked: false,
+          progress: 0,
+          max_progress: 5
+        },
+        {
+          id: '8',
+          title: '👑 Temple Master Builder',
+          description: 'Complete the full 50-Day Temple Activation Journey',
+          badge_icon: '👑',
+          points: 1111,
+          unlocked: false,
+          progress: 7,
+          max_progress: 50
         }
       ];
 
@@ -164,11 +184,11 @@ export const GamificationDashboard = () => {
 
   const getLevelProgress = () => {
     const levelThresholds = {
-      'Novice': 0,
-      'Seeker': 500,
-      'Practitioner': 2000,
-      'Sage': 5000,
-      'Enlightened': 10000
+      '🌱 Foundation Builder': 0,
+      '🔥 Temple Initiate': 500,
+      '🏛️ Sacred Architect': 2000,
+      '✨ Temple Master': 5000,
+      '👑 Divine Consciousness': 10000
     };
     
     const currentThreshold = levelThresholds[currentLevel as keyof typeof levelThresholds] || 0;
@@ -191,9 +211,18 @@ export const GamificationDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold text-white mb-2">Your Spiritual Journey</h2>
-        <p className="text-purple-200">Track your progress and celebrate milestones</p>
+      <div className="text-center relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/10 via-purple-400/10 to-pink-400/10 rounded-lg animate-pulse"></div>
+        <div className="relative z-10 p-6">
+          <h2 className="text-4xl font-bold text-white mb-2">🏛️ Temple Builder's Progress</h2>
+          <p className="text-purple-200 text-xl mb-3">Your 50-Day Sacred Awakening Journey</p>
+          <div className="bg-gradient-to-r from-yellow-900/30 to-purple-900/30 rounded-lg p-4 mb-4">
+            <p className="text-yellow-200 font-medium">🕉️ Sacred Architect Status</p>
+            <p className="text-purple-300 text-sm italic">
+              "Each practice builds your temple of consciousness, each milestone awakens divine potential"
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Level and Points Overview */}
