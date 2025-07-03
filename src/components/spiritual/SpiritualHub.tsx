@@ -13,6 +13,10 @@ import { SpiritualArmorToolkit } from './protection/SpiritualArmorToolkit';
 import { CosmicCalendar } from './cosmic/CosmicCalendar';
 import { AngelicInvocationSystem } from './angelic/AngelicInvocationSystem';
 import { RitualBuilder } from './rituals/RitualBuilder';
+import SpiritualAvatarSystem from './SpiritualAvatarSystem';
+import ChakraIntelligenceDashboard from './ChakraIntelligenceDashboard';
+import DreamCodeDecoder from './DreamCodeDecoder';
+import CosmicCalendar from './CosmicCalendar';
 import { 
   Sparkles, 
   Star, 
