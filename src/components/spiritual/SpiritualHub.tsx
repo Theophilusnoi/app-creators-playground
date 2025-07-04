@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -119,7 +118,7 @@ export const SpiritualHub: React.FC = () => {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 bg-black/30">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9 bg-black/30">
             <TabsTrigger 
               value="seraphina" 
               className="flex items-center gap-2 data-[state=active]:bg-purple-600/50"
@@ -175,6 +174,13 @@ export const SpiritualHub: React.FC = () => {
             >
               <Book className="w-4 h-4" />
               Knowledge
+            </TabsTrigger>
+            <TabsTrigger 
+              value="wisdom" 
+              className="flex items-center gap-2 data-[state=active]:bg-purple-600/50"
+            >
+              <Eye className="w-4 h-4" />
+              Deep Wisdom
             </TabsTrigger>
           </TabsList>
 
@@ -328,6 +334,22 @@ export const SpiritualHub: React.FC = () => {
                 </CardContent>
               </Card>
               <CosmicCalendar />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="wisdom" className="mt-6">
+            <div className="space-y-4">
+              <Card className="bg-gradient-to-r from-purple-900/40 to-indigo-900/40 border-purple-500/30">
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <h3 className="text-2xl font-bold text-white mb-3">🌌 The Deeper Knowledge of Life</h3>
+                    <p className="text-purple-200">
+                      Hidden truths, suppressed wisdom, and the reawakening to who we truly are
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+              <DeeperWisdomHub />
             </div>
           </TabsContent>
         </Tabs>

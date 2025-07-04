@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,8 +14,11 @@ import {
   Flower,
   Sun,
   Moon,
-  Star
+  Star,
+  Eye,
+  Brain
 } from 'lucide-react';
+import { DeeperWisdomHub } from './DeeperWisdomHub';
 
 interface KnowledgeSection {
   id: string;
@@ -28,6 +30,7 @@ interface KnowledgeSection {
 export const SpiritualKnowledgeBase = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('traditional');
 
   const knowledgeSections: KnowledgeSection[] = [
     {
@@ -226,56 +229,84 @@ export const SpiritualKnowledgeBase = () => {
             Spiritual Knowledge Base
           </CardTitle>
           <p className="text-purple-200">
-            Explore ancient wisdom, spiritual practices, and sacred knowledge
+            Explore ancient wisdom, spiritual practices, and deeper truths about reality
           </p>
         </CardHeader>
-        <CardContent>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400 w-4 h-4" />
-            <Input
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search spiritual knowledge..."
-              className="pl-10 bg-black/30 border-purple-500/50 text-white placeholder-purple-300"
-            />
-          </div>
-        </CardContent>
       </Card>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredSections.map((section) => (
-          <Card 
-            key={section.id} 
-            className="bg-black/30 border-purple-500/30 hover:border-purple-400/50 transition-colors cursor-pointer"
-            onClick={() => setSelectedSection(selectedSection === section.id ? null : section.id)}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2 bg-black/30">
+          <TabsTrigger 
+            value="traditional" 
+            className="flex items-center gap-2 data-[state=active]:bg-purple-600"
           >
-            <CardHeader className="pb-3">
-              <CardTitle className="text-white flex items-center justify-between text-lg">
-                <div className="flex items-center gap-2">
-                  {section.icon}
-                  {section.title}
-                </div>
-                <ChevronRight className={`w-4 h-4 text-purple-400 transition-transform ${
-                  selectedSection === section.id ? 'rotate-90' : ''
-                }`} />
-              </CardTitle>
-            </CardHeader>
-            {selectedSection === section.id && (
-              <CardContent className="pt-0">
-                {renderContent(section.content)}
-              </CardContent>
-            )}
-          </Card>
-        ))}
-      </div>
+            <Book className="w-4 h-4" />
+            Traditional Wisdom
+          </TabsTrigger>
+          <TabsTrigger 
+            value="deeper" 
+            className="flex items-center gap-2 data-[state=active]:bg-purple-600"
+          >
+            <Eye className="w-4 h-4" />
+            Deeper Knowledge
+          </TabsTrigger>
+        </TabsList>
 
-      {filteredSections.length === 0 && (
-        <Card className="bg-black/30 border-purple-500/30">
-          <CardContent className="text-center py-8">
-            <p className="text-purple-200">No knowledge found matching your search.</p>
-          </CardContent>
-        </Card>
-      )}
+        <TabsContent value="traditional" className="space-y-4 mt-6">
+          <Card className="bg-gradient-to-br from-purple-900/50 to-indigo-900/50 border-purple-500/30">
+            <CardContent className="pt-6">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400 w-4 h-4" />
+                <Input
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search spiritual knowledge..."
+                  className="pl-10 bg-black/30 border-purple-500/50 text-white placeholder-purple-300"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredSections.map((section) => (
+              <Card 
+                key={section.id} 
+                className="bg-black/30 border-purple-500/30 hover:border-purple-400/50 transition-colors cursor-pointer"
+                onClick={() => setSelectedSection(selectedSection === section.id ? null : section.id)}
+              >
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-white flex items-center justify-between text-lg">
+                    <div className="flex items-center gap-2">
+                      {section.icon}
+                      {section.title}
+                    </div>
+                    <ChevronRight className={`w-4 h-4 text-purple-400 transition-transform ${
+                      selectedSection === section.id ? 'rotate-90' : ''
+                    }`} />
+                  </CardTitle>
+                </CardHeader>
+                {selectedSection === section.id && (
+                  <CardContent className="pt-0">
+                    {renderContent(section.content)}
+                  </CardContent>
+                )}
+              </Card>
+            ))}
+          </div>
+
+          {filteredSections.length === 0 && (
+            <Card className="bg-black/30 border-purple-500/30">
+              <CardContent className="text-center py-8">
+                <p className="text-purple-200">No knowledge found matching your search.</p>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="deeper" className="mt-6">
+          <DeeperWisdomHub />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
