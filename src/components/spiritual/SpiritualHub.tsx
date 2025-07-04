@@ -11,6 +11,7 @@ import { SpiritualKnowledgeBase } from './SpiritualKnowledgeBase';
 import { SpiritualArmorToolkit } from './protection/SpiritualArmorToolkit';
 import { AngelicInvocationSystem } from './angelic/AngelicInvocationSystem';
 import { RitualBuilder } from './rituals/RitualBuilder';
+import { DeeperWisdomHub } from './DeeperWisdomHub';
 import SpiritualAvatarSystem from './SpiritualAvatarSystem';
 import ChakraIntelligenceDashboard from './ChakraIntelligenceDashboard';
 import DreamCodeDecoder from './DreamCodeDecoder';
