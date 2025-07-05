@@ -75,22 +75,17 @@ const LoadingSkeleton = () => <div className="space-y-4">
     <Skeleton className="h-64 w-full" />
     <Skeleton className="h-48 w-full" />
   </div>;
+
 export const SpiritualHub: React.FC = () => {
   const [activeTab, setActiveTab] = useState('seraphina');
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
 
   // Get current user for security monitoring
   React.useEffect(() => {
-    supabase.auth.getUser().then(({
-      data: {
-        user
-      }
-    }) => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user);
     });
   }, []);
@@ -113,24 +108,15 @@ export const SpiritualHub: React.FC = () => {
   };
 
   // Enhanced navigation features
-  const quickActions = [{
-    icon: Zap,
-    label: "Quick Ritual",
-    action: () => setActiveTab('rituals')
-  }, {
-    icon: Heart,
-    label: "Mood Check",
-    action: () => setActiveTab('mood')
-  }, {
-    icon: Moon,
-    label: "Dream Log",
-    action: () => setActiveTab('dreams')
-  }, {
-    icon: Shield,
-    label: "Protection",
-    action: () => setActiveTab('protection')
-  }];
-  return <div className="min-h-screen bg-gradient-to-br from-purple-950 via-blue-950 to-indigo-950 p-4">
+  const quickActions = [
+    { icon: Zap, label: "Quick Ritual", action: () => setActiveTab('rituals') },
+    { icon: Heart, label: "Mood Check", action: () => setActiveTab('mood') },
+    { icon: Moon, label: "Dream Log", action: () => setActiveTab('dreams') },
+    { icon: Shield, label: "Protection", action: () => setActiveTab('protection') }
+  ];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-950 via-blue-950 to-indigo-950 p-4">
       <Suspense fallback={<LoadingSkeleton />}>
         <SecurityMonitor userId={user?.id} pageName="SpiritualHub" />
       </Suspense>
@@ -144,10 +130,12 @@ export const SpiritualHub: React.FC = () => {
           </Button>
           
           <div className="flex gap-3">
-            {quickActions.map((action, index) => <Button key={index} onClick={action.action} size="sm" variant="outline" className="border-purple-400/30 text-purple-200 hover:bg-purple-600/20">
+            {quickActions.map((action, index) => (
+              <Button key={index} onClick={action.action} size="sm" variant="outline" className="border-purple-400/30 text-purple-200 hover:bg-purple-600/20">
                 <action.icon className="w-4 h-4 mr-1" />
                 {action.label}
-              </Button>)}
+              </Button>
+            ))}
             <Button onClick={() => navigate('/quantum-dashboard')} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
               <Zap className="w-4 h-4 mr-2" />
               Quantum Dashboard
@@ -159,10 +147,10 @@ export const SpiritualHub: React.FC = () => {
           </div>
         </div>
 
-        {/* Temple Builder's Path Header */}
-        <Card className="bg-gradient-to-r from-purple-900/60 via-blue-900/60 to-indigo-900/60 border-purple-500/30 relative overflow-hidden">
+        {/* Temple Builder's Path Header - Fixed spacing */}
+        <Card className="bg-gradient-to-r from-purple-900/60 via-blue-900/60 to-indigo-900/60 border-purple-500/30 relative overflow-hidden mb-8">
           <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/10 via-purple-400/10 to-pink-400/10 animate-pulse"></div>
-          <CardHeader className="text-center relative z-10">
+          <CardHeader className="text-center relative z-10 pb-8">
             <CardTitle className="text-4xl font-bold text-white mb-4">
               <span className="bg-gradient-to-r from-yellow-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                 🕉️ Temple Builder's Path 🕉️
@@ -192,9 +180,9 @@ export const SpiritualHub: React.FC = () => {
           </CardHeader>
         </Card>
 
-        {/* Enhanced Main Tabs with better performance */}
+        {/* Enhanced Main Tabs with better performance - Fixed spacing */}
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 xl:grid-cols-16 bg-black/30 p-2 gap-1">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 xl:grid-cols-16 bg-black/30 p-2 gap-1 mb-8">
             <TabsTrigger value="seraphina" className="flex items-center gap-2 data-[state=active]:bg-purple-600/50 text-xs lg:text-sm">
               <Sparkles className="w-3 h-3 lg:w-4 lg:h-4" />
               <span className="hidden sm:inline">Seraphina</span>
@@ -263,7 +251,7 @@ export const SpiritualHub: React.FC = () => {
 
           {/* Enhanced Tab Contents with Suspense for better performance */}
           <TabsContent value="seraphina" className="mt-6">
-            <div className="space-y-4">
+            <div className="space-y-6">
               <Card className="bg-gradient-to-r from-purple-900/40 to-blue-900/40 border-purple-500/30 relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/5 via-purple-400/5 to-pink-400/5"></div>
                 <CardContent className="p-6 relative z-10">
@@ -408,7 +396,7 @@ export const SpiritualHub: React.FC = () => {
                 </CardContent>
               </Card>
               <Suspense fallback={<LoadingSkeleton />}>
-                <MeditationTimer onComplete={sessionData => console.log('Meditation completed:', sessionData)} />
+                <MeditationTimer onComplete={(sessionData) => console.log('Meditation completed:', sessionData)} />
               </Suspense>
             </div>
           </TabsContent>
@@ -480,7 +468,7 @@ export const SpiritualHub: React.FC = () => {
                 </CardContent>
               </Card>
               <Suspense fallback={<LoadingSkeleton />}>
-                <SpiritualAssessment />
+                <SpiritualAssessment onComplete={(results) => console.log('Assessment completed:', results)} />
               </Suspense>
             </div>
           </TabsContent>
@@ -666,5 +654,6 @@ export const SpiritualHub: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </div>;
+    </div>
+  );
 };
