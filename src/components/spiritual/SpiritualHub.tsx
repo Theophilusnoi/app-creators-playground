@@ -1,3 +1,4 @@
+
 import React, { useState, Suspense, lazy } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,7 +35,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
-// Lazy load components for better performance
+// Lazy load components for better performance - Fixed named export imports
 const EnhancedSeraphinaChatPro = lazy(() => import('./divination/enhanced/EnhancedSeraphinaChatPro').then(module => ({ default: module.EnhancedSeraphinaChatPro })));
 const CosmicDivinationEngine = lazy(() => import('./divination/enhanced/CosmicDivinationEngine').then(module => ({ default: module.CosmicDivinationEngine })));
 const SacredBathingSystem = lazy(() => import('./SacredBathingSystem').then(module => ({ default: module.SacredBathingSystem })));
@@ -48,8 +49,8 @@ const ChakraIntelligenceDashboard = lazy(() => import('./ChakraIntelligenceDashb
 const DreamCodeDecoder = lazy(() => import('./DreamCodeDecoder'));
 const CosmicCalendar = lazy(() => import('./CosmicCalendar'));
 const SecurityMonitor = lazy(() => import('./shared/SecurityMonitor').then(module => ({ default: module.SecurityMonitor })));
-const MoodTracker = lazy(() => import('./MoodTracker'));
-const MeditationTimer = lazy(() => import('./MeditationTimer'));
+const MoodTracker = lazy(() => import('./MoodTracker').then(module => ({ default: module.MoodTracker })));
+const MeditationTimer = lazy(() => import('./MeditationTimer').then(module => ({ default: module.MeditationTimer })));
 const ShadowWorkTracker = lazy(() => import('./ShadowWorkTracker'));
 const SynchronicityDecoder = lazy(() => import('./SynchronicityDecoder'));
 const SpiritualAssessment = lazy(() => import('./SpiritualAssessment'));
@@ -452,7 +453,7 @@ export const SpiritualHub: React.FC = () => {
                 </CardContent>
               </Card>
               <Suspense fallback={<LoadingSkeleton />}>
-                <MeditationTimer />
+                <MeditationTimer onComplete={(sessionData) => console.log('Meditation completed:', sessionData)} />
               </Suspense>
             </div>
           </TabsContent>
