@@ -33,6 +33,7 @@ function App() {
                   <Route path="/auth" element={<AuthPage />} />
                   <Route path="/pricing" element={<PricingPage />} />
                   <Route path="/onboarding" element={<OnboardingFlow />} />
+                  <Route path="/dashboard" element={<SpiritualHub />} />
                   <Route path="/pro" element={<SpiritualHub />} />
                   <Route path="/quantum-dashboard" element={<QuantumSpiritualDashboard />} />
                   <Route path="/gamification" element={<GamificationDashboard />} />
