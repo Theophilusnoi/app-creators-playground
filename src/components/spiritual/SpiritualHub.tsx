@@ -468,7 +468,7 @@ export const SpiritualHub: React.FC = () => {
                 </CardContent>
               </Card>
               <Suspense fallback={<LoadingSkeleton />}>
-                <SpiritualAssessment onComplete={(results) => console.log('Assessment completed:', results)} />
+                <SpiritualAssessment onComplete={() => console.log('Assessment completed')} />
               </Suspense>
             </div>
           </TabsContent>
