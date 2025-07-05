@@ -6,77 +6,91 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Sparkles, 
-  Star, 
-  Heart, 
-  Brain, 
-  Mic, 
-  Eye, 
-  Book, 
-  Bath,
-  MessageCircle,
-  BarChart3,
-  Home,
-  Zap,
-  Shield,
-  Crown,
-  Flame,
-  Calendar,
-  Users,
-  TrendingUp,
-  Moon,
-  Play,
-  Target,
-  Lightbulb,
-  UserPlus,
-  Globe
-} from 'lucide-react';
+import { Sparkles, Star, Heart, Brain, Mic, Eye, Book, Bath, MessageCircle, BarChart3, Home, Zap, Shield, Crown, Flame, Calendar, Users, TrendingUp, Moon, Play, Target, Lightbulb, UserPlus, Globe } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 // Lazy load components for better performance - Fixed named export imports
-const EnhancedSeraphinaChatPro = lazy(() => import('./divination/enhanced/EnhancedSeraphinaChatPro').then(module => ({ default: module.EnhancedSeraphinaChatPro })));
-const CosmicDivinationEngine = lazy(() => import('./divination/enhanced/CosmicDivinationEngine').then(module => ({ default: module.CosmicDivinationEngine })));
-const SacredBathingSystem = lazy(() => import('./SacredBathingSystem').then(module => ({ default: module.SacredBathingSystem })));
-const SpiritualKnowledgeBase = lazy(() => import('./SpiritualKnowledgeBase').then(module => ({ default: module.SpiritualKnowledgeBase })));
-const SpiritualArmorToolkit = lazy(() => import('./protection/SpiritualArmorToolkit').then(module => ({ default: module.SpiritualArmorToolkit })));
-const AngelicInvocationSystem = lazy(() => import('./angelic/AngelicInvocationSystem').then(module => ({ default: module.AngelicInvocationSystem })));
-const RitualBuilder = lazy(() => import('./rituals/RitualBuilder').then(module => ({ default: module.RitualBuilder })));
-const DeeperWisdomHub = lazy(() => import('./DeeperWisdomHub').then(module => ({ default: module.DeeperWisdomHub })));
+const EnhancedSeraphinaChatPro = lazy(() => import('./divination/enhanced/EnhancedSeraphinaChatPro').then(module => ({
+  default: module.EnhancedSeraphinaChatPro
+})));
+const CosmicDivinationEngine = lazy(() => import('./divination/enhanced/CosmicDivinationEngine').then(module => ({
+  default: module.CosmicDivinationEngine
+})));
+const SacredBathingSystem = lazy(() => import('./SacredBathingSystem').then(module => ({
+  default: module.SacredBathingSystem
+})));
+const SpiritualKnowledgeBase = lazy(() => import('./SpiritualKnowledgeBase').then(module => ({
+  default: module.SpiritualKnowledgeBase
+})));
+const SpiritualArmorToolkit = lazy(() => import('./protection/SpiritualArmorToolkit').then(module => ({
+  default: module.SpiritualArmorToolkit
+})));
+const AngelicInvocationSystem = lazy(() => import('./angelic/AngelicInvocationSystem').then(module => ({
+  default: module.AngelicInvocationSystem
+})));
+const RitualBuilder = lazy(() => import('./rituals/RitualBuilder').then(module => ({
+  default: module.RitualBuilder
+})));
+const DeeperWisdomHub = lazy(() => import('./DeeperWisdomHub').then(module => ({
+  default: module.DeeperWisdomHub
+})));
 const SpiritualAvatarSystem = lazy(() => import('./SpiritualAvatarSystem'));
 const ChakraIntelligenceDashboard = lazy(() => import('./ChakraIntelligenceDashboard'));
 const DreamCodeDecoder = lazy(() => import('./DreamCodeDecoder'));
 const CosmicCalendar = lazy(() => import('./CosmicCalendar'));
-const SecurityMonitor = lazy(() => import('./shared/SecurityMonitor').then(module => ({ default: module.SecurityMonitor })));
-const MoodTracker = lazy(() => import('./MoodTracker').then(module => ({ default: module.MoodTracker })));
-const MeditationTimer = lazy(() => import('./MeditationTimer').then(module => ({ default: module.MeditationTimer })));
-const ShadowWorkTracker = lazy(() => import('./ShadowWorkTracker').then(module => ({ default: module.ShadowWorkTracker })));
-const SynchronicityDecoder = lazy(() => import('./SynchronicityDecoder').then(module => ({ default: module.SynchronicityDecoder })));
-const SpiritualAssessment = lazy(() => import('./SpiritualAssessment').then(module => ({ default: module.SpiritualAssessment })));
-const RecommendationsSystem = lazy(() => import('./RecommendationsSystem').then(module => ({ default: module.RecommendationsSystem })));
-const CommunityHub = lazy(() => import('./CommunityHub').then(module => ({ default: module.CommunityHub })));
-const CulturalAdapter = lazy(() => import('./CulturalAdapter').then(module => ({ default: module.CulturalAdapter })));
-const ReferralSystem = lazy(() => import('./ReferralSystem').then(module => ({ default: module.ReferralSystem })));
+const SecurityMonitor = lazy(() => import('./shared/SecurityMonitor').then(module => ({
+  default: module.SecurityMonitor
+})));
+const MoodTracker = lazy(() => import('./MoodTracker').then(module => ({
+  default: module.MoodTracker
+})));
+const MeditationTimer = lazy(() => import('./MeditationTimer').then(module => ({
+  default: module.MeditationTimer
+})));
+const ShadowWorkTracker = lazy(() => import('./ShadowWorkTracker').then(module => ({
+  default: module.ShadowWorkTracker
+})));
+const SynchronicityDecoder = lazy(() => import('./SynchronicityDecoder').then(module => ({
+  default: module.SynchronicityDecoder
+})));
+const SpiritualAssessment = lazy(() => import('./SpiritualAssessment').then(module => ({
+  default: module.SpiritualAssessment
+})));
+const RecommendationsSystem = lazy(() => import('./RecommendationsSystem').then(module => ({
+  default: module.RecommendationsSystem
+})));
+const CommunityHub = lazy(() => import('./CommunityHub').then(module => ({
+  default: module.CommunityHub
+})));
+const CulturalAdapter = lazy(() => import('./CulturalAdapter').then(module => ({
+  default: module.CulturalAdapter
+})));
+const ReferralSystem = lazy(() => import('./ReferralSystem').then(module => ({
+  default: module.ReferralSystem
+})));
 
 // Loading component
-const LoadingSkeleton = () => (
-  <div className="space-y-4">
+const LoadingSkeleton = () => <div className="space-y-4">
     <Skeleton className="h-32 w-full" />
     <Skeleton className="h-64 w-full" />
     <Skeleton className="h-48 w-full" />
-  </div>
-);
-
+  </div>;
 export const SpiritualHub: React.FC = () => {
   const [activeTab, setActiveTab] = useState('seraphina');
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
 
   // Get current user for security monitoring
   React.useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(({
+      data: {
+        user
+      }
+    }) => {
       setUser(user);
     });
   }, []);
@@ -89,7 +103,7 @@ export const SpiritualHub: React.FC = () => {
       // Add any tab-specific initialization here
       toast({
         title: "✨ Loading Enhanced Features",
-        description: `Accessing ${newTab} with improved performance`,
+        description: `Accessing ${newTab} with improved performance`
       });
     } catch (error) {
       console.error('Tab change error:', error);
@@ -99,15 +113,24 @@ export const SpiritualHub: React.FC = () => {
   };
 
   // Enhanced navigation features
-  const quickActions = [
-    { icon: Zap, label: "Quick Ritual", action: () => setActiveTab('rituals') },
-    { icon: Heart, label: "Mood Check", action: () => setActiveTab('mood') },
-    { icon: Moon, label: "Dream Log", action: () => setActiveTab('dreams') },
-    { icon: Shield, label: "Protection", action: () => setActiveTab('protection') },
-  ];
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-950 via-blue-950 to-indigo-950 p-4">
+  const quickActions = [{
+    icon: Zap,
+    label: "Quick Ritual",
+    action: () => setActiveTab('rituals')
+  }, {
+    icon: Heart,
+    label: "Mood Check",
+    action: () => setActiveTab('mood')
+  }, {
+    icon: Moon,
+    label: "Dream Log",
+    action: () => setActiveTab('dreams')
+  }, {
+    icon: Shield,
+    label: "Protection",
+    action: () => setActiveTab('protection')
+  }];
+  return <div className="min-h-screen bg-gradient-to-br from-purple-950 via-blue-950 to-indigo-950 p-4">
       <Suspense fallback={<LoadingSkeleton />}>
         <SecurityMonitor userId={user?.id} pageName="SpiritualHub" />
       </Suspense>
@@ -115,40 +138,21 @@ export const SpiritualHub: React.FC = () => {
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Enhanced Navigation Header */}
         <div className="flex justify-between items-center mb-6">
-          <Button
-            onClick={() => navigate('/')}
-            variant="outline"
-            className="border-purple-500/30 text-purple-200 hover:bg-purple-600/20"
-          >
+          <Button onClick={() => navigate('/')} variant="outline" className="border-purple-500/30 text-purple-200 hover:bg-purple-600/20">
             <Home className="w-4 h-4 mr-2" />
             Home
           </Button>
           
           <div className="flex gap-3">
-            {quickActions.map((action, index) => (
-              <Button
-                key={index}
-                onClick={action.action}
-                size="sm"
-                variant="outline"
-                className="border-purple-400/30 text-purple-200 hover:bg-purple-600/20"
-              >
+            {quickActions.map((action, index) => <Button key={index} onClick={action.action} size="sm" variant="outline" className="border-purple-400/30 text-purple-200 hover:bg-purple-600/20">
                 <action.icon className="w-4 h-4 mr-1" />
                 {action.label}
-              </Button>
-            ))}
-            <Button
-              onClick={() => navigate('/quantum-dashboard')}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-            >
+              </Button>)}
+            <Button onClick={() => navigate('/quantum-dashboard')} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
               <Zap className="w-4 h-4 mr-2" />
               Quantum Dashboard
             </Button>
-            <Button
-              onClick={() => navigate('/gamification')}
-              variant="outline"
-              className="border-green-500/30 text-green-200 hover:bg-green-600/20"
-            >
+            <Button onClick={() => navigate('/gamification')} variant="outline" className="border-green-500/30 text-green-200 hover:bg-green-600/20">
               <BarChart3 className="w-4 h-4 mr-2" />
               Progress Dashboard
             </Button>
@@ -191,115 +195,67 @@ export const SpiritualHub: React.FC = () => {
         {/* Enhanced Main Tabs with better performance */}
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 xl:grid-cols-16 bg-black/30 p-2 gap-1">
-            <TabsTrigger 
-              value="seraphina" 
-              className="flex items-center gap-2 data-[state=active]:bg-purple-600/50 text-xs lg:text-sm"
-            >
+            <TabsTrigger value="seraphina" className="flex items-center gap-2 data-[state=active]:bg-purple-600/50 text-xs lg:text-sm">
               <Sparkles className="w-3 h-3 lg:w-4 lg:h-4" />
               <span className="hidden sm:inline">Seraphina</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="rituals" 
-              className="flex items-center gap-2 data-[state=active]:bg-red-600/50 text-xs lg:text-sm"
-            >
+            <TabsTrigger value="rituals" className="flex items-center gap-2 data-[state=active]:bg-red-600/50 text-xs lg:text-sm">
               <Flame className="w-3 h-3 lg:w-4 lg:h-4" />
               <span className="hidden sm:inline">Rituals</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="cultural" 
-              className="flex items-center gap-2 data-[state=active]:bg-orange-600/50 text-xs lg:text-sm"
-            >
+            <TabsTrigger value="cultural" className="flex items-center gap-2 data-[state=active]:bg-orange-600/50 text-xs lg:text-sm">
               <Globe className="w-3 h-3 lg:w-4 lg:h-4" />
               <span className="hidden sm:inline">Cultural</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="community" 
-              className="flex items-center gap-2 data-[state=active]:bg-blue-600/50 text-xs lg:text-sm"
-            >
+            <TabsTrigger value="community" className="flex items-center gap-2 data-[state=active]:bg-blue-600/50 text-xs lg:text-sm">
               <Users className="w-3 h-3 lg:w-4 lg:h-4" />
               <span className="hidden sm:inline">Community</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="progress" 
-              className="flex items-center gap-2 data-[state=active]:bg-green-600/50 text-xs lg:text-sm"
-            >
+            <TabsTrigger value="progress" className="flex items-center gap-2 data-[state=active]:bg-green-600/50 text-xs lg:text-sm">
               <TrendingUp className="w-3 h-3 lg:w-4 lg:h-4" />
               <span className="hidden sm:inline">Progress</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="mood" 
-              className="flex items-center gap-2 data-[state=active]:bg-pink-600/50 text-xs lg:text-sm"
-            >
+            <TabsTrigger value="mood" className="flex items-center gap-2 data-[state=active]:bg-pink-600/50 text-xs lg:text-sm">
               <Heart className="w-3 h-3 lg:w-4 lg:h-4" />
               <span className="hidden sm:inline">Mood</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="meditate" 
-              className="flex items-center gap-2 data-[state=active]:bg-indigo-600/50 text-xs lg:text-sm"
-            >
+            <TabsTrigger value="meditate" className="flex items-center gap-2 data-[state=active]:bg-indigo-600/50 text-xs lg:text-sm">
               <Play className="w-3 h-3 lg:w-4 lg:h-4" />
               <span className="hidden sm:inline">Meditate</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="dreams" 
-              className="flex items-center gap-2 data-[state=active]:bg-purple-600/50 text-xs lg:text-sm"
-            >
+            <TabsTrigger value="dreams" className="flex items-center gap-2 data-[state=active]:bg-purple-600/50 text-xs lg:text-sm">
               <Moon className="w-3 h-3 lg:w-4 lg:h-4" />
               <span className="hidden sm:inline">Dreams</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="shadow" 
-              className="flex items-center gap-2 data-[state=active]:bg-gray-600/50 text-xs lg:text-sm"
-            >
+            <TabsTrigger value="shadow" className="flex items-center gap-2 data-[state=active]:bg-gray-600/50 text-xs lg:text-sm">
               <Eye className="w-3 h-3 lg:w-4 lg:h-4" />
               <span className="hidden sm:inline">Shadow</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="sync" 
-              className="flex items-center gap-2 data-[state=active]:bg-cyan-600/50 text-xs lg:text-sm"
-            >
+            <TabsTrigger value="sync" className="flex items-center gap-2 data-[state=active]:bg-cyan-600/50 text-xs lg:text-sm">
               <Zap className="w-3 h-3 lg:w-4 lg:h-4" />
               <span className="hidden sm:inline">Sync</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="assessment" 
-              className="flex items-center gap-2 data-[state=active]:bg-yellow-600/50 text-xs lg:text-sm"
-            >
+            <TabsTrigger value="assessment" className="flex items-center gap-2 data-[state=active]:bg-yellow-600/50 text-xs lg:text-sm">
               <Target className="w-3 h-3 lg:w-4 lg:h-4" />
               <span className="hidden sm:inline">Assessment</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="insights" 
-              className="flex items-center gap-2 data-[state=active]:bg-teal-600/50 text-xs lg:text-sm"
-            >
+            <TabsTrigger value="insights" className="flex items-center gap-2 data-[state=active]:bg-teal-600/50 text-xs lg:text-sm">
               <Brain className="w-3 h-3 lg:w-4 lg:h-4" />
               <span className="hidden sm:inline">Insights</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="guidance" 
-              className="flex items-center gap-2 data-[state=active]:bg-emerald-600/50 text-xs lg:text-sm"
-            >
+            <TabsTrigger value="guidance" className="flex items-center gap-2 data-[state=active]:bg-emerald-600/50 text-xs lg:text-sm">
               <Lightbulb className="w-3 h-3 lg:w-4 lg:h-4" />
               <span className="hidden sm:inline">Guidance</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="angels" 
-              className="flex items-center gap-2 data-[state=active]:bg-gold-600/50 text-xs lg:text-sm"
-            >
+            <TabsTrigger value="angels" className="flex items-center gap-2 data-[state=active]:bg-gold-600/50 text-xs lg:text-sm">
               <Crown className="w-3 h-3 lg:w-4 lg:h-4" />
               <span className="hidden sm:inline">Angels</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="invite" 
-              className="flex items-center gap-2 data-[state=active]:bg-violet-600/50 text-xs lg:text-sm"
-            >
+            <TabsTrigger value="invite" className="flex items-center gap-2 data-[state=active]:bg-violet-600/50 text-xs lg:text-sm">
               <UserPlus className="w-3 h-3 lg:w-4 lg:h-4" />
               <span className="hidden sm:inline">Invite</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="protection" 
-              className="flex items-center gap-2 data-[state=active]:bg-blue-600/50 text-xs lg:text-sm"
-            >
+            <TabsTrigger value="protection" className="flex items-center gap-2 data-[state=active]:bg-blue-600/50 text-xs lg:text-sm">
               <Shield className="w-3 h-3 lg:w-4 lg:h-4" />
               <span className="hidden sm:inline">Protection</span>
             </TabsTrigger>
@@ -406,7 +362,7 @@ export const SpiritualHub: React.FC = () => {
           <TabsContent value="progress" className="mt-6">
             <div className="space-y-4">
               <Card className="bg-gradient-to-r from-green-900/40 to-emerald-900/40 border-green-500/30">
-                <CardContent className="p-6">
+                <CardContent className="p-6 py-[24px] my-[11px]">
                   <div className="text-center">
                     <h3 className="text-2xl font-bold text-white mb-3">📈 Spiritual Progress Tracker</h3>
                     <p className="text-green-200">
@@ -452,7 +408,7 @@ export const SpiritualHub: React.FC = () => {
                 </CardContent>
               </Card>
               <Suspense fallback={<LoadingSkeleton />}>
-                <MeditationTimer onComplete={(sessionData) => console.log('Meditation completed:', sessionData)} />
+                <MeditationTimer onComplete={sessionData => console.log('Meditation completed:', sessionData)} />
               </Suspense>
             </div>
           </TabsContent>
@@ -710,6 +666,5 @@ export const SpiritualHub: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
-  );
+    </div>;
 };
