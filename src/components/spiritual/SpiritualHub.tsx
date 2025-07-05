@@ -1,4 +1,3 @@
-
 import React, { useState, Suspense, lazy } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -51,13 +50,13 @@ const CosmicCalendar = lazy(() => import('./CosmicCalendar'));
 const SecurityMonitor = lazy(() => import('./shared/SecurityMonitor').then(module => ({ default: module.SecurityMonitor })));
 const MoodTracker = lazy(() => import('./MoodTracker').then(module => ({ default: module.MoodTracker })));
 const MeditationTimer = lazy(() => import('./MeditationTimer').then(module => ({ default: module.MeditationTimer })));
-const ShadowWorkTracker = lazy(() => import('./ShadowWorkTracker'));
-const SynchronicityDecoder = lazy(() => import('./SynchronicityDecoder'));
-const SpiritualAssessment = lazy(() => import('./SpiritualAssessment'));
-const RecommendationsSystem = lazy(() => import('./RecommendationsSystem'));
-const CommunityHub = lazy(() => import('./CommunityHub'));
-const CulturalAdapter = lazy(() => import('./CulturalAdapter'));
-const ReferralSystem = lazy(() => import('./ReferralSystem'));
+const ShadowWorkTracker = lazy(() => import('./ShadowWorkTracker').then(module => ({ default: module.ShadowWorkTracker })));
+const SynchronicityDecoder = lazy(() => import('./SynchronicityDecoder').then(module => ({ default: module.SynchronicityDecoder })));
+const SpiritualAssessment = lazy(() => import('./SpiritualAssessment').then(module => ({ default: module.SpiritualAssessment })));
+const RecommendationsSystem = lazy(() => import('./RecommendationsSystem').then(module => ({ default: module.RecommendationsSystem })));
+const CommunityHub = lazy(() => import('./CommunityHub').then(module => ({ default: module.CommunityHub })));
+const CulturalAdapter = lazy(() => import('./CulturalAdapter').then(module => ({ default: module.CulturalAdapter })));
+const ReferralSystem = lazy(() => import('./ReferralSystem').then(module => ({ default: module.ReferralSystem })));
 
 // Loading component
 const LoadingSkeleton = () => (
