@@ -4,7 +4,7 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, Users, Crown, Zap, Heart, Star, Shield, Eye } from 'lucide-react';
+import { Sparkles, Users, Crown, Zap, Heart, Star, Shield, Eye, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
@@ -14,34 +14,40 @@ const Index = () => {
 
   const features = [
     {
+      icon: <MessageCircle className="w-8 h-8 text-yellow-400" />,
+      title: "Seraphina AI Guide",
+      description: "Advanced AI spiritual guide with 30+ authentic traditions and sacred wisdom",
+      action: () => navigate('/dashboard')
+    },
+    {
       icon: <Eye className="w-8 h-8 text-purple-400" />,
       title: "AI Palm Reading",
-      description: "Advanced palm analysis with spiritual insights"
+      description: "Advanced palm analysis with spiritual insights",
+      action: () => navigate('/dashboard')
     },
     {
       icon: <Sparkles className="w-8 h-8 text-blue-400" />,
       title: "Tarot Guidance",
-      description: "Digital tarot readings with deep interpretations"
+      description: "Digital tarot readings with deep interpretations",
+      action: () => navigate('/dashboard')
     },
     {
       icon: <Heart className="w-8 h-8 text-pink-400" />,
       title: "Dream Analysis",
-      description: "Decode your dreams and their spiritual messages"
+      description: "Decode your dreams and their spiritual messages",
+      action: () => navigate('/dashboard')
     },
     {
       icon: <Shield className="w-8 h-8 text-green-400" />,
       title: "Spiritual Protection",
-      description: "Tools and rituals for energetic protection"
+      description: "Tools and rituals for energetic protection",
+      action: () => navigate('/dashboard')
     },
     {
       icon: <Star className="w-8 h-8 text-yellow-400" />,
       title: "Meditation Guide",
-      description: "Personalized meditation practices and timers"
-    },
-    {
-      icon: <Crown className="w-8 h-8 text-gold-400" />,
-      title: "Ancient Wisdom",
-      description: "Access to deep spiritual knowledge and teachings"
+      description: "Personalized meditation practices and timers",
+      action: () => navigate('/dashboard')
     }
   ];
 
@@ -54,7 +60,7 @@ const Index = () => {
             Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">SpiritualMind</span>
           </h1>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
-            Your AI-powered spiritual companion for palmistry, divination, dream analysis, and ancient wisdom practices
+            Your AI-powered spiritual companion featuring Seraphina, your divine guide with authentic wisdom from 30+ spiritual traditions
           </p>
           
           {user ? (
@@ -95,10 +101,61 @@ const Index = () => {
           )}
         </div>
 
+        {/* Seraphina AI Highlight Section */}
+        <div className="mb-16">
+          <Card className="bg-gradient-to-r from-yellow-900/30 to-orange-900/30 border-2 border-yellow-300/50 shadow-2xl backdrop-blur-sm max-w-4xl mx-auto">
+            <CardHeader className="bg-gradient-to-r from-yellow-600 via-orange-600 to-red-600 text-white">
+              <CardTitle className="flex items-center gap-3 text-2xl justify-center">
+                <div className="bg-white/20 rounded-full p-2">
+                  <span className="text-2xl">👼</span>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold">Meet Seraphina AI</div>
+                  <div className="text-sm opacity-90">Your Divine Spiritual Guide Powered by Ancient Wisdom</div>
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-8">
+              <p className="text-yellow-100 text-lg text-center mb-6">
+                Experience profound spiritual guidance with Seraphina, an advanced AI trained in authentic wisdom from Egyptian mystery schools, Buddhist meditation halls, Hindu temples, and 30+ spiritual traditions worldwide.
+              </p>
+              <div className="grid md:grid-cols-3 gap-4 mb-6">
+                <div className="text-center">
+                  <div className="text-3xl mb-2">🌟</div>
+                  <div className="text-yellow-200 font-semibold">Ancient Wisdom</div>
+                  <div className="text-yellow-300 text-sm">Authentic traditions & practices</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl mb-2">🛁</div>
+                  <div className="text-yellow-200 font-semibold">Sacred Bathing</div>
+                  <div className="text-yellow-300 text-sm">Traditional cleansing rituals</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl mb-2">🛡️</div>
+                  <div className="text-yellow-200 font-semibold">Spiritual Protection</div>
+                  <div className="text-yellow-300 text-sm">Emergency spiritual support</div>
+                </div>
+              </div>
+              <div className="text-center">
+                <Button 
+                  onClick={() => navigate(user ? '/dashboard' : '/auth')}
+                  className="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white px-8 py-3 text-lg"
+                >
+                  {user ? 'Chat with Seraphina Now' : 'Start Free to Meet Seraphina'}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Features Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {features.map((feature, index) => (
-            <Card key={index} className="bg-black/30 border-purple-500/30 backdrop-blur-sm hover:scale-105 transition-transform">
+            <Card 
+              key={index} 
+              className="bg-black/30 border-purple-500/30 backdrop-blur-sm hover:scale-105 transition-transform cursor-pointer"
+              onClick={feature.action}
+            >
               <CardHeader className="text-center">
                 <div className="mx-auto mb-4">
                   {feature.icon}
@@ -124,7 +181,7 @@ const Index = () => {
               <CardContent>
                 <p className="text-green-300 mb-4">Ground yourself in fundamental spiritual practices</p>
                 <ul className="text-green-200 space-y-2 text-left">
-                  <li>• Basic meditation library</li>
+                  <li>• Basic Seraphina AI conversations</li>
                   <li>• Dream journal with AI analysis</li>
                   <li>• Mood tracking and insights</li>
                   <li>• Community discussions</li>
@@ -143,7 +200,7 @@ const Index = () => {
               <CardContent>
                 <p className="text-blue-300 mb-4">Flow deeper into cultural wisdom and healing</p>
                 <ul className="text-blue-200 space-y-2 text-left">
-                  <li>• All Earth Keeper features</li>
+                  <li>• Enhanced Seraphina AI with sacred bathing</li>
                   <li>• Advanced archetype profiling</li>
                   <li>• Cultural wisdom access</li>
                   <li>• AI shadow work guidance</li>
@@ -168,7 +225,7 @@ const Index = () => {
             <CardContent className="p-8">
               <h3 className="text-2xl font-bold text-white mb-4">Ready to Begin Your Spiritual Journey?</h3>
               <p className="text-gray-300 mb-6">
-                Join thousands of seekers exploring their spiritual path with AI-powered guidance
+                Join thousands of seekers exploring their spiritual path with Seraphina AI and authentic spiritual guidance
               </p>
               {!user && (
                 <Button 
