@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, Crown, Zap, Sparkles, Gift, Mountain, Waves, Flame, Wind, Loader2 } from 'lucide-react';
+import { Check, Crown, Zap, Sparkles, Gift, Mountain, Waves, Flame, Wind, Loader2, Clock } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
@@ -33,7 +33,7 @@ const PricingPage = () => {
       id: 'earth',
       name: 'Earth Keeper',
       element: 'Earth',
-      price: 29,
+      price: 19, // Updated price
       description: 'Ground yourself in fundamental spiritual practices',
       icon: <Mountain className="w-6 h-6" />,
       features: [
@@ -45,12 +45,13 @@ const PricingPage = () => {
         'Monthly group rituals'
       ],
       color: 'from-green-500 to-emerald-500',
+      comingSoon: false,
     },
     {
       id: 'water',
       name: 'Water Bearer',
       element: 'Water',
-      price: 79,
+      price: 29, // Updated price
       description: 'Flow deeper into cultural wisdom and healing practices',
       icon: <Waves className="w-6 h-6" />,
       features: [
@@ -64,6 +65,7 @@ const PricingPage = () => {
       ],
       color: 'from-blue-500 to-cyan-500',
       popular: true,
+      comingSoon: false,
     },
     {
       id: 'fire',
@@ -83,6 +85,7 @@ const PricingPage = () => {
         'Neuro-spiritual integration'
       ],
       color: 'from-red-500 to-orange-500',
+      comingSoon: true, // Coming soon
     },
     {
       id: 'ether',
@@ -102,11 +105,23 @@ const PricingPage = () => {
         'Morphic field research access'
       ],
       color: 'from-purple-500 to-indigo-500',
+      comingSoon: true, // Coming soon
     },
   ];
 
   const handleSubscribe = async (tierId: string) => {
     console.log('handleSubscribe called with tier:', tierId);
+    
+    // Check if tier is coming soon
+    const tier = wisdomTiers.find(t => t.id === tierId);
+    if (tier?.comingSoon) {
+      toast({
+        title: "Coming Soon!",
+        description: "This tier is coming soon. Please choose Earth Keeper or Water Bearer for now.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     if (!user) {
       toast({
@@ -173,23 +188,32 @@ const PricingPage = () => {
             const isCurrentTier = subscribed && subscriptionTier === tier.id;
             const isUpgrade = subscribed && subscriptionTier !== tier.id;
             const isProcessing = clickingTier === tier.id;
+            const isComingSoon = tier.comingSoon;
             
             return (
               <Card
                 key={tier.id}
                 className={`relative overflow-hidden ${
-                  tier.popular ? 'border-2 border-yellow-400 scale-105' : 'border-gray-700'
-                } ${isCurrentTier ? 'ring-2 ring-green-400' : ''}`}
+                  tier.popular && !isComingSoon ? 'border-2 border-yellow-400 scale-105' : 'border-gray-700'
+                } ${isCurrentTier ? 'ring-2 ring-green-400' : ''} ${
+                  isComingSoon ? 'opacity-75' : ''
+                }`}
               >
-                {tier.popular && (
+                {tier.popular && !isComingSoon && (
                   <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-yellow-400 to-orange-400 text-black text-center py-2 text-sm font-semibold">
                     Most Popular
                   </div>
                 )}
                 
-                <CardHeader className={`bg-gradient-to-r ${tier.color} text-white ${tier.popular ? 'pt-12' : ''}`}>
+                {isComingSoon && (
+                  <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-gray-600 to-gray-700 text-white text-center py-2 text-sm font-semibold">
+                    Coming Soon
+                  </div>
+                )}
+                
+                <CardHeader className={`bg-gradient-to-r ${tier.color} text-white ${tier.popular || isComingSoon ? 'pt-12' : ''}`}>
                   <div className="flex items-center justify-center mb-4">
-                    {tier.icon}
+                    {isComingSoon ? <Clock className="w-6 h-6" /> : tier.icon}
                   </div>
                   <CardTitle className="text-xl text-center">{tier.name}</CardTitle>
                   <div className="text-center text-sm opacity-90 mb-2">{tier.element} Element</div>
@@ -219,10 +243,12 @@ const PricingPage = () => {
 
                   <Button
                     onClick={() => handleSubscribe(tier.id)}
-                    disabled={isCurrentTier || isProcessing}
+                    disabled={isCurrentTier || isProcessing || isComingSoon}
                     className={`w-full ${
                       isCurrentTier
                         ? 'bg-green-600 hover:bg-green-700'
+                        : isComingSoon
+                        ? 'bg-gray-600 cursor-not-allowed'
                         : `bg-gradient-to-r ${tier.color} hover:opacity-90`
                     } ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
@@ -233,6 +259,8 @@ const PricingPage = () => {
                       </>
                     ) : isCurrentTier ? (
                       'Current Tier'
+                    ) : isComingSoon ? (
+                      'Coming Soon'
                     ) : !user ? (
                       'Login to Subscribe'
                     ) : isUpgrade ? (
@@ -270,6 +298,18 @@ const PricingPage = () => {
             </p>
           </div>
         )}
+
+        {/* Coming Soon Notice */}
+        <div className="text-center mt-8 max-w-2xl mx-auto">
+          <div className="bg-black/20 border border-gray-600 rounded-lg p-6">
+            <Clock className="w-8 h-8 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-white mb-2">Higher Tiers Coming Soon!</h3>
+            <p className="text-gray-300 text-sm">
+              Fire Keeper and Ether Walker tiers are in development. Start with Earth Keeper or Water Bearer 
+              and unlock incredible spiritual growth while we prepare the advanced tiers for you.
+            </p>
+          </div>
+        </div>
 
         {/* Debug Test Button */}
         <div className="text-center mt-8">
@@ -318,15 +358,15 @@ const PricingPage = () => {
               <div className="text-blue-200 font-semibold">Water</div>
               <div className="text-gray-400">Flow & Adaptation</div>
             </div>
-            <div className="bg-black/20 p-4 rounded-lg">
+            <div className="bg-black/20 p-4 rounded-lg opacity-60">
               <Flame className="w-8 h-8 text-red-400 mx-auto mb-2" />
               <div className="text-red-200 font-semibold">Fire</div>
-              <div className="text-gray-400">Transformation & Power</div>
+              <div className="text-gray-400">Coming Soon</div>
             </div>
-            <div className="bg-black/20 p-4 rounded-lg">
+            <div className="bg-black/20 p-4 rounded-lg opacity-60">
               <Wind className="w-8 h-8 text-purple-400 mx-auto mb-2" />
               <div className="text-purple-200 font-semibold">Ether</div>
-              <div className="text-gray-400">Mystery & Transcendence</div>
+              <div className="text-gray-400">Coming Soon</div>
             </div>
           </div>
         </div>

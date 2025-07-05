@@ -41,6 +41,7 @@ export interface WisdomTier {
   mentorAccess: boolean;
   ancientLibraryAccess: boolean;
   communityLevel: 'general' | 'pods' | 'council' | 'mystery';
+  comingSoon?: boolean;
 }
 
 export const WISDOM_TIERS: WisdomTier[] = [
@@ -62,8 +63,8 @@ export const WISDOM_TIERS: WisdomTier[] = [
       'Basic archetype assessment',
       'No AI mentor access'
     ],
-    monthlyPrice: 29,
-    yearlyPrice: 290,
+    monthlyPrice: 19,
+    yearlyPrice: 190,
     culturalAccess: ['open'],
     mentorAccess: false,
     ancientLibraryAccess: false,
@@ -87,8 +88,8 @@ export const WISDOM_TIERS: WisdomTier[] = [
       'Limited AI mentor sessions (2/month)',
       'No ancient mystery access'
     ],
-    monthlyPrice: 79,
-    yearlyPrice: 790,
+    monthlyPrice: 29,
+    yearlyPrice: 290,
     culturalAccess: ['open', 'initiated'],
     mentorAccess: true,
     ancientLibraryAccess: false,
@@ -117,7 +118,8 @@ export const WISDOM_TIERS: WisdomTier[] = [
     culturalAccess: ['open', 'initiated', 'sacred'],
     mentorAccess: true,
     ancientLibraryAccess: true,
-    communityLevel: 'council'
+    communityLevel: 'council',
+    comingSoon: true
   },
   {
     id: 'ether',
@@ -140,6 +142,7 @@ export const WISDOM_TIERS: WisdomTier[] = [
     culturalAccess: ['open', 'initiated', 'sacred'],
     mentorAccess: true,
     ancientLibraryAccess: true,
-    communityLevel: 'mystery'
+    communityLevel: 'mystery',
+    comingSoon: true
   }
 ];

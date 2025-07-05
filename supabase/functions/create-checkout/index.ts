@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -92,6 +93,19 @@ serve(async (req) => {
         status: 400,
       });
     }
+    
+    // Check if tier is coming soon
+    if (tier.toLowerCase() === 'fire' || tier.toLowerCase() === 'ether') {
+      logStep("Coming soon tier requested", { tier });
+      return new Response(JSON.stringify({ 
+        error: "Tier coming soon",
+        message: "This tier is coming soon! Please choose Earth Keeper or Water Bearer for now."
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+    
     logStep("Request body parsed", { tier, referralCode });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
@@ -106,12 +120,12 @@ serve(async (req) => {
       logStep("Creating new customer");
     }
 
-    // Define pricing based on tier
+    // Updated pricing based on new structure
     const pricingMap: Record<string, number> = {
-      "earth": 2999, // $29.99
-      "water": 7999, // $79.99  
-      "fire": 19999, // $199.99
-      "ether": 49999, // $499.99
+      "earth": 1900, // $19.00
+      "water": 2900, // $29.00  
+      "fire": 19700, // $197.00 (coming soon)
+      "ether": 49700, // $497.00 (coming soon)
     };
 
     const amount = pricingMap[tier.toLowerCase()];

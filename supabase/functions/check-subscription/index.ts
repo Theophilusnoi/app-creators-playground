@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -126,16 +127,16 @@ serve(async (req) => {
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
       logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
       
-      // Determine subscription tier from price
+      // Determine subscription tier from price - Updated for new pricing
       const priceId = subscription.items.data[0].price.id;
       const price = await stripe.prices.retrieve(priceId);
       const amount = price.unit_amount || 0;
       
-      if (amount <= 2999) {
+      if (amount <= 1900) {
         subscriptionTier = "earth";
-      } else if (amount <= 7999) {
+      } else if (amount <= 2900) {
         subscriptionTier = "water";
-      } else if (amount <= 19999) {
+      } else if (amount <= 19700) {
         subscriptionTier = "fire";
       } else {
         subscriptionTier = "ether";
