@@ -1,4 +1,3 @@
-
 export interface Subscription {
   id: string;
   userId: string;
@@ -113,13 +112,12 @@ export const WISDOM_TIERS: WisdomTier[] = [
     restrictions: [
       'Selected ancient mysteries only'
     ],
-    monthlyPrice: 197,
-    yearlyPrice: 1970,
+    monthlyPrice: 49,
+    yearlyPrice: 490,
     culturalAccess: ['open', 'initiated', 'sacred'],
     mentorAccess: true,
     ancientLibraryAccess: true,
-    communityLevel: 'council',
-    comingSoon: true
+    communityLevel: 'council'
   },
   {
     id: 'ether',
@@ -137,12 +135,11 @@ export const WISDOM_TIERS: WisdomTier[] = [
       'Morphic field research access'
     ],
     restrictions: [],
-    monthlyPrice: 497,
-    yearlyPrice: 4970,
+    monthlyPrice: 59,
+    yearlyPrice: 590,
     culturalAccess: ['open', 'initiated', 'sacred'],
     mentorAccess: true,
     ancientLibraryAccess: true,
-    communityLevel: 'mystery',
-    comingSoon: true
+    communityLevel: 'mystery'
   }
 ];
