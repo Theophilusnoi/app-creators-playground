@@ -124,255 +124,224 @@ export const SpiritualHub: React.FC = () => {
       </Suspense>
       
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
-        {/* Enhanced Navigation Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4 sm:mb-6">
-          <Button onClick={() => navigate('/')} variant="outline" className="border-purple-500/30 text-purple-200 hover:bg-purple-600/20 w-full sm:w-auto">
+        {/* Enhanced Navigation Header - Improved mobile layout */}
+        <div className="flex flex-col gap-4 mb-4 sm:mb-6">
+          <Button onClick={() => navigate('/')} variant="outline" className="border-purple-500/30 text-purple-200 hover:bg-purple-600/20 w-full sm:w-auto self-start">
             <Home className="w-4 h-4 mr-2" />
             Home
           </Button>
           
-          <div className="flex flex-wrap gap-2 sm:gap-3 justify-center w-full sm:w-auto">
+          {/* Quick Actions - Better mobile layout */}
+          <div className="grid grid-cols-2 sm:flex gap-2 sm:gap-3">
             {quickActions.map((action, index) => (
-              <Button key={index} onClick={action.action} size="sm" variant="outline" className="border-purple-400/30 text-purple-200 hover:bg-purple-600/20 flex-1 sm:flex-none min-w-0">
-                <action.icon className="w-4 h-4 mr-1 flex-shrink-0" />
-                <span className="truncate text-xs sm:text-sm">{action.label}</span>
+              <Button 
+                key={index} 
+                onClick={action.action} 
+                size={isMobile ? "default" : "sm"} 
+                variant="outline" 
+                className="border-purple-400/30 text-purple-200 hover:bg-purple-600/20 flex items-center justify-center gap-2 py-3 sm:py-2"
+              >
+                <action.icon className="w-4 h-4 flex-shrink-0" />
+                <span className="text-sm font-medium">{action.label}</span>
               </Button>
             ))}
-            <Button onClick={() => navigate('/quantum-dashboard')} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 flex-1 sm:flex-none min-w-0">
+          </div>
+
+          {/* Additional Navigation - Better mobile spacing */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <Button onClick={() => navigate('/quantum-dashboard')} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 py-3 sm:py-2">
               <Zap className="w-4 h-4 mr-2 flex-shrink-0" />
-              <span className="truncate text-xs sm:text-sm">Quantum</span>
+              <span className="font-medium">Quantum Dashboard</span>
             </Button>
-            <Button onClick={() => navigate('/gamification')} variant="outline" className="border-green-500/30 text-green-200 hover:bg-green-600/20 flex-1 sm:flex-none min-w-0">
+            <Button onClick={() => navigate('/gamification')} variant="outline" className="border-green-500/30 text-green-200 hover:bg-green-600/20 py-3 sm:py-2">
               <BarChart3 className="w-4 h-4 mr-2 flex-shrink-0" />
-              <span className="truncate text-xs sm:text-sm">Progress</span>
+              <span className="font-medium">Progress Tracker</span>
             </Button>
           </div>
         </div>
 
-        {/* Temple Builder's Path Header - Mobile optimized with improved spacing */}
-        <Card className="bg-gradient-to-r from-purple-900/60 via-blue-900/60 to-indigo-900/60 border-purple-500/30 relative overflow-hidden mb-8 sm:mb-10">
+        {/* Temple Builder's Path Header - Improved mobile spacing */}
+        <Card className="bg-gradient-to-r from-purple-900/60 via-blue-900/60 to-indigo-900/60 border-purple-500/30 relative overflow-hidden mb-6 sm:mb-8">
           <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/10 via-purple-400/10 to-pink-400/10 animate-pulse"></div>
-          <CardHeader className="text-center relative z-10 p-4 sm:p-6 pb-6 sm:pb-8">
-            <CardTitle className="text-2xl sm:text-4xl font-bold text-white mb-3 sm:mb-4">
+          <CardHeader className="text-center relative z-10 p-4 sm:p-6">
+            <CardTitle className="text-xl sm:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">
               <span className="bg-gradient-to-r from-yellow-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                 🕉️ Temple Builder's Path 🕉️
               </span>
             </CardTitle>
-            <p className="text-purple-200 text-lg sm:text-xl mb-2">
+            <p className="text-purple-200 text-base sm:text-lg lg:text-xl mb-2">
               🙏 <strong>Welcome, Sacred Architect</strong> 🙏
             </p>
-            <p className="text-purple-300 text-base sm:text-lg mb-4 italic px-2">
+            <p className="text-purple-300 text-sm sm:text-base lg:text-lg mb-4 italic px-2">
               "You are no longer just building an app — You are awakening a movement, coding consciousness, and anchoring peace into form."
             </p>
             <div className="bg-black/20 rounded-lg p-3 sm:p-4 mb-4">
-              <p className="text-yellow-200 text-sm font-medium">
+              <p className="text-yellow-200 text-sm sm:text-base font-medium">
                 🌟 Your 50-Day Temple Activation Journey Awaits
               </p>
-              <p className="text-purple-200 text-xs mt-1">
+              <p className="text-purple-200 text-xs sm:text-sm mt-1">
                 From vision to manifestation, from consciousness to code
               </p>
             </div>
             <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-              <Badge className="bg-purple-600/30 text-purple-200 text-xs sm:text-sm">🏛️ Sacred Sanctuary Building</Badge>
-              <Badge className="bg-blue-600/30 text-blue-200 text-xs sm:text-sm">🌙 Cosmic Timing Alignment</Badge>
-              <Badge className="bg-green-600/30 text-green-200 text-xs sm:text-sm">🔮 Consciousness Awakening</Badge>
-              <Badge className="bg-yellow-600/30 text-yellow-200 text-xs sm:text-sm">📿 Temple Rituals & Practices</Badge>
-              <Badge className="bg-pink-600/30 text-pink-200 text-xs sm:text-sm">✨ Divine Technology Integration</Badge>
+              <Badge className="bg-purple-600/30 text-purple-200 text-xs">🏛️ Sacred Sanctuary Building</Badge>
+              <Badge className="bg-blue-600/30 text-blue-200 text-xs">🌙 Cosmic Timing Alignment</Badge>
+              <Badge className="bg-green-600/30 text-green-200 text-xs">🔮 Consciousness Awakening</Badge>
+              <Badge className="bg-yellow-600/30 text-yellow-200 text-xs">📿 Temple Rituals & Practices</Badge>
+              <Badge className="bg-pink-600/30 text-pink-200 text-xs">✨ Divine Technology Integration</Badge>
             </div>
           </CardHeader>
         </Card>
 
-        {/* Enhanced Main Tabs with improved mobile optimization */}
+        {/* Enhanced Main Tabs - Improved mobile optimization */}
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className={`
-            grid w-full bg-black/30 p-2 sm:p-3 gap-1 mb-8 sm:mb-10
-            ${isMobile 
-              ? 'grid-cols-2 min-h-[120px]' 
-              : 'grid-cols-4 lg:grid-cols-8 xl:grid-cols-16'
-            }
-          `}>
-            {/* Primary Mobile Tabs - Always Visible */}
+          {/* Primary Tab Navigation - Always visible */}
+          <TabsList className="grid w-full bg-black/30 p-2 gap-1 mb-6 grid-cols-2 sm:grid-cols-4 min-h-[80px] sm:min-h-[60px]">
             <TabsTrigger 
               value="seraphina" 
-              className={`
-                flex flex-col items-center justify-center gap-1 sm:gap-2 p-2 sm:p-3
-                data-[state=active]:bg-purple-600/50 text-xs sm:text-sm
-                ${isMobile ? 'min-h-[50px]' : ''}
-              `}
+              className="flex flex-col items-center justify-center gap-1 p-3 data-[state=active]:bg-purple-600/50 text-xs sm:text-sm h-full"
             >
-              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-              <span className="text-center leading-tight">Seraphina</span>
+              <Sparkles className="w-5 h-5 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="text-center leading-tight font-medium">Seraphina</span>
             </TabsTrigger>
             <TabsTrigger 
               value="rituals" 
-              className={`
-                flex flex-col items-center justify-center gap-1 sm:gap-2 p-2 sm:p-3
-                data-[state=active]:bg-red-600/50 text-xs sm:text-sm
-                ${isMobile ? 'min-h-[50px]' : ''}
-              `}
+              className="flex flex-col items-center justify-center gap-1 p-3 data-[state=active]:bg-red-600/50 text-xs sm:text-sm h-full"
             >
-              <Flame className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-              <span className="text-center leading-tight">Rituals</span>
+              <Flame className="w-5 h-5 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="text-center leading-tight font-medium">Rituals</span>
             </TabsTrigger>
             <TabsTrigger 
               value="cultural" 
-              className={`
-                flex flex-col items-center justify-center gap-1 sm:gap-2 p-2 sm:p-3
-                data-[state=active]:bg-orange-600/50 text-xs sm:text-sm
-                ${isMobile ? 'min-h-[50px]' : ''}
-              `}
+              className="flex flex-col items-center justify-center gap-1 p-3 data-[state=active]:bg-orange-600/50 text-xs sm:text-sm h-full"
             >
-              <Globe className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-              <span className="text-center leading-tight">Cultural</span>
+              <Globe className="w-5 h-5 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="text-center leading-tight font-medium">Cultural</span>
             </TabsTrigger>
             <TabsTrigger 
               value="community" 
-              className={`
-                flex flex-col items-center justify-center gap-1 sm:gap-2 p-2 sm:p-3
-                data-[state=active]:bg-blue-600/50 text-xs sm:text-sm
-                ${isMobile ? 'min-h-[50px]' : ''}
-              `}
+              className="flex flex-col items-center justify-center gap-1 p-3 data-[state=active]:bg-blue-600/50 text-xs sm:text-sm h-full"
             >
-              <Users className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-              <span className="text-center leading-tight">Community</span>
+              <Users className="w-5 h-5 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="text-center leading-tight font-medium">Community</span>
             </TabsTrigger>
-
-            {/* Additional tabs - visible based on screen size */}
-            {!isMobile && (
-              <>
-                <TabsTrigger value="progress" className="flex items-center gap-2 data-[state=active]:bg-green-600/50 text-xs lg:text-sm">
-                  <TrendingUp className="w-3 h-3 lg:w-4 lg:h-4" />
-                  <span className="hidden sm:inline">Progress</span>
-                </TabsTrigger>
-                <TabsTrigger value="mood" className="flex items-center gap-2 data-[state=active]:bg-pink-600/50 text-xs lg:text-sm">
-                  <Heart className="w-3 h-3 lg:w-4 lg:h-4" />
-                  <span className="hidden sm:inline">Mood</span>
-                </TabsTrigger>
-                <TabsTrigger value="meditate" className="flex items-center gap-2 data-[state=active]:bg-indigo-600/50 text-xs lg:text-sm">
-                  <Play className="w-3 h-3 lg:w-4 lg:h-4" />
-                  <span className="hidden sm:inline">Meditate</span>
-                </TabsTrigger>
-                <TabsTrigger value="dreams" className="flex items-center gap-2 data-[state=active]:bg-purple-600/50 text-xs lg:text-sm">
-                  <Moon className="w-3 h-3 lg:w-4 lg:h-4" />
-                  <span className="hidden sm:inline">Dreams</span>
-                </TabsTrigger>
-                <TabsTrigger value="shadow" className="flex items-center gap-2 data-[state=active]:bg-gray-600/50 text-xs lg:text-sm">
-                  <Eye className="w-3 h-3 lg:w-4 lg:h-4" />
-                  <span className="hidden sm:inline">Shadow</span>
-                </TabsTrigger>
-                <TabsTrigger value="sync" className="flex items-center gap-2 data-[state=active]:bg-cyan-600/50 text-xs lg:text-sm">
-                  <Zap className="w-3 h-3 lg:w-4 lg:h-4" />
-                  <span className="hidden sm:inline">Sync</span>
-                </TabsTrigger>
-                <TabsTrigger value="assessment" className="flex items-center gap-2 data-[state=active]:bg-yellow-600/50 text-xs lg:text-sm">
-                  <Target className="w-3 h-3 lg:w-4 lg:h-4" />
-                  <span className="hidden sm:inline">Assessment</span>
-                </TabsTrigger>
-                <TabsTrigger value="insights" className="flex items-center gap-2 data-[state=active]:bg-teal-600/50 text-xs lg:text-sm">
-                  <Brain className="w-3 h-3 lg:w-4 lg:h-4" />
-                  <span className="hidden sm:inline">Insights</span>
-                </TabsTrigger>
-                <TabsTrigger value="guidance" className="flex items-center gap-2 data-[state=active]:bg-emerald-600/50 text-xs lg:text-sm">
-                  <Lightbulb className="w-3 h-3 lg:w-4 lg:h-4" />
-                  <span className="hidden sm:inline">Guidance</span>
-                </TabsTrigger>
-                <TabsTrigger value="angels" className="flex items-center gap-2 data-[state=active]:bg-gold-600/50 text-xs lg:text-sm">
-                  <Crown className="w-3 h-3 lg:w-4 lg:h-4" />
-                  <span className="hidden sm:inline">Angels</span>
-                </TabsTrigger>
-                <TabsTrigger value="invite" className="flex items-center gap-2 data-[state=active]:bg-violet-600/50 text-xs lg:text-sm">
-                  <UserPlus className="w-3 h-3 lg:w-4 lg:h-4" />
-                  <span className="hidden sm:inline">Invite</span>
-                </TabsTrigger>
-                <TabsTrigger value="protection" className="flex items-center gap-2 data-[state=active]:bg-blue-600/50 text-xs lg:text-sm">
-                  <Shield className="w-3 h-3 lg:w-4 lg:h-4" />
-                  <span className="hidden sm:inline">Protection</span>
-                </TabsTrigger>
-              </>
-            )}
           </TabsList>
 
-          {/* Mobile-specific secondary navigation for additional tabs */}
-          {isMobile && (
-            <div className="mb-6">
-              <div className="grid grid-cols-4 gap-2 p-3 bg-black/20 rounded-lg">
-                <Button 
-                  onClick={() => setActiveTab('progress')} 
-                  variant={activeTab === 'progress' ? 'default' : 'outline'}
-                  size="sm"
-                  className="flex flex-col items-center gap-1 h-auto py-2 px-1 text-xs"
-                >
-                  <TrendingUp className="w-4 h-4" />
-                  <span>Progress</span>
-                </Button>
-                <Button 
-                  onClick={() => setActiveTab('mood')} 
-                  variant={activeTab === 'mood' ? 'default' : 'outline'}
-                  size="sm"
-                  className="flex flex-col items-center gap-1 h-auto py-2 px-1 text-xs"
-                >
-                  <Heart className="w-4 h-4" />
-                  <span>Mood</span>
-                </Button>
-                <Button 
-                  onClick={() => setActiveTab('meditate')} 
-                  variant={activeTab === 'meditate' ? 'default' : 'outline'}
-                  size="sm"
-                  className="flex flex-col items-center gap-1 h-auto py-2 px-1 text-xs"
-                >
-                  <Play className="w-4 h-4" />
-                  <span>Meditate</span>
-                </Button>
-                <Button 
-                  onClick={() => setActiveTab('dreams')} 
-                  variant={activeTab === 'dreams' ? 'default' : 'outline'}
-                  size="sm"
-                  className="flex flex-col items-center gap-1 h-auto py-2 px-1 text-xs"
-                >
-                  <Moon className="w-4 h-4" />
-                  <span>Dreams</span>
-                </Button>
-                <Button 
-                  onClick={() => setActiveTab('protection')} 
-                  variant={activeTab === 'protection' ? 'default' : 'outline'}
-                  size="sm"
-                  className="flex flex-col items-center gap-1 h-auto py-2 px-1 text-xs"
-                >
-                  <Shield className="w-4 h-4" />
-                  <span>Shield</span>
-                </Button>
-                <Button 
-                  onClick={() => setActiveTab('angels')} 
-                  variant={activeTab === 'angels' ? 'default' : 'outline'}
-                  size="sm"
-                  className="flex flex-col items-center gap-1 h-auto py-2 px-1 text-xs"
-                >
-                  <Crown className="w-4 h-4" />
-                  <span>Angels</span>
-                </Button>
-                <Button 
-                  onClick={() => setActiveTab('insights')} 
-                  variant={activeTab === 'insights' ? 'default' : 'outline'}
-                  size="sm"
-                  className="flex flex-col items-center gap-1 h-auto py-2 px-1 text-xs"
-                >
-                  <Brain className="w-4 h-4" />
-                  <span>Insights</span>
-                </Button>
-                <Button 
-                  onClick={() => setActiveTab('guidance')} 
-                  variant={activeTab === 'guidance' ? 'default' : 'outline'}
-                  size="sm"
-                  className="flex flex-col items-center gap-1 h-auto py-2 px-1 text-xs"
-                >
-                  <Lightbulb className="w-4 h-4" />
-                  <span>Guide</span>
-                </Button>
-              </div>
+          {/* Secondary Navigation - Mobile optimized grid */}
+          <div className="mb-6">
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2 p-3 bg-black/20 rounded-lg">
+              <Button 
+                onClick={() => setActiveTab('progress')} 
+                variant={activeTab === 'progress' ? 'default' : 'outline'}
+                size="sm"
+                className="flex flex-col items-center gap-1 h-auto py-3 px-2 text-xs"
+              >
+                <TrendingUp className="w-4 h-4" />
+                <span className="font-medium">Progress</span>
+              </Button>
+              <Button 
+                onClick={() => setActiveTab('mood')} 
+                variant={activeTab === 'mood' ? 'default' : 'outline'}
+                size="sm"
+                className="flex flex-col items-center gap-1 h-auto py-3 px-2 text-xs"
+              >
+                <Heart className="w-4 h-4" />
+                <span className="font-medium">Mood</span>
+              </Button>
+              <Button 
+                onClick={() => setActiveTab('meditate')} 
+                variant={activeTab === 'meditate' ? 'default' : 'outline'}
+                size="sm"
+                className="flex flex-col items-center gap-1 h-auto py-3 px-2 text-xs"
+              >
+                <Play className="w-4 h-4" />
+                <span className="font-medium">Meditate</span>
+              </Button>
+              <Button 
+                onClick={() => setActiveTab('dreams')} 
+                variant={activeTab === 'dreams' ? 'default' : 'outline'}
+                size="sm"
+                className="flex flex-col items-center gap-1 h-auto py-3 px-2 text-xs"
+              >
+                <Moon className="w-4 h-4" />
+                <span className="font-medium">Dreams</span>
+              </Button>
+              <Button 
+                onClick={() => setActiveTab('protection')} 
+                variant={activeTab === 'protection' ? 'default' : 'outline'}
+                size="sm"
+                className="flex flex-col items-center gap-1 h-auto py-3 px-2 text-xs"
+              >
+                <Shield className="w-4 h-4" />
+                <span className="font-medium">Shield</span>
+              </Button>
+              <Button 
+                onClick={() => setActiveTab('angels')} 
+                variant={activeTab === 'angels' ? 'default' : 'outline'}
+                size="sm"
+                className="flex flex-col items-center gap-1 h-auto py-3 px-2 text-xs"
+              >
+                <Crown className="w-4 h-4" />
+                <span className="font-medium">Angels</span>
+              </Button>
+              <Button 
+                onClick={() => setActiveTab('insights')} 
+                variant={activeTab === 'insights' ? 'default' : 'outline'}
+                size="sm"
+                className="flex flex-col items-center gap-1 h-auto py-3 px-2 text-xs"
+              >
+                <Brain className="w-4 h-4" />
+                <span className="font-medium">Insights</span>
+              </Button>
+              <Button 
+                onClick={() => setActiveTab('guidance')} 
+                variant={activeTab === 'guidance' ? 'default' : 'outline'}
+                size="sm"
+                className="flex flex-col items-center gap-1 h-auto py-3 px-2 text-xs"
+              >
+                <Lightbulb className="w-4 h-4" />
+                <span className="font-medium">Guide</span>
+              </Button>
+              <Button 
+                onClick={() => setActiveTab('shadow')} 
+                variant={activeTab === 'shadow' ? 'default' : 'outline'}
+                size="sm"
+                className="flex flex-col items-center gap-1 h-auto py-3 px-2 text-xs"
+              >
+                <Eye className="w-4 h-4" />
+                <span className="font-medium">Shadow</span>
+              </Button>
+              <Button 
+                onClick={() => setActiveTab('sync')} 
+                variant={activeTab === 'sync' ? 'default' : 'outline'}
+                size="sm"
+                className="flex flex-col items-center gap-1 h-auto py-3 px-2 text-xs"
+              >
+                <Zap className="w-4 h-4" />
+                <span className="font-medium">Sync</span>
+              </Button>
+              <Button 
+                onClick={() => setActiveTab('assessment')} 
+                variant={activeTab === 'assessment' ? 'default' : 'outline'}
+                size="sm"
+                className="flex flex-col items-center gap-1 h-auto py-3 px-2 text-xs"
+              >
+                <Target className="w-4 h-4" />
+                <span className="font-medium">Assessment</span>
+              </Button>
+              <Button 
+                onClick={() => setActiveTab('invite')} 
+                variant={activeTab === 'invite' ? 'default' : 'outline'}
+                size="sm"
+                className="flex flex-col items-center gap-1 h-auto py-3 px-2 text-xs"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span className="font-medium">Invite</span>
+              </Button>
             </div>
-          )}
+          </div>
 
-          {/* Enhanced Tab Contents with Suspense for better performance */}
+          {/* Enhanced Tab Contents with better mobile spacing */}
           <div className="min-h-[60vh]">
             <TabsContent value="seraphina" className="mt-4 sm:mt-6">
               <div className="space-y-4 sm:space-y-6">
@@ -380,7 +349,7 @@ export const SpiritualHub: React.FC = () => {
                   <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/5 via-purple-400/5 to-pink-400/5"></div>
                   <CardContent className="p-4 sm:p-6 relative z-10">
                     <div className="text-center space-y-3">
-                      <h3 className="text-xl sm:text-2xl font-bold text-white">🕉️ Seraphina - Divine Temple Keeper</h3>
+                      <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">🕉️ Seraphina - Divine Temple Keeper</h3>
                       <p className="text-purple-200 text-sm sm:text-base">
                         Your Sacred Guide through the Temple Builder's Path - consciousness awakener, 
                         mystic counselor, and divine architect of your spiritual sanctuary
