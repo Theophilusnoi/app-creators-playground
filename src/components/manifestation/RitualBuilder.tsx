@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 
-  Flame, Candle, Gem, Music, Clock, Plus, X, Save, 
+  Flame, Circle, Gem, Music, Clock, Plus, X, Save, 
   Play, Pause, RotateCcw, Star 
 } from 'lucide-react';
 
@@ -59,9 +59,11 @@ export const RitualBuilder: React.FC = () => {
   const [activeRitual, setActiveRitual] = useState<any>(null);
   const [ritualTimer, setRitualTimer] = useState(0);
   const [isRitualActive, setIsRitualActive] = useState(false);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
+    getCurrentUser();
     fetchRituals();
   }, []);
 
@@ -84,6 +86,13 @@ export const RitualBuilder: React.FC = () => {
     }
     return () => clearInterval(interval);
   }, [isRitualActive, ritualTimer, toast]);
+
+  const getCurrentUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      setCurrentUser(user.id);
+    }
+  };
 
   const fetchRituals = async () => {
     try {
@@ -115,10 +124,10 @@ export const RitualBuilder: React.FC = () => {
   };
 
   const saveRitual = async () => {
-    if (!ritualTitle.trim()) {
+    if (!ritualTitle.trim() || !currentUser) {
       toast({
         title: "Error",
-        description: "Please enter a ritual title",
+        description: "Please enter a ritual title and ensure you're logged in",
         variant: "destructive"
       });
       return;
@@ -132,14 +141,15 @@ export const RitualBuilder: React.FC = () => {
           title: ritualTitle,
           description: ritualDescription,
           ritual_type: 'custom',
-          elements: selectedElements,
+          elements: selectedElements as any,
           duration,
           frequency,
+          user_id: currentUser,
           instructions: selectedElements.map(el => ({
             step: el.name,
             instruction: el.instructions,
             duration: el.duration
-          }))
+          })) as any
         });
 
       if (error) throw error;
@@ -196,7 +206,7 @@ export const RitualBuilder: React.FC = () => {
 
   const getElementIcon = (type: string) => {
     switch (type) {
-      case 'candle': return <Candle className="w-4 h-4" />;
+      case 'candle': return <Circle className="w-4 h-4" />;
       case 'crystal': return <Gem className="w-4 h-4" />;
       case 'mantra': return <Music className="w-4 h-4" />;
       case 'sound': return <Music className="w-4 h-4" />;

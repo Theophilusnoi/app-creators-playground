@@ -57,12 +57,21 @@ export const WealthAffirmationGenerator: React.FC = () => {
   const [savedAffirmations, setSavedAffirmations] = useState<Affirmation[]>([]);
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
+    getCurrentUser();
     fetchSavedAffirmations();
     generateDailyAffirmation();
   }, []);
+
+  const getCurrentUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      setCurrentUser(user.id);
+    }
+  };
 
   const fetchSavedAffirmations = async () => {
     try {
@@ -119,7 +128,14 @@ export const WealthAffirmationGenerator: React.FC = () => {
   };
 
   const saveAffirmation = async () => {
-    if (!currentAffirmation.trim()) return;
+    if (!currentAffirmation.trim() || !currentUser) {
+      toast({
+        title: "Error",
+        description: "Please ensure you're logged in and have an affirmation to save",
+        variant: "destructive"
+      });
+      return;
+    }
 
     setLoading(true);
     try {
@@ -128,7 +144,8 @@ export const WealthAffirmationGenerator: React.FC = () => {
         .insert({
           affirmation_text: currentAffirmation,
           category: selectedCategory,
-          personalization_data: { goal: userGoal }
+          personalization_data: { goal: userGoal } as any,
+          user_id: currentUser
         });
 
       if (error) throw error;
