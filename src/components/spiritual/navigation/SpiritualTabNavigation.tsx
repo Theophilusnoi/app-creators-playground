@@ -18,35 +18,35 @@ export const SpiritualTabNavigation: React.FC<SpiritualTabNavigationProps> = ({
 }) => {
   return (
     <>
-      {/* Primary Tab Navigation - Fixed for mobile visibility */}
-      <TabsList className="grid w-full bg-black/30 p-2 gap-1 mb-6 grid-cols-2 sm:grid-cols-4 min-h-[100px] sm:min-h-[80px]">
+      {/* Primary Tab Navigation - Fixed visibility for mobile */}
+      <TabsList className="w-full bg-black/30 p-2 gap-1 mb-6 grid grid-cols-2 sm:grid-cols-4 h-auto">
         <TabsTrigger 
           value="seraphina" 
-          className="flex flex-col items-center justify-center gap-2 p-4 data-[state=active]:bg-purple-600/50 text-xs sm:text-sm h-full min-h-[80px] sm:min-h-[60px]"
+          className="flex flex-col items-center justify-center gap-1 p-3 data-[state=active]:bg-purple-600/50 text-xs sm:text-sm h-16 sm:h-14"
         >
-          <Sparkles className="w-6 h-6 sm:w-5 sm:h-5 flex-shrink-0" />
-          <span className="text-center leading-tight font-medium whitespace-nowrap">Seraphina</span>
+          <Sparkles className="w-5 h-5 sm:w-4 sm:h-4 flex-shrink-0" />
+          <span className="text-center leading-tight font-medium">Seraphina</span>
         </TabsTrigger>
         <TabsTrigger 
           value="rituals" 
-          className="flex flex-col items-center justify-center gap-2 p-4 data-[state=active]:bg-red-600/50 text-xs sm:text-sm h-full min-h-[80px] sm:min-h-[60px]"
+          className="flex flex-col items-center justify-center gap-1 p-3 data-[state=active]:bg-red-600/50 text-xs sm:text-sm h-16 sm:h-14"
         >
-          <Flame className="w-6 h-6 sm:w-5 sm:h-5 flex-shrink-0" />
-          <span className="text-center leading-tight font-medium whitespace-nowrap">Rituals</span>
+          <Flame className="w-5 h-5 sm:w-4 sm:h-4 flex-shrink-0" />
+          <span className="text-center leading-tight font-medium">Rituals</span>
         </TabsTrigger>
         <TabsTrigger 
           value="cultural" 
-          className="flex flex-col items-center justify-center gap-2 p-4 data-[state=active]:bg-orange-600/50 text-xs sm:text-sm h-full min-h-[80px] sm:min-h-[60px]"
+          className="flex flex-col items-center justify-center gap-1 p-3 data-[state=active]:bg-orange-600/50 text-xs sm:text-sm h-16 sm:h-14"
         >
-          <Globe className="w-6 h-6 sm:w-5 sm:h-5 flex-shrink-0" />
-          <span className="text-center leading-tight font-medium whitespace-nowrap">Cultural</span>
+          <Globe className="w-5 h-5 sm:w-4 sm:h-4 flex-shrink-0" />
+          <span className="text-center leading-tight font-medium">Cultural</span>
         </TabsTrigger>
         <TabsTrigger 
           value="community" 
-          className="flex flex-col items-center justify-center gap-2 p-4 data-[state=active]:bg-blue-600/50 text-xs sm:text-sm h-full min-h-[80px] sm:min-h-[60px]"
+          className="flex flex-col items-center justify-center gap-1 p-3 data-[state=active]:bg-blue-600/50 text-xs sm:text-sm h-16 sm:h-14"
         >
-          <Users className="w-6 h-6 sm:w-5 sm:h-5 flex-shrink-0" />
-          <span className="text-center leading-tight font-medium whitespace-nowrap">Community</span>
+          <Users className="w-5 h-5 sm:w-4 sm:h-4 flex-shrink-0" />
+          <span className="text-center leading-tight font-medium">Community</span>
         </TabsTrigger>
       </TabsList>
 
