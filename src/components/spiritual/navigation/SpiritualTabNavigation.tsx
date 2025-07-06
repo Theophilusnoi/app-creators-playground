@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useNavigate } from 'react-router-dom';
 import { 
   Sparkles, Flame, Globe, Users, TrendingUp, Heart, Play, Moon, 
   Shield, Crown, Brain, Lightbulb, Eye, Zap, Target, UserPlus 
@@ -16,6 +17,12 @@ export const SpiritualTabNavigation: React.FC<SpiritualTabNavigationProps> = ({
   activeTab, 
   onTabChange 
 }) => {
+  const navigate = useNavigate();
+
+  const handleMeditateClick = () => {
+    navigate('/meditation');
+  };
+
   return (
     <>
       {/* Primary Tab Navigation - Fixed visibility for mobile */}
@@ -72,10 +79,10 @@ export const SpiritualTabNavigation: React.FC<SpiritualTabNavigationProps> = ({
             <span className="font-medium text-center">Mood</span>
           </Button>
           <Button 
-            onClick={() => onTabChange('meditate')} 
-            variant={activeTab === 'meditate' ? 'default' : 'outline'}
+            onClick={handleMeditateClick}
+            variant="outline"
             size="sm"
-            className="flex flex-col items-center gap-1 h-auto py-3 px-2 text-xs min-h-[60px]"
+            className="flex flex-col items-center gap-1 h-auto py-3 px-2 text-xs min-h-[60px] bg-indigo-600/20 border-indigo-500/50 text-indigo-200 hover:bg-indigo-600/40"
           >
             <Play className="w-4 h-4 flex-shrink-0" />
             <span className="font-medium text-center">Meditate</span>
