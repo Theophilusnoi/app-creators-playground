@@ -132,8 +132,8 @@ export const WealthOracleReading: React.FC = () => {
       // Transform the data to handle JSONB fields properly with proper type casting
       const transformedData = (data || []).map(reading => ({
         ...reading,
-        cards_drawn: Array.isArray(reading.cards_drawn) ? reading.cards_drawn as OracleCard[] : [] as OracleCard[],
-        follow_up_actions: Array.isArray(reading.follow_up_actions) ? reading.follow_up_actions as string[] : [] as string[],
+        cards_drawn: Array.isArray(reading.cards_drawn) ? reading.cards_drawn as unknown as OracleCard[] : [] as OracleCard[],
+        follow_up_actions: Array.isArray(reading.follow_up_actions) ? reading.follow_up_actions as unknown as string[] : [] as string[],
         question: reading.question || undefined,
         accuracy_rating: reading.accuracy_rating || undefined,
         is_bookmarked: reading.is_bookmarked || false,
