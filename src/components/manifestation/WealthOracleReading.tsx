@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -130,11 +129,15 @@ export const WealthOracleReading: React.FC = () => {
 
       if (error) throw error;
       
-      // Transform the data to handle JSONB fields properly
+      // Transform the data to handle JSONB fields properly with proper type casting
       const transformedData = (data || []).map(reading => ({
         ...reading,
-        cards_drawn: Array.isArray(reading.cards_drawn) ? reading.cards_drawn : [],
-        follow_up_actions: Array.isArray(reading.follow_up_actions) ? reading.follow_up_actions : []
+        cards_drawn: Array.isArray(reading.cards_drawn) ? reading.cards_drawn as OracleCard[] : [] as OracleCard[],
+        follow_up_actions: Array.isArray(reading.follow_up_actions) ? reading.follow_up_actions as string[] : [] as string[],
+        question: reading.question || undefined,
+        accuracy_rating: reading.accuracy_rating || undefined,
+        is_bookmarked: reading.is_bookmarked || false,
+        reading_type: reading.reading_type || 'general'
       })) as Reading[];
       
       setReadings(transformedData);
