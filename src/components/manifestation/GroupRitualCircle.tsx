@@ -50,6 +50,7 @@ export const GroupRitualCircle: React.FC = () => {
   const [participants, setParticipants] = useState<{ [key: string]: Participant[] }>({});
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
   const [newRitual, setNewRitual] = useState({
     title: '',
     description: '',
@@ -62,9 +63,17 @@ export const GroupRitualCircle: React.FC = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    getCurrentUser();
     fetchGroupRituals();
     fetchMyRituals();
   }, []);
+
+  const getCurrentUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      setCurrentUser(user.id);
+    }
+  };
 
   const fetchGroupRituals = async () => {
     try {
@@ -97,13 +106,12 @@ export const GroupRitualCircle: React.FC = () => {
 
   const fetchMyRituals = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!currentUser) return;
 
       const { data, error } = await supabase
         .from('group_rituals')
         .select('*')
-        .eq('creator_id', user.id)
+        .eq('creator_id', currentUser)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -114,7 +122,7 @@ export const GroupRitualCircle: React.FC = () => {
   };
 
   const createRitual = async () => {
-    if (!newRitual.title.trim() || !newRitual.scheduled_datetime) {
+    if (!newRitual.title.trim() || !newRitual.scheduled_datetime || !currentUser) {
       toast({
         title: "Missing Information",
         description: "Please fill in the title and schedule date/time",
@@ -134,7 +142,8 @@ export const GroupRitualCircle: React.FC = () => {
           scheduled_datetime: newRitual.scheduled_datetime,
           duration: newRitual.duration,
           max_participants: newRitual.max_participants,
-          shared_intention: newRitual.shared_intention
+          shared_intention: newRitual.shared_intention,
+          creator_id: currentUser
         });
 
       if (error) throw error;
@@ -170,18 +179,25 @@ export const GroupRitualCircle: React.FC = () => {
   };
 
   const joinRitual = async (ritualId: string) => {
+    if (!currentUser) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to join rituals",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('group_ritual_participants')
         .insert({
           ritual_id: ritualId,
+          user_id: currentUser,
           participation_status: 'joined'
         });
 
       if (error) throw error;
-
-      // Update participant count
-      await supabase.rpc('increment_ritual_participants', { ritual_id: ritualId });
 
       toast({
         title: "✨ Joined Ritual!",
@@ -200,20 +216,16 @@ export const GroupRitualCircle: React.FC = () => {
   };
 
   const leaveRitual = async (ritualId: string) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+    if (!currentUser) return;
 
+    try {
       const { error } = await supabase
         .from('group_ritual_participants')
         .delete()
         .eq('ritual_id', ritualId)
-        .eq('user_id', user.id);
+        .eq('user_id', currentUser);
 
       if (error) throw error;
-
-      // Update participant count
-      await supabase.rpc('decrement_ritual_participants', { ritual_id: ritualId });
 
       toast({
         title: "Left Ritual",
@@ -227,8 +239,9 @@ export const GroupRitualCircle: React.FC = () => {
   };
 
   const isUserParticipant = (ritualId: string): boolean => {
-    // This would need actual user ID checking
-    return Math.random() > 0.7; // Simulate participation status
+    if (!currentUser) return false;
+    const ritualParticipants = participants[ritualId] || [];
+    return ritualParticipants.some(p => p.user_id === currentUser);
   };
 
   const formatDateTime = (dateTime: string) => {

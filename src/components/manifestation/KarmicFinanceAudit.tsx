@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Eye, Calculator, Star, AlertCircle, CheckCircle, 
-  TrendingUp, Heart, Shield, Crown, Zap
+  TrendingUp, Heart, Shield, Crown, Zap, Calendar
 } from 'lucide-react';
 
 interface KarmicProfile {
@@ -197,15 +197,18 @@ export const KarmicFinanceAudit: React.FC = () => {
 
   const generateFinancialGuidance = (lifePath: number, destiny: number): string[] => {
     const guidance = [
-      LIFE_PATH_MEANINGS[lifePath as keyof typeof LIFE_PATH_MEANINGS]?.financial || "Follow your natural talents for wealth"
+      LIFE_PATH_MEANINGS[lifePath as keyof typeof LIFE_PATH_MEANINGS]?.financial || "Follow your natural path to prosperity"
     ];
     
-    if (lifePath !== destiny) {
-      guidance.push(LIFE_PATH_MEANINGS[destiny as keyof typeof LIFE_PATH_MEANINGS]?.financial || "Diversify your income sources");
+    if (lifePath === 1) {
+      guidance.push("Start your own business or take leadership roles");
+      guidance.push("Invest in yourself and your unique ideas");
     }
     
-    guidance.push("Trust your intuition when making financial decisions");
-    guidance.push("Align your money goals with your soul purpose");
+    if (lifePath === 8) {
+      guidance.push("Focus on long-term wealth building strategies");
+      guidance.push("Consider real estate and business investments");
+    }
     
     return guidance;
   };
@@ -215,29 +218,23 @@ export const KarmicFinanceAudit: React.FC = () => {
     
     if (karmaDebt.includes(13)) {
       remedies.push("Practice daily discipline with money - create and stick to budgets");
-    }
-    
-    if (karmaDebt.includes(14)) {
-      remedies.push("Avoid impulsive spending - wait 24 hours before major purchases");
+      remedies.push("Work harder than usual to overcome past-life laziness");
     }
     
     if (karmaDebt.includes(16)) {
-      remedies.push("Practice regular charitable giving - even small amounts help clear karma");
+      remedies.push("Practice generosity and humility with wealth");
+      remedies.push("Help others financially when possible");
     }
     
-    if (karmaDebt.includes(19)) {
-      remedies.push("Focus on ethical earning - avoid shortcuts or manipulative tactics");
+    if (lifePath === 7) {
+      remedies.push("Meditate daily to balance spiritual and material pursuits");
     }
     
-    // Universal remedies
-    remedies.push("Meditate on abundance affirmations daily");
-    remedies.push("Keep a gratitude journal focused on financial blessings");
-    
-    if (lifePath === 8) {
-      remedies.push("Use your power to help others succeed financially");
+    if (remedies.length === 0) {
+      remedies.push("Continue your current path - no major karmic corrections needed");
     }
     
-    return remedies.length ? remedies : ["Continue your current positive financial practices"];
+    return remedies;
   };
 
   const generateLuckyNumbers = (lifePath: number, destiny: number, birthDay: number): number[] => {
@@ -245,22 +242,35 @@ export const KarmicFinanceAudit: React.FC = () => {
   };
 
   const generateFavorableDays = (lifePath: number): string[] => {
-    const dayMap: { [key: number]: string[] } = {
-      1: ['Sunday', 'Monday'],
-      2: ['Monday', 'Friday'], 
-      3: ['Thursday', 'Friday'],
-      4: ['Saturday', 'Sunday'],
-      5: ['Wednesday', 'Friday'],
-      6: ['Friday', 'Saturday'],
-      7: ['Monday', 'Sunday'],
-      8: ['Saturday', 'Sunday'],
-      9: ['Tuesday', 'Thursday'],
-      11: ['Monday', 'Sunday'],
-      22: ['Saturday', 'Sunday'],
-      33: ['Friday', 'Saturday']
-    };
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const favorableDays = [];
     
-    return dayMap[lifePath] || ['Sunday'];
+    // Simple mapping based on life path
+    if ([1, 10, 19, 28].includes(lifePath)) favorableDays.push('Sunday');
+    if ([2, 11, 20, 29].includes(lifePath)) favorableDays.push('Monday');
+    if ([3, 12, 21, 30].includes(lifePath)) favorableDays.push('Thursday');
+    if ([4, 13, 22, 31].includes(lifePath)) favorableDays.push('Sunday');
+    if ([5, 14, 23].includes(lifePath)) favorableDays.push('Wednesday');
+    if ([6, 15, 24].includes(lifePath)) favorableDays.push('Friday');
+    if ([7, 16, 25].includes(lifePath)) favorableDays.push('Monday');
+    if ([8, 17, 26].includes(lifePath)) favorableDays.push('Saturday');
+    if ([9, 18, 27].includes(lifePath)) favorableDays.push('Tuesday');
+    
+    return favorableDays.length ? favorableDays : ['Sunday'];
+  };
+
+  const getKarmaDebtSeverity = (debt: number[]): 'low' | 'medium' | 'high' => {
+    if (debt.length === 0) return 'low';
+    if (debt.length <= 2) return 'medium';
+    return 'high';
+  };
+
+  const getSeverityColor = (severity: 'low' | 'medium' | 'high') => {
+    switch (severity) {
+      case 'low': return 'text-green-400';
+      case 'medium': return 'text-yellow-400';
+      case 'high': return 'text-red-400';
+    }
   };
 
   return (
@@ -269,16 +279,24 @@ export const KarmicFinanceAudit: React.FC = () => {
       <Card className="bg-gradient-to-br from-purple-900/40 to-indigo-900/40 border-purple-500/30">
         <CardHeader>
           <CardTitle className="text-purple-200 flex items-center gap-2">
-            <Calculator className="w-5 h-5" />
+            <Eye className="w-5 h-5" />
             Karmic Finance Audit
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-purple-300 text-sm">
-            Discover your financial karma based on ancient numerology and Vedic astrology principles
-          </p>
-          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-purple-200 text-sm font-medium mb-2 block">
+                Full Name
+              </label>
+              <Input
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Enter your full birth name"
+                className="bg-black/20 border-purple-500/30 text-purple-100"
+              />
+            </div>
+            
             <div>
               <label className="text-purple-200 text-sm font-medium mb-2 block">
                 Birth Date
@@ -290,18 +308,6 @@ export const KarmicFinanceAudit: React.FC = () => {
                 className="bg-black/20 border-purple-500/30 text-purple-100"
               />
             </div>
-            
-            <div>
-              <label className="text-purple-200 text-sm font-medium mb-2 block">
-                Full Name (as on birth certificate)
-              </label>
-              <Input
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Enter your full name"
-                className="bg-black/20 border-purple-500/30 text-purple-100"
-              />
-            </div>
           </div>
 
           <Button
@@ -309,217 +315,228 @@ export const KarmicFinanceAudit: React.FC = () => {
             disabled={loading}
             className="w-full bg-purple-600 hover:bg-purple-700"
           >
-            <Eye className="w-4 h-4 mr-2" />
+            <Calculator className="w-4 h-4 mr-2" />
             {loading ? 'Analyzing...' : 'Generate Karmic Profile'}
           </Button>
+
+          {loading && (
+            <div className="bg-black/20 p-4 rounded border border-purple-500/20">
+              <p className="text-purple-200 text-center">
+                {['Calculating Life Path Number...', 'Analyzing Destiny Number...', 'Scanning for Karmic Debts...', 'Generating Financial Guidance...', 'Preparing Remedies...'][currentStep]}
+              </p>
+              <Progress value={(currentStep + 1) * 20} className="mt-3" />
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* Loading Progress */}
-      {loading && (
-        <Card className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 border-blue-500/30">
-          <CardContent className="p-6 text-center">
-            <div className="text-4xl mb-4">🔮</div>
-            <h3 className="text-xl font-bold text-blue-200 mb-2">
-              Analyzing Your Financial Karma
-            </h3>
-            <Progress value={(currentStep + 1) * 20} className="w-full mb-2" />
-            <p className="text-blue-300 text-sm">
-              {currentStep < 5 ? [
-                "Calculating Life Path Number...",
-                "Analyzing Destiny Number...",
-                "Scanning for Karmic Debts...",
-                "Generating Financial Guidance...",
-                "Preparing Remedies..."
-              ][currentStep] : "Complete!"}
-            </p>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Karmic Profile Results */}
-      {profile && !loading && (
-        <div className="space-y-6">
+      {profile && (
+        <>
           {/* Core Numbers */}
-          <Card className="bg-gradient-to-br from-yellow-900/40 to-amber-900/40 border-yellow-500/30">
+          <Card className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 border-blue-500/30">
             <CardHeader>
-              <CardTitle className="text-yellow-200 flex items-center gap-2">
+              <CardTitle className="text-blue-200 flex items-center gap-2">
                 <Star className="w-5 h-5" />
-                Your Core Numerology
+                Your Core Numbers
               </CardTitle>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="text-center bg-black/20 p-4 rounded border border-yellow-500/20">
-                <div className="text-3xl font-bold text-yellow-400 mb-2">{profile.lifePathNumber}</div>
-                <h4 className="text-yellow-200 font-medium">Life Path</h4>
-                <p className="text-yellow-300 text-sm mt-1">
-                  {LIFE_PATH_MEANINGS[profile.lifePathNumber as keyof typeof LIFE_PATH_MEANINGS]?.traits}
-                </p>
-              </div>
-              
-              <div className="text-center bg-black/20 p-4 rounded border border-yellow-500/20">
-                <div className="text-3xl font-bold text-yellow-400 mb-2">{profile.destinyNumber}</div>
-                <h4 className="text-yellow-200 font-medium">Destiny Number</h4>
-                <p className="text-yellow-300 text-sm mt-1">Your life's purpose expression</p>
-              </div>
-              
-              <div className="text-center bg-black/20 p-4 rounded border border-yellow-500/20">
-                <div className="text-3xl font-bold text-yellow-400 mb-2">{profile.birthDay}</div>
-                <h4 className="text-yellow-200 font-medium">Birth Day</h4>
-                <p className="text-yellow-300 text-sm mt-1">Natural talents and abilities</p>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center p-4 bg-black/20 rounded border border-blue-500/20">
+                  <h4 className="text-blue-200 font-medium mb-2">Life Path Number</h4>
+                  <div className="text-3xl font-bold text-blue-100 mb-2">{profile.lifePathNumber}</div>
+                  <p className="text-blue-300 text-sm">
+                    {LIFE_PATH_MEANINGS[profile.lifePathNumber as keyof typeof LIFE_PATH_MEANINGS]?.traits}
+                  </p>
+                </div>
+                
+                <div className="text-center p-4 bg-black/20 rounded border border-blue-500/20">
+                  <h4 className="text-blue-200 font-medium mb-2">Destiny Number</h4>
+                  <div className="text-3xl font-bold text-blue-100 mb-2">{profile.destinyNumber}</div>
+                  <p className="text-blue-300 text-sm">Your life purpose energy</p>
+                </div>
+                
+                <div className="text-center p-4 bg-black/20 rounded border border-blue-500/20">
+                  <h4 className="text-blue-200 font-medium mb-2">Birth Day</h4>
+                  <div className="text-3xl font-bold text-blue-100 mb-2">{profile.birthDay}</div>
+                  <p className="text-blue-300 text-sm">Your natural talents</p>
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Karmic Debts */}
-          {profile.karmaDebt.length > 0 && (
-            <Card className="bg-gradient-to-br from-red-900/40 to-pink-900/40 border-red-500/30">
-              <CardHeader>
-                <CardTitle className="text-red-200 flex items-center gap-2">
-                  <AlertCircle className="w-5 h-5" />
-                  Karmic Debts to Clear
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {profile.karmaDebt.map(debt => (
-                  <div key={debt} className="bg-black/20 p-4 rounded border border-red-500/20">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge className="bg-red-600/20 text-red-200">Debt {debt}</Badge>
-                    </div>
-                    <p className="text-red-200 text-sm">
-                      {KARMA_DEBT_MEANINGS[debt as keyof typeof KARMA_DEBT_MEANINGS]}
-                    </p>
+          {/* Karmic Debt Analysis */}
+          <Card className={`bg-gradient-to-br border ${
+            profile.karmaDebt.length > 0 
+              ? 'from-red-900/40 to-orange-900/40 border-red-500/30' 
+              : 'from-green-900/40 to-emerald-900/40 border-green-500/30'
+          }`}>
+            <CardHeader>
+              <CardTitle className={`flex items-center gap-2 ${
+                profile.karmaDebt.length > 0 ? 'text-red-200' : 'text-green-200'
+              }`}>
+                {profile.karmaDebt.length > 0 ? <AlertCircle className="w-5 h-5" /> : <CheckCircle className="w-5 h-5" />}
+                Karmic Debt Analysis
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {profile.karmaDebt.length > 0 ? (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-red-200">Severity:</span>
+                    <Badge className={`${getSeverityColor(getKarmaDebtSeverity(profile.karmaDebt))} bg-black/20`}>
+                      {getKarmaDebtSeverity(profile.karmaDebt).toUpperCase()}
+                    </Badge>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {profile.karmaDebt.map(debt => (
+                      <div key={debt} className="bg-black/20 p-4 rounded border border-red-500/20">
+                        <h4 className="text-red-200 font-medium mb-2">Karma Debt {debt}</h4>
+                        <p className="text-red-300 text-sm">
+                          {KARMA_DEBT_MEANINGS[debt as keyof typeof KARMA_DEBT_MEANINGS]}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-6">
+                  <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
+                  <h3 className="text-green-200 text-xl font-medium mb-2">No Karmic Debt Detected</h3>
+                  <p className="text-green-300">You have a clean karmic slate for financial abundance!</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Strengths */}
+          <Card className="bg-gradient-to-br from-green-900/40 to-emerald-900/40 border-green-500/30">
+            <CardHeader>
+              <CardTitle className="text-green-200 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5" />
+                Financial Strengths
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {profile.strengths.map((strength, index) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-green-200">{strength}</p>
                   </div>
                 ))}
-              </CardContent>
-            </Card>
-          )}
+              </div>
+            </CardContent>
+          </Card>
 
-          {/* Strengths & Challenges */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="bg-gradient-to-br from-green-900/40 to-emerald-900/40 border-green-500/30">
-              <CardHeader>
-                <CardTitle className="text-green-200 flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5" />
-                  Financial Strengths
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {profile.strengths.map((strength, index) => (
-                    <li key={index} className="text-green-200 text-sm flex items-start gap-2">
-                      <Star className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
-                      {strength}
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-orange-900/40 to-red-900/40 border-orange-500/30">
-              <CardHeader>
-                <CardTitle className="text-orange-200 flex items-center gap-2">
-                  <AlertCircle className="w-5 h-5" />
-                  Areas for Growth
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {profile.challenges.map((challenge, index) => (
-                    <li key={index} className="text-orange-200 text-sm flex items-start gap-2">
-                      <TrendingUp className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
-                      {challenge}
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
+          {/* Challenges */}
+          <Card className="bg-gradient-to-br from-yellow-900/40 to-orange-900/40 border-yellow-500/30">
+            <CardHeader>
+              <CardTitle className="text-yellow-200 flex items-center gap-2">
+                <AlertCircle className="w-5 h-5" />
+                Financial Challenges
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {profile.challenges.map((challenge, index) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-yellow-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-yellow-200">{challenge}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Financial Guidance */}
-          <Card className="bg-gradient-to-br from-blue-900/40 to-purple-900/40 border-blue-500/30">
+          <Card className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 border-indigo-500/30">
             <CardHeader>
-              <CardTitle className="text-blue-200 flex items-center gap-2">
+              <CardTitle className="text-indigo-200 flex items-center gap-2">
                 <Crown className="w-5 h-5" />
                 Personalized Financial Guidance
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-3">
+              <div className="space-y-3">
                 {profile.financialGuidance.map((guidance, index) => (
-                  <li key={index} className="text-blue-200 bg-black/20 p-3 rounded border border-blue-500/20">
-                    {guidance}
-                  </li>
+                  <div key={index} className="flex items-start gap-3">
+                    <Star className="w-5 h-5 text-indigo-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-indigo-200">{guidance}</p>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </CardContent>
           </Card>
 
           {/* Remedies */}
-          <Card className="bg-gradient-to-br from-purple-900/40 to-pink-900/40 border-purple-500/30">
+          <Card className="bg-gradient-to-br from-pink-900/40 to-rose-900/40 border-pink-500/30">
             <CardHeader>
-              <CardTitle className="text-purple-200 flex items-center gap-2">
-                <Shield className="w-5 h-5" />
-                Karmic Remedies & Practices
+              <CardTitle className="text-pink-200 flex items-center gap-2">
+                <Heart className="w-5 h-5" />
+                Karmic Remedies
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-2">
+              <div className="space-y-3">
                 {profile.remedies.map((remedy, index) => (
-                  <li key={index} className="text-purple-200 text-sm flex items-start gap-2">
-                    <Heart className="w-4 h-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                    {remedy}
-                  </li>
+                  <div key={index} className="flex items-start gap-3">
+                    <Shield className="w-5 h-5 text-pink-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-pink-200">{remedy}</p>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </CardContent>
           </Card>
 
-          {/* Lucky Numbers & Days */}
+          {/* Lucky Numbers & Favorable Days */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="bg-gradient-to-br from-indigo-900/40 to-blue-900/40 border-indigo-500/30">
+            <Card className="bg-gradient-to-br from-amber-900/40 to-yellow-900/40 border-amber-500/30">
               <CardHeader>
-                <CardTitle className="text-indigo-200 flex items-center gap-2">
+                <CardTitle className="text-amber-200 flex items-center gap-2">
                   <Zap className="w-5 h-5" />
                   Lucky Numbers
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {profile.luckyNumbers.map(num => (
-                    <Badge key={num} className="bg-indigo-600/20 text-indigo-200 text-lg px-3 py-1">
-                      {num}
-                    </Badge>
+                <div className="grid grid-cols-4 gap-3">
+                  {profile.luckyNumbers.map(number => (
+                    <div key={number} className="text-center p-3 bg-black/20 rounded border border-amber-500/20">
+                      <div className="text-2xl font-bold text-amber-100">{number}</div>
+                    </div>
                   ))}
                 </div>
-                <p className="text-indigo-300 text-sm mt-3">
-                  Use these numbers for important financial dates, amounts, or decisions
+                <p className="text-amber-300 text-sm mt-3 text-center">
+                  Use these numbers for important financial decisions
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-teal-900/40 to-cyan-900/40 border-teal-500/30">
+            <Card className="bg-gradient-to-br from-cyan-900/40 to-blue-900/40 border-cyan-500/30">
               <CardHeader>
-                <CardTitle className="text-teal-200 flex items-center gap-2">
+                <CardTitle className="text-cyan-200 flex items-center gap-2">
                   <Calendar className="w-5 h-5" />
                   Favorable Days
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-wrap gap-2">
+                <div className="space-y-2">
                   {profile.favorableDays.map(day => (
-                    <Badge key={day} className="bg-teal-600/20 text-teal-200">
-                      {day}
-                    </Badge>
+                    <div key={day} className="flex items-center gap-2 p-2 bg-black/20 rounded border border-cyan-500/20">
+                      <Calendar className="w-4 h-4 text-cyan-400" />
+                      <span className="text-cyan-200">{day}</span>
+                    </div>
                   ))}
                 </div>
-                <p className="text-teal-300 text-sm mt-3">
-                  Best days for important financial activities and decisions
+                <p className="text-cyan-300 text-sm mt-3 text-center">
+                  Best days for financial planning and investments
                 </p>
               </CardContent>
             </Card>
           </div>
-        </div>
+        </>
       )}
     </div>
   );

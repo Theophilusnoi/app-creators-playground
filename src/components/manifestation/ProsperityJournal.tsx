@@ -63,6 +63,7 @@ const JOURNAL_PROMPTS = {
 
 export const ProsperityJournal: React.FC = () => {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
   const [newEntry, setNewEntry] = useState({
     title: '',
     content: '',
@@ -80,9 +81,17 @@ export const ProsperityJournal: React.FC = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    getCurrentUser();
     fetchEntries();
     generateDailyPrompt();
   }, []);
+
+  const getCurrentUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      setCurrentUser(user.id);
+    }
+  };
 
   const fetchEntries = async () => {
     try {
@@ -122,7 +131,7 @@ export const ProsperityJournal: React.FC = () => {
   };
 
   const saveEntry = async () => {
-    if (!newEntry.content.trim()) {
+    if (!newEntry.content.trim() || !currentUser) {
       toast({
         title: "Please write something",
         description: "Your journal entry cannot be empty",
@@ -141,7 +150,8 @@ export const ProsperityJournal: React.FC = () => {
           entry_type: newEntry.entry_type,
           mood_rating: newEntry.mood_rating,
           manifestation_progress: newEntry.manifestation_progress,
-          tags: newEntry.tags
+          tags: newEntry.tags,
+          user_id: currentUser
         });
 
       if (error) throw error;

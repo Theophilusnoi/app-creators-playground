@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 
-  Moon, CalendarDays, Plus, CheckCircle, Circle, 
+  Moon, Calendar, Plus, CheckCircle, Circle, 
   Sparkles, Target, Heart, Trash2, Edit3
 } from 'lucide-react';
 
@@ -118,6 +118,7 @@ const getCurrentMoonPhase = (): string => {
 export const MoonPhasePlanner: React.FC = () => {
   const [currentPhase, setCurrentPhase] = useState(getCurrentMoonPhase());
   const [actions, setActions] = useState<MoonAction[]>([]);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
   const [newAction, setNewAction] = useState({
     action_type: 'intention_setting',
     action_description: '',
@@ -128,8 +129,16 @@ export const MoonPhasePlanner: React.FC = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    getCurrentUser();
     fetchMoonActions();
   }, []);
+
+  const getCurrentUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      setCurrentUser(user.id);
+    }
+  };
 
   const fetchMoonActions = async () => {
     try {
@@ -146,7 +155,7 @@ export const MoonPhasePlanner: React.FC = () => {
   };
 
   const addMoonAction = async () => {
-    if (!newAction.action_description.trim()) {
+    if (!newAction.action_description.trim() || !currentUser) {
       toast({
         title: "Please enter an action description",
         variant: "destructive"
@@ -162,7 +171,8 @@ export const MoonPhasePlanner: React.FC = () => {
           moon_phase: currentPhase,
           action_type: newAction.action_type,
           action_description: newAction.action_description,
-          scheduled_date: newAction.scheduled_date
+          scheduled_date: newAction.scheduled_date,
+          user_id: currentUser
         });
 
       if (error) throw error;
@@ -345,7 +355,7 @@ export const MoonPhasePlanner: React.FC = () => {
       <Card className="bg-gradient-to-br from-cyan-900/40 to-blue-900/40 border-cyan-500/30">
         <CardHeader>
           <CardTitle className="text-cyan-200 flex items-center gap-2">
-            <CalendarDays className="w-5 h-5" />
+            <Calendar className="w-5 h-5" />
             Upcoming Moon Phases
           </CardTitle>
         </CardHeader>
