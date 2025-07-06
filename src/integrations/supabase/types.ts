@@ -137,6 +137,257 @@ export type Database = {
         }
         Relationships: []
       }
+      group_ritual_participants: {
+        Row: {
+          contribution_notes: string | null
+          energy_rating: number | null
+          id: string
+          joined_at: string
+          participation_status: string | null
+          ritual_id: string
+          user_id: string
+        }
+        Insert: {
+          contribution_notes?: string | null
+          energy_rating?: number | null
+          id?: string
+          joined_at?: string
+          participation_status?: string | null
+          ritual_id: string
+          user_id: string
+        }
+        Update: {
+          contribution_notes?: string | null
+          energy_rating?: number | null
+          id?: string
+          joined_at?: string
+          participation_status?: string | null
+          ritual_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_ritual_participants_ritual_id_fkey"
+            columns: ["ritual_id"]
+            isOneToOne: false
+            referencedRelation: "group_rituals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_rituals: {
+        Row: {
+          created_at: string
+          creator_id: string
+          current_participants: number | null
+          description: string | null
+          duration: number | null
+          id: string
+          max_participants: number | null
+          ritual_type: string
+          scheduled_datetime: string
+          shared_intention: string | null
+          status: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          creator_id: string
+          current_participants?: number | null
+          description?: string | null
+          duration?: number | null
+          id?: string
+          max_participants?: number | null
+          ritual_type: string
+          scheduled_datetime: string
+          shared_intention?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string
+          current_participants?: number | null
+          description?: string | null
+          duration?: number | null
+          id?: string
+          max_participants?: number | null
+          ritual_type?: string
+          scheduled_datetime?: string
+          shared_intention?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      manifestation_journals: {
+        Row: {
+          content: string
+          created_at: string
+          entry_type: string
+          id: string
+          manifestation_progress: number | null
+          mood_rating: number | null
+          tags: string[] | null
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          entry_type?: string
+          id?: string
+          manifestation_progress?: number | null
+          mood_rating?: number | null
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          entry_type?: string
+          id?: string
+          manifestation_progress?: number | null
+          mood_rating?: number | null
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      manifestation_rituals: {
+        Row: {
+          completion_count: number | null
+          created_at: string
+          description: string | null
+          duration: number | null
+          elements: Json | null
+          frequency: string | null
+          id: string
+          instructions: Json | null
+          is_active: boolean | null
+          ritual_type: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completion_count?: number | null
+          created_at?: string
+          description?: string | null
+          duration?: number | null
+          elements?: Json | null
+          frequency?: string | null
+          id?: string
+          instructions?: Json | null
+          is_active?: boolean | null
+          ritual_type?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completion_count?: number | null
+          created_at?: string
+          description?: string | null
+          duration?: number | null
+          elements?: Json | null
+          frequency?: string | null
+          id?: string
+          instructions?: Json | null
+          is_active?: boolean | null
+          ritual_type?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      moon_phase_actions: {
+        Row: {
+          action_description: string
+          action_type: string
+          completed_at: string | null
+          completion_status: string | null
+          created_at: string
+          id: string
+          moon_phase: string
+          results_notes: string | null
+          scheduled_date: string
+          user_id: string
+        }
+        Insert: {
+          action_description: string
+          action_type: string
+          completed_at?: string | null
+          completion_status?: string | null
+          created_at?: string
+          id?: string
+          moon_phase: string
+          results_notes?: string | null
+          scheduled_date: string
+          user_id: string
+        }
+        Update: {
+          action_description?: string
+          action_type?: string
+          completed_at?: string | null
+          completion_status?: string | null
+          created_at?: string
+          id?: string
+          moon_phase?: string
+          results_notes?: string | null
+          scheduled_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      oracle_readings: {
+        Row: {
+          accuracy_rating: number | null
+          cards_drawn: Json
+          created_at: string
+          follow_up_actions: Json | null
+          id: string
+          interpretation: string
+          is_bookmarked: boolean | null
+          question: string | null
+          reading_type: string | null
+          user_id: string
+        }
+        Insert: {
+          accuracy_rating?: number | null
+          cards_drawn?: Json
+          created_at?: string
+          follow_up_actions?: Json | null
+          id?: string
+          interpretation: string
+          is_bookmarked?: boolean | null
+          question?: string | null
+          reading_type?: string | null
+          user_id: string
+        }
+        Update: {
+          accuracy_rating?: number | null
+          cards_drawn?: Json
+          created_at?: string
+          follow_up_actions?: Json | null
+          id?: string
+          interpretation?: string
+          is_bookmarked?: boolean | null
+          question?: string | null
+          reading_type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -188,6 +439,60 @@ export type Database = {
           id?: string
           name?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      prosperity_goals: {
+        Row: {
+          action_steps: Json | null
+          completed_at: string | null
+          created_at: string
+          current_amount: number | null
+          goal_category: string
+          goal_description: string | null
+          goal_title: string
+          id: string
+          milestones: Json | null
+          priority_level: string | null
+          status: string | null
+          target_amount: number | null
+          target_date: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_steps?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          current_amount?: number | null
+          goal_category: string
+          goal_description?: string | null
+          goal_title: string
+          id?: string
+          milestones?: Json | null
+          priority_level?: string | null
+          status?: string | null
+          target_amount?: number | null
+          target_date?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_steps?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          current_amount?: number | null
+          goal_category?: string
+          goal_description?: string | null
+          goal_title?: string
+          id?: string
+          milestones?: Json | null
+          priority_level?: string | null
+          status?: string | null
+          target_amount?: number | null
+          target_date?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -558,6 +863,45 @@ export type Database = {
           push_notifications?: boolean | null
           sms_notifications?: boolean | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wealth_affirmations: {
+        Row: {
+          affirmation_text: string
+          category: string | null
+          created_at: string
+          effectiveness_rating: number | null
+          id: string
+          is_favorite: boolean | null
+          last_used_at: string | null
+          personalization_data: Json | null
+          usage_count: number | null
+          user_id: string
+        }
+        Insert: {
+          affirmation_text: string
+          category?: string | null
+          created_at?: string
+          effectiveness_rating?: number | null
+          id?: string
+          is_favorite?: boolean | null
+          last_used_at?: string | null
+          personalization_data?: Json | null
+          usage_count?: number | null
+          user_id: string
+        }
+        Update: {
+          affirmation_text?: string
+          category?: string | null
+          created_at?: string
+          effectiveness_rating?: number | null
+          id?: string
+          is_favorite?: boolean | null
+          last_used_at?: string | null
+          personalization_data?: Json | null
+          usage_count?: number | null
           user_id?: string
         }
         Relationships: []

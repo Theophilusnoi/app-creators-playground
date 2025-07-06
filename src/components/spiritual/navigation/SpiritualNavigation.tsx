@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Home, Zap, Heart, Moon, Shield, BarChart3 } from 'lucide-react';
+import { Home, Zap, Heart, Moon, Shield, BarChart3, Coins } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface SpiritualNavigationProps {
@@ -44,7 +44,7 @@ export const SpiritualNavigation: React.FC<SpiritualNavigationProps> = ({ onQuic
       </div>
 
       {/* Additional Navigation - Better mobile spacing */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
         <Button onClick={() => navigate('/quantum-dashboard')} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 py-3 sm:py-2">
           <Zap className="w-4 h-4 mr-2 flex-shrink-0" />
           <span className="font-medium">Quantum Dashboard</span>
@@ -52,6 +52,10 @@ export const SpiritualNavigation: React.FC<SpiritualNavigationProps> = ({ onQuic
         <Button onClick={() => navigate('/gamification')} variant="outline" className="border-green-500/30 text-green-200 hover:bg-green-600/20 py-3 sm:py-2">
           <BarChart3 className="w-4 h-4 mr-2 flex-shrink-0" />
           <span className="font-medium">Progress Tracker</span>
+        </Button>
+        <Button onClick={() => navigate('/manifestation')} className="bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700 py-3 sm:py-2">
+          <Coins className="w-4 h-4 mr-2 flex-shrink-0" />
+          <span className="font-medium">Wealth Manifestation</span>
         </Button>
       </div>
     </div>

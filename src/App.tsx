@@ -11,6 +11,7 @@ import { QuantumSpiritualDashboard } from "./components/spiritual/QuantumSpiritu
 import { GamificationDashboard } from "./components/spiritual/GamificationDashboard";
 import SoulTravelPage from "./pages/SoulTravelPage";
 import MeditationEnvironment from "./pages/MeditationEnvironment";
+import ManifestationPage from "./pages/ManifestationPage";
 import { AuthPage } from "./components/auth/AuthPage";
 import PricingPage from "./pages/PricingPage";
 import OnboardingFlow from "./components/onboarding/OnboardingFlow";
@@ -40,6 +41,7 @@ function App() {
                   <Route path="/gamification" element={<GamificationDashboard />} />
                   <Route path="/soul-travel" element={<SoulTravelPage />} />
                   <Route path="/meditation" element={<MeditationEnvironment />} />
+                  <Route path="/manifestation" element={<ManifestationPage />} />
                 </Routes>
               </BrowserRouter>
             </SubscriptionProvider>
