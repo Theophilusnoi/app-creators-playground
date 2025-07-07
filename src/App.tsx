@@ -17,6 +17,7 @@ import PricingPage from "./pages/PricingPage";
 import OnboardingFlow from "./components/onboarding/OnboardingFlow";
 import { AuthProvider } from "./components/auth/AuthProvider";
 import { SubscriptionProvider } from "./contexts/SubscriptionContext";
+import { PlanManagement } from "./components/subscription/PlanManagement";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ function App() {
                   <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<AuthPage />} />
                   <Route path="/pricing" element={<PricingPage />} />
+                  <Route path="/plan-management" element={<PlanManagement />} />
                   <Route path="/onboarding" element={<OnboardingFlow />} />
                   <Route path="/dashboard" element={<SpiritualHub />} />
                   <Route path="/pro" element={<SpiritualHub />} />

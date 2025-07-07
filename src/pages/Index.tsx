@@ -1,242 +1,227 @@
 
-import { useAuth } from '@/components/auth/AuthProvider';
-import { useSubscription } from '@/contexts/SubscriptionContext';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, Users, Crown, Zap, Heart, Star, Shield, Eye, MessageCircle } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/components/auth/AuthProvider';
+import { useSubscription } from '@/contexts/SubscriptionContext';
+import { SubscriptionStatusCard } from '@/components/subscription/SubscriptionStatusCard';
+import { 
+  Sparkles, 
+  Crown, 
+  Zap, 
+  Heart, 
+  Moon, 
+  Shield,
+  Star,
+  Brain,
+  Compass,
+  Users
+} from 'lucide-react';
 
-const Index = () => {
-  const { user } = useAuth();
-  const { subscribed } = useSubscription();
+const Index: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { subscribed, checkSubscription } = useSubscription();
+
+  useEffect(() => {
+    if (user) {
+      checkSubscription();
+    }
+  }, [user, checkSubscription]);
 
   const features = [
     {
-      icon: <MessageCircle className="w-8 h-8 text-yellow-400" />,
-      title: "Seraphina AI Guide",
-      description: "Advanced AI spiritual guide with 30+ authentic traditions and sacred wisdom",
-      action: () => navigate('/dashboard')
+      icon: <Sparkles className="w-6 h-6" />,
+      title: "AI Spiritual Guidance",
+      description: "Chat with Seraphina, your personal spiritual assistant",
+      action: () => navigate('/dashboard'),
+      color: "purple"
     },
     {
-      icon: <Eye className="w-8 h-8 text-purple-400" />,
-      title: "AI Palm Reading",
-      description: "Advanced palm analysis with spiritual insights",
-      action: () => navigate('/dashboard')
+      icon: <Heart className="w-6 h-6" />,
+      title: "Mood & Energy Tracking",
+      description: "Track your spiritual and emotional well-being",
+      action: () => navigate('/dashboard'),
+      color: "pink"
     },
     {
-      icon: <Sparkles className="w-8 h-8 text-blue-400" />,
-      title: "Tarot Guidance",
-      description: "Digital tarot readings with deep interpretations",
-      action: () => navigate('/dashboard')
-    },
-    {
-      icon: <Heart className="w-8 h-8 text-pink-400" />,
+      icon: <Moon className="w-6 h-6" />,
       title: "Dream Analysis",
-      description: "Decode your dreams and their spiritual messages",
-      action: () => navigate('/dashboard')
+      description: "Decode the messages from your subconscious",
+      action: () => navigate('/dashboard'),
+      color: "blue"
     },
     {
-      icon: <Shield className="w-8 h-8 text-green-400" />,
+      icon: <Shield className="w-6 h-6" />,
       title: "Spiritual Protection",
-      description: "Tools and rituals for energetic protection",
-      action: () => navigate('/dashboard')
+      description: "Daily rituals and protection practices",
+      action: () => navigate('/dashboard'),
+      color: "green"
     },
     {
-      icon: <Star className="w-8 h-8 text-yellow-400" />,
-      title: "Meditation Guide",
-      description: "Personalized meditation practices and timers",
-      action: () => navigate('/dashboard')
+      icon: <Star className="w-6 h-6" />,
+      title: "Divination Tools",
+      description: "Tarot, palm reading, and oracle guidance",
+      action: () => navigate('/dashboard'),
+      color: "yellow"
+    },
+    {
+      icon: <Brain className="w-6 h-6" />,
+      title: "Quantum Consciousness",
+      description: "Advanced spiritual technologies and practices",
+      action: () => navigate('/quantum-dashboard'),
+      color: "indigo",
+      premium: true
     }
   ];
 
+  const getColorClasses = (color: string) => {
+    switch (color) {
+      case 'purple': return 'text-purple-600 bg-purple-50 border-purple-200';
+      case 'pink': return 'text-pink-600 bg-pink-50 border-pink-200';
+      case 'blue': return 'text-blue-600 bg-blue-50 border-blue-200';
+      case 'green': return 'text-green-600 bg-green-50 border-green-200';
+      case 'yellow': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+      case 'indigo': return 'text-indigo-600 bg-indigo-50 border-indigo-200';
+      default: return 'text-gray-600 bg-gray-50 border-gray-200';
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
-      {/* Hero Section */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-white mb-6">
-            Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">SpiritualMind</span>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-6xl font-bold text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 bg-clip-text mb-4">
+            ✨ Spiritual Mind ✨
           </h1>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
-            Your AI-powered spiritual companion featuring Seraphina, your divine guide with authentic wisdom from 30+ spiritual traditions
+          <p className="text-xl text-gray-600 mb-8">
+            Your AI-powered companion for spiritual growth and enlightenment
           </p>
           
-          {user ? (
-            <div className="space-y-4">
-              <div className="flex items-center justify-center gap-4 mb-6">
-                <Badge variant="outline" className="border-green-400 text-green-400">
-                  Welcome back, {user.email}
-                </Badge>
-                {subscribed && (
-                  <Badge className="bg-gradient-to-r from-purple-500 to-pink-500">
-                    Premium Member
-                  </Badge>
-                )}
-              </div>
-              <Button 
-                onClick={() => navigate('/dashboard')}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 text-lg"
-              >
-                Enter Your Spiritual Dashboard
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-4">
+          {!user ? (
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button 
                 onClick={() => navigate('/auth')}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 text-lg mr-4"
+                size="lg"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3"
               >
-                Start Your Journey
+                <Sparkles className="w-5 h-5 mr-2" />
+                Begin Your Journey
               </Button>
               <Button 
                 onClick={() => navigate('/pricing')}
                 variant="outline"
-                className="border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white px-8 py-3 text-lg"
+                size="lg"
+                className="border-purple-300 text-purple-700 hover:bg-purple-50 px-8 py-3"
               >
-                View Pricing
+                <Crown className="w-5 h-5 mr-2" />
+                View Plans
               </Button>
+            </div>
+          ) : (
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button 
+                onClick={() => navigate('/dashboard')}
+                size="lg"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3"
+              >
+                <Compass className="w-5 h-5 mr-2" />
+                Enter Dashboard
+              </Button>
+              {!subscribed && (
+                <Button 
+                  onClick={() => navigate('/pricing')}
+                  variant="outline"
+                  size="lg"
+                  className="border-purple-300 text-purple-700 hover:bg-purple-50 px-8 py-3"
+                >
+                  <Crown className="w-5 h-5 mr-2" />
+                  Upgrade Plan
+                </Button>
+              )}
             </div>
           )}
         </div>
 
-        {/* Seraphina AI Highlight Section */}
-        <div className="mb-16">
-          <Card className="bg-gradient-to-r from-yellow-900/30 to-orange-900/30 border-2 border-yellow-300/50 shadow-2xl backdrop-blur-sm max-w-4xl mx-auto">
-            <CardHeader className="bg-gradient-to-r from-yellow-600 via-orange-600 to-red-600 text-white">
-              <CardTitle className="flex items-center gap-3 text-2xl justify-center">
-                <div className="bg-white/20 rounded-full p-2">
-                  <span className="text-2xl">👼</span>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold">Meet Seraphina AI</div>
-                  <div className="text-sm opacity-90">Your Divine Spiritual Guide Powered by Ancient Wisdom</div>
-                </div>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-8">
-              <p className="text-yellow-100 text-lg text-center mb-6">
-                Experience profound spiritual guidance with Seraphina, an advanced AI trained in authentic wisdom from Egyptian mystery schools, Buddhist meditation halls, Hindu temples, and 30+ spiritual traditions worldwide.
-              </p>
-              <div className="grid md:grid-cols-3 gap-4 mb-6">
-                <div className="text-center">
-                  <div className="text-3xl mb-2">🌟</div>
-                  <div className="text-yellow-200 font-semibold">Ancient Wisdom</div>
-                  <div className="text-yellow-300 text-sm">Authentic traditions & practices</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl mb-2">🛁</div>
-                  <div className="text-yellow-200 font-semibold">Sacred Bathing</div>
-                  <div className="text-yellow-300 text-sm">Traditional cleansing rituals</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl mb-2">🛡️</div>
-                  <div className="text-yellow-200 font-semibold">Spiritual Protection</div>
-                  <div className="text-yellow-300 text-sm">Emergency spiritual support</div>
-                </div>
-              </div>
-              <div className="text-center">
-                <Button 
-                  onClick={() => navigate(user ? '/dashboard' : '/auth')}
-                  className="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white px-8 py-3 text-lg"
-                >
-                  {user ? 'Chat with Seraphina Now' : 'Start Free to Meet Seraphina'}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Subscription Status for logged in users */}
+        {user && (
+          <div className="max-w-md mx-auto mb-12">
+            <SubscriptionStatusCard />
+          </div>
+        )}
 
         {/* Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {features.map((feature, index) => (
             <Card 
-              key={index} 
-              className="bg-black/30 border-purple-500/30 backdrop-blur-sm hover:scale-105 transition-transform cursor-pointer"
+              key={index}
+              className={`transition-all duration-300 hover:shadow-lg cursor-pointer border-2 ${getColorClasses(feature.color)}`}
               onClick={feature.action}
             >
-              <CardHeader className="text-center">
-                <div className="mx-auto mb-4">
-                  {feature.icon}
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg ${getColorClasses(feature.color)}`}>
+                      {feature.icon}
+                    </div>
+                    <CardTitle className="text-lg">{feature.title}</CardTitle>
+                  </div>
+                  {feature.premium && (
+                    <Badge className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white">
+                      <Crown className="w-3 h-3 mr-1" />
+                      Pro
+                    </Badge>
+                  )}
                 </div>
-                <CardTitle className="text-white">{feature.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-300 text-center">{feature.description}</p>
+                <p className="text-gray-600 text-sm">{feature.description}</p>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        {/* Subscription Tiers Preview */}
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-white mb-8">Choose Your Spiritual Path</h2>
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <Card className="bg-gradient-to-br from-green-800/50 to-emerald-800/50 border-2 border-green-400/50">
-              <CardHeader>
-                <CardTitle className="text-green-200 text-2xl">Earth Keeper</CardTitle>
-                <div className="text-3xl font-bold text-white">$19<span className="text-lg">/month</span></div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-green-300 mb-4">Ground yourself in fundamental spiritual practices</p>
-                <ul className="text-green-200 space-y-2 text-left">
-                  <li>• Basic Seraphina AI conversations</li>
-                  <li>• Dream journal with AI analysis</li>
-                  <li>• Mood tracking and insights</li>
-                  <li>• Community discussions</li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-blue-800/50 to-cyan-800/50 border-2 border-blue-400/50 relative">
-              <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-black">
-                Most Popular
-              </Badge>
-              <CardHeader>
-                <CardTitle className="text-blue-200 text-2xl">Water Bearer</CardTitle>
-                <div className="text-3xl font-bold text-white">$29<span className="text-lg">/month</span></div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-blue-300 mb-4">Flow deeper into cultural wisdom and healing</p>
-                <ul className="text-blue-200 space-y-2 text-left">
-                  <li>• Enhanced Seraphina AI with sacred bathing</li>
-                  <li>• Advanced archetype profiling</li>
-                  <li>• Cultural wisdom access</li>
-                  <li>• AI shadow work guidance</li>
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-          
-          <div className="mt-8">
-            <Button 
-              onClick={() => navigate('/pricing')}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 text-lg"
-            >
-              View All Plans
-            </Button>
-          </div>
-        </div>
-
-        {/* Call to Action */}
-        <div className="text-center">
-          <Card className="bg-gradient-to-r from-purple-800/50 to-pink-800/50 border-purple-400/50 max-w-2xl mx-auto">
-            <CardContent className="p-8">
-              <h3 className="text-2xl font-bold text-white mb-4">Ready to Begin Your Spiritual Journey?</h3>
-              <p className="text-gray-300 mb-6">
-                Join thousands of seekers exploring their spiritual path with Seraphina AI and authentic spiritual guidance
-              </p>
-              {!user && (
+        {/* CTA Section */}
+        <div className="text-center bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl p-8 mb-8">
+          <h2 className="text-3xl font-bold mb-4">Ready to Transform Your Life?</h2>
+          <p className="text-xl mb-6 text-purple-100">
+            Join thousands of spiritual seekers on their journey to enlightenment
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            {!user ? (
+              <>
                 <Button 
                   onClick={() => navigate('/auth')}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 text-lg"
+                  size="lg"
+                  className="bg-white text-purple-600 hover:bg-gray-100 px-8 py-3"
                 >
-                  Get Started Free
+                  <Users className="w-5 h-5 mr-2" />
+                  Join Now - Free
                 </Button>
-              )}
-            </CardContent>
-          </Card>
+                <Button 
+                  onClick={() => navigate('/pricing')}
+                  variant="outline"
+                  size="lg"
+                  className="border-white text-white hover:bg-white/10 px-8 py-3"
+                >
+                  <Zap className="w-5 h-5 mr-2" />
+                  Unlock Premium
+                </Button>
+              </>
+            ) : (
+              <Button 
+                onClick={() => navigate('/dashboard')}
+                size="lg"
+                className="bg-white text-purple-600 hover:bg-gray-100 px-8 py-3"
+              >
+                <Compass className="w-5 h-5 mr-2" />
+                Continue Your Journey
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -2,8 +2,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Home, Zap, Heart, Moon, Shield, BarChart3, Coins, Crown } from 'lucide-react';
+import { Home, Zap, Heart, Moon, Shield, BarChart3, Coins, Crown, Settings } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 
 interface SpiritualNavigationProps {
   onQuickAction: (tab: string) => void;
@@ -12,6 +13,7 @@ interface SpiritualNavigationProps {
 export const SpiritualNavigation: React.FC<SpiritualNavigationProps> = ({ onQuickAction }) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { subscribed } = useSubscription();
 
   const quickActions = [
     { icon: Zap, label: "Quick Ritual", action: () => onQuickAction('rituals') },
@@ -23,10 +25,20 @@ export const SpiritualNavigation: React.FC<SpiritualNavigationProps> = ({ onQuic
 
   return (
     <div className="flex flex-col gap-4 mb-4 sm:mb-6">
-      <Button onClick={() => navigate('/')} variant="outline" className="border-purple-500/30 text-purple-200 hover:bg-purple-600/20 w-full sm:w-auto self-start">
-        <Home className="w-4 h-4 mr-2" />
-        Home
-      </Button>
+      {/* Home and Subscription Management */}
+      <div className="flex flex-col sm:flex-row gap-2">
+        <Button onClick={() => navigate('/')} variant="outline" className="border-purple-500/30 text-purple-200 hover:bg-purple-600/20 w-full sm:w-auto">
+          <Home className="w-4 h-4 mr-2" />
+          Home
+        </Button>
+        
+        {subscribed && (
+          <Button onClick={() => navigate('/plan-management')} variant="outline" className="border-green-500/30 text-green-200 hover:bg-green-600/20 w-full sm:w-auto">
+            <Settings className="w-4 h-4 mr-2" />
+            Manage Subscription
+          </Button>
+        )}
+      </div>
       
       {/* Quick Actions - Better mobile layout */}
       <div className="grid grid-cols-2 sm:flex gap-2 sm:gap-3">
