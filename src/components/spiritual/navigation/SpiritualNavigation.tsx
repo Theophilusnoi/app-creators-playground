@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Home, Zap, Heart, Moon, Shield, BarChart3, Coins } from 'lucide-react';
+import { Home, Zap, Heart, Moon, Shield, BarChart3, Coins, Crown } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface SpiritualNavigationProps {
@@ -17,7 +17,8 @@ export const SpiritualNavigation: React.FC<SpiritualNavigationProps> = ({ onQuic
     { icon: Zap, label: "Quick Ritual", action: () => onQuickAction('rituals') },
     { icon: Heart, label: "Mood Check", action: () => onQuickAction('mood') },
     { icon: Moon, label: "Dream Log", action: () => onQuickAction('dreams') },
-    { icon: Shield, label: "Protection", action: () => onQuickAction('protection') }
+    { icon: Shield, label: "Protection", action: () => onQuickAction('protection') },
+    { icon: Crown, label: "Angels", action: () => onQuickAction('angels') }
   ];
 
   return (
