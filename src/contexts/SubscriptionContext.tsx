@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
@@ -28,7 +29,6 @@ export const useSubscription = () => {
   const context = useContext(SubscriptionContext);
   if (!context) {
     console.error('useSubscription must be used within a SubscriptionProvider - returning default values');
-    // Return safe defaults instead of throwing
     return {
       subscribed: false,
       subscriptionTier: null,
@@ -65,7 +65,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     // Prevent concurrent calls and rate limiting
     const now = Date.now();
-    if (isCheckingRef.current || (now - lastCheckTimeRef.current < 1000)) {
+    if (isCheckingRef.current || (now - lastCheckTimeRef.current < 2000)) {
       console.log('Subscription check already in progress or too recent - skipping');
       return;
     }
@@ -77,7 +77,6 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setLoading(true);
     
     try {
-      // Get fresh session to ensure valid token
       const { data: session, error: sessionError } = await supabase.auth.getSession();
       if (sessionError) {
         console.error('Session error:', sessionError);
@@ -101,14 +100,6 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       if (error) {
         console.error('Subscription check error:', error);
-        
-        // Handle specific error cases
-        if (error.message?.includes('401') || error.message?.includes('unauthorized')) {
-          console.log('Auth error detected - user may need to re-login');
-          // Could trigger re-auth here if needed
-        }
-        
-        // Set safe defaults on error
         setSubscribed(false);
         setSubscriptionTier(null);
         setSubscriptionEnd(null);
@@ -122,10 +113,6 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     } catch (error) {
       console.error('Error checking subscription:', error);
-      const errorMessage = getErrorMessage(error);
-      console.error('Parsed error message:', errorMessage);
-      
-      // Set safe defaults on error
       setSubscribed(false);
       setSubscriptionTier(null);
       setSubscriptionEnd(null);
@@ -133,7 +120,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setLoading(false);
       isCheckingRef.current = false;
     }
-  }, [user?.id]); // Only depend on stable user ID
+  }, [user?.id]);
 
   const createCheckout = async (tier: string, referralCode?: string) => {
     if (!user?.id) {
@@ -155,10 +142,8 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
 
     console.log('Creating checkout for tier:', tier, 'with referral:', referralCode);
-    console.log('User authenticated:', { id: user.id, email: user.email });
 
     try {
-      // Get fresh session to ensure valid token
       const { data: session, error: sessionError } = await supabase.auth.getSession();
       if (sessionError) {
         console.error('Session error during checkout:', sessionError);
@@ -169,17 +154,15 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         throw new Error('No valid session found. Please log in again.');
       }
 
-      // Get referral code - prefer passed parameter over localStorage
       const finalReferralCode = referralCode || localStorage.getItem('referralCode');
       
       const requestBody = { 
         tier: tier,
-        interval: 'monthly', // Default to monthly for now
+        interval: 'monthly',
         referralCode: finalReferralCode 
       };
       
-      console.log('Sending checkout request with body:', requestBody);
-      console.log('Session token available:', !!session.session.access_token);
+      console.log('Sending checkout request:', requestBody);
 
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: requestBody,
@@ -189,15 +172,10 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         },
       });
 
-      console.log('Checkout response received:', { 
-        hasData: !!data, 
-        hasError: !!error,
-        dataKeys: data ? Object.keys(data) : [],
-        errorDetails: error
-      });
+      console.log('Checkout response:', { hasData: !!data, hasError: !!error });
 
       if (error) {
-        console.error('Checkout creation error details:', error);
+        console.error('Checkout creation error:', error);
         throw new Error(getErrorMessage(error));
       }
 
@@ -208,7 +186,6 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       console.log('Checkout URL received successfully - redirecting');
       
-      // Clear any stored referral code after successful checkout creation
       if (finalReferralCode) {
         localStorage.removeItem('referralCode');
       }
@@ -220,7 +197,6 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       console.error('Error creating checkout:', error);
       const errorMessage = getErrorMessage(error);
       
-      // Provide more specific error messages based on common issues
       let userFriendlyMessage = errorMessage;
       
       if (errorMessage.includes('not configured')) {
@@ -229,12 +205,6 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         userFriendlyMessage = 'Please log in again and try subscribing.';
       } else if (errorMessage.includes('Invalid subscription tier')) {
         userFriendlyMessage = 'Invalid subscription plan selected. Please try again.';
-      } else if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
-        userFriendlyMessage = 'Network error. Please check your connection and try again.';
-      } else if (errorMessage.includes('Edge Function returned a non-2xx status code')) {
-        userFriendlyMessage = 'Subscription service temporarily unavailable. Please try again in a moment.';
-      } else if (errorMessage.includes('temporarily unavailable')) {
-        userFriendlyMessage = 'Subscription service is temporarily unavailable. Please try again in a few minutes.';
       }
       
       toast({
@@ -289,7 +259,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       console.error('Error opening customer portal:', error);
       toast({
         title: "Portal Error",
-        description: "Unable to open customer portal. Please contact support for subscription management.",
+        description: "Unable to open customer portal. Please contact support.",
         variant: "destructive",
       });
     } finally {
@@ -297,17 +267,15 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   };
 
-  // Check subscription when user changes, but with debouncing
+  // Check subscription when user changes
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
     
     if (user?.id) {
-      // Debounce the subscription check to prevent rapid successive calls
       timeoutId = setTimeout(() => {
         checkSubscription();
-      }, 500);
+      }, 1000);
     } else {
-      // Reset state immediately when user is cleared
       setSubscribed(false);
       setSubscriptionTier(null);
       setSubscriptionEnd(null);
@@ -318,23 +286,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         clearTimeout(timeoutId);
       }
     };
-  }, [user?.id]); // Only user ID dependency
-
-  // Reload subscription on window focus with rate limiting
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && user?.id && !isCheckingRef.current) {
-        const timeSinceLastCheck = Date.now() - lastCheckTimeRef.current;
-        if (timeSinceLastCheck > 5000) { // Only check if more than 5 seconds since last check
-          console.log('Window became visible - refreshing subscription status');
-          checkSubscription();
-        }
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [checkSubscription, user?.id]);
+  }, [user?.id, checkSubscription]);
 
   return (
     <SubscriptionContext.Provider

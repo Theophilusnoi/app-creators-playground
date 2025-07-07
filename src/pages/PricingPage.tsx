@@ -1,14 +1,14 @@
+
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, Crown, Zap, Sparkles, Gift, Mountain, Waves, Flame, Wind, Loader2, Clock } from 'lucide-react';
+import { Check, Crown, Zap, Sparkles, Gift, Mountain, Waves, Flame, Wind, Loader2 } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 
 const PricingPage = () => {
-  const { createCheckout, subscriptionTier, subscribed, loading, checkSubscription } = useSubscription();
+  const { createCheckout, subscriptionTier, subscribed, loading } = useSubscription();
   const { user } = useAuth();
   const { toast } = useToast();
   const [referralCode, setReferralCode] = useState<string>('');
@@ -129,7 +129,6 @@ const PricingPage = () => {
     console.log('Starting subscription process for tier:', tierId);
 
     try {
-      // Store referral code in localStorage if present
       if (referralCode) {
         localStorage.setItem('referralCode', referralCode);
         console.log('Stored referral code:', referralCode);
@@ -141,7 +140,6 @@ const PricingPage = () => {
     } catch (error) {
       console.error('Subscription error:', error);
       
-      // Show user-friendly error message
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       toast({
         title: "Subscription Error",
@@ -160,7 +158,7 @@ const PricingPage = () => {
           <h1 className="text-4xl font-bold text-white mb-4">
             Choose Your Spiritual Wisdom Tier
           </h1>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-200 max-w-2xl mx-auto">
             Embark on a journey of spiritual awakening with our culturally-adapted wisdom tiers
           </p>
           {referralCode && (
@@ -180,8 +178,8 @@ const PricingPage = () => {
             return (
               <Card
                 key={tier.id}
-                className={`relative overflow-hidden ${
-                  tier.popular ? 'border-2 border-yellow-400 scale-105' : 'border-gray-700'
+                className={`relative overflow-hidden bg-gray-800/90 border-gray-600 ${
+                  tier.popular ? 'border-2 border-yellow-400 scale-105' : ''
                 } ${isCurrentTier ? 'ring-2 ring-green-400' : ''}`}
               >
                 {tier.popular && (
@@ -194,23 +192,23 @@ const PricingPage = () => {
                   <div className="flex items-center justify-center mb-4">
                     {tier.icon}
                   </div>
-                  <CardTitle className="text-xl text-center">{tier.name}</CardTitle>
-                  <div className="text-center text-sm opacity-90 mb-2">{tier.element} Element</div>
+                  <CardTitle className="text-xl text-center text-white">{tier.name}</CardTitle>
+                  <div className="text-center text-sm opacity-90 mb-2 text-white">{tier.element} Element</div>
                   <CardDescription className="text-center text-gray-100">
                     {tier.description}
                   </CardDescription>
                   <div className="text-center">
-                    <div className="text-3xl font-bold">${tier.price}</div>
-                    <div className="text-sm opacity-80">/month</div>
+                    <div className="text-3xl font-bold text-white">${tier.price}</div>
+                    <div className="text-sm opacity-80 text-white">/month</div>
                   </div>
                 </CardHeader>
 
-                <CardContent className="bg-gray-900 text-white p-6">
+                <CardContent className="bg-gray-800 text-white p-6">
                   <ul className="space-y-3 mb-6">
                     {tier.features.slice(0, 4).map((feature, index) => (
                       <li key={index} className="flex items-start">
                         <Check className="w-4 h-4 text-green-400 mr-3 flex-shrink-0 mt-0.5" />
-                        <span className="text-sm">{feature}</span>
+                        <span className="text-sm text-gray-200">{feature}</span>
                       </li>
                     ))}
                     {tier.features.length > 4 && (
@@ -261,7 +259,7 @@ const PricingPage = () => {
 
         {!user && (
           <div className="text-center mt-8">
-            <p className="text-gray-300">
+            <p className="text-gray-200">
               Don't have an account?{' '}
               <Button 
                 variant="link" 
@@ -274,39 +272,9 @@ const PricingPage = () => {
           </div>
         )}
 
-        {/* Debug Test Button */}
-        <div className="text-center mt-8">
-          <Button
-            onClick={async () => {
-              try {
-                const { data, error } = await supabase.functions.invoke('test-checkout', {
-                  body: { tier: 'test' },
-                  headers: { 'Content-Type': 'application/json' }
-                });
-                console.log('Test function result:', { data, error });
-                toast({
-                  title: "Test Result",
-                  description: data?.message || error?.message || "Check console for details",
-                });
-              } catch (err) {
-                console.error('Test error:', err);
-                toast({
-                  title: "Test Failed",
-                  description: "Check console for details",
-                  variant: "destructive"
-                });
-              }
-            }}
-            variant="outline"
-            className="bg-black/20 border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
-          >
-            Test Edge Function
-          </Button>
-        </div>
-
         <div className="text-center mt-12 max-w-3xl mx-auto">
           <h2 className="text-2xl font-bold text-white mb-4">Wisdom Through Cultural Integration</h2>
-          <p className="text-gray-300 mb-6">
+          <p className="text-gray-200 mb-6">
             Our unique approach adapts ancient wisdom traditions to your cultural background, 
             ensuring authentic spiritual growth that honors your heritage while expanding your consciousness.
           </p>
