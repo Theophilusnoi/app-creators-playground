@@ -43,6 +43,11 @@ export const PlanManagement: React.FC = () => {
       await createCheckout(tierId);
     } catch (error) {
       console.error('Upgrade error:', error);
+      toast({
+        title: "Upgrade Failed",
+        description: "Unable to start checkout process. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setUpgradeLoading(null);
     }
@@ -74,36 +79,26 @@ export const PlanManagement: React.FC = () => {
     }
   };
 
-  const getElementColor = (element: string) => {
-    switch (element) {
-      case 'earth': return 'text-green-600 border-green-200 bg-green-50';
-      case 'water': return 'text-blue-600 border-blue-200 bg-blue-50';
-      case 'fire': return 'text-red-600 border-red-200 bg-red-50';
-      case 'ether': return 'text-purple-600 border-purple-200 bg-purple-50';
-      default: return 'text-gray-600 border-gray-200 bg-gray-50';
-    }
-  };
-
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-8">
+    <div className="max-w-6xl mx-auto p-6 space-y-8 bg-gray-900 min-h-screen">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Subscription Management</h1>
-        <p className="text-gray-600">Manage your spiritual journey subscription</p>
+        <h1 className="text-3xl font-bold text-white mb-2">Subscription Management</h1>
+        <p className="text-gray-300">Manage your spiritual journey subscription</p>
       </div>
 
       {/* Current Plan Status */}
       {subscribed && currentTier && (
-        <Card className="border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-indigo-50">
+        <Card className="border-2 border-purple-400 bg-gradient-to-r from-purple-900/50 to-indigo-900/50">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="text-2xl">{getElementIcon(currentTier.element)}</div>
                 <div>
-                  <CardTitle className="text-xl text-purple-800">
+                  <CardTitle className="text-xl text-purple-100">
                     Current Plan: {currentTier.name}
                   </CardTitle>
-                  <p className="text-purple-600">{currentTier.description}</p>
+                  <p className="text-purple-200">{currentTier.description}</p>
                 </div>
               </div>
               <Badge className="bg-purple-600 text-white">
@@ -115,22 +110,22 @@ export const PlanManagement: React.FC = () => {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-purple-600" />
-                <span className="text-sm">
+                <Calendar className="w-4 h-4 text-purple-300" />
+                <span className="text-sm text-purple-200">
                   {subscriptionEnd ? `Renews on ${formatDate(subscriptionEnd)}` : 'Active subscription'}
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <CreditCard className="w-4 h-4 text-purple-600" />
-                <span className="text-sm">${currentTier.monthlyPrice}/month</span>
+                <CreditCard className="w-4 h-4 text-purple-300" />
+                <span className="text-sm text-purple-200">${currentTier.monthlyPrice}/month</span>
               </div>
             </div>
             <div className="flex gap-3">
-              <Button onClick={handleManageSubscription} variant="outline" className="flex items-center gap-2">
+              <Button onClick={handleManageSubscription} variant="outline" className="flex items-center gap-2 text-white border-purple-400 hover:bg-purple-800">
                 <Settings className="w-4 h-4" />
                 Manage Subscription
               </Button>
-              <Button onClick={handleManageSubscription} variant="outline" className="flex items-center gap-2">
+              <Button onClick={handleManageSubscription} variant="outline" className="flex items-center gap-2 text-white border-purple-400 hover:bg-purple-800">
                 <ExternalLink className="w-4 h-4" />
                 Billing Portal
               </Button>
@@ -141,7 +136,7 @@ export const PlanManagement: React.FC = () => {
 
       {/* Available Plans */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">
+        <h2 className="text-2xl font-bold text-white mb-6">
           {subscribed ? 'Upgrade or Change Your Plan' : 'Choose Your Spiritual Path'}
         </h2>
         
@@ -157,12 +152,12 @@ export const PlanManagement: React.FC = () => {
                 key={tier.id} 
                 className={`relative transition-all duration-300 hover:shadow-lg ${
                   isCurrentPlan 
-                    ? 'border-2 border-purple-400 shadow-purple-100' 
-                    : 'border border-gray-200 hover:border-purple-300'
-                }`}
+                    ? 'border-2 border-purple-400 bg-gradient-to-br from-purple-900/50 to-indigo-900/50' 
+                    : 'border border-gray-600 hover:border-purple-400 bg-gray-800/50'
+                } backdrop-blur-sm`}
               >
                 {isCurrentPlan && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
                     <Badge className="bg-purple-600 text-white px-3 py-1">
                       <Crown className="w-3 h-3 mr-1" />
                       Current Plan
@@ -172,11 +167,11 @@ export const PlanManagement: React.FC = () => {
                 
                 <CardHeader className="text-center pb-4">
                   <div className="text-3xl mb-2">{getElementIcon(tier.element)}</div>
-                  <CardTitle className="text-lg font-bold">{tier.name}</CardTitle>
-                  <p className="text-sm text-gray-600 mb-4">{tier.description}</p>
+                  <CardTitle className="text-lg font-bold text-white">{tier.name}</CardTitle>
+                  <p className="text-sm text-gray-300 mb-4">{tier.description}</p>
                   <div className="text-center">
-                    <span className="text-3xl font-bold text-gray-900">${tier.monthlyPrice}</span>
-                    <span className="text-sm text-gray-600">/month</span>
+                    <span className="text-3xl font-bold text-white">${tier.monthlyPrice}</span>
+                    <span className="text-sm text-gray-300">/month</span>
                   </div>
                 </CardHeader>
 
@@ -185,54 +180,78 @@ export const PlanManagement: React.FC = () => {
                   <div className="space-y-2">
                     {tier.features.slice(0, 3).map((feature, idx) => (
                       <div key={idx} className="flex items-start gap-2 text-sm">
-                        <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                        <span>{feature}</span>
+                        <Check className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-200">{feature}</span>
                       </div>
                     ))}
                     {tier.features.length > 3 && (
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-gray-400">
                         +{tier.features.length - 3} more features
                       </div>
                     )}
                   </div>
 
-                  {/* Action Button */}
-                  <div className="pt-4">
-                    {isCurrentPlan ? (
-                      <Button 
-                        onClick={handleManageSubscription}
-                        variant="outline" 
-                        className="w-full"
-                        disabled={loading}
-                      >
-                        <Settings className="w-4 h-4 mr-2" />
-                        Manage Plan
-                      </Button>
-                    ) : (
-                      <Button 
-                        onClick={() => handleUpgrade(tier.id)}
-                        className={`w-full ${
-                          isUpgrade 
-                            ? 'bg-green-600 hover:bg-green-700' 
-                            : isDowngrade 
-                            ? 'bg-orange-600 hover:bg-orange-700'
-                            : 'bg-purple-600 hover:bg-purple-700'
-                        }`}
-                        disabled={loading || isLoading}
-                      >
-                        {isLoading ? (
-                          <Sparkles className="w-4 h-4 mr-2 animate-spin" />
-                        ) : isUpgrade ? (
-                          <ArrowUpCircle className="w-4 h-4 mr-2" />
-                        ) : isDowngrade ? (
-                          <ArrowDownCircle className="w-4 h-4 mr-2" />
-                        ) : (
-                          <Crown className="w-4 h-4 mr-2" />
-                        )}
-                        {isUpgrade ? 'Upgrade' : isDowngrade ? 'Downgrade' : 'Select Plan'}
-                      </Button>
-                    )}
+                  {/* Cultural Access */}
+                  <div>
+                    <h5 className="text-white font-semibold mb-2 text-sm">Cultural Access</h5>
+                    <div className="flex flex-wrap gap-1">
+                      {tier.culturalAccess.map((level, index) => (
+                        <Badge 
+                          key={index} 
+                          variant="outline" 
+                          className="text-xs border-purple-400 text-purple-200 bg-purple-900/20"
+                        >
+                          {level}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
+                  
+                  {/* Restrictions */}
+                  {tier.restrictions.length > 0 && (
+                    <div>
+                      <h5 className="text-gray-400 font-semibold mb-2 text-sm">Limitations</h5>
+                      <div className="space-y-1">
+                        {tier.restrictions.map((restriction, index) => (
+                          <div key={index} className="text-gray-400 text-xs">
+                            • {restriction}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  <Button
+                    onClick={() => handleUpgrade(tier.id)}
+                    disabled={isCurrentPlan || isLoading}
+                    className={`w-full ${
+                      isCurrentPlan
+                        ? 'bg-gray-600 cursor-not-allowed text-gray-300'
+                        : isUpgrade 
+                        ? 'bg-green-600 hover:bg-green-700 text-white'
+                        : isDowngrade 
+                        ? 'bg-orange-600 hover:bg-orange-700 text-white'
+                        : 'bg-purple-600 hover:bg-purple-700 text-white'
+                    }`}
+                  >
+                    {isLoading ? (
+                      <Sparkles className="w-4 h-4 mr-2 animate-spin" />
+                    ) : isUpgrade ? (
+                      <ArrowUpCircle className="w-4 h-4 mr-2" />
+                    ) : isDowngrade ? (
+                      <ArrowDownCircle className="w-4 h-4 mr-2" />
+                    ) : (
+                      <Crown className="w-4 h-4 mr-2" />
+                    )}
+                    {isCurrentPlan 
+                      ? 'Current Plan' 
+                      : isUpgrade 
+                      ? 'Upgrade'
+                      : isDowngrade 
+                      ? 'Downgrade' 
+                      : 'Select Plan'
+                    }
+                  </Button>
                 </CardContent>
               </Card>
             );
@@ -241,17 +260,17 @@ export const PlanManagement: React.FC = () => {
       </div>
 
       {/* Help Section */}
-      <Card className="bg-gray-50 border-gray-200">
+      <Card className="bg-gray-800/50 border-gray-600">
         <CardContent className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Need Help?</h3>
+          <h3 className="text-lg font-semibold mb-4 text-white">Need Help?</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
-              <h4 className="font-medium mb-2">Billing Questions</h4>
-              <p className="text-gray-600">Access your billing history and manage payment methods through the billing portal.</p>
+              <h4 className="font-medium mb-2 text-gray-200">Billing Questions</h4>
+              <p className="text-gray-400">Access your billing history and manage payment methods through the billing portal.</p>
             </div>
             <div>
-              <h4 className="font-medium mb-2">Plan Changes</h4>
-              <p className="text-gray-600">Upgrades take effect immediately. Downgrades take effect at the end of your current billing period.</p>
+              <h4 className="font-medium mb-2 text-gray-200">Plan Changes</h4>
+              <p className="text-gray-400">Upgrades take effect immediately. Downgrades take effect at the end of your current billing period.</p>
             </div>
           </div>
         </CardContent>
