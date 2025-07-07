@@ -1,3 +1,4 @@
+
 project_id = "yrshvcaoczjsqziwllqi"
 
 [api]
@@ -49,3 +50,6 @@ verify_jwt = true
 
 [functions.gemini-chat]
 verify_jwt = true
+
+[functions.stripe-webhook]
+verify_jwt = false

@@ -14,23 +14,23 @@ const logStep = (step: string, details?: any) => {
   console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
 };
 
-// Stripe Price ID mapping - UPDATE THESE WITH YOUR ACTUAL STRIPE PRICE IDs
+// Stripe Price ID mapping - UPDATED WITH ACTUAL PRICE IDs
 const STRIPE_PRICE_IDS = {
   earth: {
-    monthly: "price_earth_monthly", // Replace with actual Stripe price ID
-    yearly: "price_earth_yearly"   // Replace with actual Stripe price ID
+    monthly: "price_1Ri4b1RwrhNPn60WOcZVVk7f",
+    yearly: "price_1Ri4b1RwrhNPn60WOcZVVk7f" // Update with yearly price ID when created
   },
   water: {
-    monthly: "price_water_monthly", // Replace with actual Stripe price ID
-    yearly: "price_water_yearly"   // Replace with actual Stripe price ID
+    monthly: "price_1RgPKlRwrhNPn60WUoZnBbkB",
+    yearly: "price_1RgPKlRwrhNPn60WUoZnBbkB" // Update with yearly price ID when created
   },
   fire: {
-    monthly: "price_fire_monthly", // Replace with actual Stripe price ID
-    yearly: "price_fire_yearly"   // Replace with actual Stripe price ID
+    monthly: "price_1Ri4fiRwrhNPn60W18bbgN3t",
+    yearly: "price_1Ri4fiRwrhNPn60W18bbgN3t" // Update with yearly price ID when created
   },
   ether: {
-    monthly: "price_ether_monthly", // Replace with actual Stripe price ID
-    yearly: "price_ether_yearly"   // Replace with actual Stripe price ID
+    monthly: "price_1Ri4hJRwrhNPn60W5cqmVf0Q",
+    yearly: "price_1Ri4hJRwrhNPn60W5cqmVf0Q" // Update with yearly price ID when created
   }
 };
 
@@ -116,18 +116,6 @@ serve(async (req) => {
 
     // Default to monthly if no interval specified
     const billingInterval = interval || 'monthly';
-    
-    // Check if tier is coming soon
-    if (tier.toLowerCase() === 'fire' || tier.toLowerCase() === 'ether') {
-      logStep("Coming soon tier requested", { tier });
-      return new Response(JSON.stringify({ 
-        error: "Tier coming soon",
-        message: "This tier is coming soon! Please choose Earth Keeper or Water Bearer for now."
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      });
-    }
     
     logStep("Request body parsed", { tier, interval: billingInterval, referralCode });
 

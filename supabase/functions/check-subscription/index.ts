@@ -13,23 +13,19 @@ const logStep = (step: string, details?: any) => {
   console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
 };
 
-// Price ID to tier mapping - UPDATE THESE WITH YOUR ACTUAL STRIPE PRICE IDs
+// Price ID to tier mapping - UPDATED WITH ACTUAL STRIPE PRICE IDs
 const PRICE_ID_TO_TIER: Record<string, string> = {
   // Earth Keeper
-  "price_earth_monthly": "earth",
-  "price_earth_yearly": "earth",
+  "price_1Ri4b1RwrhNPn60WOcZVVk7f": "earth",
   
   // Water Bearer  
-  "price_water_monthly": "water",
-  "price_water_yearly": "water",
+  "price_1RgPKlRwrhNPn60WUoZnBbkB": "water",
   
   // Fire Keeper
-  "price_fire_monthly": "fire", 
-  "price_fire_yearly": "fire",
+  "price_1Ri4fiRwrhNPn60W18bbgN3t": "fire", 
   
   // Ether Walker
-  "price_ether_monthly": "ether",
-  "price_ether_yearly": "ether",
+  "price_1Ri4hJRwrhNPn60W5cqmVf0Q": "ether",
 };
 
 serve(async (req) => {

@@ -1,3 +1,4 @@
+
 export interface Subscription {
   id: string;
   userId: string;
@@ -66,8 +67,8 @@ export const WISDOM_TIERS: WisdomTier[] = [
     ],
     monthlyPrice: 19,
     yearlyPrice: 190,
-    stripePriceId: 'price_earth_monthly', // Replace with actual Stripe price ID
-    stripeYearlyPriceId: 'price_earth_yearly', // Replace with actual Stripe price ID
+    stripePriceId: 'price_1Ri4b1RwrhNPn60WOcZVVk7f',
+    stripeYearlyPriceId: 'price_1Ri4b1RwrhNPn60WOcZVVk7f', // Update with yearly price ID when created
     culturalAccess: ['open'],
     mentorAccess: false,
     ancientLibraryAccess: false,
@@ -93,8 +94,8 @@ export const WISDOM_TIERS: WisdomTier[] = [
     ],
     monthlyPrice: 29,
     yearlyPrice: 290,
-    stripePriceId: 'price_water_monthly', // Replace with actual Stripe price ID
-    stripeYearlyPriceId: 'price_water_yearly', // Replace with actual Stripe price ID
+    stripePriceId: 'price_1RgPKlRwrhNPn60WUoZnBbkB',
+    stripeYearlyPriceId: 'price_1RgPKlRwrhNPn60WUoZnBbkB', // Update with yearly price ID when created
     culturalAccess: ['open', 'initiated'],
     mentorAccess: true,
     ancientLibraryAccess: false,
@@ -120,8 +121,8 @@ export const WISDOM_TIERS: WisdomTier[] = [
     ],
     monthlyPrice: 49,
     yearlyPrice: 490,
-    stripePriceId: 'price_fire_monthly', // Replace with actual Stripe price ID
-    stripeYearlyPriceId: 'price_fire_yearly', // Replace with actual Stripe price ID
+    stripePriceId: 'price_1Ri4fiRwrhNPn60W18bbgN3t',
+    stripeYearlyPriceId: 'price_1Ri4fiRwrhNPn60W18bbgN3t', // Update with yearly price ID when created
     culturalAccess: ['open', 'initiated', 'sacred'],
     mentorAccess: true,
     ancientLibraryAccess: true,
@@ -145,8 +146,8 @@ export const WISDOM_TIERS: WisdomTier[] = [
     restrictions: [],
     monthlyPrice: 59,
     yearlyPrice: 590,
-    stripePriceId: 'price_ether_monthly', // Replace with actual Stripe price ID
-    stripeYearlyPriceId: 'price_ether_yearly', // Replace with actual Stripe price ID
+    stripePriceId: 'price_1Ri4hJRwrhNPn60W5cqmVf0Q',
+    stripeYearlyPriceId: 'price_1Ri4hJRwrhNPn60W5cqmVf0Q', // Update with yearly price ID when created
     culturalAccess: ['open', 'initiated', 'sacred'],
     mentorAccess: true,
     ancientLibraryAccess: true,
