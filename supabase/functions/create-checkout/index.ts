@@ -34,24 +34,34 @@ const STRIPE_PRICE_IDS = {
   }
 };
 
+// Better error response utility
+const errorResponse = (error: string, message: string, status: number = 500) => {
+  logStep("ERROR", { error, message, status });
+  return new Response(JSON.stringify({ 
+    error,
+    message,
+    timestamp: new Date().toISOString()
+  }), {
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    status,
+  });
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    logStep("Function started");
+    logStep("Function started", { method: req.method, url: req.url });
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) {
-      logStep("No Stripe key found");
-      return new Response(JSON.stringify({ 
-        error: "Stripe not configured",
-        message: "Payment system is not configured. Please contact support."
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 500,
-      });
+      return errorResponse(
+        "Stripe not configured",
+        "Payment system is not configured. Please contact support.",
+        500
+      );
     }
     logStep("Stripe key verified");
 
@@ -64,14 +74,11 @@ serve(async (req) => {
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      logStep("No authorization header provided");
-      return new Response(JSON.stringify({ 
-        error: "Authentication required",
-        message: "Please log in to create a subscription."
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 401,
-      });
+      return errorResponse(
+        "Authentication required",
+        "Please log in to create a subscription.",
+        401
+      );
     }
     logStep("Authorization header found");
 
@@ -81,24 +88,19 @@ serve(async (req) => {
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
     if (userError) {
       logStep("Authentication error", { error: userError.message });
-      return new Response(JSON.stringify({ 
-        error: "Authentication failed",
-        message: "Please log in again."
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 401,
-      });
+      return errorResponse(
+        "Authentication failed",
+        "Please log in again.",
+        401
+      );
     }
     const user = userData.user;
     if (!user?.email) {
-      logStep("User not authenticated or missing email");
-      return new Response(JSON.stringify({ 
-        error: "User not authenticated",
-        message: "Please log in with a valid email address."
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 401,
-      });
+      return errorResponse(
+        "User not authenticated",
+        "Please log in with a valid email address.",
+        401
+      );
     }
     logStep("User authenticated", { userId: user.id, email: user.email });
 
@@ -106,34 +108,60 @@ serve(async (req) => {
     let requestBody;
     try {
       const bodyText = await req.text();
-      logStep("Raw request body received", { bodyLength: bodyText.length });
-      requestBody = bodyText ? JSON.parse(bodyText) : {};
+      logStep("Raw request body received", { bodyLength: bodyText.length, hasContent: !!bodyText });
+      
+      if (!bodyText || bodyText.trim() === '') {
+        return errorResponse(
+          "Empty request body",
+          "Please provide subscription details.",
+          400
+        );
+      }
+      
+      requestBody = JSON.parse(bodyText);
       logStep("Parsed request body", requestBody);
     } catch (parseError) {
-      logStep("Failed to parse request body", { error: parseError });
-      return new Response(JSON.stringify({ 
-        error: "Invalid request format",
-        message: "Please provide valid request data."
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      });
+      logStep("Failed to parse request body", { error: parseError.message });
+      return errorResponse(
+        "Invalid request format",
+        "Please provide valid request data.",
+        400
+      );
     }
 
     const { tier, interval, referralCode } = requestBody;
-    if (!tier) {
-      logStep("No tier provided in request body");
-      return new Response(JSON.stringify({ 
-        error: "Invalid subscription tier",
-        message: "Please select a valid subscription plan."
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
+    if (!tier || typeof tier !== 'string') {
+      return errorResponse(
+        "Invalid subscription tier",
+        "Please select a valid subscription plan.",
+        400
+      );
+    }
+
+    // Validate tier exists in our price mapping
+    const tierKey = tier.toLowerCase() as keyof typeof STRIPE_PRICE_IDS;
+    if (!STRIPE_PRICE_IDS[tierKey]) {
+      logStep("Invalid tier provided", { 
+        tier, 
+        tierKey, 
+        availableTiers: Object.keys(STRIPE_PRICE_IDS) 
       });
+      return errorResponse(
+        "Invalid subscription tier",
+        "Please select a valid subscription plan.",
+        400
+      );
     }
 
     // Default to monthly if no interval specified
     const billingInterval = interval || 'monthly';
+    if (billingInterval !== 'monthly' && billingInterval !== 'yearly') {
+      return errorResponse(
+        "Invalid billing interval",
+        "Please select monthly or yearly billing.",
+        400
+      );
+    }
     
     logStep("Request validated", { tier, interval: billingInterval, referralCode });
 
@@ -151,18 +179,7 @@ serve(async (req) => {
     }
 
     // Get the appropriate price ID
-    const tierPriceIds = STRIPE_PRICE_IDS[tier.toLowerCase() as keyof typeof STRIPE_PRICE_IDS];
-    if (!tierPriceIds) {
-      logStep("Invalid tier provided", { tier, availableTiers: Object.keys(STRIPE_PRICE_IDS) });
-      return new Response(JSON.stringify({ 
-        error: "Invalid subscription tier",
-        message: "Please select a valid subscription plan."
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      });
-    }
-
+    const tierPriceIds = STRIPE_PRICE_IDS[tierKey];
     const priceId = billingInterval === 'yearly' ? tierPriceIds.yearly : tierPriceIds.monthly;
     logStep("Price ID determined", { tier, interval: billingInterval, priceId });
 
@@ -192,24 +209,23 @@ serve(async (req) => {
       priceId, 
       customerId: customerId || 'new customer',
       email: user.email,
-      mode: 'subscription'
+      mode: 'subscription',
+      origin
     });
 
     const session = await stripe.checkout.sessions.create(sessionParams);
     logStep("Checkout session created successfully", { 
       sessionId: session.id, 
-      url: session.url ? 'URL generated' : 'No URL'
+      url: session.url ? 'URL generated' : 'No URL',
+      status: session.status
     });
 
     if (!session.url) {
-      logStep("ERROR: No checkout URL generated");
-      return new Response(JSON.stringify({ 
-        error: "Checkout creation failed",
-        message: "Unable to generate checkout URL. Please try again."
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 500,
-      });
+      return errorResponse(
+        "Checkout creation failed",
+        "Unable to generate checkout URL. Please try again.",
+        500
+      );
     }
 
     return new Response(JSON.stringify({ url: session.url }), {
@@ -234,15 +250,14 @@ serve(async (req) => {
       userMessage = "Customer account issue. Please contact support.";
     } else if (errorMessage.includes('authentication') || errorMessage.includes('key')) {
       userMessage = "Payment system configuration error. Please contact support.";
+    } else if (errorMessage.includes('Invalid request')) {
+      userMessage = "Invalid request data. Please try again.";
     }
     
-    return new Response(JSON.stringify({ 
-      error: "Checkout creation failed",
-      message: userMessage,
-      details: errorMessage
-    }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
-    });
+    return errorResponse(
+      "Checkout creation failed",
+      userMessage,
+      500
+    );
   }
 });

@@ -16,6 +16,15 @@ interface SubscriptionContextType {
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
 
+// Better error parsing utility
+const getErrorMessage = (error: any): string => {
+  if (typeof error === 'string') return error;
+  if (error?.message) return error.message;
+  if (error?.context?.message) return error.context.message;
+  if (error?.details) return error.details;
+  return 'An unknown error occurred';
+};
+
 export const useSubscription = () => {
   const context = useContext(SubscriptionContext);
   if (!context) {
@@ -43,8 +52,8 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [loading, setLoading] = useState(false);
 
   const checkSubscription = useCallback(async () => {
-    if (!user) {
-      console.log('No user - resetting subscription state');
+    if (!user?.id) {
+      console.log('No user ID - resetting subscription state');
       setSubscribed(false);
       setSubscriptionTier(null);
       setSubscriptionEnd(null);
@@ -56,19 +65,26 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       return;
     }
     
-    console.log('Starting subscription check for user:', user.email);
+    console.log('Starting subscription check for user:', user.id);
     setLoading(true);
     
     try {
-      const { data: session } = await supabase.auth.getSession();
+      // Get fresh session to ensure valid token
+      const { data: session, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) {
+        console.error('Session error:', sessionError);
+        throw new Error('Failed to get valid session');
+      }
+
       if (!session.session?.access_token) {
-        console.log('No valid session found');
+        console.log('No valid session found - user may need to re-login');
         setSubscribed(false);
         setSubscriptionTier(null);
         setSubscriptionEnd(null);
         return;
       }
 
+      console.log('Making subscription check request with valid session');
       const { data, error } = await supabase.functions.invoke('check-subscription', {
         headers: {
           Authorization: `Bearer ${session.session.access_token}`,
@@ -77,6 +93,14 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       if (error) {
         console.error('Subscription check error:', error);
+        
+        // Handle specific error cases
+        if (error.message?.includes('401') || error.message?.includes('unauthorized')) {
+          console.log('Auth error detected - user may need to re-login');
+          // Could trigger re-auth here if needed
+        }
+        
+        // Set safe defaults on error
         setSubscribed(false);
         setSubscriptionTier(null);
         setSubscriptionEnd(null);
@@ -90,16 +114,20 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     } catch (error) {
       console.error('Error checking subscription:', error);
+      const errorMessage = getErrorMessage(error);
+      console.error('Parsed error message:', errorMessage);
+      
+      // Set safe defaults on error
       setSubscribed(false);
       setSubscriptionTier(null);
       setSubscriptionEnd(null);
     } finally {
       setLoading(false);
     }
-  }, [user, loading]);
+  }, [user?.id, loading]); // Only depend on stable user ID
 
   const createCheckout = async (tier: string, referralCode?: string) => {
-    if (!user) {
+    if (!user?.id) {
       toast({
         title: "Authentication Required",
         description: "Please log in to subscribe",
@@ -121,11 +149,18 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     console.log('User authenticated:', { id: user.id, email: user.email });
 
     try {
-      const { data: session } = await supabase.auth.getSession();
+      // Get fresh session to ensure valid token
+      const { data: session, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) {
+        console.error('Session error during checkout:', sessionError);
+        throw new Error('Failed to get valid session for checkout');
+      }
+
       if (!session.session?.access_token) {
         throw new Error('No valid session found. Please log in again.');
       }
 
+      // Get referral code - prefer passed parameter over localStorage
       const finalReferralCode = referralCode || localStorage.getItem('referralCode');
       
       const requestBody = { 
@@ -149,29 +184,12 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         hasData: !!data, 
         hasError: !!error,
         dataKeys: data ? Object.keys(data) : [],
-        errorType: error?.name || 'none'
+        errorDetails: error
       });
 
       if (error) {
-        console.error('Checkout creation error details:', {
-          name: error.name,
-          message: error.message,
-          context: error.context || {},
-          stack: error.stack
-        });
-        
-        let errorMessage = 'Failed to create checkout session';
-        
-        // Handle different error types
-        if (error.message) {
-          errorMessage = error.message;
-        } else if (typeof error === 'string') {
-          errorMessage = error;
-        } else if (error.context && error.context.message) {
-          errorMessage = error.context.message;
-        }
-        
-        throw new Error(errorMessage);
+        console.error('Checkout creation error details:', error);
+        throw new Error(getErrorMessage(error));
       }
 
       if (!data?.url) {
@@ -191,14 +209,14 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       
     } catch (error) {
       console.error('Error creating checkout:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      const errorMessage = getErrorMessage(error);
       
       // Provide more specific error messages based on common issues
       let userFriendlyMessage = errorMessage;
       
       if (errorMessage.includes('not configured')) {
         userFriendlyMessage = 'Payment system is not configured. Please contact support.';
-      } else if (errorMessage.includes('Authentication')) {
+      } else if (errorMessage.includes('Authentication') || errorMessage.includes('session')) {
         userFriendlyMessage = 'Please log in again and try subscribing.';
       } else if (errorMessage.includes('Invalid subscription tier')) {
         userFriendlyMessage = 'Invalid subscription plan selected. Please try again.';
@@ -231,7 +249,11 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     setLoading(true);
     try {
-      const { data: session } = await supabase.auth.getSession();
+      const { data: session, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) {
+        throw new Error('Failed to get valid session');
+      }
+
       if (!session.session?.access_token) {
         throw new Error('No valid session');
       }
@@ -242,7 +264,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         },
       });
 
-      if (error) throw error;
+      if (error) throw new Error(getErrorMessage(error));
 
       if (!data?.url) {
         throw new Error('No portal URL received');
@@ -266,12 +288,25 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   };
 
-  // Check subscription when user changes (but not on every render)
+  // Check subscription when user ID changes (not entire user object)
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
       checkSubscription();
     }
-  }, [user?.id]); // Only depend on user ID to prevent infinite loops
+  }, [user?.id, checkSubscription]);
+
+  // Reload subscription on window focus to catch external changes
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && user?.id) {
+        console.log('Window became visible - refreshing subscription status');
+        checkSubscription();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [checkSubscription, user?.id]);
 
   return (
     <SubscriptionContext.Provider
