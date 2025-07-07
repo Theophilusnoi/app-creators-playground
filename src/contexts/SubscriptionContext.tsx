@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
@@ -151,12 +150,17 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         console.error('Checkout creation error:', error);
         let errorMessage = 'Failed to create checkout session';
         
-        // Handle specific error types
+        // Handle FunctionsHttpError and FunctionsRelayError
         if (error.message) {
           errorMessage = error.message;
         } else if (typeof error === 'string') {
           errorMessage = error;
+        } else if (error.context && error.context.message) {
+          errorMessage = error.context.message;
         }
+        
+        // Log full error for debugging
+        console.error('Full error object:', JSON.stringify(error, null, 2));
         
         throw new Error(errorMessage);
       }
@@ -188,8 +192,10 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         userFriendlyMessage = 'Please log in again and try subscribing.';
       } else if (errorMessage.includes('Invalid subscription tier')) {
         userFriendlyMessage = 'Invalid subscription plan selected. Please try again.';
-      } else if (errorMessage.includes('network')) {
+      } else if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
         userFriendlyMessage = 'Network error. Please check your connection and try again.';
+      } else if (errorMessage.includes('Edge Function returned a non-2xx status code')) {
+        userFriendlyMessage = 'Subscription service temporarily unavailable. Please try again in a moment.';
       }
       
       toast({

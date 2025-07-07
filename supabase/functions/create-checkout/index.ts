@@ -102,7 +102,23 @@ serve(async (req) => {
     }
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const { tier, interval, referralCode } = await req.json();
+    // Parse request body
+    let requestBody;
+    try {
+      const bodyText = await req.text();
+      requestBody = bodyText ? JSON.parse(bodyText) : {};
+    } catch (parseError) {
+      logStep("Failed to parse request body", { error: parseError });
+      return new Response(JSON.stringify({ 
+        error: "Invalid request format",
+        message: "Please provide valid request data."
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+
+    const { tier, interval, referralCode } = requestBody;
     if (!tier) {
       logStep("No tier provided");
       return new Response(JSON.stringify({ 
@@ -180,10 +196,11 @@ serve(async (req) => {
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR in create-checkout", { message: errorMessage });
+    logStep("ERROR in create-checkout", { message: errorMessage, stack: error instanceof Error ? error.stack : undefined });
     return new Response(JSON.stringify({ 
       error: "Checkout creation failed",
-      message: "Unable to create checkout session. Please try again or contact support."
+      message: "Unable to create checkout session. Please try again or contact support.",
+      details: errorMessage
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
