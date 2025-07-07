@@ -1,5 +1,4 @@
-
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -50,6 +49,10 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [subscriptionTier, setSubscriptionTier] = useState<string | null>(null);
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  
+  // Use ref to prevent concurrent calls
+  const isCheckingRef = useRef(false);
+  const lastCheckTimeRef = useRef<number>(0);
 
   const checkSubscription = useCallback(async () => {
     if (!user?.id) {
@@ -60,10 +63,15 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       return;
     }
 
-    if (loading) {
-      console.log('Already loading subscription check - skipping');
+    // Prevent concurrent calls and rate limiting
+    const now = Date.now();
+    if (isCheckingRef.current || (now - lastCheckTimeRef.current < 1000)) {
+      console.log('Subscription check already in progress or too recent - skipping');
       return;
     }
+    
+    isCheckingRef.current = true;
+    lastCheckTimeRef.current = now;
     
     console.log('Starting subscription check for user:', user.id);
     setLoading(true);
@@ -123,8 +131,9 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setSubscriptionEnd(null);
     } finally {
       setLoading(false);
+      isCheckingRef.current = false;
     }
-  }, [user?.id, loading]); // Only depend on stable user ID
+  }, [user?.id]); // Only depend on stable user ID
 
   const createCheckout = async (tier: string, referralCode?: string) => {
     if (!user?.id) {
@@ -288,19 +297,38 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   };
 
-  // Check subscription when user ID changes (not entire user object)
+  // Check subscription when user changes, but with debouncing
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    
     if (user?.id) {
-      checkSubscription();
+      // Debounce the subscription check to prevent rapid successive calls
+      timeoutId = setTimeout(() => {
+        checkSubscription();
+      }, 500);
+    } else {
+      // Reset state immediately when user is cleared
+      setSubscribed(false);
+      setSubscriptionTier(null);
+      setSubscriptionEnd(null);
     }
-  }, [user?.id, checkSubscription]);
 
-  // Reload subscription on window focus to catch external changes
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [user?.id]); // Only user ID dependency
+
+  // Reload subscription on window focus with rate limiting
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && user?.id) {
-        console.log('Window became visible - refreshing subscription status');
-        checkSubscription();
+      if (document.visibilityState === 'visible' && user?.id && !isCheckingRef.current) {
+        const timeSinceLastCheck = Date.now() - lastCheckTimeRef.current;
+        if (timeSinceLastCheck > 5000) { // Only check if more than 5 seconds since last check
+          console.log('Window became visible - refreshing subscription status');
+          checkSubscription();
+        }
       }
     };
 
