@@ -3,8 +3,8 @@ import React, { Suspense } from 'react';
 import { TabsContent } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 
-// Lazy load components for better performance - fixing named export imports
-const EnhancedSeraphinaChat = React.lazy(() => import('../divination/enhanced/SeraphinaChat').then(module => ({ default: module.EnhancedSeraphinaChat })));
+// Lazy load components for better performance - fixing export names
+const SeraphinaChat = React.lazy(() => import('../divination/enhanced/SeraphinaChat').then(module => ({ default: module.SeraphinaChat })));
 const RitualsDirectory = React.lazy(() => import('../RitualsDirectory').then(module => ({ default: module.RitualsDirectory })));
 const CulturalAdapter = React.lazy(() => import('../CulturalAdapter').then(module => ({ default: module.CulturalAdapter })));
 const CommunityHub = React.lazy(() => import('../CommunityHub').then(module => ({ default: module.CommunityHub })));
@@ -12,7 +12,7 @@ const ProgressVisualization = React.lazy(() => import('../ProgressVisualization'
 const MoodTracker = React.lazy(() => import('../MoodTracker').then(module => ({ default: module.MoodTracker })));
 const DreamAnalysis = React.lazy(() => import('../DreamAnalysis').then(module => ({ default: module.DreamAnalysis })));
 const ProtectionSuite = React.lazy(() => import('../ProtectionSuite').then(module => ({ default: module.ProtectionSuite })));
-const AngelicAssistance = React.lazy(() => import('../AngelicAssistance').then(module => ({ default: module.AngelicAssistance })));
+const AngelicAssistance = React.lazy(() => import('../AngelicAssistance'));
 const CombinedInsights = React.lazy(() => import('../CombinedInsights').then(module => ({ default: module.CombinedInsights })));
 const PersonalGuidanceSystem = React.lazy(() => import('../PersonalGuidanceSystem').then(module => ({ default: module.PersonalGuidanceSystem })));
 const ShadowWorkTracker = React.lazy(() => import('../ShadowWorkTracker').then(module => ({ default: module.ShadowWorkTracker })));
@@ -30,12 +30,22 @@ const LoadingSkeleton = () => (
 );
 
 export const SpiritualTabContent: React.FC = () => {
+  const handleStartProtectionRitual = (type: 'emergency' | 'curse-breaking' | 'daily') => {
+    console.log('Starting protection ritual:', type);
+    // Handle ritual start logic here
+  };
+
+  const handleExitToSafety = () => {
+    console.log('Exiting to safety');
+    // Handle exit to safety logic here
+  };
+
   return (
     <>
       {/* Primary Tabs */}
       <TabsContent value="seraphina" className="space-y-6">
         <Suspense fallback={<LoadingSkeleton />}>
-          <EnhancedSeraphinaChat />
+          <SeraphinaChat />
         </Suspense>
       </TabsContent>
 
@@ -78,7 +88,11 @@ export const SpiritualTabContent: React.FC = () => {
 
       <TabsContent value="protection" className="space-y-6">
         <Suspense fallback={<LoadingSkeleton />}>
-          <ProtectionSuite />
+          <ProtectionSuite 
+            isEmergencyMode={false}
+            onStartProtectionRitual={handleStartProtectionRitual}
+            onExitToSafety={handleExitToSafety}
+          />
         </Suspense>
       </TabsContent>
 
