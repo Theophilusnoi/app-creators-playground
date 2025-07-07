@@ -104,11 +104,17 @@ serve(async (req) => {
     }
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    // Parse request body with better error handling
+    // Parse request body with better error handling - READ ONLY ONCE
     let requestBody;
     try {
-      const bodyText = await req.text();
-      logStep("Raw request body received", { bodyLength: bodyText.length, bodyContent: bodyText });
+      // Clone the request to avoid issues with body being consumed
+      const reqClone = req.clone();
+      const bodyText = await reqClone.text();
+      logStep("Raw request body received", { 
+        bodyLength: bodyText.length, 
+        hasContent: !!bodyText,
+        contentType: req.headers.get('content-type')
+      });
       
       if (!bodyText || bodyText.trim() === '') {
         return errorResponse(
@@ -119,9 +125,16 @@ serve(async (req) => {
       }
       
       requestBody = JSON.parse(bodyText);
-      logStep("Parsed request body", requestBody);
+      logStep("Parsed request body successfully", { 
+        tier: requestBody?.tier, 
+        interval: requestBody?.interval,
+        hasReferralCode: !!requestBody?.referralCode 
+      });
     } catch (parseError) {
-      logStep("Failed to parse request body", { error: parseError.message });
+      logStep("Failed to parse request body", { 
+        error: parseError.message,
+        errorType: parseError.constructor.name 
+      });
       return errorResponse(
         "Invalid request format",
         "Please provide valid request data.",
