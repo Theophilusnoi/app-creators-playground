@@ -3,22 +3,22 @@ import React, { Suspense } from 'react';
 import { TabsContent } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 
-// Lazy load components for better performance
-const EnhancedSeraphinaChat = React.lazy(() => import('../divination/enhanced/SeraphinaChat'));
-const RitualsDirectory = React.lazy(() => import('../RitualsDirectory'));
-const CulturalAdapter = React.lazy(() => import('../CulturalAdapter'));
-const CommunityHub = React.lazy(() => import('../CommunityHub'));
-const ProgressVisualization = React.lazy(() => import('../ProgressVisualization'));
-const MoodTracker = React.lazy(() => import('../MoodTracker'));
-const DreamAnalysis = React.lazy(() => import('../DreamAnalysis'));
-const ProtectionSuite = React.lazy(() => import('../ProtectionSuite'));
-const AngelicAssistance = React.lazy(() => import('../AngelicAssistance'));
-const CombinedInsights = React.lazy(() => import('../CombinedInsights'));
-const PersonalGuidanceSystem = React.lazy(() => import('../PersonalGuidanceSystem'));
-const ShadowWorkTracker = React.lazy(() => import('../ShadowWorkTracker'));
-const SynchronicityDecoder = React.lazy(() => import('../SynchronicityDecoder'));
-const CombinedAssessment = React.lazy(() => import('../CombinedAssessment'));
-const ReferralSystem = React.lazy(() => import('../ReferralSystem'));
+// Lazy load components for better performance - fixing named export imports
+const EnhancedSeraphinaChat = React.lazy(() => import('../divination/enhanced/SeraphinaChat').then(module => ({ default: module.EnhancedSeraphinaChat })));
+const RitualsDirectory = React.lazy(() => import('../RitualsDirectory').then(module => ({ default: module.RitualsDirectory })));
+const CulturalAdapter = React.lazy(() => import('../CulturalAdapter').then(module => ({ default: module.CulturalAdapter })));
+const CommunityHub = React.lazy(() => import('../CommunityHub').then(module => ({ default: module.CommunityHub })));
+const ProgressVisualization = React.lazy(() => import('../ProgressVisualization').then(module => ({ default: module.ProgressVisualization })));
+const MoodTracker = React.lazy(() => import('../MoodTracker').then(module => ({ default: module.MoodTracker })));
+const DreamAnalysis = React.lazy(() => import('../DreamAnalysis').then(module => ({ default: module.DreamAnalysis })));
+const ProtectionSuite = React.lazy(() => import('../ProtectionSuite').then(module => ({ default: module.ProtectionSuite })));
+const AngelicAssistance = React.lazy(() => import('../AngelicAssistance').then(module => ({ default: module.AngelicAssistance })));
+const CombinedInsights = React.lazy(() => import('../CombinedInsights').then(module => ({ default: module.CombinedInsights })));
+const PersonalGuidanceSystem = React.lazy(() => import('../PersonalGuidanceSystem').then(module => ({ default: module.PersonalGuidanceSystem })));
+const ShadowWorkTracker = React.lazy(() => import('../ShadowWorkTracker').then(module => ({ default: module.ShadowWorkTracker })));
+const SynchronicityDecoder = React.lazy(() => import('../SynchronicityDecoder').then(module => ({ default: module.SynchronicityDecoder })));
+const CombinedAssessment = React.lazy(() => import('../CombinedAssessment').then(module => ({ default: module.CombinedAssessment })));
+const ReferralSystem = React.lazy(() => import('../ReferralSystem').then(module => ({ default: module.ReferralSystem })));
 
 // Loading component
 const LoadingSkeleton = () => (
