@@ -36,6 +36,8 @@ export interface WisdomTier {
   restrictions: string[];
   monthlyPrice: number;
   yearlyPrice: number;
+  stripePriceId: string; // Monthly price ID
+  stripeYearlyPriceId: string; // Yearly price ID
   culturalAccess: ('open' | 'initiated' | 'sacred')[];
   mentorAccess: boolean;
   ancientLibraryAccess: boolean;
@@ -64,6 +66,8 @@ export const WISDOM_TIERS: WisdomTier[] = [
     ],
     monthlyPrice: 19,
     yearlyPrice: 190,
+    stripePriceId: 'price_earth_monthly', // Replace with actual Stripe price ID
+    stripeYearlyPriceId: 'price_earth_yearly', // Replace with actual Stripe price ID
     culturalAccess: ['open'],
     mentorAccess: false,
     ancientLibraryAccess: false,
@@ -89,6 +93,8 @@ export const WISDOM_TIERS: WisdomTier[] = [
     ],
     monthlyPrice: 29,
     yearlyPrice: 290,
+    stripePriceId: 'price_water_monthly', // Replace with actual Stripe price ID
+    stripeYearlyPriceId: 'price_water_yearly', // Replace with actual Stripe price ID
     culturalAccess: ['open', 'initiated'],
     mentorAccess: true,
     ancientLibraryAccess: false,
@@ -114,6 +120,8 @@ export const WISDOM_TIERS: WisdomTier[] = [
     ],
     monthlyPrice: 49,
     yearlyPrice: 490,
+    stripePriceId: 'price_fire_monthly', // Replace with actual Stripe price ID
+    stripeYearlyPriceId: 'price_fire_yearly', // Replace with actual Stripe price ID
     culturalAccess: ['open', 'initiated', 'sacred'],
     mentorAccess: true,
     ancientLibraryAccess: true,
@@ -137,6 +145,8 @@ export const WISDOM_TIERS: WisdomTier[] = [
     restrictions: [],
     monthlyPrice: 59,
     yearlyPrice: 590,
+    stripePriceId: 'price_ether_monthly', // Replace with actual Stripe price ID
+    stripeYearlyPriceId: 'price_ether_yearly', // Replace with actual Stripe price ID
     culturalAccess: ['open', 'initiated', 'sacred'],
     mentorAccess: true,
     ancientLibraryAccess: true,

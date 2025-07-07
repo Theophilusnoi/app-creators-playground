@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -12,6 +11,25 @@ const corsHeaders = {
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
+};
+
+// Price ID to tier mapping - UPDATE THESE WITH YOUR ACTUAL STRIPE PRICE IDs
+const PRICE_ID_TO_TIER: Record<string, string> = {
+  // Earth Keeper
+  "price_earth_monthly": "earth",
+  "price_earth_yearly": "earth",
+  
+  // Water Bearer  
+  "price_water_monthly": "water",
+  "price_water_yearly": "water",
+  
+  // Fire Keeper
+  "price_fire_monthly": "fire", 
+  "price_fire_yearly": "fire",
+  
+  // Ether Walker
+  "price_ether_monthly": "ether",
+  "price_ether_yearly": "ether",
 };
 
 serve(async (req) => {
@@ -127,21 +145,27 @@ serve(async (req) => {
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
       logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
       
-      // Determine subscription tier from price - Updated for new pricing
+      // Determine subscription tier from price ID
       const priceId = subscription.items.data[0].price.id;
-      const price = await stripe.prices.retrieve(priceId);
-      const amount = price.unit_amount || 0;
+      subscriptionTier = PRICE_ID_TO_TIER[priceId] || null;
       
-      if (amount <= 1900) {
-        subscriptionTier = "earth";
-      } else if (amount <= 2900) {
-        subscriptionTier = "water";
-      } else if (amount <= 19700) {
-        subscriptionTier = "fire";
-      } else {
-        subscriptionTier = "ether";
+      if (!subscriptionTier) {
+        // Fallback to amount-based detection for legacy subscriptions
+        const price = await stripe.prices.retrieve(priceId);
+        const amount = price.unit_amount || 0;
+        
+        if (amount <= 1900) {
+          subscriptionTier = "earth";
+        } else if (amount <= 2900) {
+          subscriptionTier = "water";
+        } else if (amount <= 4900) {
+          subscriptionTier = "fire";
+        } else {
+          subscriptionTier = "ether";
+        }
       }
-      logStep("Determined subscription tier", { priceId, amount, subscriptionTier });
+      
+      logStep("Determined subscription tier", { priceId, subscriptionTier });
     } else {
       logStep("No active subscription found");
     }

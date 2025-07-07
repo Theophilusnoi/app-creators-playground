@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -11,6 +12,26 @@ const corsHeaders = {
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
+};
+
+// Stripe Price ID mapping - UPDATE THESE WITH YOUR ACTUAL STRIPE PRICE IDs
+const STRIPE_PRICE_IDS = {
+  earth: {
+    monthly: "price_earth_monthly", // Replace with actual Stripe price ID
+    yearly: "price_earth_yearly"   // Replace with actual Stripe price ID
+  },
+  water: {
+    monthly: "price_water_monthly", // Replace with actual Stripe price ID
+    yearly: "price_water_yearly"   // Replace with actual Stripe price ID
+  },
+  fire: {
+    monthly: "price_fire_monthly", // Replace with actual Stripe price ID
+    yearly: "price_fire_yearly"   // Replace with actual Stripe price ID
+  },
+  ether: {
+    monthly: "price_ether_monthly", // Replace with actual Stripe price ID
+    yearly: "price_ether_yearly"   // Replace with actual Stripe price ID
+  }
 };
 
 serve(async (req) => {
@@ -81,7 +102,7 @@ serve(async (req) => {
     }
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const { tier, referralCode } = await req.json();
+    const { tier, interval, referralCode } = await req.json();
     if (!tier) {
       logStep("No tier provided");
       return new Response(JSON.stringify({ 
@@ -92,6 +113,9 @@ serve(async (req) => {
         status: 400,
       });
     }
+
+    // Default to monthly if no interval specified
+    const billingInterval = interval || 'monthly';
     
     // Check if tier is coming soon
     if (tier.toLowerCase() === 'fire' || tier.toLowerCase() === 'ether') {
@@ -105,7 +129,7 @@ serve(async (req) => {
       });
     }
     
-    logStep("Request body parsed", { tier, referralCode });
+    logStep("Request body parsed", { tier, interval: billingInterval, referralCode });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
 
@@ -119,16 +143,9 @@ serve(async (req) => {
       logStep("Creating new customer");
     }
 
-    // Updated pricing based on new structure
-    const pricingMap: Record<string, number> = {
-      "earth": 1900, // $19.00
-      "water": 2900, // $29.00  
-      "fire": 4900, // $49.00
-      "ether": 5900, // $59.00
-    };
-
-    const amount = pricingMap[tier.toLowerCase()];
-    if (!amount) {
+    // Get the appropriate price ID
+    const tierPriceIds = STRIPE_PRICE_IDS[tier.toLowerCase() as keyof typeof STRIPE_PRICE_IDS];
+    if (!tierPriceIds) {
       logStep("Invalid tier", { tier });
       return new Response(JSON.stringify({ 
         error: "Invalid subscription tier",
@@ -138,7 +155,9 @@ serve(async (req) => {
         status: 400,
       });
     }
-    logStep("Pricing determined", { tier, amount });
+
+    const priceId = billingInterval === 'yearly' ? tierPriceIds.yearly : tierPriceIds.monthly;
+    logStep("Price ID determined", { tier, interval: billingInterval, priceId });
 
     const origin = req.headers.get("origin") || "http://localhost:3000";
     
@@ -147,15 +166,7 @@ serve(async (req) => {
       customer_email: customerId ? undefined : user.email,
       line_items: [
         {
-          price_data: {
-            currency: "usd",
-            product_data: { 
-              name: `SpiritualMind ${tier.charAt(0).toUpperCase() + tier.slice(1)} Subscription`,
-              description: `Access to ${tier} tier spiritual features and guidance`
-            },
-            unit_amount: amount,
-            recurring: { interval: "month" },
-          },
+          price: priceId, // Use the actual Stripe price ID
           quantity: 1,
         },
       ],
@@ -164,6 +175,7 @@ serve(async (req) => {
       cancel_url: `${origin}/pricing`,
       metadata: {
         tier: tier,
+        interval: billingInterval,
         user_id: user.id,
         referral_code: referralCode || "",
       },
