@@ -12,7 +12,7 @@ const PricingPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [referralCode, setReferralCode] = useState<string>('');
-  const [clickingTier, setClickingTier] = useState<string | null>(null);
+  const [processingTier, setProcessingTier] = useState<string | null>(null);
 
   // Check for referral code in URL
   useEffect(() => {
@@ -109,7 +109,7 @@ const PricingPage = () => {
   ];
 
   const handleSubscribe = async (tierId: string) => {
-    console.log('handleSubscribe called with tier:', tierId);
+    console.log('Subscribe button clicked for tier:', tierId);
     
     if (!user) {
       toast({
@@ -120,12 +120,12 @@ const PricingPage = () => {
       return;
     }
 
-    if (clickingTier || loading) {
-      console.log('Already processing subscription or loading');
+    if (processingTier || loading) {
+      console.log('Already processing subscription or loading, skipping');
       return;
     }
 
-    setClickingTier(tierId);
+    setProcessingTier(tierId);
     console.log('Starting subscription process for tier:', tierId);
 
     try {
@@ -147,7 +147,7 @@ const PricingPage = () => {
         variant: "destructive",
       });
     } finally {
-      setClickingTier(null);
+      setProcessingTier(null);
     }
   };
 
@@ -173,7 +173,7 @@ const PricingPage = () => {
           {wisdomTiers.map((tier) => {
             const isCurrentTier = subscribed && subscriptionTier === tier.id;
             const isUpgrade = subscribed && subscriptionTier !== tier.id;
-            const isProcessing = clickingTier === tier.id;
+            const isProcessing = processingTier === tier.id;
             
             return (
               <Card
@@ -220,12 +220,12 @@ const PricingPage = () => {
 
                   <Button
                     onClick={() => handleSubscribe(tier.id)}
-                    disabled={isCurrentTier || isProcessing}
+                    disabled={isCurrentTier || isProcessing || loading}
                     className={`w-full ${
                       isCurrentTier
                         ? 'bg-green-600 hover:bg-green-700'
                         : `bg-gradient-to-r ${tier.color} hover:opacity-90`
-                    } ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    } ${(isProcessing || loading) ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {isProcessing ? (
                       <>

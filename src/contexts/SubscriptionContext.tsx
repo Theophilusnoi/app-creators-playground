@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
@@ -145,7 +144,10 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, [user?.id]);
 
   const createCheckout = async (tier: string, referralCode?: string) => {
+    console.log('Creating checkout for tier:', tier);
+    
     if (!user?.id) {
+      console.error('No user ID found');
       toast({
         title: "Authentication Required",
         description: "Please log in to subscribe",
@@ -155,6 +157,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
 
     if (!tier) {
+      console.error('No tier provided');
       toast({
         title: "Invalid Tier",
         description: "Please select a valid subscription tier",
@@ -164,6 +167,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
 
     console.log('Creating checkout for tier:', tier, 'with referral:', referralCode);
+    setLoading(true);
 
     try {
       const { data: session, error: sessionError } = await supabase.auth.getSession();
@@ -239,6 +243,8 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         variant: "destructive",
       });
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
