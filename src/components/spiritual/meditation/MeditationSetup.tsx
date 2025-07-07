@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Play, Loader2 } from "lucide-react";
+import { Play, Loader2, BookOpen } from "lucide-react";
+import { MeditationTechniqueGuide } from './MeditationTechniqueGuide';
 
 interface MeditationType {
   value: string;
@@ -56,6 +57,17 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({
   onDurationChange,
   onStart
 }) => {
+  const [showTechniqueGuide, setShowTechniqueGuide] = useState(false);
+
+  if (showTechniqueGuide) {
+    return (
+      <MeditationTechniqueGuide
+        techniqueId={selectedType}
+        onClose={() => setShowTechniqueGuide(false)}
+      />
+    );
+  }
+
   return (
     <div className="space-y-4">
       <Select value={selectedType} onValueChange={onTypeChange}>
@@ -65,11 +77,25 @@ export const MeditationSetup: React.FC<MeditationSetupProps> = ({
         <SelectContent className="bg-gray-800 text-white border-gray-600">
           {MEDITATION_TYPES.map((type) => (
             <SelectItem key={type.value} value={type.value} className="text-white hover:bg-gray-700">
-              {type.label}
+              <div>
+                <div className="font-medium">{type.label}</div>
+                <div className="text-xs text-gray-400">{type.description}</div>
+              </div>
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
+
+      {selectedType && (
+        <Button
+          onClick={() => setShowTechniqueGuide(true)}
+          variant="outline"
+          className="w-full border-purple-500/50 text-purple-200 hover:bg-purple-700/30"
+        >
+          <BookOpen className="w-4 h-4 mr-2" />
+          View Detailed Technique Guide
+        </Button>
+      )}
 
       <div className="space-y-2">
         <h4 className="text-white font-semibold">Duration ({duration} min)</h4>
