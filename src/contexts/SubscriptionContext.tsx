@@ -118,6 +118,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
 
     console.log('Creating checkout for tier:', tier, 'with referral:', referralCode);
+    console.log('User authenticated:', { id: user.id, email: user.email });
 
     try {
       const { data: session } = await supabase.auth.getSession();
@@ -129,10 +130,12 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       
       const requestBody = { 
         tier: tier,
+        interval: 'monthly', // Default to monthly for now
         referralCode: finalReferralCode 
       };
       
       console.log('Sending checkout request with body:', requestBody);
+      console.log('Session token available:', !!session.session.access_token);
 
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: requestBody,
@@ -142,13 +145,24 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         },
       });
 
-      console.log('Checkout response:', { data, error });
+      console.log('Checkout response received:', { 
+        hasData: !!data, 
+        hasError: !!error,
+        dataKeys: data ? Object.keys(data) : [],
+        errorType: error?.name || 'none'
+      });
 
       if (error) {
-        console.error('Checkout creation error:', error);
+        console.error('Checkout creation error details:', {
+          name: error.name,
+          message: error.message,
+          context: error.context || {},
+          stack: error.stack
+        });
+        
         let errorMessage = 'Failed to create checkout session';
         
-        // Handle FunctionsHttpError and FunctionsRelayError
+        // Handle different error types
         if (error.message) {
           errorMessage = error.message;
         } else if (typeof error === 'string') {
@@ -157,17 +171,15 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
           errorMessage = error.context.message;
         }
         
-        // Log full error for debugging
-        console.error('Full error object:', JSON.stringify(error, null, 2));
-        
         throw new Error(errorMessage);
       }
 
       if (!data?.url) {
+        console.error('No checkout URL in response:', data);
         throw new Error('No checkout URL received from server');
       }
 
-      console.log('Checkout URL received, redirecting to:', data.url);
+      console.log('Checkout URL received successfully - redirecting');
       
       // Clear any stored referral code after successful checkout creation
       if (finalReferralCode) {
@@ -194,6 +206,8 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         userFriendlyMessage = 'Network error. Please check your connection and try again.';
       } else if (errorMessage.includes('Edge Function returned a non-2xx status code')) {
         userFriendlyMessage = 'Subscription service temporarily unavailable. Please try again in a moment.';
+      } else if (errorMessage.includes('temporarily unavailable')) {
+        userFriendlyMessage = 'Subscription service is temporarily unavailable. Please try again in a few minutes.';
       }
       
       toast({

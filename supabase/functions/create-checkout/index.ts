@@ -102,11 +102,13 @@ serve(async (req) => {
     }
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    // Parse request body
+    // Parse request body with better error handling
     let requestBody;
     try {
       const bodyText = await req.text();
+      logStep("Raw request body received", { bodyLength: bodyText.length });
       requestBody = bodyText ? JSON.parse(bodyText) : {};
+      logStep("Parsed request body", requestBody);
     } catch (parseError) {
       logStep("Failed to parse request body", { error: parseError });
       return new Response(JSON.stringify({ 
@@ -120,7 +122,7 @@ serve(async (req) => {
 
     const { tier, interval, referralCode } = requestBody;
     if (!tier) {
-      logStep("No tier provided");
+      logStep("No tier provided in request body");
       return new Response(JSON.stringify({ 
         error: "Invalid subscription tier",
         message: "Please select a valid subscription plan."
@@ -133,24 +135,25 @@ serve(async (req) => {
     // Default to monthly if no interval specified
     const billingInterval = interval || 'monthly';
     
-    logStep("Request body parsed", { tier, interval: billingInterval, referralCode });
+    logStep("Request validated", { tier, interval: billingInterval, referralCode });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
 
     // Check if customer already exists
+    logStep("Checking for existing Stripe customer");
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     let customerId;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
       logStep("Found existing customer", { customerId });
     } else {
-      logStep("Creating new customer");
+      logStep("No existing customer found - will create during checkout");
     }
 
     // Get the appropriate price ID
     const tierPriceIds = STRIPE_PRICE_IDS[tier.toLowerCase() as keyof typeof STRIPE_PRICE_IDS];
     if (!tierPriceIds) {
-      logStep("Invalid tier", { tier });
+      logStep("Invalid tier provided", { tier, availableTiers: Object.keys(STRIPE_PRICE_IDS) });
       return new Response(JSON.stringify({ 
         error: "Invalid subscription tier",
         message: "Please select a valid subscription plan."
@@ -170,7 +173,7 @@ serve(async (req) => {
       customer_email: customerId ? undefined : user.email,
       line_items: [
         {
-          price: priceId, // Use the actual Stripe price ID
+          price: priceId,
           quantity: 1,
         },
       ],
@@ -185,10 +188,29 @@ serve(async (req) => {
       },
     };
 
-    logStep("Creating checkout session", { sessionParams: { ...sessionParams, line_items: "..." } });
+    logStep("Creating checkout session", { 
+      priceId, 
+      customerId: customerId || 'new customer',
+      email: user.email,
+      mode: 'subscription'
+    });
 
     const session = await stripe.checkout.sessions.create(sessionParams);
-    logStep("Checkout session created", { sessionId: session.id, url: session.url });
+    logStep("Checkout session created successfully", { 
+      sessionId: session.id, 
+      url: session.url ? 'URL generated' : 'No URL'
+    });
+
+    if (!session.url) {
+      logStep("ERROR: No checkout URL generated");
+      return new Response(JSON.stringify({ 
+        error: "Checkout creation failed",
+        message: "Unable to generate checkout URL. Please try again."
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      });
+    }
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -196,10 +218,27 @@ serve(async (req) => {
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR in create-checkout", { message: errorMessage, stack: error instanceof Error ? error.stack : undefined });
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    logStep("CRITICAL ERROR in create-checkout", { 
+      message: errorMessage, 
+      stack: errorStack,
+      type: error.constructor.name 
+    });
+    
+    // Provide more specific error messages based on error type
+    let userMessage = "Unable to create checkout session. Please try again.";
+    
+    if (errorMessage.includes('No such price')) {
+      userMessage = "Invalid subscription plan selected. Please contact support.";
+    } else if (errorMessage.includes('customer')) {
+      userMessage = "Customer account issue. Please contact support.";
+    } else if (errorMessage.includes('authentication') || errorMessage.includes('key')) {
+      userMessage = "Payment system configuration error. Please contact support.";
+    }
+    
     return new Response(JSON.stringify({ 
       error: "Checkout creation failed",
-      message: "Unable to create checkout session. Please try again or contact support.",
+      message: userMessage,
       details: errorMessage
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
