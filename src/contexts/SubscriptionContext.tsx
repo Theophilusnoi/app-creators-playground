@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
@@ -178,16 +177,17 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       const finalReferralCode = referralCode || localStorage.getItem('referralCode');
       
+      // Ensure we're sending a proper JSON body
       const requestBody = { 
         tier: tier,
         interval: 'monthly',
         referralCode: finalReferralCode 
       };
       
-      console.log('Sending checkout request:', requestBody);
+      console.log('Sending checkout request with body:', requestBody);
 
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: requestBody,
+        body: JSON.stringify(requestBody),
         headers: {
           Authorization: `Bearer ${session.session.access_token}`,
           'Content-Type': 'application/json',
