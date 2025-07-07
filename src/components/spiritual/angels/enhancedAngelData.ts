@@ -1,4 +1,3 @@
-
 export interface EnhancedAngelEntity {
   id: number;
   name: string;
@@ -39,6 +38,10 @@ export interface EnhancedAngelEntity {
   evocationRitual: string;
   protectionMethod: string;
   banishingMethod: string;
+  
+  // Added missing properties for filtering
+  category: string;
+  tradition: string;
 }
 
 export const enhancedAngels: EnhancedAngelEntity[] = [
@@ -53,6 +56,10 @@ export const enhancedAngels: EnhancedAngelEntity[] = [
     timing: "Dawn and dusk, during travel",
     psalm: "Psalm 23 - 'The Lord is my shepherd'",
     offerings: ["White candles", "Frankincense", "Clear quartz", "Spring water"],
+    
+    // Added missing properties
+    category: "Guardian",
+    tradition: "Kabbalistic",
     
     duties: [
       "Protecting travelers on physical and spiritual journeys",
@@ -166,6 +173,10 @@ export const enhancedAngels: EnhancedAngelEntity[] = [
     timing: "Monday, Full Moon, Dawn",
     psalm: "Psalm 103 - 'Bless the Lord, O my soul'",
     offerings: ["White lilies", "Silver items", "Moon water", "Jasmine incense"],
+    
+    // Added missing properties
+    category: "Archangel",
+    tradition: "Abrahamic",
     
     duties: [
       "Delivering divine messages and revelations",
