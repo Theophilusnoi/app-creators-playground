@@ -6,16 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import type { AngelEntity } from './angelData';
-import { angelCategories, angelTraditions, getAngelsByCategory, getAngelsByTradition, searchAngelsByNeed } from './angelData';
 import { Filter, X, Search } from 'lucide-react';
+import type { EnhancedAngelEntity } from './enhancedAngelData';
 
 interface AngelDirectoryProps {
-  angels: AngelEntity[];
+  angels: EnhancedAngelEntity[];
   searchTerm: string;
   onSearchChange: (term: string) => void;
-  onInvokeAngel: (angel: AngelEntity) => void;
-  onStartMeditation: (angel: AngelEntity) => void;
+  onInvokeAngel: (angel: EnhancedAngelEntity) => void;
+  onStartMeditation: (angel: EnhancedAngelEntity) => void;
 }
 
 export const AngelDirectory: React.FC<AngelDirectoryProps> = ({
@@ -30,21 +29,39 @@ export const AngelDirectory: React.FC<AngelDirectoryProps> = ({
   const [needSearch, setNeedSearch] = useState<string>('');
   const [showFilters, setShowFilters] = useState(false);
 
+  // Get unique categories and traditions from the angels data
+  const categories = [...new Set(angels.map(angel => angel.category).filter(Boolean))];
+  const traditions = [...new Set(angels.map(angel => angel.tradition).filter(Boolean))];
+
   // Filter angels based on selected criteria
   let filteredAngels = angels;
 
+  // Apply search term filter
+  if (searchTerm) {
+    filteredAngels = filteredAngels.filter(angel =>
+      angel.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      angel.domain.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      angel.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      angel.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }
+
+  // Apply category filter
   if (selectedCategory !== 'all') {
     filteredAngels = filteredAngels.filter(angel => angel.category === selectedCategory);
   }
 
+  // Apply tradition filter
   if (selectedTradition !== 'all') {
     filteredAngels = filteredAngels.filter(angel => angel.tradition === selectedTradition);
   }
 
+  // Apply need search filter
   if (needSearch) {
-    const needResults = searchAngelsByNeed(needSearch);
-    filteredAngels = filteredAngels.filter(angel => 
-      needResults.some(needAngel => needAngel.id === angel.id)
+    filteredAngels = filteredAngels.filter(angel =>
+      angel.practicalUses?.some(use => use.toLowerCase().includes(needSearch.toLowerCase())) ||
+      angel.domain.toLowerCase().includes(needSearch.toLowerCase()) ||
+      angel.description.toLowerCase().includes(needSearch.toLowerCase())
     );
   }
 
@@ -126,7 +143,7 @@ export const AngelDirectory: React.FC<AngelDirectoryProps> = ({
                 </SelectTrigger>
                 <SelectContent className="bg-gray-900 border-purple-500/30">
                   <SelectItem value="all">All Categories</SelectItem>
-                  {angelCategories.map(category => (
+                  {categories.map(category => (
                     <SelectItem key={category} value={category}>
                       {category}
                     </SelectItem>
@@ -143,7 +160,7 @@ export const AngelDirectory: React.FC<AngelDirectoryProps> = ({
                 </SelectTrigger>
                 <SelectContent className="bg-gray-900 border-purple-500/30">
                   <SelectItem value="all">All Traditions</SelectItem>
-                  {angelTraditions.map(tradition => (
+                  {traditions.map(tradition => (
                     <SelectItem key={tradition} value={tradition}>
                       {tradition}
                     </SelectItem>
@@ -235,20 +252,20 @@ export const AngelDirectory: React.FC<AngelDirectoryProps> = ({
         <h4 className="text-purple-200 font-medium mb-3">Directory Overview</h4>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div className="text-center">
-            <div className="text-2xl font-bold text-purple-400">{getAngelsByCategory('Shem HaMephorash').length}</div>
-            <div className="text-purple-300">Shem HaMephorash</div>
+            <div className="text-2xl font-bold text-purple-400">{angels.length}</div>
+            <div className="text-purple-300">Total Angels</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-blue-400">{getAngelsByCategory('Archangel').length}</div>
-            <div className="text-purple-300">Archangels</div>
+            <div className="text-2xl font-bold text-blue-400">{traditions.length}</div>
+            <div className="text-purple-300">Traditions</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-green-400">{getAngelsByTradition('Kabbalah').length}</div>
-            <div className="text-purple-300">Kabbalistic</div>
+            <div className="text-2xl font-bold text-green-400">{categories.length}</div>
+            <div className="text-purple-300">Categories</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-yellow-400">{getAngelsByTradition('Universal').length}</div>
-            <div className="text-purple-300">Universal</div>
+            <div className="text-2xl font-bold text-yellow-400">{filteredAngels.length}</div>
+            <div className="text-purple-300">Showing Now</div>
           </div>
         </div>
       </div>

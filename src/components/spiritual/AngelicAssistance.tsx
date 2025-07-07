@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { AngelInvocationPanel } from './angels/AngelInvocationPanel';
 import { AngelCard } from './angels/AngelCard';
 import { AngelMeditationInterface } from './AngelMeditationInterface';
+import { AngelDirectory } from './angels/AngelDirectory';
 import { useToast } from '@/hooks/use-toast';
 import { Search, Sparkles } from 'lucide-react';
 import { enhancedAngels } from './angels/enhancedAngelData';
@@ -80,49 +82,38 @@ const AngelicAssistance = () => {
             Connect with divine messengers for guidance, protection, and spiritual support
           </p>
         </CardHeader>
-        <CardContent>
-          <div className="relative mb-6">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400 w-4 h-4" />
-            <Input
-              placeholder="Search angels by name, domain, or specialty..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-black/30 border-purple-500/30 text-white placeholder:text-purple-300"
-            />
-          </div>
-        </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Angel Directory */}
-        <div className="space-y-4">
-          <h3 className="text-xl font-semibold text-white">Angel Directory</h3>
-          <div className="grid gap-3 max-h-96 overflow-y-auto">
-            {filteredAngels.map((angel) => (
-              <AngelCard
-                key={angel.id}
-                angel={angel}
-                onInvoke={handleInvokeAngel}
-                onMeditate={handleStartMeditation}
-              />
-            ))}
-          </div>
-        </div>
+      {/* Use the enhanced AngelDirectory component */}
+      <AngelDirectory
+        angels={enhancedAngels}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        onInvokeAngel={handleInvokeAngel}
+        onStartMeditation={handleStartMeditation}
+      />
 
-        {/* Angel Invocation Panel */}
-        <div className="space-y-4">
-          <h3 className="text-xl font-semibold text-white">Angel Communication</h3>
-          <AngelInvocationPanel
-            selectedAngel={selectedAngel}
-            invocationText={invocationText}
-            onInvocationTextChange={setInvocationText}
-            onSubmitInvocation={handleSubmitInvocation}
-            onStartMeditation={handleStartMeditation}
-            isInvoking={isInvoking}
-            connectionActive={connectionActive}
-          />
-        </div>
-      </div>
+      {/* Angel Invocation Panel - only show if angel is selected */}
+      {selectedAngel && (
+        <div className="mt-6">
+          <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-white">Angel Communication</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AngelInvocationPanel
+                selectedAngel={selectedAngel}
+                invocationText={invocationText}
+                onInvocationTextChange={setInvocationText}
+                onSubmitInvocation={handleSubmitInvocation}
+                onStartMeditation={handleStartMeditation}
+                isInvoking={isInvoking}
+                connectionActive={connectionActive}
+              />
+            </CardContent>
+          </Card>
+        )}
+      )}
     </div>
   );
 };
