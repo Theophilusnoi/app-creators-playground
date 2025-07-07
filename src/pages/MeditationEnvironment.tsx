@@ -20,7 +20,7 @@ export default function MeditationEnvironment() {
       <div className="absolute top-4 left-4 z-10">
         <Button 
           variant="ghost" 
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/dashboard')}
           className="text-purple-200 hover:text-white hover:bg-purple-400/20 transition-all duration-300"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
