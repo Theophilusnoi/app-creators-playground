@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { FunctionsHttpError } from '@supabase/supabase-js';
 
 interface SubscriptionContextType {
   subscribed: boolean;
@@ -17,7 +18,18 @@ interface SubscriptionContextType {
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
 
 // Better error parsing utility
-const getErrorMessage = (error: any): string => {
+const getErrorMessage = async (error: any): Promise<string> => {
+  if (error instanceof FunctionsHttpError) {
+    try {
+      const errorMessage = await error.context.json();
+      console.log('Function returned an error', errorMessage);
+      return errorMessage.message || errorMessage.error || 'Function error occurred';
+    } catch (parseError) {
+      console.error('Failed to parse function error:', parseError);
+      return 'Function error occurred';
+    }
+  }
+  
   if (typeof error === 'string') return error;
   if (error?.message) return error.message;
   if (error?.context?.message) return error.context.message;
@@ -100,6 +112,16 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       if (error) {
         console.error('Subscription check error:', error);
+        
+        if (error instanceof FunctionsHttpError) {
+          try {
+            const errorMessage = await error.context.json();
+            console.log('Function returned an error', errorMessage);
+          } catch (parseError) {
+            console.error('Failed to parse function error:', parseError);
+          }
+        }
+        
         setSubscribed(false);
         setSubscriptionTier(null);
         setSubscriptionEnd(null);
@@ -176,7 +198,8 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       if (error) {
         console.error('Checkout creation error:', error);
-        throw new Error(getErrorMessage(error));
+        const errorMessage = await getErrorMessage(error);
+        throw new Error(errorMessage);
       }
 
       if (!data?.url) {
@@ -195,7 +218,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       
     } catch (error) {
       console.error('Error creating checkout:', error);
-      const errorMessage = getErrorMessage(error);
+      const errorMessage = await getErrorMessage(error);
       
       let userFriendlyMessage = errorMessage;
       
@@ -243,7 +266,10 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         },
       });
 
-      if (error) throw new Error(getErrorMessage(error));
+      if (error) {
+        const errorMessage = await getErrorMessage(error);
+        throw new Error(errorMessage);
+      }
 
       if (!data?.url) {
         throw new Error('No portal URL received');
@@ -257,9 +283,10 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       });
     } catch (error) {
       console.error('Error opening customer portal:', error);
+      const errorMessage = await getErrorMessage(error);
       toast({
         title: "Portal Error",
-        description: "Unable to open customer portal. Please contact support.",
+        description: `Unable to open customer portal: ${errorMessage}`,
         variant: "destructive",
       });
     } finally {
