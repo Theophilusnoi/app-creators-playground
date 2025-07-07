@@ -112,7 +112,7 @@ const AngelicAssistance = () => {
               />
             </CardContent>
           </Card>
-        )}
+        </div>
       )}
     </div>
   );
