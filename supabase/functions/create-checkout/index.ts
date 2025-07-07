@@ -108,7 +108,7 @@ serve(async (req) => {
     let requestBody;
     try {
       const bodyText = await req.text();
-      logStep("Raw request body received", { bodyLength: bodyText.length, hasContent: !!bodyText });
+      logStep("Raw request body received", { bodyLength: bodyText.length, bodyContent: bodyText });
       
       if (!bodyText || bodyText.trim() === '') {
         return errorResponse(
