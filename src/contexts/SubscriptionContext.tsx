@@ -178,7 +178,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       const finalReferralCode = referralCode || localStorage.getItem('referralCode');
       
-      // Ensure we're sending a proper JSON body
+      // Structure the request body properly
       const requestBody = { 
         tier: tier,
         interval: 'monthly',
@@ -229,6 +229,8 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         userFriendlyMessage = 'Please log in again and try subscribing.';
       } else if (errorMessage.includes('Invalid subscription tier')) {
         userFriendlyMessage = 'Invalid subscription plan selected. Please try again.';
+      } else if (errorMessage.includes('Please provide subscription details')) {
+        userFriendlyMessage = 'Invalid subscription request. Please try again.';
       }
       
       toast({
