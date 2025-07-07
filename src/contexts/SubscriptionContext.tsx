@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
@@ -187,7 +188,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       console.log('Sending checkout request with body:', requestBody);
 
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: JSON.stringify(requestBody),
+        body: requestBody,
         headers: {
           Authorization: `Bearer ${session.session.access_token}`,
           'Content-Type': 'application/json',
