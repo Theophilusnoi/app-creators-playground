@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -40,17 +41,18 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [subscriptionTier, setSubscriptionTier] = useState<string | null>(null);
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [hasChecked, setHasChecked] = useState(false);
 
-  const checkSubscription = async () => {
-    if (!user || loading) {
-      console.log('Skipping subscription check - no user or already loading');
-      if (!user) {
-        setSubscribed(false);
-        setSubscriptionTier(null);
-        setSubscriptionEnd(null);
-        setHasChecked(true);
-      }
+  const checkSubscription = useCallback(async () => {
+    if (!user) {
+      console.log('No user - resetting subscription state');
+      setSubscribed(false);
+      setSubscriptionTier(null);
+      setSubscriptionEnd(null);
+      return;
+    }
+
+    if (loading) {
+      console.log('Already loading subscription check - skipping');
       return;
     }
     
@@ -64,7 +66,6 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         setSubscribed(false);
         setSubscriptionTier(null);
         setSubscriptionEnd(null);
-        setHasChecked(true);
         return;
       }
 
@@ -79,7 +80,6 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         setSubscribed(false);
         setSubscriptionTier(null);
         setSubscriptionEnd(null);
-        setHasChecked(true);
         return;
       }
 
@@ -87,18 +87,16 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setSubscribed(data.subscribed || false);
       setSubscriptionTier(data.subscription_tier || null);
       setSubscriptionEnd(data.subscription_end || null);
-      setHasChecked(true);
 
     } catch (error) {
       console.error('Error checking subscription:', error);
       setSubscribed(false);
       setSubscriptionTier(null);
       setSubscriptionEnd(null);
-      setHasChecked(true);
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, loading]);
 
   const createCheckout = async (tier: string, referralCode?: string) => {
     if (!user) {
@@ -254,17 +252,12 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   };
 
-  // Only check subscription once when user changes and hasn't been checked yet
+  // Check subscription when user changes (but not on every render)
   useEffect(() => {
-    if (user && !hasChecked && !loading) {
+    if (user) {
       checkSubscription();
-    } else if (!user) {
-      setSubscribed(false);
-      setSubscriptionTier(null);
-      setSubscriptionEnd(null);
-      setHasChecked(true);
     }
-  }, [user, hasChecked, loading]);
+  }, [user?.id]); // Only depend on user ID to prevent infinite loops
 
   return (
     <SubscriptionContext.Provider
