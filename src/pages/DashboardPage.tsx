@@ -55,8 +55,8 @@ const DashboardPage = () => {
                 <p className="text-gray-300 text-sm mb-4">
                   Access meditation guides, rituals, and spiritual exercises.
                 </p>
-                <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
-                  Explore Practices
+                <Button asChild size="sm" className="bg-purple-600 hover:bg-purple-700">
+                  <Link to="/spiritual-mind-pro">Explore Practices</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -72,8 +72,8 @@ const DashboardPage = () => {
                 <p className="text-gray-300 text-sm mb-4">
                   Connect with fellow practitioners and join group activities.
                 </p>
-                <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700">
-                  Join Community
+                <Button asChild size="sm" className="bg-indigo-600 hover:bg-indigo-700">
+                  <Link to="/quantum-spiritual-dashboard">Join Community</Link>
                 </Button>
               </CardContent>
             </Card>
