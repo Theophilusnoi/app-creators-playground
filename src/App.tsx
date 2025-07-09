@@ -38,6 +38,7 @@ function App() {
                 <Route path="/fire-keeper-test" element={<FireKeeperTestPage />} />
                 <Route path="/spiritual-mind-pro" element={<SpiritualMindPro />} />
                 <Route path="/quantum-spiritual-dashboard" element={<QuantumSpiritualDashboardPage />} />
+                <Route path="/pro" element={<SpiritualMindPro />} />
               </Routes>
               <Toaster />
             </div>

@@ -1,190 +1,172 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthProvider';
-import { Star, Sparkles } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { validateEmail, validatePassword, sanitizeError } from '@/utils/security';
+import { Loader2, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export const AuthPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  // Redirect if user is already authenticated
+  // Redirect authenticated users
   useEffect(() => {
     if (user) {
-      navigate('/pro');
+      navigate('/dashboard');
     }
   }, [user, navigate]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Input validation
-    if (!validateEmail(email)) {
+    setIsLoading(true);
+
+    if (!email || !password) {
       toast({
-        title: "Invalid Email",
-        description: "Please enter a valid email address",
-        variant: "destructive"
+        title: "Error",
+        description: "Please fill in all fields",
+        variant: "destructive",
       });
+      setIsLoading(false);
       return;
     }
 
-    if (!isLogin) {
-      const passwordValidation = validatePassword(password);
-      if (!passwordValidation.isValid) {
-        toast({
-          title: "Invalid Password",
-          description: passwordValidation.message,
-          variant: "destructive"
-        });
-        return;
-      }
-    }
-
-    setLoading(true);
-
     try {
-      const redirectUrl = `${window.location.origin}/pro`;
-
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password,
-        });
-        if (error) throw error;
-        
-        toast({
-          title: "Welcome back!",
-          description: "You have been successfully signed in.",
-        });
-        navigate('/pro');
-      } else {
+      if (isSignUp) {
         const { error } = await supabase.auth.signUp({
-          email: email.trim(),
+          email,
           password,
           options: {
-            emailRedirectTo: redirectUrl
+            emailRedirectTo: `${window.location.origin}/dashboard`
           }
         });
-        if (error) throw error;
-        
-        toast({
-          title: "Account Created",
-          description: "Please check your email for the confirmation link!",
+
+        if (error) {
+          toast({
+            title: "Sign up failed",
+            description: error.message,
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Check your email",
+            description: "We've sent you a confirmation link",
+          });
+        }
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
         });
+
+        if (error) {
+          toast({
+            title: "Sign in failed",
+            description: error.message,
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Welcome back!",
+            description: "You've been signed in successfully",
+          });
+          navigate('/dashboard');
+        }
       }
-    } catch (error: any) {
-      const sanitizedError = sanitizeError(error);
+    } catch (error) {
       toast({
-        title: "Authentication Failed",
-        description: sanitizedError,
-        variant: "destructive"
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(46,204,113,0.1)_0%,transparent_50%)] opacity-60"></div>
-      
-      <Card className="w-full max-w-md bg-black/30 border-purple-500/30 backdrop-blur-sm">
-        <CardHeader className="text-center space-y-4">
-          <div className="flex justify-center">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center">
-              <Star className="w-8 h-8 text-white" />
-            </div>
-          </div>
-          <div>
-            <CardTitle className="text-2xl text-white mb-2">
-              Spiritual Break Through
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-secondary/10 flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-6">
+        <div className="flex items-center gap-4 mb-8">
+          <Link to="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Home
+          </Link>
+        </div>
+
+        <Card className="w-full shadow-xl border-0 bg-card/50 backdrop-blur-sm">
+          <CardHeader className="space-y-1 text-center">
+            <CardTitle className="text-2xl font-bold">
+              {isSignUp ? 'Create Account' : 'Welcome Back'}
             </CardTitle>
-            <CardDescription className="text-purple-200">
-              {isLogin ? 'Welcome back to your journey' : 'Begin your spiritual awakening'}
-            </CardDescription>
-          </div>
-        </CardHeader>
-        
-        <CardContent>
-          <form onSubmit={handleAuth} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-purple-200">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                required
-                className="bg-black/20 border-purple-500/30 text-white placeholder-purple-300"
-                autoComplete="email"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-purple-200">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                required
-                className="bg-black/20 border-purple-500/30 text-white placeholder-purple-300"
-                autoComplete={isLogin ? "current-password" : "new-password"}
-              />
-            </div>
-            
-            <Button 
-              type="submit" 
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
-            >
-              {loading ? (
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 animate-spin" />
-                  {isLogin ? 'Signing in...' : 'Creating account...'}
-                </div>
-              ) : (
-                isLogin ? 'Sign In' : 'Create Account'
-              )}
-            </Button>
-          </form>
-          
-          <div className="text-center mt-6">
-            <button
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-purple-300 hover:text-purple-200 underline"
-            >
-              {isLogin 
-                ? "Don't have an account? Sign up" 
-                : "Already have an account? Sign in"
+            <CardDescription>
+              {isSignUp 
+                ? 'Sign up to access your spiritual dashboard' 
+                : 'Sign in to continue your spiritual journey'
               }
-            </button>
-          </div>
-          
-          <div className="text-center mt-4">
-            <button
-              onClick={() => navigate('/')}
-              className="text-purple-400 hover:text-purple-300 text-sm"
-            >
-              ← Return to Home
-            </button>
-          </div>
-        </CardContent>
-      </Card>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleAuth} className="space-y-4">
+              <div className="space-y-2">
+                <Input
+                  type="email"
+                  placeholder="Email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="h-11"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="h-11"
+                  required
+                />
+              </div>
+              <Button 
+                type="submit" 
+                className="w-full h-11 text-base font-medium"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {isSignUp ? 'Creating Account...' : 'Signing In...'}
+                  </>
+                ) : (
+                  isSignUp ? 'Create Account' : 'Sign In'
+                )}
+              </Button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <button
+                type="button"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {isSignUp 
+                  ? 'Already have an account? Sign in' 
+                  : "Don't have an account? Sign up"
+                }
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
