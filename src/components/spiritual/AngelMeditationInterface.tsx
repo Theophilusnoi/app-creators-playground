@@ -170,7 +170,7 @@ export const AngelMeditationInterface: React.FC<AngelMeditationInterfaceProps> =
 
                 <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 border border-purple-500/50 rounded-lg p-6 text-center">
                   <div className="text-purple-100 leading-relaxed mb-4">
-                    Focus on your breath and visualize {angel.name}'s presence surrounding you with {angel.color} light.
+                    Focus on your breath and visualize {angel.name}'s presence surrounding you with divine celestial light.
                   </div>
                   <div className="text-sm text-purple-300">
                     "Allow the divine energy of {angel.name} to flow through you"
