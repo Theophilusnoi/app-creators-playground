@@ -14,6 +14,8 @@ import PricingPage from './pages/PricingPage';
 import StripeTestPage from './pages/StripeTestPage';
 import { Toaster } from '@/components/ui/toaster';
 import FireKeeperTestPage from "@/pages/FireKeeperTestPage";
+import SpiritualMindPro from "@/pages/SpiritualMindPro";
+import QuantumSpiritualDashboardPage from "@/pages/QuantumSpiritualDashboard";
 
 function App() {
   const queryClient = new QueryClient();
@@ -34,6 +36,8 @@ function App() {
                 <Route path="/pricing" element={<PricingPage />} />
                 <Route path="/stripe-test" element={<StripeTestPage />} />
                 <Route path="/fire-keeper-test" element={<FireKeeperTestPage />} />
+                <Route path="/spiritual-mind-pro" element={<SpiritualMindPro />} />
+                <Route path="/quantum-spiritual-dashboard" element={<QuantumSpiritualDashboardPage />} />
               </Routes>
               <Toaster />
             </div>
