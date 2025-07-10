@@ -167,15 +167,25 @@ export const UniversalProtectionFormula: React.FC<UniversalProtectionFormulaProp
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {protectionSystems.map((system) => {
             const Icon = system.icon;
+            
+            const handleSystemClick = () => {
+              setActiveSystem(system.id);
+              // Add visual feedback for button activation
+              if (system.id === 'activation' && !quantumShieldActive) {
+                setQuantumShieldActive(true);
+                setProtectionLevel(100);
+              }
+            };
+
             return (
               <Card 
                 key={system.id}
-                className="bg-black/30 border-purple-500/30 backdrop-blur-sm hover:bg-black/40 transition-colors cursor-pointer"
-                onClick={() => setActiveSystem(system.id)}
+                className="bg-black/30 border-purple-500/30 backdrop-blur-sm hover:bg-black/40 hover:border-purple-400/50 transition-all duration-300 cursor-pointer transform hover:scale-[1.02]"
+                onClick={handleSystemClick}
               >
                 <CardHeader>
                   <CardTitle className="flex items-center gap-3 text-white">
-                    <div className="bg-purple-600/20 p-3 rounded-lg">
+                    <div className="bg-purple-600/20 p-3 rounded-lg hover:bg-purple-600/30 transition-colors">
                       <Icon className="w-6 h-6 text-purple-400" />
                     </div>
                     <div>
@@ -191,7 +201,14 @@ export const UniversalProtectionFormula: React.FC<UniversalProtectionFormulaProp
                     <Badge className={getStatusColor(system.status)}>
                       {system.status.toUpperCase()}
                     </Badge>
-                    <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
+                    <Button 
+                      size="sm" 
+                      className="bg-purple-600 hover:bg-purple-700 transition-all duration-200"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSystemClick();
+                      }}
+                    >
                       <Target className="w-3 h-3 mr-2" />
                       Access
                     </Button>
