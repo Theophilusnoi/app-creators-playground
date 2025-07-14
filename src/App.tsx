@@ -16,13 +16,6 @@ import { Toaster } from '@/components/ui/toaster';
 import FireKeeperTestPage from "@/pages/FireKeeperTestPage";
 import SpiritualMindPro from "@/pages/SpiritualMindPro";
 import QuantumSpiritualDashboardPage from "@/pages/QuantumSpiritualDashboard";
-import AccountingDashboard from "./pages/AccountingDashboard";
-import InvoiceUpload from "./pages/InvoiceUpload";
-import Ledger from "./pages/Ledger";
-import JournalEntries from "./pages/JournalEntries";
-import TrialBalance from "./pages/TrialBalance";
-import FinancialReports from "./pages/FinancialReports";
-import CostOptimization from "./pages/CostOptimization";
 
 function App() {
   const queryClient = new QueryClient();
@@ -46,16 +39,6 @@ function App() {
                 <Route path="/spiritual-mind-pro" element={<SpiritualMindPro />} />
                 <Route path="/quantum-spiritual-dashboard" element={<QuantumSpiritualDashboardPage />} />
                 <Route path="/pro" element={<SpiritualMindPro />} />
-                
-                {/* Accounting App Routes */}
-                <Route path="/accounting" element={<AccountingDashboard />} />
-                <Route path="/accounting/dashboard" element={<AccountingDashboard />} />
-                <Route path="/accounting/upload" element={<InvoiceUpload />} />
-                <Route path="/accounting/ledger" element={<Ledger />} />
-                <Route path="/accounting/journal" element={<JournalEntries />} />
-                <Route path="/accounting/trial-balance" element={<TrialBalance />} />
-                <Route path="/accounting/reports" element={<FinancialReports />} />
-                <Route path="/accounting/optimization" element={<CostOptimization />} />
               </Routes>
               <Toaster />
             </div>
