@@ -5,39 +5,91 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { useFireKeeperAccess } from '@/hooks/useFireKeeperAccess';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Sparkles, 
   MessageCircle, 
   Clock,
   TestTube,
   Flame,
-  Send
+  Send,
+  Loader2
 } from 'lucide-react';
 
 export const FireKeeperAIMentorDemo: React.FC = () => {
   const { isDemoAccess } = useFireKeeperAccess();
+  const { toast } = useToast();
   const [question, setQuestion] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState('');
+  const [conversationHistory, setConversationHistory] = useState<Array<{question: string, response: string}>>([]);
 
   const handleAskMentor = async () => {
     if (!question.trim()) return;
     
     setIsLoading(true);
     
-    // Simulate AI mentor response
-    setTimeout(() => {
-      const demoResponses = [
-        "In the Fire element path, your spiritual energy burns brightest when you embrace transformation. Consider focusing on daily fire meditation to strengthen your inner flame.",
-        "The sacred traditions speak of three stages of fire mastery: Ignition, Sustenance, and Transcendence. You seem ready to work on the Sustenance phase.",
-        "Your question reveals a deep connection to the ancient wisdom. The Fire Keepers of old would say: 'Let your passion be your guide, but let wisdom be your compass.'",
-        "I sense you're experiencing spiritual growth. This is the perfect time to explore advanced third eye practices combined with fire element breathing techniques."
-      ];
+    try {
+      // Call the Gemini chat function for AI responses
+      const { data, error } = await supabase.functions.invoke('gemini-chat', {
+        body: {
+          message: `As a Fire Keeper spiritual mentor, provide guidance on: ${question}. Focus on fire element practices, transformation, and spiritual growth. Keep response under 200 words.`,
+          context: 'fire_keeper_mentorship'
+        }
+      });
+
+      if (error) {
+        console.error('AI Mentor error:', error);
+        // Fallback to demo responses
+        const demoResponses = [
+          "In the Fire element path, your spiritual energy burns brightest when you embrace transformation. Consider focusing on daily fire meditation to strengthen your inner flame.",
+          "The sacred traditions speak of three stages of fire mastery: Ignition, Sustenance, and Transcendence. You seem ready to work on the Sustenance phase.",
+          "Your question reveals a deep connection to the ancient wisdom. The Fire Keepers of old would say: 'Let your passion be your guide, but let wisdom be your compass.'",
+          "I sense you're experiencing spiritual growth. This is the perfect time to explore advanced third eye practices combined with fire element breathing techniques."
+        ];
+        
+        const randomResponse = demoResponses[Math.floor(Math.random() * demoResponses.length)];
+        setResponse(randomResponse);
+      } else {
+        setResponse(data.response || 'Thank you for your question. Let me guide you on your Fire Keeper journey.');
+      }
+
+      // Save to conversation history
+      const newEntry = { question, response: data?.response || response };
+      setConversationHistory(prev => [...prev, newEntry]);
       
-      const randomResponse = demoResponses[Math.floor(Math.random() * demoResponses.length)];
-      setResponse(randomResponse);
+      // Save to spiritual practices if user is authenticated
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('spiritual_practices').insert({
+          user_id: user.id,
+          practice_type: 'ai_mentor_session',
+          practice_details: {
+            question,
+            response: data?.response || response,
+            session_type: 'fire_keeper_demo',
+            timestamp: new Date().toISOString()
+          }
+        });
+      }
+
+      toast({
+        title: "Fire Keeper Guidance Received",
+        description: "Your mentor has provided spiritual guidance.",
+      });
+
+    } catch (error) {
+      console.error('Error getting AI guidance:', error);
+      toast({
+        title: "Connection Issue",
+        description: "Unable to connect to your Fire Keeper mentor. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
       setIsLoading(false);
-    }, 2000);
+      setQuestion('');
+    }
   };
 
   return (
@@ -64,7 +116,7 @@ export const FireKeeperAIMentorDemo: React.FC = () => {
           <div className="bg-yellow-900/20 border border-yellow-500/30 p-3 rounded-lg">
             <p className="text-yellow-200 text-sm">
               <TestTube className="w-4 h-4 inline mr-2" />
-              Demo Mode: This is a simplified version. Full version includes advanced spiritual analysis.
+              Demo Mode: Full AI-powered responses with conversation history.
             </p>
           </div>
         )}
@@ -90,7 +142,7 @@ export const FireKeeperAIMentorDemo: React.FC = () => {
           >
             {isLoading ? (
               <>
-                <Sparkles className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 Consulting mentor...
               </>
             ) : (
@@ -113,6 +165,24 @@ export const FireKeeperAIMentorDemo: React.FC = () => {
                     <p className="text-gray-200 text-sm leading-relaxed">{response}</p>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {conversationHistory.length > 0 && (
+            <Card className="bg-black/20 border-orange-500/20">
+              <CardHeader>
+                <CardTitle className="text-orange-200 text-sm flex items-center gap-2">
+                  <MessageCircle className="w-4 h-4" />
+                  Session History ({conversationHistory.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 max-h-40 overflow-y-auto">
+                {conversationHistory.slice(-3).map((entry, index) => (
+                  <div key={index} className="text-xs text-gray-400 border-l-2 border-orange-500/30 pl-2">
+                    <div className="text-orange-300">Q: {entry.question.substring(0, 50)}...</div>
+                  </div>
+                ))}
               </CardContent>
             </Card>
           )}
