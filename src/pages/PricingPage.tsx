@@ -6,6 +6,7 @@ import { Check, Crown, Zap, Sparkles, Gift, Mountain, Waves, Flame, Wind, Loader
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
+import { WISDOM_TIERS } from '@/types/subscription';
 
 const PricingPage = () => {
   const { createCheckout, subscriptionTier, subscribed, loading } = useSubscription();
@@ -27,86 +28,25 @@ const PricingPage = () => {
     }
   }, [toast]);
 
-  const wisdomTiers = [
-    {
-      id: 'earth',
-      name: 'Earth Keeper',
-      element: 'Earth',
-      price: 19,
-      description: 'Ground yourself in fundamental spiritual practices',
-      icon: <Mountain className="w-6 h-6" />,
-      features: [
-        'Basic meditation library',
-        'Dream journal with AI analysis',
-        'Mood tracking and insights',
-        'Cultural adaptation (open traditions)',
-        'Community discussions',
-        'Monthly group rituals'
-      ],
-      color: 'from-green-500 to-emerald-500',
-      comingSoon: false,
-    },
-    {
-      id: 'water',
-      name: 'Water Bearer',
-      element: 'Water',
-      price: 29,
-      description: 'Flow deeper into cultural wisdom and healing practices',
-      icon: <Waves className="w-6 h-6" />,
-      features: [
-        'All Earth Keeper features',
-        'Advanced archetype profiling',
-        'Cultural wisdom (initiated traditions)',
-        'Personalized ritual generator',
-        'Sacred pod communities (7 members)',
-        'Biometric meditation adaptation',
-        'AI shadow work guidance'
-      ],
-      color: 'from-blue-500 to-cyan-500',
-      popular: true,
-      comingSoon: false,
-    },
-    {
-      id: 'fire',
-      name: 'Fire Keeper',
-      element: 'Fire',
-      price: 49,
-      description: 'Ignite your spiritual power with AI mentorship',
-      icon: <Flame className="w-6 h-6" />,
-      features: [
-        'All Water Bearer features',
-        'Weekly 1:1 AI mentor sessions',
-        'Sacred tradition access (limited)',
-        'Ancient library (curated selections)',
-        'Council community access',
-        'Lucid dreaming protocols',
-        'Advanced third eye practices',
-        'Neuro-spiritual integration'
-      ],
-      color: 'from-red-500 to-orange-500',
-      comingSoon: false,
-    },
-    {
-      id: 'ether',
-      name: 'Ether Walker',
-      element: 'Ether',
-      price: 59,
-      description: 'Master the ancient mysteries with unlimited AI guidance',
-      icon: <Wind className="w-6 h-6" />,
-      features: [
-        'All Fire Keeper features',
-        'Unlimited AI mentor access',
-        'Full ancient mystery library',
-        'Mystery school initiation paths',
-        'Elder council participation',
-        'Co-create new spiritual technologies',
-        'Quantum consciousness experiments',
-        'Morphic field research access'
-      ],
-      color: 'from-purple-500 to-indigo-500',
-      comingSoon: false,
-    },
-  ];
+  const getElementIcon = (element: string) => {
+    switch (element) {
+      case 'earth': return <Mountain className="w-6 h-6" />;
+      case 'water': return <Waves className="w-6 h-6" />;
+      case 'fire': return <Flame className="w-6 h-6" />;
+      case 'ether': return <Wind className="w-6 h-6" />;
+      default: return <Mountain className="w-6 h-6" />;
+    }
+  };
+
+  const getElementGradient = (element: string) => {
+    switch (element) {
+      case 'earth': return 'from-green-500 to-emerald-500';
+      case 'water': return 'from-blue-500 to-cyan-500';
+      case 'fire': return 'from-red-500 to-orange-500';
+      case 'ether': return 'from-purple-500 to-indigo-500';
+      default: return 'from-green-500 to-emerald-500';
+    }
+  };
 
   const handleSubscribe = async (tierId: string) => {
     console.log('Subscribe button clicked for tier:', tierId);
@@ -170,27 +110,28 @@ const PricingPage = () => {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-          {wisdomTiers.map((tier) => {
+          {WISDOM_TIERS.map((tier) => {
             const isCurrentTier = subscribed && subscriptionTier === tier.id;
             const isUpgrade = subscribed && subscriptionTier !== tier.id;
             const isProcessing = processingTier === tier.id;
+            const isPopular = tier.id === 'water'; // Water Bearer is most popular
             
             return (
               <Card
                 key={tier.id}
                 className={`relative overflow-hidden bg-gray-800/90 border-gray-600 ${
-                  tier.popular ? 'border-2 border-yellow-400 scale-105' : ''
+                  isPopular ? 'border-2 border-yellow-400 scale-105' : ''
                 } ${isCurrentTier ? 'ring-2 ring-green-400' : ''}`}
               >
-                {tier.popular && (
+                {isPopular && (
                   <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-yellow-400 to-orange-400 text-black text-center py-2 text-sm font-semibold">
                     Most Popular
                   </div>
                 )}
                 
-                <CardHeader className={`bg-gradient-to-r ${tier.color} text-white ${tier.popular ? 'pt-12' : ''}`}>
+                <CardHeader className={`bg-gradient-to-r ${getElementGradient(tier.element)} text-white ${isPopular ? 'pt-12' : ''}`}>
                   <div className="flex items-center justify-center mb-4">
-                    {tier.icon}
+                    {getElementIcon(tier.element)}
                   </div>
                   <CardTitle className="text-xl text-center text-white">{tier.name}</CardTitle>
                   <div className="text-center text-sm opacity-90 mb-2 text-white">{tier.element} Element</div>
@@ -198,7 +139,7 @@ const PricingPage = () => {
                     {tier.description}
                   </CardDescription>
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-white">${tier.price}</div>
+                    <div className="text-3xl font-bold text-white">${tier.monthlyPrice}</div>
                     <div className="text-sm opacity-80 text-white">/month</div>
                   </div>
                 </CardHeader>
@@ -224,7 +165,7 @@ const PricingPage = () => {
                     className={`w-full ${
                       isCurrentTier
                         ? 'bg-green-600 hover:bg-green-700'
-                        : `bg-gradient-to-r ${tier.color} hover:opacity-90`
+                        : `bg-gradient-to-r ${getElementGradient(tier.element)} hover:opacity-90`
                     } ${(isProcessing || loading) ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {isProcessing ? (
