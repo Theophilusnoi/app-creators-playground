@@ -52,6 +52,19 @@ export const TestModeManager: React.FC = () => {
     const { data: { user } } = await supabase.auth.getUser();
     setFunctionalityStatus(prev => ({ ...prev, auth: !!user }));
 
+    // Check Stripe functionality by testing the test-checkout function
+    try {
+      const { data, error } = await supabase.functions.invoke('test-checkout', {
+        body: { tier: 'test' }
+      });
+      
+      // If we get a response without an error, Stripe is working
+      setFunctionalityStatus(prev => ({ ...prev, stripe: !error && data?.status === 'success' }));
+    } catch (error) {
+      console.error('Stripe test error:', error);
+      setFunctionalityStatus(prev => ({ ...prev, stripe: false }));
+    }
+
     // Check Gemini AI
     try {
       const { data, error } = await supabase.functions.invoke('gemini-chat', {
