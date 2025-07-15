@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 
 export const TestModeManager: React.FC = () => {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const { createCheckout, loading } = useSubscription();
   const { toast } = useToast();
   const [testMode, setTestMode] = useState(true);
@@ -37,41 +37,62 @@ export const TestModeManager: React.FC = () => {
 
   useEffect(() => {
     checkFunctionality();
-  }, []);
+  }, [user, session]);
 
   const checkFunctionality = async () => {
+    console.log('Checking functionality...', { user: !!user, session: !!session });
+    
+    // Check auth status - use both user and session for more accurate check
+    const isAuthenticated = !!(user && session);
+    setFunctionalityStatus(prev => ({ ...prev, auth: isAuthenticated }));
+    console.log('Auth status:', isAuthenticated);
+
     // Check Supabase connection
     try {
       const { data, error } = await supabase.from('subscribers').select('count').limit(1);
-      setFunctionalityStatus(prev => ({ ...prev, supabase: !error }));
+      const supabaseWorking = !error;
+      setFunctionalityStatus(prev => ({ ...prev, supabase: supabaseWorking }));
+      console.log('Supabase status:', supabaseWorking, error);
     } catch (error) {
+      console.log('Supabase error:', error);
       setFunctionalityStatus(prev => ({ ...prev, supabase: false }));
     }
 
-    // Check auth status
-    const { data: { user } } = await supabase.auth.getUser();
-    setFunctionalityStatus(prev => ({ ...prev, auth: !!user }));
-
     // Check Stripe functionality by testing the test-checkout function
-    try {
-      const { data, error } = await supabase.functions.invoke('test-checkout', {
-        body: { tier: 'test' }
-      });
-      
-      // If we get a response without an error, Stripe is working
-      setFunctionalityStatus(prev => ({ ...prev, stripe: !error && data?.status === 'success' }));
-    } catch (error) {
-      console.error('Stripe test error:', error);
+    if (isAuthenticated) {
+      try {
+        const { data, error } = await supabase.functions.invoke('test-checkout', {
+          body: { tier: 'test' }
+        });
+        
+        console.log('Stripe test response:', { data, error });
+        // If we get a response without an error, Stripe is working
+        const stripeWorking = !error && data?.status === 'success';
+        setFunctionalityStatus(prev => ({ ...prev, stripe: stripeWorking }));
+      } catch (error) {
+        console.error('Stripe test error:', error);
+        setFunctionalityStatus(prev => ({ ...prev, stripe: false }));
+      }
+    } else {
+      // Can't test Stripe without authentication
       setFunctionalityStatus(prev => ({ ...prev, stripe: false }));
     }
 
     // Check Gemini AI
-    try {
-      const { data, error } = await supabase.functions.invoke('gemini-chat', {
-        body: { message: 'test', context: 'test' }
-      });
-      setFunctionalityStatus(prev => ({ ...prev, geminiAI: !error }));
-    } catch (error) {
+    if (isAuthenticated) {
+      try {
+        const { data, error } = await supabase.functions.invoke('gemini-chat', {
+          body: { message: 'test', context: 'test' }
+        });
+        const geminiWorking = !error;
+        setFunctionalityStatus(prev => ({ ...prev, geminiAI: geminiWorking }));
+        console.log('Gemini status:', geminiWorking, error);
+      } catch (error) {
+        console.log('Gemini error:', error);
+        setFunctionalityStatus(prev => ({ ...prev, geminiAI: false }));
+      }
+    } else {
+      // Can't test Gemini without authentication
       setFunctionalityStatus(prev => ({ ...prev, geminiAI: false }));
     }
 
@@ -106,51 +127,6 @@ export const TestModeManager: React.FC = () => {
     { number: '4000 0000 0000 0002', description: 'Visa - Declined' },
     { number: '4000 0000 0000 9995', description: 'Visa - Insufficient funds' },
     { number: '5555 5555 5555 4444', description: 'Mastercard - Success' }
-  ];
-
-  const fireKeeperFeatures = [
-    {
-      id: 'ai-mentor',
-      name: 'Weekly 1:1 AI Mentor Sessions',
-      icon: <Sparkles className="w-5 h-5" />,
-      description: 'Personalized spiritual guidance sessions',
-      demoAvailable: true
-    },
-    {
-      id: 'sacred-traditions',
-      name: 'Sacred Tradition Access (Limited)',
-      icon: <Book className="w-5 h-5" />,
-      description: 'Curated ancient wisdom practices',
-      demoAvailable: true
-    },
-    {
-      id: 'ancient-library',
-      name: 'Ancient Library (Curated Selections)',
-      icon: <Book className="w-5 h-5" />,
-      description: 'Access to sacred texts and teachings',
-      demoAvailable: true
-    },
-    {
-      id: 'council-community',
-      name: 'Council Community Access',
-      icon: <Users className="w-5 h-5" />,
-      description: 'Join advanced practitioner communities',
-      demoAvailable: false
-    },
-    {
-      id: 'lucid-dreaming',
-      name: 'Lucid Dreaming Protocols',
-      icon: <Moon className="w-5 h-5" />,
-      description: 'Advanced dream consciousness techniques',
-      demoAvailable: true
-    },
-    {
-      id: 'third-eye',
-      name: 'Advanced Third Eye Practices',
-      icon: <Eye className="w-5 h-5" />,
-      description: 'Enhanced psychic development exercises',
-      demoAvailable: true
-    }
   ];
 
   const enableDemoMode = () => {
@@ -199,6 +175,27 @@ export const TestModeManager: React.FC = () => {
           ))}
         </CardContent>
       </Card>
+
+      {/* Authentication Notice */}
+      {!user && (
+        <Card className="border-yellow-500/30 bg-gradient-to-r from-yellow-900/20 to-orange-900/20">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3 mb-3">
+              <X className="w-5 h-5 text-yellow-400" />
+              <h3 className="text-white font-semibold">Authentication Required</h3>
+            </div>
+            <p className="text-yellow-200 text-sm mb-4">
+              You need to be logged in to test Stripe and Gemini AI functionality. Some features will show as offline until you authenticate.
+            </p>
+            <Button 
+              onClick={() => window.location.href = '/auth'} 
+              className="bg-yellow-600 hover:bg-yellow-700"
+            >
+              Go to Login Page
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Test Mode Configuration */}
       <Card className="border-orange-500/30 bg-gradient-to-r from-orange-900/20 to-red-900/20">
@@ -387,6 +384,15 @@ export const TestModeManager: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
+          <div>
+            <h4 className="text-blue-200 font-semibold">For Authentication:</h4>
+            <ul className="text-gray-300 ml-4 space-y-1">
+              <li>• You must be logged in to test most features</li>
+              <li>• Stripe and Gemini AI require authentication</li>
+              <li>• Visit the login page to authenticate</li>
+            </ul>
+          </div>
+          
           <div>
             <h4 className="text-blue-200 font-semibold">For Functional Testing:</h4>
             <ul className="text-gray-300 ml-4 space-y-1">
