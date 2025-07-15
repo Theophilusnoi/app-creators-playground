@@ -18,6 +18,13 @@ interface FireKeeperProgress {
   recentSessions: FireKeeperSession[];
 }
 
+interface PracticeDetails {
+  session_type?: string;
+  duration?: number;
+  level?: string;
+  timestamp?: string;
+}
+
 export const useFireKeeperData = () => {
   const { user } = useAuth();
   const [progress, setProgress] = useState<FireKeeperProgress>({
@@ -60,14 +67,17 @@ export const useFireKeeperData = () => {
       // Calculate third eye level (0-100)
       const thirdEyeLevel = Math.min(totalSessions * 8, 100);
       
-      // Format recent sessions
-      const recentSessions = sessions.slice(0, 5).map(session => ({
-        id: session.id,
-        session_type: session.practice_details?.session_type || 'Unknown',
-        duration: session.practice_details?.duration || 20,
-        timestamp: session.created_at || '',
-        level: session.practice_details?.level || 'beginner'
-      }));
+      // Format recent sessions with proper type checking
+      const recentSessions = sessions.slice(0, 5).map(session => {
+        const details = session.practice_details as PracticeDetails | null;
+        return {
+          id: session.id,
+          session_type: details?.session_type || 'Unknown',
+          duration: details?.duration || 20,
+          timestamp: session.created_at || '',
+          level: details?.level || 'beginner'
+        };
+      });
 
       setProgress({
         totalSessions,
