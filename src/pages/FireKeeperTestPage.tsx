@@ -98,7 +98,7 @@ const FireKeeperTestPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-900 via-red-900 to-purple-900 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 py-8">
       <div className="container mx-auto px-4 space-y-8">
         {/* Header */}
         <div className="text-center mb-8">

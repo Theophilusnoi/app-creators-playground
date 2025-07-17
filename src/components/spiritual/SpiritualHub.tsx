@@ -62,9 +62,6 @@ export const SpiritualHub: React.FC = () => {
         {/* Enhanced Navigation Header */}
         <SpiritualNavigation onQuickAction={setActiveTab} />
 
-        {/* Temple Builder's Path Header */}
-        <SpiritualHeader />
-
         {/* Enhanced Main Tabs */}
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           {/* Tab Navigation */}

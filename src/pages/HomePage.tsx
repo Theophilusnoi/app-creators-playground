@@ -72,21 +72,6 @@ const HomePage = () => {
             </CardContent>
           </Card>
         </div>
-
-        {/* Navigation */}
-        <div className="text-center">
-          <div className="flex flex-wrap justify-center gap-4">
-            <Button asChild variant="ghost" className="text-purple-200">
-              <Link to="/about">About</Link>
-            </Button>
-            <Button asChild variant="ghost" className="text-purple-200">
-              <Link to="/contact">Contact</Link>
-            </Button>
-            <Button asChild variant="ghost" className="text-purple-200">
-              <Link to="/fire-keeper-test">Test Fire Keeper</Link>
-            </Button>
-          </div>
-        </div>
       </div>
     </div>
   );
